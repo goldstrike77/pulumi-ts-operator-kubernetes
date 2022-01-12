@@ -1,5 +1,6 @@
 ##### Before You Begin
 [Install Pulumi](https://www.pulumi.com/docs/get-started/install)
+
 [Install TypeScript Language Runtime](https://github.com/nodesource/distributions/blob/master/README.md)
 
 ##### Stack name
