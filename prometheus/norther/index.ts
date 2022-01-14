@@ -5,7 +5,7 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "metrics-server",
+                name: "monitoring",
                 annotations: {},
                 labels: {}
             },
@@ -13,11 +13,25 @@ const deploy_spec = [
         },
         helm: [
             {
-                namespace: "metrics-server",
-                chart: "metrics-server",
-                repository: "https://kubernetes-sigs.github.io/metrics-server",
-                version: "3.7.0",
-                values: "./metrics-server.yaml"
+                namespace: "monitoring",
+                chart: "thanos",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "8.3.0",
+                values: "./thanos.yaml"
+            },
+            {
+                namespace: "monitoring",
+                chart: "kube-state-metrics",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "4.4.0",
+                values: "./kube-state-metrics.yaml"
+            },
+            {
+                namespace: "monitoring",
+                chart: "kube-prometheus-stack",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "30.0.1",
+                values: "./kube-prometheus-stack.yaml"
             }
         ]
     }

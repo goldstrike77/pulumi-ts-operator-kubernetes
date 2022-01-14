@@ -63,15 +63,16 @@ for (var i in deploy_spec) {
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
         const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].chart, {
+            name: deploy_spec[i].helm[helm_index].chart,
+            namespace: deploy_spec[i].helm[helm_index].namespace,
             chart: deploy_spec[i].helm[helm_index].chart,
             repositoryOpts: {
                 repo: deploy_spec[i].helm[helm_index].repository,
             },
             version: deploy_spec[i].helm[helm_index].version,
-            namespace: deploy_spec[i].helm[helm_index].namespace,
             valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
             skipAwait: true,
-        });
+        }, { dependsOn: [namespace] });
     }
     // Create Custom Resource.
     for (var custom_index in deploy_spec[i].customresource) {
@@ -80,6 +81,6 @@ for (var i in deploy_spec) {
             kind: deploy_spec[i].customresource[custom_index].kind,
             metadata: deploy_spec[i].customresource[custom_index].metadata,
             others: deploy_spec[i].customresource[custom_index].others
-        });
+        }, { dependsOn: [namespace] });
     }
 }

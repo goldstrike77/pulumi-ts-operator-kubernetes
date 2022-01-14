@@ -114,7 +114,7 @@ persistence:
     name: null
   defaultClass: true
   defaultClassReplicaCount: 3
-  defaultFsType: xfs
+  defaultFsType: ext4
   reclaimPolicy: Delete
   recurringJobSelector:
     enable: false
