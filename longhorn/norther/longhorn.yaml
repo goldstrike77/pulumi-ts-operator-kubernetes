@@ -38,7 +38,7 @@ defaultSettings:
   replicaZoneSoftAntiAffinity: null
   storageMinimalAvailablePercentage: null
   storageOverProvisioningPercentage: null
-  systemManagedComponentsNodeSelector: "longhorn/node:true"
+  systemManagedComponentsNodeSelector: ""
   systemManagedPodsImagePullPolicy: null
   taintToleration: null
   upgradeChecker: null
@@ -85,10 +85,19 @@ image:
   pullPolicy: IfNotPresent
   defaultImage: true
 ingress:
-  annotations: null
-  enabled: false
-  host: xip.io
-  ingressClassName: null
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required '
+    # Custom max body size for file uploading like backing image uploading.
+    nginx.ingress.kubernetes.io/proxy-body-size: 10000m
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/longhorn)$ $1/ redirect;
+  enabled: true
+  host: norther.example.com
+  path: /longhorn(/|$)(.*)
+  ingressClassName: nginx
   secrets: null
   tls: false
   tlsSecret: longhorn.local-tls

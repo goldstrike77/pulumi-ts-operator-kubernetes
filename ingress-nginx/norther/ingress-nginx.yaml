@@ -15,8 +15,8 @@ controller:
     # for backwards compatibility consider setting the full image url via the repository value below
     # use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
     # repository:
-    tag: "v1.1.0"
-    digest: sha256:f766669fdcf3dc26347ed273a55e754b427eb4411ee075a53f30718b4499076a
+    tag: "v1.1.1"
+    digest: sha256:e16123f3932f44a2bba8bc3cf1c109cea4495ee271d6d16ab99228b58766d3ab
     pullPolicy: IfNotPresent
     # www-data -> uid 101
     runAsUser: 101
@@ -36,17 +36,25 @@ controller:
   # Will add custom configuration options to Nginx https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
   config:
     compute-full-forwarded-for: "true"
+    enable-brotli: "true"
+    enable-modsecurity: "false"
+    enable-owasp-modsecurity-crs: "false"
     force-ssl-redirect: "true"
     forwarded-for-header: X-Forwarded-For
+    keep-alive: "60"
     keep-alive-requests: "2048"
     max-worker-connections: 20480
     real_ip_header: X-Forwarded-For
-    ssl_protocols: "TLSv1.2 TLSv1.3"
     ssl_ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384"
-    upstream-keepalive-connections: "1024"
-    use-forwarded-headers: "true"
+    ssl_protocols: "TLSv1.2 TLSv1.3"
+    upstream-keepalive-connections: "8192"
+    upstream-keepalive-requests: "256"
+    upstream-keepalive-timeout: "60"
     use-geoip: "false"
     use-gzip: "false"
+    use-http2: "true"
+    worker-cpu-affinity: "auto"
+    worker-processes: "1"
     # log-format-escape-json: "true"
     # log-format-upstream: '{"bodyBytesSent":$body_bytes_sent,"host":"$host","ingressName":"$ingress_name","namespace":"$namespace","protocol":"$server_protocol","proxyAlternativeUpstreamName":"$proxy_alternative_upstream_name","proxyUpstreamName":"$proxy_upstream_name","referer":"$http_referer","remoteIp":"$remote_addr","requestID":"$req_id","requestMethod":"$request_method","requestSize":"$request_length","requestTime":$request_time,"requestUrl":"$request_uri","serviceName":"$service_name","servicePort":"$service_port","status":$status,"timestamp":"$time_iso8601","upstreamAddr":"$upstream_addr","upstreamResponseSize":"$upstream_response_length","upstreamResponseTime":"$upstream_response_time","upstreamStatus":"$upstream_status","userAgent":"$http_user_agent"}'
 
@@ -126,7 +134,13 @@ controller:
     parameters: {}
 
   # labels to add to the pod container metadata
-  podLabels: {}
+  podLabels:
+    customer: "demo"
+    environment: "dev"
+    project: "cluster"
+    group: "norther"
+    datacenter: "dc01"
+    domain: "local"
   #  key: value
 
   ## Security Context policies for controller pods
@@ -210,9 +224,6 @@ controller:
   ## Labels to be added to the controller Deployment or DaemonSet and other resources that do not have option to specify labels
   ##
   labels: {}
-  #  keel.sh/policy: patch
-  #  keel.sh/trigger: poll
-
 
   # The update strategy to apply to the Deployment or DaemonSet
   ##
@@ -322,7 +333,7 @@ controller:
       scheme: HTTP
     initialDelaySeconds: 10
     periodSeconds: 10
-    timeoutSeconds: 1
+    timeoutSeconds: 3
     successThreshold: 1
     failureThreshold: 5
   readinessProbe:
@@ -333,7 +344,7 @@ controller:
       scheme: HTTP
     initialDelaySeconds: 10
     periodSeconds: 10
-    timeoutSeconds: 1
+    timeoutSeconds: 3
     successThreshold: 1
     failureThreshold: 3
 
@@ -360,11 +371,11 @@ controller:
   # https://engineering.indeedblog.com/blog/2019/12/cpu-throttling-regression-fix/
   resources:
     limits:
-      cpu: 100m
-      memory: 90Mi
+      cpu: 1000m
+      memory: 1024Mi
     requests:
-      cpu: 100m
-      memory: 90Mi
+      cpu: 1000m
+      memory: 1024Mi
 
   # Mutually exclusive with keda autoscaling
   autoscaling:
@@ -468,7 +479,7 @@ controller:
     ##
     externalIPs: []
 
-    loadBalancerIP: "10.101.4.43"
+    loadBalancerIP: "10.101.4.41"
     loadBalancerSourceRanges: []
 
     enableHttp: true
@@ -480,7 +491,7 @@ controller:
 
     ## Must be either "None" or "ClientIP" if set. Kubernetes will default to "None".
     ## Ref: https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies
-    sessionAffinity: "ClientIP"
+    sessionAffinity: "None"
 
     ## Specifies the health check node port (numeric port number) for the service. If healthCheckNodePort isn’t specified,
     ## the service controller allocates a port from your cluster’s NodePort range.
@@ -671,7 +682,7 @@ controller:
 
     serviceMonitor:
       enabled: true
-      additionalLabels: {}
+      additionalLabels: {}    
       # The label to use to retrieve the job name from.
       # jobLabel: "app.kubernetes.io/name"
       namespace: ""
@@ -683,47 +694,58 @@ controller:
       scrapeInterval: 60s
       # honorLabels: true
       targetLabels: []
-      relabelings: []
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_customer]
+          targetLabel: customer
+        - sourceLabels: [__meta_kubernetes_pod_label_environment]
+          targetLabel: environment
+        - sourceLabels: [__meta_kubernetes_pod_label_project]
+          targetLabel: project
+        - sourceLabels: [__meta_kubernetes_pod_label_group]
+          targetLabel: group
+        - sourceLabels: [__meta_kubernetes_pod_label_datacenter]
+          targetLabel: datacenter
+        - sourceLabels: [__meta_kubernetes_pod_label_domain]
+          targetLabel: domain
       metricRelabelings: []
 
     prometheusRule:
-      enabled: false
+      enabled: true
       additionalLabels: {}
       # namespace: ""
-      rules: []
-        # # These are just examples rules, please adapt them to your needs
-        # - alert: NGINXConfigFailed
-        #   expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
-        #   for: 1s
-        #   labels:
-        #     severity: critical
-        #   annotations:
-        #     description: bad ingress config - nginx config test failed
-        #     summary: uninstall the latest ingress changes to allow config reloads to resume
-        # - alert: NGINXCertificateExpiry
-        #   expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds) by (host) - time()) < 604800
-        #   for: 1s
-        #   labels:
-        #     severity: critical
-        #   annotations:
-        #     description: ssl certificate(s) will expire in less then a week
-        #     summary: renew expiring certificates to avoid downtime
-        # - alert: NGINXTooMany500s
-        #   expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
-        #   for: 1m
-        #   labels:
-        #     severity: warning
-        #   annotations:
-        #     description: Too many 5XXs
-        #     summary: More than 5% of all requests returned 5XX, this requires your attention
-        # - alert: NGINXTooMany400s
-        #   expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
-        #   for: 1m
-        #   labels:
-        #     severity: warning
-        #   annotations:
-        #     description: Too many 4XXs
-        #     summary: More than 5% of all requests returned 4XX, this requires your attention
+      rules:
+        - alert: NGINXConfigFailed
+          expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            description: bad ingress config - nginx config test failed
+            summary: uninstall the latest ingress changes to allow config reloads to resume
+        - alert: NGINXCertificateExpiry
+          expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds) by (host) - time()) < 604800
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            description: ssl certificate(s) will expire in less then a week
+            summary: renew expiring certificates to avoid downtime
+        - alert: NGINXTooMany500s
+          expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            description: Too many 5XXs
+            summary: More than 5% of all requests returned 5XX, this requires your attention
+        - alert: NGINXTooMany400s
+          expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            description: Too many 4XXs
+            summary: More than 5% of all requests returned 4XX, this requires your attention
 
   ## Improve connection draining when ingress controller pod is deleted using a lifecycle hook:
   ## With this new hook, we increased the default terminationGracePeriodSeconds from 30 seconds
@@ -787,13 +809,13 @@ defaultBackend:
     initialDelaySeconds: 30
     periodSeconds: 10
     successThreshold: 1
-    timeoutSeconds: 5
+    timeoutSeconds: 3
   readinessProbe:
     failureThreshold: 6
     initialDelaySeconds: 0
     periodSeconds: 5
     successThreshold: 1
-    timeoutSeconds: 5
+    timeoutSeconds: 3
 
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
@@ -832,17 +854,17 @@ defaultBackend:
   ##
   podAnnotations: {}
 
-  replicaCount: 1
+  replicaCount: 2
 
   minAvailable: 1
 
   resources:
     limits:
-      cpu: 10m
-      memory: 20Mi
+      cpu: 100m
+      memory: 100Mi
     requests:
-      cpu: 10m
-      memory: 20Mi
+      cpu: 100m
+      memory: 100Mi
 
   extraVolumeMounts: []
   ## Additional volumeMounts to the default backend container.

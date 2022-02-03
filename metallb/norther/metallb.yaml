@@ -24,7 +24,13 @@ nameOverride: ""
 fullnameOverride: ""
 ## @param commonLabels Add labels to all the deployed resources
 ##
-commonLabels: {}
+commonLabels:
+  customer: "demo"
+  environment: "dev"
+  project: "cluster"
+  group: "norther"
+  datacenter: "dc01"
+  domain: "local"
 ## @param commonAnnotations Add annotations to all the deployed resources
 ##
 commonAnnotations: {}
@@ -67,7 +73,7 @@ configInline:
     # will all share the same settings. Each range can be either a
     # CIDR prefix, or an explicit start-end range of IPs.
     addresses:
-    - 10.101.4.43-10.101.4.44
+    - 10.101.4.41-10.101.4.42
 
 ## RBAC creation for controller and speaker
 ##
@@ -115,7 +121,7 @@ controller:
   image:
     registry: docker.io
     repository: bitnami/metallb-controller
-    tag: 0.11.0-debian-10-r45
+    tag: 0.11.0-debian-10-r73
     ## Specify a imagePullPolicy
     ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -293,7 +299,7 @@ controller:
     serviceMonitor:
       ## @param controller.prometheus.serviceMonitor.enabled Specify if a servicemonitor will be deployed for prometheus-operator
       ##
-      enabled: false
+      enabled: true
       ## @param controller.prometheus.serviceMonitor.jobLabel Specify the jobLabel to use for the prometheus-operator
       ##
       jobLabel: "app.kubernetes.io/name"
@@ -305,7 +311,19 @@ controller:
       metricRelabelings: []
       ## @param controller.prometheus.serviceMonitor.relabelings Specify general relabeling
       ##
-      relabelings: []
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_endpoints_label_customer]
+          targetLabel: customer
+        - sourceLabels: [__meta_kubernetes_endpoints_label_environment]
+          targetLabel: environment
+        - sourceLabels: [__meta_kubernetes_endpoints_label_project]
+          targetLabel: project
+        - sourceLabels: [__meta_kubernetes_endpoints_label_group]
+          targetLabel: group
+        - sourceLabels: [__meta_kubernetes_endpoints_label_datacenter]
+          targetLabel: datacenter
+        - sourceLabels: [__meta_kubernetes_endpoints_label_domain]
+          targetLabel: domain
 
 ## @section Speaker parameters
 
@@ -322,7 +340,7 @@ speaker:
   image:
     registry: docker.io
     repository: bitnami/metallb-speaker
-    tag: 0.11.0-debian-10-r45
+    tag: 0.11.0-debian-10-r74
     ## Specify a imagePullPolicy
     ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -495,7 +513,7 @@ speaker:
     serviceMonitor:
       ## @param speaker.prometheus.serviceMonitor.enabled Enable support for Prometheus Operator
       ##
-      enabled: false
+      enabled: true
       ## @param speaker.prometheus.serviceMonitor.jobLabel Job label for scrape target
       ##
       jobLabel: "app.kubernetes.io/name"
@@ -507,4 +525,16 @@ speaker:
       metricRelabelings: []
       ## @param speaker.prometheus.serviceMonitor.relabelings Specify general relabeling
       ##
-      relabelings: []
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_endpoints_label_customer]
+          targetLabel: customer
+        - sourceLabels: [__meta_kubernetes_endpoints_label_environment]
+          targetLabel: environment
+        - sourceLabels: [__meta_kubernetes_endpoints_label_project]
+          targetLabel: project
+        - sourceLabels: [__meta_kubernetes_endpoints_label_group]
+          targetLabel: group
+        - sourceLabels: [__meta_kubernetes_endpoints_label_datacenter]
+          targetLabel: datacenter
+        - sourceLabels: [__meta_kubernetes_endpoints_label_domain]
+          targetLabel: domain

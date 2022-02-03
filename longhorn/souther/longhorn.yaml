@@ -1,0 +1,154 @@
+annotations: {}
+csi:
+  attacherReplicaCount: null
+  kubeletRootDir: null
+  provisionerReplicaCount: null
+  resizerReplicaCount: null
+  snapshotterReplicaCount: null
+defaultSettings:
+  allowNodeDrainWithLastHealthyReplica: null
+  allowRecurringJobWhileVolumeDetached: null
+  allowVolumeCreationWithDegradedAvailability: null
+  autoCleanupSystemGeneratedSnapshot: null
+  autoDeletePodWhenVolumeDetachedUnexpectedly: null
+  autoSalvage: null
+  backingImageCleanupWaitInterval: null
+  backingImageRecoveryWaitInterval: null
+  backupTarget: null
+  backupTargetCredentialSecret: null
+  backupstorePollInterval: null
+  concurrentAutomaticEngineUpgradePerNodeLimit: null
+  concurrentReplicaRebuildPerNodeLimit: null
+  createDefaultDiskLabeledNodes: false
+  defaultDataLocality: null
+  defaultDataPath: /data/longhorn
+  defaultLonghornStaticStorageClass: null
+  defaultReplicaCount: null
+  disableReplicaRebuild: null
+  disableRevisionCounter: null
+  disableSchedulingOnCordonedNode: null
+  guaranteedEngineManagerCPU: null
+  guaranteedReplicaManagerCPU: null
+  mkfsExt4Parameters: null
+  nodeDownPodDeletionPolicy: null
+  priorityClass: null
+  replicaAutoBalance: best-effort
+  replicaReplenishmentWaitInterval: null
+  replicaSoftAntiAffinity: null
+  replicaZoneSoftAntiAffinity: null
+  storageMinimalAvailablePercentage: null
+  storageOverProvisioningPercentage: null
+  systemManagedComponentsNodeSelector: "longhorn/node:true"
+  systemManagedPodsImagePullPolicy: null
+  taintToleration: null
+  upgradeChecker: null
+enablePSP: true
+global:
+  cattle:
+    systemDefaultRegistry: 'registry.cn-hangzhou.aliyuncs.com'
+image:
+  csi:
+    attacher:
+      repository: rancher/mirrored-longhornio-csi-attacher
+      tag: v3.2.1
+    nodeDriverRegistrar:
+      repository: rancher/mirrored-longhornio-csi-node-driver-registrar
+      tag: v2.3.0
+    provisioner:
+      repository: rancher/mirrored-longhornio-csi-provisioner
+      tag: v2.1.2
+    resizer:
+      repository: rancher/mirrored-longhornio-csi-resizer
+      tag: v1.2.0
+    snapshotter:
+      repository: rancher/mirrored-longhornio-csi-snapshotter
+      tag: v3.0.3
+  longhorn:
+    backingImageManager:
+      repository: rancher/mirrored-longhornio-backing-image-manager
+      tag: v2_20210820
+    engine:
+      repository: rancher/mirrored-longhornio-longhorn-engine
+      tag: v1.2.3
+    instanceManager:
+      repository: rancher/mirrored-longhornio-longhorn-instance-manager
+      tag: v1_20211210
+    manager:
+      repository: rancher/mirrored-longhornio-longhorn-manager
+      tag: v1.2.3
+    shareManager:
+      repository: rancher/mirrored-longhornio-longhorn-share-manager
+      tag: v1_20211020
+    ui:
+      repository: rancher/mirrored-longhornio-longhorn-ui
+      tag: v1.2.3
+  pullPolicy: IfNotPresent
+  defaultImage: true
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required '
+    # Custom max body size for file uploading like backing image uploading.
+    nginx.ingress.kubernetes.io/proxy-body-size: 10000m
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^(/longhorn)$ $1/ redirect;
+  enabled: true
+  host: souther.example.com
+  path: /longhorn(/|$)(.*)
+  ingressClassName: nginx
+  secrets: null
+  tls: false
+  tlsSecret: longhorn.local-tls
+longhornDriver:
+  nodeSelector:
+    "longhorn/node": "true"
+  priorityClass: null
+  tolerations: []
+longhornManager:
+  nodeSelector:
+    "longhorn/node": "true"
+  priorityClass: null
+  tolerations: []
+longhornUI:
+  nodeSelector:
+    "longhorn/node": "true"
+  priorityClass: null
+  tolerations: []
+namespaceOverride: ''
+persistence:
+  backingImage:
+    dataSourceParameters: null
+    dataSourceType: null
+    enable: false
+    expectedChecksum: null
+    name: null
+  defaultClass: true
+  defaultClassReplicaCount: 3
+  defaultFsType: ext4
+  reclaimPolicy: Delete
+  recurringJobSelector:
+    enable: false
+    jobList: []
+privateRegistry:
+  registryPasswd: admin
+  registrySecret: null
+  registryUrl: ''
+  registryUser: admin
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+service:
+  manager:
+    nodePort: ''
+    type: ClusterIP
+  ui:
+    nodePort: null
+    type: ClusterIP
+longhorn:
+  default_setting: true

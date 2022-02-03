@@ -1,0 +1,11 @@
+type: s3
+config:
+  bucket: thanos-norther
+  endpoint: demo-prd-cluster-storage-minio-oss.service.dc01.local
+  access_key: GA81CE6RMLAZZ8ETEZCG
+  secret_key: AQHUcMN7zu6o9q3MEBFyMG9ud49Np24I3eEKc6ra
+  insecure: false
+  http_config:
+    idle_conn_timeout: 2m
+    response_header_timeout: 5m
+    insecure_skip_verify: true

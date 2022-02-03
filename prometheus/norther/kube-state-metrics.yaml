@@ -32,7 +32,6 @@ service:
 
 ## Additional labels to add to all resources
 customLabels: {}
-  # app: kube-state-metrics
 
 ## set to true to add the release label so scraping of the servicemonitor with kube-prometheus-stack works out of the box
 releaseLabel: false
@@ -75,7 +74,25 @@ prometheus:
     selectorOverride: {}
     honorLabels: false
     metricRelabelings: []
-    relabelings: []
+    relabelings:
+      - sourceLabels: [__address__]
+        targetLabel: customer
+        replacement: "demo"
+      - sourceLabels: [__address__]
+        targetLabel: environment
+        replacement: "dev"
+      - sourceLabels: [__address__]
+        targetLabel: project
+        replacement: "cluster"
+      - sourceLabels: [__address__]
+        targetLabel: group
+        replacement: "norther"
+      - sourceLabels: [__address__]
+        targetLabel: datacenter
+        replacement: "dc01"
+      - sourceLabels: [__address__]
+        targetLabel: domain
+        replacement: "local"
 
 ## Specify if a Pod Security Policy for kube-state-metrics must be created
 ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
@@ -206,10 +223,10 @@ resources:
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
     cpu: 100m
-    memory: 64Mi
+    memory: 200Mi
   requests:
-    cpu: 10m
-    memory: 32Mi
+    cpu: 100m
+    memory: 200Mi
 
 ## Provide a k8s version to define apiGroups for podSecurityPolicy Cluster Role.
 ## For example: kubeTargetVersionOverride: 1.14.9
