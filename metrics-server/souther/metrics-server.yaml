@@ -76,6 +76,7 @@ podDisruptionBudget:
 defaultArgs:
   - --cert-dir=/tmp
   - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+  - --kubelet-use-node-status-port
   - --metric-resolution=15s
   - --kubelet-insecure-tls
 
@@ -103,18 +104,18 @@ service:
   type: ClusterIP
   port: 443
   annotations: {}
-  labels:
+  labels: {}
   #  Add these labels to have metrics-server show up in `kubectl cluster-info`
-    kubernetes.io/cluster-service: "true"
-    kubernetes.io/name: "Metrics-server"
+  #  kubernetes.io/cluster-service: "true"
+  #  kubernetes.io/name: "Metrics-server"
 
 resources:
   limits:
-    cpu: 100m
-    memory: 100Mi
+    cpu: 250m
+    memory: 256Mi
   requests:
-    cpu: 100m
-    memory: 100Mi
+    cpu: 250m
+    memory: 256Mi
 
 extraVolumeMounts: []
 
