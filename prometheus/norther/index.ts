@@ -21,9 +21,7 @@ const deploy_spec = [
                 },
                 type: "Opaque",
                 data: {
-                    "objstore.yml": "dHlwZTogczMKY29uZmlnOgogIGJ1Y2tldDogdGhhbm9zLW5vcnRoZXIKICBlbmRwb2ludDogZGVtby1wcmQtY2x1c3Rlci1zdG9yYWdlLW1pbmlvLW9zcy5zZXJ2aWNlLmRjMDEubG9jYWwKICBhY2Nlc3Nfa2V5OiBHQTgxQ0U2Uk1MQVpaOEVURVpDRwogIHNlY3JldF9rZXk6IEFRSFVjTU43enU2bzlxM01FQkZ5TUc5dWQ0OU5wMjRJM2VFS2M2cmEKICBpbnNlY3VyZTogZmFsc2UKICBodHRwX2NvbmZpZzoKICAgIGlkbGVfY29ubl90aW1lb3V0OiAybQogICAgcmVzcG9uc2VfaGVhZGVyX3RpbWVvdXQ6IDVtCiAgICBpbnNlY3VyZV9za2lwX3ZlcmlmeTogdHJ1ZQo=",
-                    "index-cache.yml": "dHlwZTogTUVNQ0FDSEVECmNvbmZpZzoKICBhZGRyZXNzZXM6IFsidGhhbm9zLXN0b3JlLW1lbWNhY2hlZC1pbmRleDoxMTIxMSJdCiAgdGltZW91dDogNTAwbXMKICBtYXhfaWRsZV9jb25uZWN0aW9uczogMTAwCiAgbWF4X2l0ZW1fc2l6ZTogMU1pQgogIG1heF9hc3luY19jb25jdXJyZW5jeTogMTAKICBtYXhfYXN5bmNfYnVmZmVyX3NpemU6IDEwMDAwCiAgbWF4X2dldF9tdWx0aV9jb25jdXJyZW5jeTogMTAwCiAgbWF4X2dldF9tdWx0aV9iYXRjaF9zaXplOiAwCiAgZG5zX3Byb3ZpZGVyX3VwZGF0ZV9pbnRlcnZhbDogMTBzCiAgZXhwaXJhdGlvbjogMjRoCiAgYXV0b19kaXNjb3Zlcnk6IGZhbHNlCg==",
-                    "bucket-cache.yml": "dHlwZTogTUVNQ0FDSEVECmNvbmZpZzoKICBhZGRyZXNzZXM6IFsidGhhbm9zLXN0b3JlLW1lbWNhY2hlZC1idWNrZXQ6MTEyMTEiXQogIHRpbWVvdXQ6IDUwMG1zCiAgbWF4X2lkbGVfY29ubmVjdGlvbnM6IDEwMAogIG1heF9pdGVtX3NpemU6IDFNaUIKICBtYXhfYXN5bmNfY29uY3VycmVuY3k6IDEwCiAgbWF4X2FzeW5jX2J1ZmZlcl9zaXplOiAxMDAwMAogIG1heF9nZXRfbXVsdGlfY29uY3VycmVuY3k6IDEwMAogIG1heF9nZXRfbXVsdGlfYmF0Y2hfc2l6ZTogMAogIGRuc19wcm92aWRlcl91cGRhdGVfaW50ZXJ2YWw6IDEwcwogIGV4cGlyYXRpb246IDI0aAogIGF1dG9fZGlzY292ZXJ5OiBmYWxzZQo="
+                    "objstore.yml": "dHlwZTogczMKY29uZmlnOgogIGJ1Y2tldDogdGhhbm9zLW5vcnRoZXIKICBlbmRwb2ludDogZGVtby1wcmQtY2x1c3Rlci1zdG9yYWdlLW1pbmlvLW9zcy5zZXJ2aWNlLmRjMDEubG9jYWwKICBhY2Nlc3Nfa2V5OiBHQTgxQ0U2Uk1MQVpaOEVURVpDRwogIHNlY3JldF9rZXk6IEFRSFVjTU43enU2bzlxM01FQkZ5TUc5dWQ0OU5wMjRJM2VFS2M2cmEKICBpbnNlY3VyZTogZmFsc2UKICBodHRwX2NvbmZpZzoKICAgIGlkbGVfY29ubl90aW1lb3V0OiAybQogICAgcmVzcG9uc2VfaGVhZGVyX3RpbWVvdXQ6IDVtCiAgICBpbnNlY3VyZV9za2lwX3ZlcmlmeTogdHJ1ZQo="
                 },
                 stringData: {}
             }
