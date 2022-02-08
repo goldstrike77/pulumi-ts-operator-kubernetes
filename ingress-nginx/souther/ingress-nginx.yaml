@@ -138,7 +138,7 @@ controller:
     customer: "demo"
     environment: "dev"
     project: "cluster"
-    group: "norther"
+    group: "souther"
     datacenter: "dc01"
     domain: "local"
   #  key: value

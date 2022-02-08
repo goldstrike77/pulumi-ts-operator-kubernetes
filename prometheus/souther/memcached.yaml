@@ -466,7 +466,7 @@ metrics:
         replacement: "cluster"
       - sourceLabels: [__address__]
         targetLabel: group
-        replacement: "norther"
+        replacement: "souther"
       - sourceLabels: [__address__]
         targetLabel: datacenter
         replacement: "dc01"

@@ -14,7 +14,7 @@ const deploy_spec = [
         secret: [
             {
                 metadata: {
-                    name: "thanos-objstore-secret",
+                    name: "configuration-secret",
                     namespace: "monitoring",
                     annotations: {},
                     labels: {}
