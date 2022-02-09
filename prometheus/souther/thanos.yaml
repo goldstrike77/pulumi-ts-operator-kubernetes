@@ -706,46 +706,7 @@ queryFrontend:
   command: []
   ## @param queryFrontend.args Override default container args (useful when using custom images)
   ##
-  args:
-    - "query-frontend"
-    - "--log.level=warn"
-    - "--log.format=logfmt"
-    - "--http-address=0.0.0.0:10902"
-    - "--query-frontend.downstream-url=http://thanos-query:9090/thanos-query"
-    - "--query-range.split-interval=1h"
-    - "--query-range.max-retries-per-request=10"
-    - "--query-range.max-query-parallelism=32"
-    - "--query-range.partial-response"
-    - |
-      --query-range.response-cache-config=
-      type: MEMCACHED
-      config:
-        addresses:
-          - thanos-queryfrontend-memcached:11211
-        timeout: 1000ms
-        max_idle_connections: 100
-        max_async_concurrency: 100
-        max_async_buffer_size: 100000
-        max_get_multi_concurrency: 100
-        max_get_multi_batch_size: 1000
-        dns_provider_update_interval: 10s
-        expiration: 24h
-        auto_discovery: false
-    - |
-      --labels.response-cache-config=
-      type: MEMCACHED
-      config:
-        addresses:
-          - memcached-queryfrontend:11211
-        timeout: 1000ms
-        max_idle_connections: 100
-        max_async_concurrency: 100
-        max_async_buffer_size: 100000
-        max_get_multi_concurrency: 100
-        max_get_multi_batch_size: 1000
-        dns_provider_update_interval: 10s
-        expiration: 24h
-        auto_discovery: false
+  args: []
   ## @param queryFrontend.replicaCount Number of Thanos Query Frontend replicas to deploy
   ##
   replicaCount: 2
@@ -1966,14 +1927,13 @@ storegateway:
         addresses:
           - thanos-store-memcached-index:11211
         timeout: 1000ms
-        max_idle_connections: 100
-        max_item_size: 1MiB
-        max_async_concurrency: 100
+        max_idle_connections: 200
+        max_async_concurrency: 30
         max_async_buffer_size: 100000
         max_get_multi_concurrency: 100
+        max_item_size: 2MiB
         max_get_multi_batch_size: 1000
         dns_provider_update_interval: 10s
-        expiration: 24h
         auto_discovery: false
     - |
       --store.caching-bucket.config=
@@ -1982,15 +1942,22 @@ storegateway:
         addresses:
           - thanos-store-memcached-bucket:11211
         timeout: 1000ms
-        max_idle_connections: 100
-        max_item_size: 1MiB
-        max_async_concurrency: 100
+        max_idle_connections: 200
+        max_async_concurrency: 30
         max_async_buffer_size: 100000
+        max_item_size: 2MiB
         max_get_multi_concurrency: 100
         max_get_multi_batch_size: 1000
         dns_provider_update_interval: 10s
-        expiration: 24h
-        auto_discovery: false
+      chunk_subrange_size: 16000
+      max_chunks_get_range_requests: 3
+      chunk_object_attrs_ttl: 24h
+      chunk_subrange_ttl: 24h
+      blocks_iter_ttl: 5m
+      metafile_exists_ttl: 2h
+      metafile_doesnt_exist_ttl: 15m
+      metafile_content_ttl: 24h
+      metafile_max_size: 2MiB
   ## @param storegateway.command Override default container command (useful when using custom images)
   ##
   command: []

@@ -100,7 +100,8 @@ command: []
 arguments:
   - /run.sh
   - -m 2048
-  - -I 1m
+  - -I 2m
+  - -v
 ## @param extraEnv Additional env vars to pass
 ## ref: https://github.com/bitnami/bitnami-docker-memcached#configuration
 ##

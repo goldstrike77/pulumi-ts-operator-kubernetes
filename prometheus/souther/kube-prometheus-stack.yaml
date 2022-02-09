@@ -2346,7 +2346,7 @@ prometheus:
     ## Example which selects ServiceMonitors with label "prometheus" set to "somelabel"
     # serviceMonitorSelector:
     #   matchLabels:
-    #     prometheus: somelabel
+    #     app.kubernetes.io/name: ingress-nginx
 
     ## Namespaces to be selected for ServiceMonitor discovery.
     ##
