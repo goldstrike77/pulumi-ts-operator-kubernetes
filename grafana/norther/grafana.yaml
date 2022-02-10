@@ -576,10 +576,13 @@ grafana.ini:
     provisioning: /etc/grafana/provisioning
   analytics:
     check_for_updates: false
+    reporting_enabled: false
   log:
     mode: console
   grafana_net:
     url: https://grafana.net
+  user:
+    default_theme: dark
 ## grafana Authentication can be enabled with the following values on grafana.ini
  # server:
       # The full public facing url you use in browser, used for redirects and emails
@@ -644,13 +647,13 @@ sidecar:
     tag: 1.14.2
     sha: ""
   imagePullPolicy: IfNotPresent
-  resources: {}
-  limits:
-    cpu: 100m
-    memory: 100Mi
-  requests:
-    cpu: 50m
-    memory: 50Mi
+  resources:
+    limits:
+      cpu: 100m
+      memory: 100Mi
+    requests:
+      cpu: 50m
+      memory: 50Mi
   securityContext: {}
   # skipTlsVerify Set to true to skip tls verification for kube api calls
   # skipTlsVerify: true
