@@ -31,7 +31,7 @@ controller:
   #      - "uname"
   #      - "-a"
   disableRememberMe: false
-  numExecutors: 0
+  numExecutors: 1
   # configures the executor mode of the Jenkins node. Possible values are: NORMAL or EXCLUSIVE
   executorMode: "NORMAL"
   # This is ignored if enableRawHtmlMarkupFormatter is true
@@ -65,7 +65,7 @@ controller:
   resources:
     requests:
       cpu: "50m"
-      memory: "256Mi"
+      memory: "4096Mi"
     limits:
       cpu: "2000m"
       memory: "4096Mi"
@@ -91,7 +91,7 @@ controller:
   #   - name: http_proxy
   #     value: "http://192.168.64.1:3128"
   # Set min/max heap here if needed with:
-  # javaOpts: "-Xms512m -Xmx512m"
+  javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=90 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true"
   # jenkinsOpts: ""
   # If you are using the ingress definitions provided by this chart via the `controller.ingress` block the configured hostname will be the ingress hostname starting with `https://` or `http://` depending on the `tls` configuration.
   # The Protocol can be overwritten by specifying `controller.jenkinsUrlProtocol`.
@@ -325,20 +325,13 @@ controller:
   JCasC:
     defaultConfig: true
     configScripts:
-      welcome-message: |
-        jenkins:
-          systemMessage: Welcome to our CI/CD Systems. This Jenkins is configured and managed 'Infrastructure as code'.
       settings: |
         jenkins:
+          noUsageStatistics: true
           updateCenter:
             sites:
             - id: "default"
               url: "https://updates.jenkins.io/stable/update-center.json"
-        security:
-          apiToken:
-            creationOfLegacyTokenEnabled: false
-            tokenGenerationOnCreationEnabled: false
-            usageStatisticsEnabled: false
     securityRealm: |-
       local:
         allowsSignup: false
