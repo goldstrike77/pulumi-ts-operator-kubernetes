@@ -187,9 +187,10 @@ extraPorts:
       port: 1514
       externalIPs: []
       nodePort: null
-      annotations: {}
+      annotations:
+        metallb.universe.tf/allow-shared-ip: shared
       labels: {}
-      loadBalancerIP: 10.101.4.42
+      loadBalancerIP: 10.101.4.41
       loadBalancerSourceRanges: []
       externalTrafficPolicy: null
 

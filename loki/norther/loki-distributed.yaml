@@ -767,7 +767,7 @@ gateway:
     loadBalancerIP: "10.101.4.41"
     # -- Annotations for the gateway service
     annotations:
-      metallb.universe.tf/allow-shared-ip: shared    
+      metallb.universe.tf/allow-shared-ip: shared
     # -- Labels for gateway service
     labels: {}
   # Gateway ingress configuration
