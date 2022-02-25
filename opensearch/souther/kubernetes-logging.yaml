@@ -1,0 +1,328 @@
+# Default values for kubernetes-logging.
+# Global values
+clusterName: "logging"
+imagePullSecrets: []
+priorityClass: "logging"
+storageClass: {longhorn}
+
+# OFD configuration
+# A complete OFD setup is provisioned when "inCluster" is set to true. It can
+# be scaled accordingly to the environment needs with the concrete
+# configurations of the nodes that follow. In case "inCluster" is set to false,
+# logs are pushed to an external OS.
+opensearch:
+  image: "opensearchproject/opensearch"
+  imageTag: 1.2.4
+  imagePullPolicy: IfNotPresent
+  singleNode: false
+  inCluster: true
+  snapshot:
+    enabled: false
+    storageClass: {}
+    size: "5Gi"
+  retentionDays: 7
+  additionalJvmParams: "-Djava.net.preferIPv4Stack=true -XshowSettings:properties -XshowSettings:vm -XshowSettings:system"
+  url: {}
+  port: 9200
+  user: "osadmin"
+  password: "osadmin"
+  inClusterCertificates:
+    generateCertificates: true
+    secretName: {}
+  saml: {}
+  #  enabled: false
+  #  idp:
+  #    metadataUrl:
+  #    entityId:
+  #    cacerts:
+  #  sp:
+  #    entityId:
+  #  exchangeKey: {}
+  #  adminRole: {}
+  #  viewerRole: {}
+  #  developerRole: {}
+  oidc: {}
+  #  enabled: false
+  #  discoveryUrl: {}
+  #  subjectKey: "email"
+  #  rolesKey: "roles"
+  #  adminRole: {}
+  #  viewerRole: {}
+  #  developerRole: {}
+  #  cacerts: {}
+  #  clientId: {}
+  #  clientSecret: {}
+  #  scope: "openid"
+  #  verifyHostnames: true
+  #  logoutUrl:
+
+#Opensearch Curator job configuration. It is a build of es-curator 5.8.4 /APL 2.0 license/ with a modified es version check 
+os_curator:
+  image: "nickytd/os-curator"
+  imageTag: "5.8.4"
+  imagePullPolicy: IfNotPresent
+
+#Init container configuration. Used for multiple application startup checks
+init_container:
+  image: "nickytd/init-container"
+  imageTag: "1.0.2"
+  imagePullPolicy: IfNotPresent
+
+# Configuration of OS master node if "inCluster" is true
+master:
+  replicas: 2
+  storage: "1Gi"
+  heapSize: "256M"
+  resources:
+    requests:
+      memory: "600Mi"
+    limits:
+      memory: "600Mi"
+  storageClass: {}
+  priorityClass: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: type
+              operator: In
+              values:
+              - master
+          topologyKey: kubernetes.io/hostname 
+
+# Configuration of OS coordination node if "inCluster" is true
+client:
+  replicas: 1
+  heapSize: "512M"
+  resources:
+    requests:
+      memory: "1000Mi"
+    limits:
+      memory: "2000Mi"
+  ingress:
+    host: {}
+    path: "/"
+    enabled: false
+    annotations: {}
+    tls: {}
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: {}
+  #- maxSkew: 1
+  #  topologyKey: kubernetes.io/hostname
+  #  whenUnsatisfiable: ScheduleAnyway
+  #  labelSelector:
+  #    matchLabels:
+  #      type: client
+
+# Configuration of OS data node if "inCluster" is true
+data:
+  replicas: 2
+  heapSize: "512M"
+  storage: "1Gi"
+  resources:
+    requests:
+      memory: "1000Mi"
+    limits:
+      memory: "2000Mi"
+  storageClass: {}
+  priorityClass: {}
+  tolerations: []
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: type
+              operator: In
+              values:
+              - data
+          topologyKey: kubernetes.io/hostname
+
+# When inCluster is set to false it determines an external
+# opensearch-dashboards instance. In this case only jobs creating index
+# templates and opensearch-dashboards objects are executed.
+opensearch_dashboards:
+  image: "opensearchproject/opensearch-dashboards"
+  imageTag: 1.2.0
+  inCluster: true
+  url: {}
+  replicas: 1
+  extraEnvs:
+  - name: "NODE_OPTIONS"
+    value: "--max-old-space-size=350"
+  user: "opensearch"
+  password: "opensearch"
+  readonly:
+    user: "viewer"
+    password: "view"
+  developer:
+    user: "developer"
+    password: "develop"
+  ingress:
+    host: {}
+    path: "/"
+    enabled: false
+    annotations: {}
+    tls: {}
+  indexPatterns:
+    - containers
+    - systemd
+    - nginx
+  tenants:
+    - Global
+    - Developer
+  resources:
+    requests:
+      memory: "500Mi"
+    limits:
+      memory: "500Mi"
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+
+data_prepper:
+  enabled: false
+  image: opensearchproject/data-prepper
+  imageTag: 1.2.1
+  replicas: 1
+  heapSize: "256M"
+  resources:
+    requests:
+      memory: "600Mi"
+    limits:
+      memory: "600Mi"
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: {}
+  #- maxSkew: 1
+  #  topologyKey: kubernetes.io/hostname
+  #  whenUnsatisfiable: ScheduleAnyway
+  #  labelSelector:
+  #    matchLabels:
+  #      type: data-prepper
+
+fluentbit:
+  image: "fluent/fluent-bit"
+  imageTag: "1.8.12"
+  imagePullPolicy: IfNotPresent
+  containersLogsHostPath: /var/log/pods
+  journalsLogsHostPath: /var/log
+  #define container runtime: docker or containerd
+  containersRuntime: docker
+  resources:
+    requests:
+      memory: "50Mi"
+    limits:
+      memory: "100Mi"
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+  metrics:
+    enabled: false
+    interval: "30s"
+    namespace: {}
+
+## Logstash is the recommended approach for delivering log stream to opensearch
+## kafka -> logstash -> opensearch
+## Note: kafka needs to be enabled as well
+logstash:
+  enabled: true
+  image: "opensearchproject/logstash-oss-with-opensearch-output-plugin"
+  imageTag: "7.16.2"
+  replicas: 1
+  heapSize: "256M"
+  resources:
+    requests:
+      memory: "700Mi"
+    limits:
+      memory: "700Mi"
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: {}
+  #- maxSkew: 1
+  #  topologyKey: kubernetes.io/hostname
+  #  whenUnsatisfiable: ScheduleAnyway
+  #  labelSelector:
+  #    matchLabels:
+  #      type: logstash
+
+## Logstash is the recommended approach for delivering log stream to opensearch
+## kafka -> logstash -> opensearch
+## Fluentd is now deprecated and will be removed in the next major release
+fluentd:
+  enabled: false
+  replicas: 1
+  image: "nickytd/fluentd"
+  imageTag: "v1.13"
+  imagePullPolicy: IfNotPresent
+  resources:
+    requests:
+      memory: "100Mi"
+    limits:
+      memory: "500Mi"
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: {}
+  #- maxSkew: 1
+  #  topologyKey: kubernetes.io/hostname
+  #  whenUnsatisfiable: ScheduleAnyway
+  #  labelSelector:
+  #    matchLabels:
+  #      k8s-app: fluentd
+
+# In scaled out setup kafka queues are used as ingestion points to accommodate
+# spiked in the logging stream volumes.
+kafka:
+  enabled: true
+  replicas: 1
+  image: "bitnami/kafka"
+  imageTag: "2.8.1"
+  heapSize: "256M"
+  storage: "1Gi"
+  topics:
+    config: "max.message.bytes=10000000,retention.bytes=134217728,retention.ms=3600000,message.timestamp.difference.max.ms=3600000,message.timestamp.type=LogAppendTime"
+    name: ["containers"]
+  resources:
+    requests:
+      memory: "600Mi"
+    limits:
+      memory: "600Mi"
+  storageClass: {}
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+
+# Zookeeper is a dependency of kafka
+zookeeper:
+  replicas: 1
+  image: "zookeeper"
+  imageTag: "3.7.0"
+  heapSize: "128M"
+  storage: 1Gi
+  resources:
+    requests:
+      memory: "300Mi"
+    limits:
+      memory: "300Mi"
+  storageClass: {}
+  priorityClass: {}
+  tolerations: []
+  affinity: {}
+
+# additional annotations for chart jobs
+# example argoCD requires its specific annotations
+additionalJobAnnotations: {}
+  #"argocd.argoproj.io/hook": Sync
+  #"argocd.argoproj.io/sync-wave": "0"
+  #"argocd.argoproj.io/hook-delete-policy": BeforeHookCreation,HookSucceeded
