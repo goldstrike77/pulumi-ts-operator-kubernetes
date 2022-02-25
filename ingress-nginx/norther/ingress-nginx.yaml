@@ -361,7 +361,7 @@ controller:
   ##
   podAnnotations: {}
 
-  replicaCount: 2
+  replicaCount: 1
 
   minAvailable: 1
 
@@ -371,11 +371,11 @@ controller:
   # https://engineering.indeedblog.com/blog/2019/12/cpu-throttling-regression-fix/
   resources:
     limits:
-      cpu: 1000m
-      memory: 1024Mi
+      cpu: 500m
+      memory: 512Mi
     requests:
-      cpu: 1000m
-      memory: 1024Mi
+      cpu: 500m
+      memory: 512Mi
 
   # Mutually exclusive with keda autoscaling
   autoscaling:
@@ -854,17 +854,17 @@ defaultBackend:
   ##
   podAnnotations: {}
 
-  replicaCount: 2
+  replicaCount: 1
 
   minAvailable: 1
 
   resources:
     limits:
       cpu: 100m
-      memory: 100Mi
+      memory: 64Mi
     requests:
       cpu: 100m
-      memory: 100Mi
+      memory: 64Mi
 
   extraVolumeMounts: []
   ## Additional volumeMounts to the default backend container.

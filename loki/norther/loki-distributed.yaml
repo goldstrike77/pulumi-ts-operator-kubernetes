@@ -540,7 +540,7 @@ querier:
 # Configuration for the query-frontend
 queryFrontend:
   # -- Number of replicas for the query-frontend
-  replicas: 2
+  replicas: 1
   autoscaling:
     # -- Enable autoscaling for the query-frontend
     enabled: false
@@ -986,7 +986,7 @@ ruler:
   # -- Specifies whether the ruler should be enabled
   enabled: false
   # -- Number of replicas for the ruler
-  replicas: 2
+  replicas: 1
   image:
     # -- The Docker registry for the ruler image. Overrides `loki.image.registry`
     registry: null
@@ -1117,7 +1117,7 @@ indexGateway:
   # -- Specifies whether the index-gateway should be enabled
   enabled: false
   # -- Number of replicas for the index-gateway
-  replicas: 2
+  replicas: 1
   image:
     # -- The Docker registry for the index-gateway image. Overrides `loki.image.registry`
     registry: null

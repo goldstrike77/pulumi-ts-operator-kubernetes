@@ -150,7 +150,7 @@ query:
   args: []
   ## @param query.replicaCount Number of Thanos Query replicas to deploy
   ##
-  replicaCount: 2
+  replicaCount: 1
   ## @param query.updateStrategy.type Update strategy type for Thanos Query replicas
   ##
   updateStrategy:
@@ -708,7 +708,7 @@ queryFrontend:
   args: []
   ## @param queryFrontend.replicaCount Number of Thanos Query Frontend replicas to deploy
   ##
-  replicaCount: 2
+  replicaCount: 1
   ## @param queryFrontend.updateStrategy.type Update strategy type for Thanos Query Frontend replicas
   ##
   updateStrategy:
@@ -1964,7 +1964,7 @@ storegateway:
   args: []
   ## @param storegateway.replicaCount Number of Thanos Store Gateway replicas to deploy
   ##
-  replicaCount: 2
+  replicaCount: 1
   ## @param storegateway.updateStrategy.type Update strategy type for Thanos Store Gateway replicas
   ##
   updateStrategy:
