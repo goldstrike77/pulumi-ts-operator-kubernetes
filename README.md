@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/terraform-kubernetes-green.svg?logo=appveyor&style=for-the-badge)
+![](https://img.shields.io/badge/pulumi-kubernetes-green.svg?logo=appveyor&style=for-the-badge)
 
 >__Please note that the original design goal of this operator was more concerned with the testing and verification, and therefore are only suitable for testing and development purposes, SHOULD NOT BE used in production environments. The author does not guarantee the accuracy, completeness, reliability, and availability of the operator content. Under no circumstances will the author be held responsible or liable in any way for any claims, damages, losses, expenses, costs or liabilities whatsoever, including, without limitation, any direct or indirect damages for loss of profits, business interruption or loss of information.__
 
