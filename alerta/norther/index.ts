@@ -22,8 +22,7 @@ const deploy_spec = [
                 type: "Opaque",
                 data: {
                     "mongodb-root-password": "cGFzc3dvcmQ=",
-                    "mongodb-replica-set-key": "cGFzc3dvcmQ=",
-                    "mongodb-password": "cGFzc3dvcmQ="
+                    "mongodb-replica-set-key": "cGFzc3dvcmQ="
                 },
                 stringData: {}
             }

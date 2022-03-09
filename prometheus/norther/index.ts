@@ -74,6 +74,33 @@ const deploy_spec = [
                 version: "31.0.0",
                 values: "./kube-prometheus-stack.yaml"
             }
+        ],
+        yaml: [
+            { name: "../_rules/severity/alertmanager.rules.yaml" },
+            { name: "../_rules/severity/config-reloaders.yaml" },
+            { name: "../_rules/severity/general.rules.yaml" },
+            { name: "../_rules/severity/k8s.rules.yaml" },
+            { name: "../_rules/severity/kube-apiserver-availability.rules.yaml" },
+            { name: "../_rules/severity/kube-apiserver-burnrate.rules.yaml" },
+            { name: "../_rules/severity/kube-apiserver-histogram.rules.yaml" },
+            { name: "../_rules/severity/kube-apiserver.rules.yaml" },
+            { name: "../_rules/severity/kube-apiserver-slos.yaml" },
+            { name: "../_rules/severity/kubelet.rules.yaml" },
+            { name: "../_rules/severity/kube-prometheus-general.rules.yaml" },
+            { name: "../_rules/severity/kube-prometheus-node-recording.rules.yaml" },
+            { name: "../_rules/severity/kubernetes-apps.yaml" },
+            { name: "../_rules/severity/kubernetes-resources.yaml" },
+            { name: "../_rules/severity/kubernetes-storage.yaml" },
+            { name: "../_rules/severity/kubernetes-system-apiserver.yaml" },
+            { name: "../_rules/severity/kubernetes-system-kubelet.yaml" },
+            { name: "../_rules/severity/kubernetes-system.yaml" },
+            { name: "../_rules/severity/kube-state-metrics.yaml" },
+            { name: "../_rules/severity/node-exporter.rules.yaml" },
+            { name: "../_rules/severity/node-exporter.yaml" },
+            { name: "../_rules/severity/node-network.yaml" },
+            { name: "../_rules/severity/node.rules.yaml" },
+            { name: "../_rules/severity/prometheus-operator.yaml" },
+            { name: "../_rules/severity/prometheus.yaml" }
         ]
     }
 ]
@@ -118,5 +145,12 @@ for (var i in deploy_spec) {
                 },
             }, { dependsOn: [namespace] });
         }
+    }
+    // Create Prometheus rules.
+    for (var yaml_index in deploy_spec[i].yaml) {
+        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
+            file: deploy_spec[i].yaml[yaml_index].name,
+            skipAwait: true,
+        }, { dependsOn: [namespace] });
     }
 }
