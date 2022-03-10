@@ -29,21 +29,12 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "monitoring",
-                name: "thanos-store-memcached-index",
-                chart: "../../_chart/memcached-6.0.2.tgz",
+                name: "thanos-redis",
+                chart: "../../_chart/redis-16.5.2.tgz",
                 // repository: "https://charts.bitnami.com/bitnami",
                 repository: "", // Must be empty string if local chart.
-                version: "6.0.2",
-                values: "./memcached.yaml"
-            },
-            {
-                namespace: "monitoring",
-                name: "thanos-store-memcached-bucket",
-                chart: "../../_chart/memcached-6.0.2.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "6.0.2",
-                values: "./memcached.yaml"
+                version: "16.5.2",
+                values: "./redis.yaml"
             },
             {
                 namespace: "monitoring",

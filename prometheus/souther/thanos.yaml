@@ -53,7 +53,7 @@ extraDeploy: []
 image:
   registry: docker.io
   repository: bitnami/thanos
-  tag: 0.24.0-scratch-r0
+  tag: 0.25.0-scratch-r1
   ## Specify a imagePullPolicy. Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
   ##
@@ -1920,42 +1920,42 @@ storegateway:
     - "--store.grpc.series-sample-limit=50000"
     - |
       --index-cache.config=
-      type: MEMCACHED
+      type: REDIS
       config:
-        addresses:
-          - thanos-store-memcached-index:11211
-        timeout: 1000ms
-        max_idle_connections: 200
-        max_async_concurrency: 30
-        max_async_buffer_size: 100000
-        max_get_multi_concurrency: 100
-        max_item_size: 2MiB
-        max_get_multi_batch_size: 1000
-        dns_provider_update_interval: 10s
-        auto_discovery: false
+        addr: "thanos-redis-master:6379"
+        username: ""
+        password: ""
+        db: 0
+        dial_timeout: 10s
+        read_timeout: 10s
+        write_timeout: 10s
+        pool_size: 200
+        min_idle_conns: 20
+        idle_timeout: 5m0s
+        max_conn_age: 0s
+        max_get_multi_concurrency: 200
+        get_multi_batch_size: 1000
+        max_set_multi_concurrency: 200
+        set_multi_batch_size: 1000
     - |
       --store.caching-bucket.config=
-      type: MEMCACHED
+      type: REDIS
       config:
-        addresses:
-          - thanos-store-memcached-bucket:11211
-        timeout: 1000ms
-        max_idle_connections: 200
-        max_async_concurrency: 30
-        max_async_buffer_size: 100000
-        max_item_size: 2MiB
-        max_get_multi_concurrency: 100
-        max_get_multi_batch_size: 1000
-        dns_provider_update_interval: 10s
-      chunk_subrange_size: 16000
-      max_chunks_get_range_requests: 3
-      chunk_object_attrs_ttl: 24h
-      chunk_subrange_ttl: 24h
-      blocks_iter_ttl: 5m
-      metafile_exists_ttl: 2h
-      metafile_doesnt_exist_ttl: 15m
-      metafile_content_ttl: 24h
-      metafile_max_size: 2MiB
+        addr: "thanos-redis-master:6379"
+        username: ""
+        password: ""
+        db: 1
+        dial_timeout: 10s
+        read_timeout: 10s
+        write_timeout: 10s
+        pool_size: 200
+        min_idle_conns: 20
+        idle_timeout: 5m0s
+        max_conn_age: 0s
+        max_get_multi_concurrency: 200
+        get_multi_batch_size: 1000
+        max_set_multi_concurrency: 200
+        set_multi_batch_size: 1000
   ## @param storegateway.command Override default container command (useful when using custom images)
   ##
   command: []
@@ -3748,7 +3748,7 @@ volumePermissions:
   image:
     registry: docker.io
     repository: bitnami/bitnami-shell
-    tag: 10-debian-10-r287
+    tag: 10-debian-10-r358
     ## Specify a imagePullPolicy. Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
     ##

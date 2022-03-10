@@ -1412,7 +1412,7 @@ kube-state-metrics:
 ## Deploy node exporter as a daemonset to all nodes
 ##
 nodeExporter:
-  enabled: true
+  enabled: false
 
 ## Configuration for prometheus-node-exporter subchart
 ##
