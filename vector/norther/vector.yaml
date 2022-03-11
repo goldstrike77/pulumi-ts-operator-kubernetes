@@ -239,6 +239,7 @@ dataDir: ""
 ## This section supports using helm templates to populate dynamic values
 ## Ref: https://vector.dev/docs/reference/configuration/
 customConfig:
+  data_dir: /vector-data-dir
   api:
     enabled: false
     address: 127.0.0.1:8686
