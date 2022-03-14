@@ -1,0 +1,70 @@
+data_dir: /vector-data-dir
+api:
+  enabled: false
+  address: 127.0.0.1:8686
+  playground: false
+sources:
+  syslog_socket_udp:
+    type: "socket"
+    address: "0.0.0.0:12201"
+    max_length: 65536
+    mode: "udp"
+  kubernetes_logs:
+    type: kubernetes_logs
+    max_line_bytes: 65536
+transforms:
+  syslog_gelf_udp:
+    type: json_parser
+    drop_invalid: false
+    drop_field: true
+    field: "message"
+    inputs: ["syslog_socket_udp"]
+  kubernetes_remap:
+    type: remap
+    inputs: ["kubernetes_logs"]
+    source: |
+      kubernetes = del(.kubernetes)
+      file = del(.file)
+      kubernetes_labels = encode_json(kubernetes.pod_labels)
+      kubernetes_labels = replace(kubernetes_labels, "app.kubernetes.io", "app_kubernetes_io")
+      kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")      
+      .kubernetes = {
+        "container": kubernetes.container_name,
+        "node_name": kubernetes.pod_node_name,
+        "pod": kubernetes.pod_name,
+        "namespace": kubernetes.pod_namespace,
+        "labels": parse_json!(kubernetes_labels),
+        "filename": file
+      }
+  kubernetes_json:
+    type: json_parser
+    drop_invalid: false
+    drop_field: true
+    field: "kubernetes"
+    inputs: ["kubernetes_remap"]
+sinks:
+  syslog_gelf_loki:
+    type: loki
+    inputs: ["syslog_gelf_udp"]
+    endpoint: http://loki-distributor.logging.svc.cluster.local:3100
+    labels:
+      scrape_job: syslog
+    compression: none
+    healthcheck:
+      enabled: false
+    encoding:
+      codec: "json"
+      except_fields: ["source_type"]
+  kubernetes_logs_loki:
+    type: loki
+    inputs: ["kubernetes_json"]
+    endpoint: http://loki-distributor.logging.svc.cluster.local:3100
+    labels:
+      scrape_job: kubernetes-pods
+      cluster: norther
+    compression: none
+    healthcheck:
+      enabled: false
+    encoding:
+      codec: "json"
+      except_fields: ["source_type"]
