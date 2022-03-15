@@ -6,7 +6,7 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "vector",
+                name: "datadog",
                 annotations: {},
                 labels: {}
             },
@@ -14,13 +14,31 @@ const deploy_spec = [
         },
         helm: [
             {
-                namespace: "vector",
-                name: "vector",
+                namespace: "datadog",
+                name: "vector-kubernetes-pods",
                 chart: "../../_chart/vector-0.6.0.tgz",
                 // repository: "https://charts.jenkins.io",
                 repository: "", // Must be empty string if local chart.
                 version: "0.6.0",
-                values: "./vector.yaml"
+                values: "./vector-kubernetes-pods.yaml"
+            },
+            {
+                namespace: "datadog",
+                name: "vector-syslog",
+                chart: "../../_chart/vector-0.6.0.tgz",
+                // repository: "https://charts.jenkins.io",
+                repository: "", // Must be empty string if local chart.
+                version: "0.6.0",
+                values: "./vector-syslog.yaml"
+            },
+            {
+                namespace: "datadog",
+                name: "vector-beats",
+                chart: "../../_chart/vector-0.6.0.tgz",
+                // repository: "https://charts.jenkins.io",
+                repository: "", // Must be empty string if local chart.
+                version: "0.6.0",
+                values: "./vector-beats.yaml"
             }
         ]
     }

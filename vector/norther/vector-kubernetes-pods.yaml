@@ -57,7 +57,7 @@ secrets:
 ## Configure a HorizontalPodAutoscaler for Vector
 ## Valid for Aggregator and Stateless-Aggregator roles
 autoscaling:
-  # autoscaling.enabled -- Enabled autoscaling for the Stateless-Aggregator
+  # autoscaling.enabled -- Enabled autoscaling for the Aggregator and Stateless-Aggregator
   enabled: false
   # autoscaling.minReplicas -- Minimum replicas for Vector's HPA
   minReplicas: 1
@@ -174,9 +174,7 @@ terminationGracePeriodSeconds: 60
 nodeSelector: {}
 
 # tolerations -- Allow Vector to schedule on tainted nodes
-tolerations:
-  - key: node-role.kubernetes.io/master
-    effect: NoSchedule
+tolerations: []
 
 # affinity -- Allow Vector to schedule using affinity rules
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
@@ -185,12 +183,11 @@ affinity: {}
 ## Configuration for Vector's Service
 service:
   # service.enabled -- If true, create and use a Service resource
-  enabled: true
+  enabled: false
   # service.type -- Set type of Vector's Service
-  type: "LoadBalancer"
+  type: "ClusterIP"
   # service.annotations -- Set annotations on Vector's Service
-  annotations:
-    metallb.universe.tf/allow-shared-ip: shared
+  annotations: {}
   # service.topologyKeys -- Specify the topologyKeys field on Vector's Service spec
   ## Ref: https://kubernetes.io/docs/concepts/services-networking/service-topology/#using-service-topology
   topologyKeys: []
@@ -247,26 +244,10 @@ customConfig:
     address: 127.0.0.1:8686
     playground: false
   sources:
-    syslog_socket_tcp:
-      type: socket
-      address: 0.0.0.0:12201
-      max_length: 65536
-      mode: "tcp"
-    beats_logstash_tcp:
-      type: logstash
-      address: 0.0.0.0:5044
-      acknowledgements:
-        enabled: false
     kubernetes_logs:
       type: kubernetes_logs
       max_line_bytes: 65536
   transforms:
-    syslog_gelf_tcp:
-      type: json_parser
-      drop_invalid: false
-      drop_field: true
-      field: "message"
-      inputs: ["syslog_socket_tcp"]
     kubernetes_remap:
       type: remap
       inputs: ["kubernetes_logs"]
@@ -281,43 +262,25 @@ customConfig:
           "node_name": kubernetes.pod_node_name,
           "pod": kubernetes.pod_name,
           "namespace": kubernetes.pod_namespace,
-          "labels": parse_json!(kubernetes_labels),
           "filename": file
         }
+        .labels = parse_json!(kubernetes_labels)
     kubernetes_json:
       type: json_parser
       drop_invalid: false
       drop_field: true
       field: "kubernetes"
       inputs: ["kubernetes_remap"]
+    kubernetes_json_labels:
+      type: json_parser
+      drop_invalid: false
+      drop_field: true
+      field: "labels"
+      inputs: ["kubernetes_json"]
   sinks:
-    syslog_gelf_loki:
-      type: loki
-      inputs: ["syslog_gelf_tcp"]
-      endpoint: http://loki-distributor.logging.svc.cluster.local:3100
-      labels:
-        scrape_job: syslog
-      compression: none
-      healthcheck:
-        enabled: false
-      encoding:
-        codec: "json"
-        except_fields: ["source_type"]
-    beats_logstash_loki:
-      type: loki
-      inputs: ["beats_logstash_tcp"]
-      endpoint: http://loki-distributor.logging.svc.cluster.local:3100
-      labels:
-        scrape_job: beats
-      compression: none
-      healthcheck:
-        enabled: false
-      encoding:
-        codec: "json"
-        except_fields: ["source_type"]
     kubernetes_logs_loki:
       type: loki
-      inputs: ["kubernetes_json"]
+      inputs: ["kubernetes_json_labels"]
       endpoint: http://loki-distributor.logging.svc.cluster.local:3100
       labels:
         scrape_job: kubernetes-pods
@@ -328,6 +291,10 @@ customConfig:
       encoding:
         codec: "json"
         except_fields: ["source_type"]
+      buffer:
+        type: memory
+        max_events: 81920
+        when_full: block
 
 # extraVolumes -- Additional Volumes to use with Vector Pods
 extraVolumes:
@@ -353,7 +320,7 @@ persistence:
   existingClaim: ""
   # persistence.storageClassName -- Specifies the storageClassName for PersistentVolumeClaims
   ## Valid for Aggregator role
-  storageClassName: longhorn
+  # storageClassName: default
 
   # persistence.accessModes -- Specifies the accessModes for PersistentVolumeClaims
   ## Valid for Aggregator role
@@ -410,7 +377,7 @@ readinessProbe: {}
 ## Requires the PodMonitor CRD to be installed
 podMonitor:
   # podMonitor.enabled -- If true, create a PodMonitor for Vector
-  enabled: true
+  enabled: false
   # podMonitor.jobLabel -- Override the label to retrieve the job name from
   jobLabel: app.kubernetes.io/name
   # podMonitor.port -- Override the port to scrape
