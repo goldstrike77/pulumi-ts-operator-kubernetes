@@ -1,12 +1,11 @@
 import * as k8s from "@pulumi/kubernetes";
 import { FileAsset } from "@pulumi/pulumi/asset";
-import * as fs from 'fs';
 
 const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "datadog",
+                name: "vault",
                 annotations: {},
                 labels: {}
             },
@@ -14,31 +13,13 @@ const deploy_spec = [
         },
         helm: [
             {
-                namespace: "datadog",
-                name: "vector-agent-kubernetes",
-                chart: "../../_chart/vector-0.6.0.tgz",
-                // repository: "https://charts.jenkins.io",
+                namespace: "vault",
+                name: "vault",
+                chart: "../../_chart/vault-0.19.0.tgz",
+                // repository: "https://helm.releases.hashicorp.com",
                 repository: "", // Must be empty string if local chart.
-                version: "0.6.0",
-                values: "./vector-agent-kubernetes.yaml"
-            },
-            {
-                namespace: "datadog",
-                name: "vector-aggregator-syslog",
-                chart: "../../_chart/vector-0.6.0.tgz",
-                // repository: "https://charts.jenkins.io",
-                repository: "", // Must be empty string if local chart.
-                version: "0.6.0",
-                values: "./vector-aggregator-syslog.yaml"
-            },
-            {
-                namespace: "datadog",
-                name: "vector-aggregator-beats",
-                chart: "../../_chart/vector-0.6.0.tgz",
-                // repository: "https://charts.jenkins.io",
-                repository: "", // Must be empty string if local chart.
-                version: "0.6.0",
-                values: "./vector-aggregator-beat.yaml"
+                version: "0.19.0",
+                values: "./vault.yaml"
             }
         ]
     }
