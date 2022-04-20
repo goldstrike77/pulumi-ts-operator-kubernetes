@@ -1,0 +1,19 @@
+schedule: '"*/5 * * * *"'
+restartPolicy: OnFailure
+successfulJobsHistoryLimit: 3
+
+image:
+  name: registry.cn-hangzhou.aliyuncs.com/goldstrike/vault-unseal
+  tag: v0.1
+  pullPolicy: IfNotPresent
+
+vault:
+  # Vault Server address with scheme e.g. https://vault.server.example.com
+  address: "http://vault:8200"
+  # Vault Server Unseal keys, suggested to enter at least 3
+  shards:
+    - "2ovhK/L/rf9Qh9awwYCaVeZK06CeEo+eKxZZ6mROjCSA"
+    - "6864JxVZINnJDGkiOEDbMjszvNpzrsKONtz7af7R8i6N"
+    - "Yk0U5jtCcPPBsUumYuTuLRBY1EpxdzZguVRWow001ALs"
+    - "hugWwBssTvmVnBW7HbKgaZ1DXdVkrV7hYjfTQ91zoDe2"
+    - "3+8cfrvhiNuKBSjShafNJhI0xgAlMo1S+MN0DmAzH9af"

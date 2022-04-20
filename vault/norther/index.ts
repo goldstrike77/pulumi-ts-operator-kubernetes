@@ -20,6 +20,15 @@ const deploy_spec = [
                 repository: "", // Must be empty string if local chart.
                 version: "0.19.0",
                 values: "./vault.yaml"
+            },
+            {
+                namespace: "vault",
+                name: "vault-unseal",
+                chart: "../../_chart/vault-unseal-cronjob-0.4.0.tgz",
+                // repository: "https://helm.releases.hashicorp.com",
+                repository: "", // Must be empty string if local chart.
+                version: "0.4.0",
+                values: "./vault-unseal.yaml"
             }
         ]
     }
