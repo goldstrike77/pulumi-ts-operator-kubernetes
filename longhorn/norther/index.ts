@@ -36,10 +36,10 @@ const deploy_spec = [
             {
                 namespace: "longhorn-system",
                 name: "longhorn",
-                chart: "../../_chart/longhorn-1.2.3.tgz",
+                chart: "../../_chart/longhorn-1.2.4.tgz",
                 // repository: "https://charts.longhorn.io",
                 repository: "", // Must be empty string if local chart.
-                version: "1.2.3",
+                version: "1.2.4",
                 values: "./longhorn.yaml"
             }
         ]

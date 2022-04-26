@@ -69,19 +69,19 @@ image:
       tag: v2_20210820
     engine:
       repository: rancher/mirrored-longhornio-longhorn-engine
-      tag: v1.2.3
+      tag: v1.2.4
     instanceManager:
       repository: rancher/mirrored-longhornio-longhorn-instance-manager
-      tag: v1_20211210
+      tag: v1_20220303
     manager:
       repository: rancher/mirrored-longhornio-longhorn-manager
-      tag: v1.2.3
+      tag: v1.2.4
     shareManager:
       repository: rancher/mirrored-longhornio-longhorn-share-manager
       tag: v1_20211020
     ui:
       repository: rancher/mirrored-longhornio-longhorn-ui
-      tag: v1.2.3
+      tag: v1.2.4
   pullPolicy: IfNotPresent
   defaultImage: true
 ingress:
