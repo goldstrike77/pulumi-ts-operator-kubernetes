@@ -15,19 +15,19 @@ const deploy_spec = [
             {
                 namespace: "opensearch",
                 name: "opensearch",
-                chart: "../../_chart/opensearch-1.8.0.tgz",
+                chart: "../../_chart/opensearch-2.1.0.tgz",
                 // repository: "https://opensearch-project.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.
-                version: "1.8.0",
+                version: "2.1.0",
                 values: "./opensearch.yaml"
             },
             {
                 namespace: "opensearch",
                 name: "opensearch-dashboards",
-                chart: "../../_chart/opensearch-dashboards-1.2.1.tgz",
+                chart: "../../_chart/opensearch-dashboards-2.1.0.tgz",
                 // repository: "https://opensearch-project.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.
-                version: "1.2.1",
+                version: "2.1.0",
                 values: "./opensearch-dashboards.yaml"
             }
 //            {

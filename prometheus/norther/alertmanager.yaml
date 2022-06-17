@@ -1,0 +1,30 @@
+global:
+  http_config:
+    tls_config:
+      insecure_skip_verify: true    
+  resolve_timeout: 5m
+route:
+  group_by: ['job']
+  group_wait: 1m
+  group_interval: 15s
+  repeat_interval: 2h
+  receiver: 'wechat'
+  routes:
+  - match:
+      alertname: Watchdog
+    continue: true
+    receiver: 'null'
+  - match:
+    receiver: 'wechat'
+    continue: true
+receivers:
+- name: 'null'
+- name: 'wechat'
+  wechat_configs:
+  - send_resolved: true
+    to_party: '5'
+    agent_id: '1000005'
+    corp_id: 'wxe787605f1d1700da'
+    api_secret: '0BfjWZhwqFi0IUHN8sMh0JEd89383iin1TTaJajJ_SI'
+templates:
+- '/etc/alertmanager/config/*.tmpl'
