@@ -30,44 +30,44 @@ const deploy_spec = [
             {
                 namespace: "longhorn-system",
                 name: "longhorn",
-                chart: "../../_chart/longhorn-1.2.4.tgz",
+                chart: "../../_chart/longhorn-1.3.0.tgz",
                 // repository: "https://charts.longhorn.io",
                 repository: "", // Must be empty string if local chart.
-                version: "1.2.4",
+                version: "1.3.0",
                 values: "./longhorn.yaml"
             }
         ],
-        customresource: [
-            {
-                apiVersion: "monitoring.coreos.com/v1",
-                kind: "ServiceMonitor",
-                metadata: {
-                    name: "longhorn",
-                    namespace: "longhorn-system",
-                    annotations: {},
-                    labels: {
-                        name: "longhorn"
-                    }
-                },
-                others: {
-                    "spec": {
-                        "selector": {
-                            "matchLabels": {
-                                "app": "longhorn-manager"
-                            },
-                            "namespaceSelector": {
-                                "matchNames": [
-                                    "longhorn-system"
-                                ]
-                            },
-                            "endpoints": [
-                                "port: manager"
-                            ]
-                        }
-                    }
-                }
-            }
-        ]
+        //        customresource: [
+        //            {
+        //                apiVersion: "monitoring.coreos.com/v1",
+        //                kind: "ServiceMonitor",
+        //                metadata: {
+        //                    name: "longhorn",
+        //                    namespace: "longhorn-system",
+        //                    annotations: {},
+        //                    labels: {
+        //                        name: "longhorn"
+        //                    }
+        //                },
+        //                others: {
+        //                    "spec": {
+        //                        "selector": {
+        //                            "matchLabels": {
+        //                                "app": "longhorn-manager"
+        //                            },
+        //                            "namespaceSelector": {
+        //                                "matchNames": [
+        //                                    "longhorn-system"
+        //                                ]
+        //                            },
+        //                            "endpoints": [
+        //                                "port: manager"
+        //                            ]
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        ]
     }
 ]
 
@@ -113,12 +113,12 @@ for (var i in deploy_spec) {
         }
     }
     // Create Custom Resource.
-    for (var custom_index in deploy_spec[i].customresource) {
-        const customresource = new k8s.apiextensions.CustomResource(deploy_spec[i].customresource[custom_index].metadata.name, {
-            apiVersion: deploy_spec[i].customresource[custom_index].apiVersion,
-            kind: deploy_spec[i].customresource[custom_index].kind,
-            metadata: deploy_spec[i].customresource[custom_index].metadata,
-            others: deploy_spec[i].customresource[custom_index].others
-        }, { dependsOn: [namespace] });
-    }
+    //    for (var custom_index in deploy_spec[i].customresource) {
+    //        const customresource = new k8s.apiextensions.CustomResource(deploy_spec[i].customresource[custom_index].metadata.name, {
+    //            apiVersion: deploy_spec[i].customresource[custom_index].apiVersion,
+    //            kind: deploy_spec[i].customresource[custom_index].kind,
+    //            metadata: deploy_spec[i].customresource[custom_index].metadata,
+    //            others: deploy_spec[i].customresource[custom_index].others
+    //        }, { dependsOn: [namespace] });
+    //    }
 }

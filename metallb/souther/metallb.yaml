@@ -299,7 +299,7 @@ controller:
     serviceMonitor:
       ## @param controller.prometheus.serviceMonitor.enabled Specify if a servicemonitor will be deployed for prometheus-operator
       ##
-      enabled: true
+      enabled: false
       ## @param controller.prometheus.serviceMonitor.jobLabel Specify the jobLabel to use for the prometheus-operator
       ##
       jobLabel: "app.kubernetes.io/name"
@@ -513,7 +513,7 @@ speaker:
     serviceMonitor:
       ## @param speaker.prometheus.serviceMonitor.enabled Enable support for Prometheus Operator
       ##
-      enabled: true
+      enabled: false
       ## @param speaker.prometheus.serviceMonitor.jobLabel Job label for scrape target
       ##
       jobLabel: "app.kubernetes.io/name"

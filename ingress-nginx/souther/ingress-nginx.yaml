@@ -681,7 +681,7 @@ controller:
       # nodePort: ""
 
     serviceMonitor:
-      enabled: true
+      enabled: false
       additionalLabels: {}    
       # The label to use to retrieve the job name from.
       # jobLabel: "app.kubernetes.io/name"
@@ -710,7 +710,7 @@ controller:
       metricRelabelings: []
 
     prometheusRule:
-      enabled: true
+      enabled: false
       additionalLabels: {}
       # namespace: ""
       rules:

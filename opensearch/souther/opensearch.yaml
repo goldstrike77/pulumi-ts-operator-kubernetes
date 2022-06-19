@@ -41,9 +41,7 @@ config:
   #   rootLogger.level = info
   #   rootLogger.appenderRef.console.ref = console
   opensearch.yml: |
-    cluster:
-      name: opensearch-cluster
-      max_shards_per_node: 10000
+    cluster.name: opensearch-cluster
 
     # Bind to all interfaces because we don't know what IP address Docker will assign to us.
     network.host: 0.0.0.0
@@ -61,55 +59,16 @@ config:
             pemkey_filepath: esnode-key.pem
             pemtrustedcas_filepath: root-ca.pem
             enforce_hostname_verification: false
-            enabled_protocols:
-              [
-                "TLSv1.2"
-              ]
-            enabled_ciphers:
-              [
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",                
-              ]
           http:
             enabled: true
-            clientauth_mode: NONE
             pemcert_filepath: esnode.pem
             pemkey_filepath: esnode-key.pem
             pemtrustedcas_filepath: root-ca.pem
-            enabled_protocols:
-              [
-                "TLSv1.2"
-              ]
-            enabled_ciphers:
-              [
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",                
-              ]
         allow_unsafe_democertificates: true
         allow_default_init_securityindex: true
         authcz:
           admin_dn:
-            - CN=admin,OU=client,O=client,L=example,C=com
+            - CN=kirk,OU=client,O=client,L=test,C=de
         audit.type: internal_opensearch
         enable_snapshot_restore_privilege: true
         check_snapshot_restore_write_privileges: true
@@ -170,31 +129,28 @@ podAnnotations: {}
 # additionals labels
 labels: {}
 
-opensearchJavaOpts: "-Xmx3072M -Xms3072M"
+opensearchJavaOpts: "-Xmx4096M -Xms4096M"
 
 resources:
-  limits:
-    cpu: "2000m"
-    memory: "4096Mi"
   requests:
-    cpu: "2000m"
-    memory: "4096Mi"
+    cpu: "1000m"
+    memory: "5120Mi"
 
-initResources:
-  limits:
-    cpu: "25m"
-    memory: "128Mi"
-  requests:
-    cpu: "25m"
-    memory: "128Mi"
+initResources: {}
+#  limits:
+#     cpu: "25m"
+#     memory: "128Mi"
+#  requests:
+#     cpu: "25m"
+#     memory: "128Mi"
 
-sidecarResources:
-  limits:
-    cpu: "25m"
-    memory: "128Mi"
-  requests:
-    cpu: "25m"
-    memory: "128Mi"
+sidecarResources: {}
+#   limits:
+#     cpu: "25m"
+#     memory: "128Mi"
+#   requests:
+#     cpu: "25m"
+#     memory: "128Mi"
 
 networkHost: "0.0.0.0"
 
@@ -243,7 +199,7 @@ persistence:
   storageClass: "longhorn"
   accessModes:
     - ReadWriteOnce
-  size: 50Gi
+  size: 8Gi
   annotations: {}
 
 extraVolumes: []
@@ -452,7 +408,7 @@ fsGroup: ""
 ## the system has already been preconfigured. (Ex: https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html)
 ## Also see: https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/
 sysctl:
-  enabled: true
+  enabled: false
 
 ## Enable to add 3rd Party / Custom plugins not offered in the default OpenSearch image.
 plugins:
