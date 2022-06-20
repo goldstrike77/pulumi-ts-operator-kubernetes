@@ -1,0 +1,14 @@
+---
+logging.quiet: true
+opensearch.hosts: [https://opensearch-cluster-master:9200]
+opensearch.ssl.verificationMode: none
+opensearch.username: kibanaserver
+opensearch.password: password
+opensearch.requestHeadersWhitelist: [authorization, securitytenant] 
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: [Private, Global]
+opensearch_security.readonly_mode.roles: [kibana_read_only]
+opensearch_security.cookie.secure: false
+server.host: '0.0.0.0'
+server.rewriteBasePath: true
+server.basePath: "/opensearch"

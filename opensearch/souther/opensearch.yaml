@@ -59,11 +59,51 @@ config:
             pemkey_filepath: esnode-key.pem
             pemtrustedcas_filepath: root-ca.pem
             enforce_hostname_verification: false
+            enabled_protocols:
+              [
+                "TLSv1.2",
+                "TLSv1.3"
+              ]
+            enabled_ciphers:
+              [
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_RSA_WITH_AES_256_CBC_SHA",                
+              ]
           http:
             enabled: true
             pemcert_filepath: esnode.pem
             pemkey_filepath: esnode-key.pem
             pemtrustedcas_filepath: root-ca.pem
+            enabled_protocols:
+              [
+                "TLSv1.2",
+                "TLSv1.3"
+              ]
+            enabled_ciphers:
+              [
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_RSA_WITH_AES_256_CBC_SHA",                
+              ]
         allow_unsafe_democertificates: true
         allow_default_init_securityindex: true
         authcz:
@@ -129,20 +169,23 @@ podAnnotations: {}
 # additionals labels
 labels: {}
 
-opensearchJavaOpts: "-Xmx4096M -Xms4096M"
+opensearchJavaOpts: "-Xmx6144M -Xms6144M -server"
 
 resources:
+  limits:
+    cpu: 2000m
+    memory: 8192Mi
   requests:
-    cpu: "1000m"
-    memory: "5120Mi"
+    cpu: 2000m
+    memory: 8192Mi
 
-initResources: {}
-#  limits:
-#     cpu: "25m"
-#     memory: "128Mi"
-#  requests:
-#     cpu: "25m"
-#     memory: "128Mi"
+initResources:
+  limits:
+    cpu: "25m"
+    memory: "128Mi"
+  requests:
+    cpu: "25m"
+    memory: "128Mi"
 
 sidecarResources: {}
 #   limits:
@@ -199,7 +242,7 @@ persistence:
   storageClass: "longhorn"
   accessModes:
     - ReadWriteOnce
-  size: 8Gi
+  size: 50Gi
   annotations: {}
 
 extraVolumes: []
@@ -216,7 +259,28 @@ extraContainers: []
   #   image: busybox
   #   command: ['do', 'something']
 
-extraInitContainers: []
+extraInitContainers:
+  ## Image that performs the sysctl operation to modify Kernel settings (needed sometimes to avoid boot errors)
+  - name: sysctl
+    image: docker.io/bitnami/bitnami-shell:10-debian-10
+    imagePullPolicy: "IfNotPresent"
+    command:
+      - /bin/bash
+      - -ec
+      - |
+        CURRENT=`sysctl -n vm.max_map_count`;
+        DESIRED="262144";
+        if [ "$DESIRED" -gt "$CURRENT" ]; then
+            sysctl -w vm.max_map_count=262144;
+        fi;
+        CURRENT=`sysctl -n fs.file-max`;
+        DESIRED="65536";
+        if [ "$DESIRED" -gt "$CURRENT" ]; then
+            sysctl -w fs.file-max=65536;
+        fi;
+    securityContext:
+      runAsUser: 0
+      privileged: true
   # - name: do-somethings
   #   image: busybox
   #   command: ['do', 'something']
@@ -259,12 +323,13 @@ service:
   labelsHeadless: {}
   headless:
     annotations: {}
-  type: ClusterIP
+  type: LoadBalancer
   nodePort: ""
-  annotations: {}
+  annotations:
+    metallb.universe.tf/allow-shared-ip: shared
   httpPortName: http
   transportPortName: transport
-  loadBalancerIP: ""
+  loadBalancerIP: "10.101.4.43"
   loadBalancerSourceRanges: []
   externalTrafficPolicy: ""
 
@@ -289,10 +354,10 @@ securityContext:
 
 securityConfig:
   enabled: true
-  path: "/usr/share/opensearch/plugins/opensearch-security/securityconfig"
+  path: "/usr/share/opensearch/config/opensearch-security"
   actionGroupsSecret:
   configSecret:
-  internalUsersSecret:
+  internalUsersSecret: security-config-secret
   rolesSecret:
   rolesMappingSecret:
   tenantsSecret:
@@ -308,9 +373,9 @@ securityConfig:
     # * If you define securityConfigSecret, the chart will assume this secret is
     #   created externally and mount it.
     # * It is an error to define both data and securityConfigSecret.
-    securityConfigSecret: ""
-    dataComplete: true
-    data: {}
+    # securityConfigSecret: ""
+    dataComplete: false
+    # data:
       # config.yml: |-
       # internal_users.yml: |-
       # roles.yml: |-
