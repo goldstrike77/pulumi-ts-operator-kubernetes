@@ -16,7 +16,7 @@ const deploy_spec = [
                 namespace: "minio",
                 name: "minio",
                 chart: "../../_chart/minio-3.5.7.tgz",
-                // repository: "https://charts.jenkins.io",
+                // repository: "https://charts.min.io/",
                 repository: "", // Must be empty string if local chart.
                 version: "3.5.7",
                 values: "./minio.yaml"

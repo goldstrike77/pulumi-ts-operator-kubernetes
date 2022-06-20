@@ -17,7 +17,7 @@ const deploy_spec = [
                 namespace: "datadog",
                 name: "vector-agent-kubernetes",
                 chart: "../../_chart/vector-0.6.0.tgz",
-                // repository: "https://charts.jenkins.io",
+                // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
                 version: "0.6.0",
                 values: "./vector-agent-kubernetes.yaml"
@@ -26,7 +26,7 @@ const deploy_spec = [
                 namespace: "datadog",
                 name: "vector-aggregator-syslog",
                 chart: "../../_chart/vector-0.6.0.tgz",
-                // repository: "https://charts.jenkins.io",
+                // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
                 version: "0.6.0",
                 values: "./vector-aggregator-syslog.yaml"
@@ -35,7 +35,7 @@ const deploy_spec = [
                 namespace: "datadog",
                 name: "vector-aggregator-beats",
                 chart: "../../_chart/vector-0.6.0.tgz",
-                // repository: "https://charts.jenkins.io",
+                // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
                 version: "0.6.0",
                 values: "./vector-aggregator-beat.yaml"
