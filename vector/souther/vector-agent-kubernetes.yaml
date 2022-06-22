@@ -34,6 +34,8 @@ image:
   # image.tag -- Vector image tag to use
   # @default -- Chart's appVersion
   tag: ""
+  # image.sha -- Vector image sha to use
+  sha: ""
 
 # replicas -- Set the number of Pods to create
 ## Valid for Aggregator and Stateless-Aggregator
@@ -278,23 +280,33 @@ customConfig:
       field: "labels"
       inputs: ["kubernetes_json"]
   sinks:
-    kubernetes_logs_loki:
-      type: loki
+    kubernetes_logs_elasticsearch:
+      type: elasticsearch
       inputs: ["kubernetes_json_labels"]
-      endpoint: http://loki-distributor.logging.svc.cluster.local:3100
-      labels:
-        scrape_job: kubernetes-pods
-        cluster: norther
+      bulk:
+        action: "index"
+        index: "vector-%Y-%m-%d"
+      endpoint: "https://opensearch-cluster-master.opensearch.svc.cluster.local:9200"
+      mode: bulk
+      suppress_type_name: true
+      acknowledgements: null
       compression: none
-      healthcheck:
-        enabled: false
-      encoding:
-        codec: "json"
-        except_fields: ["source_type"]
+      encoding: null
+      healthcheck: null
+      tls:
+        verify_certificate: false
+        verify_hostname: false
+      auth:
+        user: "admin"
+        password: "password"
+        strategy: basic
       buffer:
-        type: disk
+        type: memory
         max_events: 81920
-        when_full: block
+        when_full: drop_newest
+      batch:
+        max_events: 1024
+        timeout_secs: 2
 
 # extraVolumes -- Additional Volumes to use with Vector Pods
 extraVolumes:
@@ -414,7 +426,7 @@ haproxy:
     ## Ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
     pullSecrets: []
     # haproxy.image.tag -- HAProxy image tag to use
-    tag: "2.4.4"
+    tag: "2.4.17"
 
   # haproxy.rollWorkload -- Add a checksum of the generated ConfigMap to the HAProxy Deployment
   rollWorkload: true
