@@ -41,7 +41,17 @@ config:
   #   rootLogger.level = info
   #   rootLogger.appenderRef.console.ref = console
   opensearch.yml: |
-    cluster.name: opensearch-cluster
+    cluster
+      name: opensearch-cluster
+      max_shards_per_node: 10000
+    http:
+      compression: false
+      cors:
+        enabled: true
+        allow-origin: "*"
+        allow-credentials: true
+        allow-methods: HEAD, GET, POST, PUT, DELETE
+        allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
 
     # Bind to all interfaces because we don't know what IP address Docker will assign to us.
     network.host: 0.0.0.0
@@ -108,7 +118,9 @@ config:
         allow_default_init_securityindex: true
         authcz:
           admin_dn:
-            - CN=kirk,OU=client,O=client,L=test,C=de
+            - CN=SIEM
+          nodes_dn:
+            - "CN=ROOT,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX"
         audit.type: internal_opensearch
         enable_snapshot_restore_privilege: true
         check_snapshot_restore_write_privileges: true
