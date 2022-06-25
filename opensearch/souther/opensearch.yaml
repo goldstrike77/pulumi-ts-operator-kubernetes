@@ -41,7 +41,7 @@ config:
   #   rootLogger.level = info
   #   rootLogger.appenderRef.console.ref = console
   opensearch.yml: |
-    cluster
+    cluster:
       name: opensearch-cluster
       max_shards_per_node: 10000
     http:
