@@ -118,9 +118,7 @@ config:
         allow_default_init_securityindex: true
         authcz:
           admin_dn:
-            - CN=SIEM
-          nodes_dn:
-            - "CN=ROOT,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX"
+            - CN=kirk,OU=client,O=client,L=test,C=de
         audit.type: internal_opensearch
         enable_snapshot_restore_privilege: true
         check_snapshot_restore_write_privileges: true
