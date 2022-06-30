@@ -21,6 +21,15 @@ const deploy_spec = [
                 repository: "", // Must be empty string if local chart.
                 version: "0.13.1",
                 values: "./vector-agent-kubernetes.yaml"
+            },
+            {
+                namespace: "datadog",
+                name: "vector-aggregator-syslog",
+                chart: "../../_chart/vector-0.13.1.tgz",
+                // repository: "https://helm.vector.dev",
+                repository: "", // Must be empty string if local chart.
+                version: "0.13.1",
+                values: "./vector-aggregator-syslog.yaml"
             }
         ]
     }
