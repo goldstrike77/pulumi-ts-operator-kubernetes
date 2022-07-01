@@ -3,43 +3,43 @@
 # Declare variables to be passed into your templates.
 global:
   cattle:
-    systemDefaultRegistry: ""
+    systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com"
 
 image:
   longhorn:
     engine:
-      repository: longhornio/longhorn-engine
+      repository: goldstrike/longhorn-engine
       tag: v1.3.0
     manager:
-      repository: longhornio/longhorn-manager
+      repository: goldstrike/longhorn-manager
       tag: v1.3.0
     ui:
-      repository: longhornio/longhorn-ui
+      repository: goldstrike/longhorn-ui
       tag: v1.3.0
     instanceManager:
-      repository: longhornio/longhorn-instance-manager
+      repository: goldstrike/longhorn-instance-manager
       tag: v1_20220611
     shareManager:
-      repository: longhornio/longhorn-share-manager
+      repository: goldstrike/longhorn-share-manager
       tag: v1_20220531
     backingImageManager:
-      repository: longhornio/backing-image-manager
+      repository: goldstrike/backing-image-manager
       tag: v3_20220609
   csi:
     attacher:
-      repository: longhornio/csi-attacher
+      repository: goldstrike/csi-attacher
       tag: v3.4.0
     provisioner:
-      repository: longhornio/csi-provisioner
+      repository: goldstrike/csi-provisioner
       tag: v2.1.2
     nodeDriverRegistrar:
-      repository: longhornio/csi-node-driver-registrar
+      repository: goldstrike/csi-node-driver-registrar
       tag: v2.5.0
     resizer:
-      repository: longhornio/csi-resizer
+      repository: goldstrike/csi-resizer
       tag: v1.2.0
     snapshotter:
-      repository: longhornio/csi-snapshotter
+      repository: goldstrike/csi-snapshotter
       tag: v3.0.3
   pullPolicy: IfNotPresent
 
