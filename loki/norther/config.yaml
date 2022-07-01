@@ -58,6 +58,7 @@ limits_config:
   reject_old_samples: true
   reject_old_samples_max_age: 168h
   retention_period: 744h
+  split_queries_by_interval: 15m
 memberlist:
   join_members:
   - loki-memberlist
@@ -78,7 +79,6 @@ query_range:
         service: http
         timeout: 5s
         update_interval: 1m
-  split_queries_by_interval: 15m
 ruler:
   alertmanager_url: https://alertmanager.xx
   external_url: https://alertmanager.xx
@@ -144,3 +144,5 @@ storage_config:
       timeout: 5s
       update_interval: 1m
   max_chunk_batch_size: 100
+analytics:
+  reporting_enabled: false
