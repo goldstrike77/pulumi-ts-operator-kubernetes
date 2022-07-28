@@ -1344,6 +1344,8 @@ kube-state-metrics:
     repository: registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics
     tag: v2.3.0
     pullPolicy: IfNotPresent
+  metricLabelsAllowlist:
+    - nodes=[*]
   resources:
     limits:
       cpu: 100m
