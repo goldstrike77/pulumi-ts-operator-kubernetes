@@ -15,11 +15,60 @@ const deploy_spec = [
             {
                 namespace: "metallb-system",
                 name: "metallb",
-                chart: "../../_chart/metallb-2.6.2.tgz",
+                chart: "../../_chart/metallb-3.0.12.tgz",
                 // repository: "https://charts.bitnami.com/bitnami",
                 repository: "", // Must be empty string if local chart.
-                version: "2.6.2",
-                values: "./metallb.yaml"
+                version: "3.0.12",
+                values: {
+                    configInline: {
+                        "address-pools": [
+                            { name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.41-10.101.4.42"] }
+                        ]
+                    },
+                    controller: {
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        resources: {
+                            limits: { cpu: "100m", memory: "100Mi" },
+                            requests: { cpu: "100m", memory: "100Mi" }
+                        },
+                        metrics: {
+                            enabled: false,
+                            serviceMonitor: {
+                                enabled: false,
+                                relabelings: [
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                                ]
+                            },
+                            prometheusRule: {}
+                        }
+                    },
+                    speaker: {
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        resources: {
+                            limits: { cpu: "100m", memory: "100Mi" },
+                            requests: { cpu: "100m", memory: "100Mi" }
+                        }
+                    },
+                    metrics: {
+                        enabled: false,
+                        serviceMonitor: {
+                            enabled: false,
+                            relabelings: [
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                            ]
+                        }
+                    }
+                }
             }
         ]
     }
@@ -39,7 +88,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -49,7 +98,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
