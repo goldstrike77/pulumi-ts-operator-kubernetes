@@ -111,16 +111,16 @@ const deploy_spec = [
                             }
                         },
                         metrics: {
-                            enabled: false,
+                            enabled: true,
                             serviceMonitor: {
-                                enabled: false,
+                                enabled: true,
                                 relabelings: [
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
                                 ]
                             },
                             prometheusRule: {

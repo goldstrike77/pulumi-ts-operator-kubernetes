@@ -32,50 +32,364 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "monitoring",
-                name: "thanos-store-memcached-index",
-                chart: "../../_chart/memcached-6.0.2.tgz",
+                name: "thanos-redis",
+                chart: "../../_chart/redis-17.0.7.tgz",
                 // repository: "https://charts.bitnami.com/bitnami",
                 repository: "", // Must be empty string if local chart.
-                version: "6.0.2",
-                values: "./memcached.yaml"
+                version: "17.0.7",
+                values: {
+                    architecture: "standalone",
+                    auth: { enabled: false, sentinel: false },
+                    commonConfiguration: `appendonly no
+maxmemory 512mb
+tcp-keepalive 60
+tcp-backlog 8192
+maxclients 1000
+bind 0.0.0.0
+databases 2
+save ""`,
+                    master: {
+                        resources: {
+                            limits: { cpu: "300m", memory: "576Mi" },
+                            requests: { cpu: "300m", memory: "576Mi" }
+                        },
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podSecurityContext: {
+                            enabled: true,
+                            fsGroup: 1001,
+                            sysctls: [{ name: "net.core.somaxconn", value: "8192" }]
+                        },
+                        persistence: { enabled: false }
+                    },
+                    metrics: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        serviceMonitor: {
+                            enabled: true,
+                            relabellings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        }
+                    },
+                    sysctl: { enabled: true }
+                }
             },
-            {
-                namespace: "monitoring",
-                name: "thanos-store-memcached-bucket",
-                chart: "../../_chart/memcached-6.0.2.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "6.0.2",
-                values: "./memcached.yaml"
-            },
-            {
-                namespace: "monitoring",
-                name: "thanos-queryfrontend-memcached",
-                chart: "../../_chart/memcached-6.0.2.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "6.0.2",
-                values: "./memcached.yaml"
-            },
-            {
-                namespace: "monitoring",
-                name: "thanos",
-                chart: "../../_chart/thanos-9.0.3.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "9.0.3",
-                values: "./thanos.yaml"
-            },
+            /**
+                        {
+                            namespace: "monitoring",
+                            name: "thanos",
+                            chart: "../../_chart/thanos-11.1.3.tgz",
+                            // repository: "https://charts.bitnami.com/bitnami",
+                            repository: "", // Must be empty string if local chart.
+                            version: "11.1.3",
+                            values: "./thanos.yaml"
+                        },
+             */
             {
                 namespace: "monitoring",
                 name: "kube-prometheus-stack",
-                chart: "../../_chart/kube-prometheus-stack-31.0.0.tgz",
+                chart: "../../_chart/kube-prometheus-stack-39.4.0.tgz",
                 // repository: "https://prometheus-community.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.                
-                version: "31.0.0",
-                values: "./kube-prometheus-stack.yaml"
+                version: "39.4.0",
+                values: {
+                    defaultRules: { create: false },
+                    alertmanager: {
+                        enabled: true,
+                        config: {},
+                        ingress: {
+                            enabled: true,
+                            ingressClassName: "nginx",
+                            annotations: {
+                                "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
+                                "nginx.ingress.kubernetes.io/backend-protocol": "HTTP"
+                            },
+                            hosts: ["norther.example.com"],
+                            paths: ["/alertmanager(/|$)(.*)"]
+                        },
+                        serviceMonitor: {
+                            /**
+                            relabelings: [
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
+                                { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                            ]
+                             */
+                        },
+                        alertmanagerSpec: {
+                            configSecret: "configuration-secret",
+                            logLevel: "warn",
+                            replicas: 1,
+                            storage: {
+                                volumeClaimTemplate: {
+                                    spec: {
+                                        storageClassName: "longhorn",
+                                        accessModes: ["ReadWriteOnce"],
+                                        resources: {
+                                            requests: {
+                                                storage: "1Gi",
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            externalUrl: "https://norther.example.com/alertmanager/",
+                            routePrefix: "/alertmanager",
+                            resources: {
+                                limits: { cpu: "100m", memory: "128Mi" },
+                                requests: { cpu: "100m", memory: "128Mi" }
+                            },
+                            volumes: [
+                                {
+                                    name: "cst-timezone",
+                                    hostPath: {
+                                        path: "/usr/share/zoneinfo/PRC",
+                                        type: "File"
+                                    }
+                                }
+                            ],
+                            volumeMounts: [{
+                                name: "cst-timezone",
+                                mountPath: "/etc/localtime",
+                                readOnly: true
+                            }]
+                        }
+                    },
+                    grafana: { enabled: false },
+                    kubeApiServer: {
+                        enabled: true,
+                        serviceMonitor: {
+                            relabelings: [
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+                    },
+                    kubelet: {
+                        enabled: true,
+                        serviceMonitor: {
+                            probes: false,
+                            cAdvisorRelabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ],
+                            relabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+                    },
+                    kubeControllerManager: { enabled: false },
+                    coreDns: {
+                        enabled: true,
+                        serviceMonitor: {
+                            relabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+                    },
+                    kubeDns: { enabled: false },
+                    kubeEtcd: { enabled: false },
+                    kubeScheduler: { enabled: false },
+                    kubeProxy: { enabled: false },
+                    kubeStateMetrics: { enabled: true },
+                    "kube-state-metrics": {
+                        image: {
+                            repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics",
+                            tag: "v2.5.0"
+                        },
+                        replicas: 1,
+                        customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        metricLabelsAllowlist: ["nodes=[*]"],
+                        resources: {
+                            limits: { cpu: "100m", memory: "256Mi" },
+                            requests: { cpu: "100m", memory: "256Mi" }
+                        },
+                        prometheus: {
+                            monitor: {
+                                enabled: true,
+                                relabelings: [
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["___meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                                ]
+                            }
+                        }
+                    },
+                    nodeExporter: { enabled: true },
+                    "prometheus-node-exporter": {
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        },
+                        podLabels: { jobLabel: "node-exporter", customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        prometheus: {
+                            monitor: {
+                                enabled: true,
+                                relabelings: [
+                                    { sourceLabels: ["__meta_kubernetes_pod_node_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                                ],
+                            }
+                        }
+                    },
+                    prometheusOperator: {
+                        enabled: true,
+                        admissionWebhooks: {
+                            enabled: true,
+                            patch: {
+                                enabled: true,
+                                image: {
+                                    repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/kube-webhook-certgen",
+                                    tag: "v1.1.1",
+                                    sha: "64d8c73dca984af206adf9d6d7e46aa550362b1d7a01f3a0a91b20cc67868660"
+                                }
+                            }
+                        },
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        logLevel: "warn",
+                        serviceMonitor: {
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        resources: {
+                            limits: { cpu: "200m", memory: "256Mi" },
+                            requests: { cpu: "200m", memory: "256Mi" }
+                        },
+                        prometheusConfigReloader: {
+                            resources: {
+                                limits: { cpu: "200m", memory: "64Mi" },
+                                requests: { cpu: "200m", memory: "64Mi" }
+                            }
+                        }
+                    },
+                    prometheus: {
+                        enabled: true,
+                        thanosService: {
+                            enabled: true,
+                        },
+                        thanosServiceMonitor: {
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        },
+                        ingress: {
+                            enabled: true,
+                            ingressClassName: "nginx",
+                            annotations: { "nginx.ingress.kubernetes.io/backend-protocol": "HTTP" },
+                            hosts: ["norther.example.com"],
+                            paths: ["/prometheus"],
+                        },
+                        serviceMonitor: {
+                            relabelings: [
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        },
+                        prometheusSpec: {
+                            disableCompaction: true,
+                            scrapeInterval: "60s",
+                            scrapeTimeout: "30s",
+                            evaluationInterval: "60s",
+                            externalLabels: { cluster: "norther" },
+                            externalUrl: "https://norther.example.com/prometheus/",
+                            serviceMonitorSelectorNilUsesHelmValues: false,
+                            podMonitorSelectorNilUsesHelmValues: false,
+                            retention: "2d",
+                            retentionSize: "5120MB",
+                            replicas: 1,
+                            logLevel: "warn",
+                            routePrefix: "/prometheus",
+                            resources: {
+                                limits: { cpu: "500m", memory: "2048Mi" },
+                                requests: { cpu: "500m", memory: "2048Mi" }
+                            }
+                        },
+                        storageSpec: {
+                            volumeClaimTemplate: {
+                                spec: {
+                                    storageClassName: "longhorn",
+                                    accessModes: ["ReadWriteOnce"],
+                                    resources: {
+                                        requests: {
+                                            storage: "8Gi"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        additionalScrapeConfigsSecret: {
+                            enabled: true,
+                            name: "configuration-secret",
+                            key: "additionalscrape.job"
+                        },
+                        thanos: {
+                            objectStorageConfig: {
+                                name: "configuration-secret",
+                                key: "objstore.yml"
+                            }
+                        }
+                    }
+                }
             }
         ],
+        /**
         yaml: [
             { name: "../_rules/severity/alertmanager.rules.yaml" },
             { name: "../_rules/severity/config-reloaders.yaml" },
@@ -103,6 +417,8 @@ const deploy_spec = [
             { name: "../_rules/severity/prometheus-operator.yaml" },
             { name: "../_rules/severity/prometheus.yaml" }
         ]
+         */
+
     }
 ]
 
@@ -129,7 +445,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -139,7 +455,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
@@ -148,10 +464,12 @@ for (var i in deploy_spec) {
         }
     }
     // Create Prometheus rules.
+    /**
     for (var yaml_index in deploy_spec[i].yaml) {
         const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
             file: deploy_spec[i].yaml[yaml_index].name,
             skipAwait: true,
         }, { dependsOn: [namespace] });
     }
+     */
 }
