@@ -26,23 +26,94 @@ const deploy_spec = [
                 }
             }
         ],
-        yaml: [
-            {
-                name: "servicemonitor",
-                file: "./servicemonitor.yaml"
-            }
-        ],
         helm: [
             {
                 namespace: "longhorn-system",
                 name: "longhorn",
-                chart: "../../_chart/longhorn-1.2.4.tgz",
+                chart: "../../_chart/longhorn-1.3.0.tgz",
                 // repository: "https://charts.longhorn.io",
                 repository: "", // Must be empty string if local chart.
-                version: "1.2.4",
-                values: "./longhorn.yaml"
+                version: "1.3.0",
+                values: {
+                    global: { cattle: { systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com" } },
+                    image: {
+                        longhorn: {
+                            engine: { repository: "rancher/mirrored-longhornio-longhorn-engine" },
+                            manager: { repository: "rancher/mirrored-longhornio-longhorn-manager" },
+                            ui: { repository: "rancher/mirrored-longhornio-longhorn-ui" },
+                            instanceManager: { repository: "rancher/mirrored-longhornio-longhorn-instance-manager" },
+                            shareManager: { repository: "rancher/mirrored-longhornio-longhorn-share-manager" },
+                            backingImageManager: { repository: "rancher/mirrored-longhornio-backing-image-manager" }
+                        },
+                        csi: {
+                            attacher: { repository: "rancher/mirrored-longhornio-csi-attacher" },
+                            provisioner: { repository: "rancher/mirrored-longhornio-csi-provisioner" },
+                            nodeDriverRegistrar: { repository: "rancher/mirrored-longhornio-csi-node-driver-registrar" },
+                            resizer: { repository: "rancher/mirrored-longhornio-csi-resizer" },
+                            snapshotter: { repository: "rancher/mirrored-longhornio-csi-snapshotter" }
+                        }
+                    },
+                    persistence: { defaultDataLocality: "best-effort" },
+                    defaultSettings: {
+                        defaultDataPath: "/data/longhorn",
+                        replicaAutoBalance: "best-effort",
+                        systemManagedComponentsNodeSelector: "longhorn/node:true"
+                    },
+                    longhornManager: { nodeSelector: { "longhorn/node": "true" } },
+                    longhornDriver: { nodeSelector: { "longhorn/node": "true" } },
+                    longhornUI: { nodeSelector: { "longhorn/node": "true" } },
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        host: "norther.example.com",
+                        path: "/longhorn(/|$)(.*)",
+                        annotations: {
+                            "nginx.ingress.kubernetes.io/auth-type": "basic",
+                            "nginx.ingress.kubernetes.io/auth-secret": "basic-auth",
+                            "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
+                            "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
+                            "nginx.ingress.kubernetes.io/proxy-body-size": "10000m",
+                            "nginx.ingress.kubernetes.io/configuration-snippet": "rewrite ^(/longhorn)$ $1/ redirect;"
+                        }
+                    }
+                }
             }
-        ]
+        ],
+        //        customresource: [
+        //            {
+        //                apiVersion: "monitoring.coreos.com/v1",
+        //                kind: "ServiceMonitor",
+        //                metadata: {
+        //                    name: "longhorn",
+        //                    namespace: "longhorn-system",
+        //                    annotations: {},
+        //                    labels: {
+        //                        name: "longhorn"
+        //                    }
+        //                },
+        //                others: {
+        //                    "spec": {
+        //                        "selector": {
+        //                            "matchLabels": {
+        //                                "app": "longhorn-manager"
+        //                            },
+        //                            "namespaceSelector": {
+        //                                "matchNames": [
+        //                                    "longhorn-system"
+        //                                ]
+        //                            },
+        //                            "endpoints": [
+        //                                "port: manager"
+        //                            ]
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        ]
     }
 ]
 
@@ -69,7 +140,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -79,7 +150,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
@@ -87,11 +158,13 @@ for (var i in deploy_spec) {
             }, { dependsOn: [namespace] });
         }
     }
-    // Create resources from standard Kubernetes guestbook YAML.
-    for (var yaml_index in deploy_spec[i].yaml) {
-        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
-            file: deploy_spec[i].yaml[yaml_index].file,
-            skipAwait: true,
-        });
-    }
+    // Create Custom Resource.
+    //    for (var custom_index in deploy_spec[i].customresource) {
+    //        const customresource = new k8s.apiextensions.CustomResource(deploy_spec[i].customresource[custom_index].metadata.name, {
+    //            apiVersion: deploy_spec[i].customresource[custom_index].apiVersion,
+    //            kind: deploy_spec[i].customresource[custom_index].kind,
+    //            metadata: deploy_spec[i].customresource[custom_index].metadata,
+    //            others: deploy_spec[i].customresource[custom_index].others
+    //        }, { dependsOn: [namespace] });
+    //    }
 }

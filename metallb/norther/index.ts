@@ -45,26 +45,26 @@ const deploy_spec = [
                                     { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
                                 ]
                             }
+                        }
+                    },
+                    speaker: {
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
                         },
-                        speaker: {
-                            podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                            resources: {
-                                limits: { cpu: "100m", memory: "128Mi" },
-                                requests: { cpu: "100m", memory: "128Mi" }
-                            },
-                            metrics: {
+                        metrics: {
+                            enabled: false,
+                            serviceMonitor: {
                                 enabled: false,
-                                serviceMonitor: {
-                                    enabled: false,
-                                    relabelings: [
-                                        { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
-                                        { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
-                                        { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
-                                        { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
-                                        { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
-                                        { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
-                                    ]
-                                }
+                                relabelings: [
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
+                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                                ]
                             }
                         }
                     }
