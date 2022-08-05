@@ -91,7 +91,7 @@ const deploy_spec = [
                             requests: { cpu: "200m", memory: "256Mi" }
                         },
                         service: {
-                            port: 80,
+                            port: 8080,
                             type: "LoadBalancer",
                             loadBalancerIP: "10.101.4.41",
                             annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
