@@ -30,11 +30,115 @@ const deploy_spec = [
             {
                 namespace: "logging",
                 name: "loki",
-                chart: "../../_chart/loki-distributed-0.49.0.tgz",
+                chart: "../../_chart/loki-distributed-0.54.1.tgz",
                 // repository: "https://grafana.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.
-                version: "0.49.0",
-                values: "./loki-distributed.yaml"
+                version: "0.54.1",
+                values: {
+                    nameOverride: "loki",
+                    loki: {
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        existingSecretForConfig: "loki-conf-secret",
+                        config: "",
+                    },
+                    serviceMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ],
+                    },
+                    prometheusRule: { enabled: true },
+                    ingester: {
+                        replicas: 2,
+                        resources: {
+                            limits: { cpu: "200m", memory: "1024Mi" },
+                            requests: { cpu: "200m", memory: "1024Mi" }
+                        },
+                        persistence: { enabled: true, size: "10Gi", storageClass: "longhorn" }
+                    },
+                    distributor: {
+                        replicas: 2,
+                        resources: {
+                            limits: { cpu: "200m", memory: "1024Mi" },
+                            requests: { cpu: "200m", memory: "1024Mi" }
+                        }
+                    },
+                    querier: {
+                        replicas: 2,
+                        resources: {
+                            limits: { cpu: "200m", memory: "1024Mi" },
+                            requests: { cpu: "200m", memory: "1024Mi" }
+                        }
+                    },
+                    queryFrontend: {
+                        replicas: 1,
+                        resources: {
+                            limits: { cpu: "200m", memory: "512Mi" },
+                            requests: { cpu: "200m", memory: "512Mi" }
+                        }
+                    },
+                    gateway: {
+                        enabled: true,
+                        replicas: 2,
+                        verboseLogging: false,
+                        resources: {
+                            limits: { cpu: "200m", memory: "256Mi" },
+                            requests: { cpu: "200m", memory: "256Mi" }
+                        },
+                        service: {
+                            port: 80,
+                            type: "LoadBalancer",
+                            loadBalancerIP: "10.101.4.41",
+                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                        }
+                    },
+                    compactor: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "200m", memory: "256Mi" },
+                            requests: { cpu: "200m", memory: "256Mi" }
+                        },
+                        persistence: { enabled: true, size: "8Gi", storageClass: "longhorn" }
+                    },
+                    ruler: { enabled: false, replicas: 1, resources: {}, directories: {} },
+                    memcachedExporter: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "200m", memory: "128Mi" },
+                            requests: { cpu: "200m", memory: "128Mi" }
+                        }
+                    },
+                    memcachedChunks: {
+                        enabled: true,
+                        extraArgs: ["-m 2000", "-I 2m", "-v"],
+                        resources: {
+                            limits: { cpu: "1000m", memory: "2048Mi" },
+                            requests: { cpu: "1000m", memory: "2048Mi" }
+                        }
+                    },
+                    memcachedFrontend: {
+                        enabled: true,
+                        extraArgs: ["-m 2000", "-I 2m", "-v"],
+                        resources: {
+                            limits: { cpu: "1000m", memory: "2048Mi" },
+                            requests: { cpu: "1000m", memory: "2048Mi" }
+                        }
+                    },
+                    memcachedIndexQueries: {
+                        enabled: true,
+                        extraArgs: ["-m 2000", "-I 2m", "-v"],
+                        resources: {
+                            limits: { cpu: "1000m", memory: "2048Mi" },
+                            requests: { cpu: "1000m", memory: "2048Mi" }
+                        }
+                    },
+                    memcachedIndexWrites: { enabled: false }
+                }
             }
         ]
     }
@@ -63,7 +167,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -73,7 +177,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,

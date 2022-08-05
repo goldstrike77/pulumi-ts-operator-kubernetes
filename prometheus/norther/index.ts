@@ -97,6 +97,11 @@ save ""`,
                         enabled: true,
                         logLevel: "warn",
                         replicaLabel: ["prometheus_replica", "cluster"],
+                        dnsDiscovery: {
+                            enabled: true,
+                            sidecarsService: "kube-prometheus-stack-thanos-discovery",
+                            sidecarsNamespace: "monitoring"
+                        },
                         stores: [],
                         extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response"],
                         replicaCount: 1,
@@ -249,7 +254,7 @@ save ""`,
                         alertmanagerSpec: {
                             image: {
                                 repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/alertmanager",
-                                tag: "v0.23.0"
+                                tag: "v0.24.0"
                             },
                             configSecret: "configuration-secret",
                             logLevel: "warn",
@@ -258,15 +263,11 @@ save ""`,
                                 volumeClaimTemplate: {
                                     spec: {
                                         storageClassName: "longhorn",
-                                        accessModes: ["ReadWriteOnce"],
-                                        resources: {
-                                            requests: { storage: "1Gi", }
-                                        }
+                                        resources: { requests: { storage: "1Gi", } }
                                     }
                                 }
                             },
                             externalUrl: "https://norther.example.com/alertmanager/",
-                            routePrefix: "/alertmanager",
                             resources: {
                                 limits: { cpu: "100m", memory: "128Mi" },
                                 requests: { cpu: "100m", memory: "128Mi" }
@@ -484,10 +485,7 @@ save ""`,
                                 volumeClaimTemplate: {
                                     spec: {
                                         storageClassName: "longhorn",
-                                        accessModes: ["ReadWriteOnce"],
-                                        resources: {
-                                            requests: { storage: "8Gi" }
-                                        }
+                                        resources: { requests: { storage: "8Gi" } }
                                     }
                                 }
                             },
