@@ -93,7 +93,7 @@ const deploy_spec = [
                             "net.ipv4.ip_local_port_range": "1024 65000"
                         },
                         extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
-                        replicaCount: 2,
+                        replicaCount: 1,
                         resources: {
                             limits: { cpu: "500m", memory: "512Mi" },
                             requests: { cpu: "500m", memory: "512Mi" }

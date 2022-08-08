@@ -53,7 +53,7 @@ const deploy_spec = [
                 version: "6.21.3",
                 values: {
                     replicas: 1,
-                    image: { tag: "8.3.10" },
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "8.3.10" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     serviceMonitor: {
                         enabled: true,
@@ -77,8 +77,8 @@ const deploy_spec = [
                         hosts: ["norther.example.com"],
                     },
                     resources: {
-                        limits: { cpu: "200m", memory: "384Mi" },
-                        requests: { cpu: "200m", memory: "384Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
                     persistence: { enabled: true, storageClassName: "longhorn", size: "8Gi" },
                     initChownData: {
@@ -137,7 +137,7 @@ const deploy_spec = [
                             check_for_updates: false,
                             reporting_enabled: false
                         },
-                        log: { mode: "console", },
+                        log: { mode: "console", level: "warn" },
                         grafana_net: { url: "https://grafana.net" },
                         user: { default_theme: "dark" }
                     },
@@ -146,10 +146,7 @@ const deploy_spec = [
                             limits: { cpu: "50m", memory: "64Mi" },
                             requests: { cpu: "50m", memory: "64Mi" }
                         },
-                        dashboards: {
-                            enabled: true,
-                            label: "grafana_dashboard"
-                        }
+                        dashboards: { enabled: true, label: "grafana_dashboard" }
                     }
                 }
             }

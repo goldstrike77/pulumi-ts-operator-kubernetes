@@ -423,7 +423,9 @@ save ""`,
                             limits: { cpu: "200m", memory: "256Mi" },
                             requests: { cpu: "200m", memory: "256Mi" }
                         },
+                        image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/prometheus-operator", tag: "v0.58.0" },
                         prometheusConfigReloader: {
+                            image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/prometheus-config-reloader", tag: "v0.58.0" },
                             resources: {
                                 limits: { cpu: "200m", memory: "64Mi" },
                                 requests: { cpu: "200m", memory: "64Mi" }

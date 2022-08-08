@@ -83,37 +83,9 @@ const deploy_spec = [
                 }
             }
         ],
-        //        customresource: [
-        //            {
-        //                apiVersion: "monitoring.coreos.com/v1",
-        //                kind: "ServiceMonitor",
-        //                metadata: {
-        //                    name: "longhorn",
-        //                    namespace: "longhorn-system",
-        //                    annotations: {},
-        //                    labels: {
-        //                        name: "longhorn"
-        //                    }
-        //                },
-        //                others: {
-        //                    "spec": {
-        //                        "selector": {
-        //                            "matchLabels": {
-        //                                "app": "longhorn-manager"
-        //                            },
-        //                            "namespaceSelector": {
-        //                                "matchNames": [
-        //                                    "longhorn-system"
-        //                                ]
-        //                            },
-        //                            "endpoints": [
-        //                                "port: manager"
-        //                            ]
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        ]
+        yaml: [
+            { name: "./servicemonitor.yaml" },
+        ]
     }
 ]
 
@@ -158,13 +130,11 @@ for (var i in deploy_spec) {
             }, { dependsOn: [namespace] });
         }
     }
-    // Create Custom Resource.
-    //    for (var custom_index in deploy_spec[i].customresource) {
-    //        const customresource = new k8s.apiextensions.CustomResource(deploy_spec[i].customresource[custom_index].metadata.name, {
-    //            apiVersion: deploy_spec[i].customresource[custom_index].apiVersion,
-    //            kind: deploy_spec[i].customresource[custom_index].kind,
-    //            metadata: deploy_spec[i].customresource[custom_index].metadata,
-    //            others: deploy_spec[i].customresource[custom_index].others
-    //        }, { dependsOn: [namespace] });
-    //    }
+    // Create service monitor.
+    for (var yaml_index in deploy_spec[i].yaml) {
+        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
+            file: deploy_spec[i].yaml[yaml_index].name,
+            skipAwait: true,
+        }, { dependsOn: [namespace] });
+    }
 }

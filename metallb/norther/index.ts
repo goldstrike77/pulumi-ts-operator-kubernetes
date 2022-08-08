@@ -15,10 +15,10 @@ const deploy_spec = [
             {
                 namespace: "metallb-system",
                 name: "metallb",
-                chart: "../../_chart/metallb-3.0.12.tgz",
+                chart: "../../_chart/metallb-4.0.1.tgz",
                 // repository: "https://charts.bitnami.com/bitnami",
                 repository: "", // Must be empty string if local chart.
-                version: "3.0.12",
+                version: "4.0.1",
                 values: {
                     configInline: {
                         "address-pools": [{ name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.41-10.101.4.42"] }]
@@ -33,16 +33,16 @@ const deploy_spec = [
                             requests: { cpu: "100m", memory: "128Mi" }
                         },
                         metrics: {
-                            enabled: false,
+                            enabled: true,
                             serviceMonitor: {
-                                enabled: false,
+                                enabled: true,
                                 relabelings: [
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
                                 ]
                             }
                         }
@@ -54,16 +54,16 @@ const deploy_spec = [
                             requests: { cpu: "100m", memory: "128Mi" }
                         },
                         metrics: {
-                            enabled: false,
+                            enabled: true,
                             serviceMonitor: {
-                                enabled: false,
+                                enabled: true,
                                 relabelings: [
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_customer]", targetLabel: "customer" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_environment]", targetLabel: "environment" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_project]", targetLabel: "project" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_group]", targetLabel: "group" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_datacenter]", targetLabel: "datacenter" },
-                                    { sourceLabels: "[__meta_kubernetes_endpoints_label_domain]", targetLabel: "domain" }
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
                                 ]
                             }
                         }
