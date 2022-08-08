@@ -47,11 +47,111 @@ const deploy_spec = [
             {
                 namespace: "visualization",
                 name: "grafana",
-                chart: "../../_chart/grafana-6.21.2.tgz",
+                chart: "../../_chart/grafana-6.21.3.tgz",
                 // repository: "https://grafana.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.
-                version: "6.21.2",
-                values: "./grafana.yaml"
+                version: "6.21.3",
+                values: {
+                    replicas: 1,
+                    image: { tag: "8.3.10" },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    serviceMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    },
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        annotations: {
+                            "nginx.ingress.kubernetes.io/rewrite-target": "/$1",
+                            "nginx.ingress.kubernetes.io/use-regex": "true"
+                        },
+                        path: "/grafana/?(.*)",
+                        hosts: ["norther.example.com"],
+                    },
+                    resources: {
+                        limits: { cpu: "200m", memory: "384Mi" },
+                        requests: { cpu: "200m", memory: "384Mi" }
+                    },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "8Gi" },
+                    initChownData: {
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        },
+                    },
+                    adminUser: "admin",
+                    plugins: ["grafana-piechart-panel", "camptocamp-prometheus-alertmanager-datasource"],
+                    datasources: {
+                        "datasources.yaml": {
+                            apiVersion: 1,
+                            datasources: [
+                                {
+                                    name: "DS_LOKI",
+                                    type: "loki",
+                                    access: "proxy",
+                                    url: "http://loki-query-frontend.logging.svc.cluster.local:3100",
+                                    version: 1,
+                                },
+                                {
+                                    name: "DS_PROMETHEUS",
+                                    type: "prometheus",
+                                    access: "proxy",
+                                    url: "http://thanos-query-frontend.monitoring.svc.cluster.local:9090",
+                                    version: 1
+                                },
+                                {
+                                    name: "DS_ALERTMANAGER",
+                                    type: "camptocamp-prometheus-alertmanager-datasource",
+                                    access: "proxy",
+                                    url: "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093",
+                                    version: 1,
+                                    jsonData: {
+                                        severity_critical: "p1",
+                                        severity_high: "p2",
+                                        severity_warning: "p3",
+                                        severity_info: "p4"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "grafana.ini": {
+                        server: {
+                            root_url: "http://localhost:3000/grafana",
+                        },
+                        paths: {
+                            data: "/var/lib/grafana/",
+                            logs: "/var/log/grafana",
+                            plugins: "/var/lib/grafana/plugins",
+                            provisioning: "/etc/grafana/provisioning",
+                        },
+                        analytics: {
+                            check_for_updates: false,
+                            reporting_enabled: false
+                        },
+                        log: { mode: "console", },
+                        grafana_net: { url: "https://grafana.net" },
+                        user: { default_theme: "dark" }
+                    },
+                    sidecar: {
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        },
+                        dashboards: {
+                            enabled: true,
+                            label: "grafana_dashboard"
+                        }
+                    }
+                }
             }
         ]
     }
@@ -87,7 +187,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -97,7 +197,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
