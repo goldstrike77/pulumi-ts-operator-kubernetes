@@ -326,7 +326,20 @@ save ""`,
                             ]
                         }
                     },
-                    kubeControllerManager: { enabled: false },
+                    kubeControllerManager: {
+                        enabled: true,
+                        serviceMonitor: {
+                            relabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+                    },
                     coreDns: {
                         enabled: true,
                         serviceMonitor: {
@@ -341,10 +354,60 @@ save ""`,
                             ]
                         }
                     },
-                    kubeDns: { enabled: false },
-                    kubeEtcd: { enabled: false },
-                    kubeScheduler: { enabled: false },
-                    kubeProxy: { enabled: false },
+                    kubeEtcd: {
+                        enabled: true,
+                        service: {
+                            port: "2381",
+                            targetPort: "2381"
+                        },
+                        serviceMonitor: {
+                            scheme: "http",
+                            relabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+                    },
+                    kubeScheduler: {
+                        enabled: true,
+                        service: {
+                            port: "10259",
+                            targetPort: "10259"
+                        },
+                        serviceMonitor: {
+                            https: true,
+                            insecureSkipVerify: true,
+                            relabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+                    },
+                    kubeProxy: {
+                        enabled: true,
+                        serviceMonitor: {
+                            relabelings: [
+                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                            ]
+                        }
+
+                    },
                     kubeStateMetrics: { enabled: true },
                     "kube-state-metrics": {
                         image: {

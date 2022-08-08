@@ -106,26 +106,77 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-            /**
             {
                 namespace: "datadog",
-                name: "vector-aggregator-syslog",
-                chart: "../../_chart/vector-0.13.1.tgz",
+                name: "vector-syslog",
+                chart: "../../_chart/vector-0.14.0.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
-                version: "0.13.1",
-                values: "./vector-aggregator-syslog.yaml"
-            },
-            {
-                namespace: "datadog",
-                name: "vector-aggregator-beats",
-                chart: "../../_chart/vector-0.13.1.tgz",
-                // repository: "https://helm.vector.dev",
-                repository: "", // Must be empty string if local chart.
-                version: "0.13.1",
-                values: "./vector-aggregator-beat.yaml"
+                version: "0.14.0",
+                values: {
+                    role: "Aggregator",
+                    replicas: 2,
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
+                    },
+                    service: {
+                        enabled: true,
+                        type: "LoadBalancer",
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                    },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: { syslog_socket_udp: { type: "socket", address: "0.0.0.0:1514", max_length: 65536, mode: "udp", } },
+                        transforms: {
+                            syslog_json_udp: {
+                                type: "json_parser",
+                                drop_invalid: false,
+                                drop_field: true,
+                                field: "message",
+                                inputs: ["syslog_socket_udp"]
+                            }
+                        },
+                        sinks: {
+                            syslog_json_loki: {
+                                type: "loki",
+                                inputs: ["syslog_json_udp"],
+                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
+                                labels: { scrape_job: "syslog" },
+                                compression: "none",
+                                healthcheck: { enabled: false },
+                                encoding: { codec: "json", except_fields: ["source_type"] },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" }
+                            }
+                        }
+                    },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    podMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    }
+                }
             }
-            */
+            /**
+                        {
+                            namespace: "datadog",
+                            name: "vector-aggregator-beats",
+                            chart: "../../_chart/vector-0.13.1.tgz",
+                            // repository: "https://helm.vector.dev",
+                            repository: "", // Must be empty string if local chart.
+                            version: "0.13.1",
+                            values: "./vector-aggregator-beat.yaml"
+                        }
+                        */
         ]
     }
 ]
