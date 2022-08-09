@@ -31,7 +31,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: false,
+                                enabled: true,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -52,7 +52,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: false,
+                                enabled: true,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
