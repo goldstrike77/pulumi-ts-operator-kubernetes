@@ -15,17 +15,13 @@ const deploy_spec = [
             {
                 namespace: "metallb-system",
                 name: "metallb",
-                chart: "../../_chart/metallb-4.0.1.tgz",
+                chart: "../../_chart/metallb-3.0.12.tgz",
                 // repository: "https://charts.bitnami.com/bitnami",
                 repository: "", // Must be empty string if local chart.
-                version: "4.0.1",
+                version: "3.0.12",
                 values: {
-                    configInline: {
-                        "address-pools": [{ name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.41-10.101.4.42"] }]
-                    },
-                    prometheusRule: {
-                        enabled: false
-                    },
+                    configInline: { "address-pools": [{ name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.41-10.101.4.42"] }] },
+                    prometheusRule: { enabled: false },
                     controller: {
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         resources: {
@@ -35,7 +31,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -56,7 +52,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },

@@ -40,7 +40,7 @@ const deploy_spec = [
 file = del(.file)
 kubernetes_labels = encode_json(kubernetes.pod_labels)
 kubernetes_labels = replace(kubernetes_labels, "app.kubernetes.io", "app_kubernetes_io")
-kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")      
+kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
 .kubernetes = {
   "container": kubernetes.container_name,
   "node_name": kubernetes.pod_node_name,
@@ -124,7 +124,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     service: {
                         enabled: true,
                         type: "LoadBalancer",
-                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                        annotations: {}
                     },
                     customConfig: {
                         data_dir: "/vector-data-dir",
