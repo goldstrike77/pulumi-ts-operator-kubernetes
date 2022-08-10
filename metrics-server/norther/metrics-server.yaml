@@ -3,9 +3,9 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: registry.cn-hangzhou.aliyuncs.com/google_containers/metrics-server
+  repository: k8s.gcr.io/metrics-server/metrics-server
   # Overrides the image tag whose default is v{{ .Chart.AppVersion }}
-  tag: "v0.5.2"
+  tag: ""
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -42,10 +42,10 @@ podAnnotations: {}
 podSecurityContext: {}
 
 securityContext:
+  allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
-  allowPrivilegeEscalation: false
 
 priorityClassName: system-cluster-critical
 
@@ -78,7 +78,6 @@ defaultArgs:
   - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
   - --kubelet-use-node-status-port
   - --metric-resolution=15s
-  - --kubelet-insecure-tls
 
 args: []
 
@@ -109,13 +108,16 @@ service:
   #  kubernetes.io/cluster-service: "true"
   #  kubernetes.io/name: "Metrics-server"
 
-resources:
-  limits:
-    cpu: 250m
-    memory: 256Mi
-  requests:
-    cpu: 250m
-    memory: 256Mi
+metrics:
+  enabled: false
+
+serviceMonitor:
+  enabled: false
+  additionalLabels: {}
+  interval: 1m
+  scrapeTimeout: 10s
+
+resources: {}
 
 extraVolumeMounts: []
 

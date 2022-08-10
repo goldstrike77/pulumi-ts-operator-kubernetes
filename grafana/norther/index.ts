@@ -1,5 +1,4 @@
 import * as k8s from "@pulumi/kubernetes";
-import { FileAsset } from "@pulumi/pulumi/asset";
 import * as fs from 'fs';
 
 const deploy_spec = [

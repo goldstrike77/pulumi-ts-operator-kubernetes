@@ -1,5 +1,4 @@
 import * as k8s from "@pulumi/kubernetes";
-import { FileAsset } from "@pulumi/pulumi/asset";
 
 const deploy_spec = [
     {
@@ -15,11 +14,25 @@ const deploy_spec = [
             {
                 namespace: "metrics-server",
                 name: "metrics-server",
-                chart: "../../_chart/metrics-server-3.7.0.tgz",
+                chart: "../../_chart/metrics-server-3.8.2.tgz",
                 // repository: "https://kubernetes-sigs.github.io/metrics-server",
                 repository: "", // Must be empty string if local chart.
-                version: "3.7.0",
-                values: "./metrics-server.yaml"
+                version: "3.8.2",
+                values: {
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/metrics-server" },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    defaultArgs: [
+                        "--cert-dir=/tmp",
+                        "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
+                        "--kubelet-use-node-status-port",
+                        "--metric-resolution=15s",
+                        "--kubelet-insecure-tls"
+                    ],
+                    resources: {
+                        limits: { cpu: "250m", memory: "256Mi" },
+                        requests: { cpu: "250m", memory: "256Mi" }
+                    }
+                }
             }
         ]
     }
@@ -39,7 +52,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -49,7 +62,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
