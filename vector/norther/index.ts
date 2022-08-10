@@ -94,7 +94,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         }
                     ],
                     podMonitor: {
-                        enabled: true,
+                        enabled: false,
                         relabelings: [
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -154,7 +154,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     },
                     persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
                     podMonitor: {
-                        enabled: true,
+                        enabled: false,
                         relabelings: [
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
