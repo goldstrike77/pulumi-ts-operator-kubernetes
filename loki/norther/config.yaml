@@ -104,6 +104,8 @@ schema_config:
     store: boltdb-shipper
 server:
   grpc_listen_port: 9095
+  grpc_server_max_send_msg_size: 8388608
+  grpc_server_max_recv_msg_size: 8388608
   http_listen_port: 3100
   http_server_read_timeout: 60s
   http_server_write_timeout: 60s

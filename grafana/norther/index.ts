@@ -52,6 +52,13 @@ const deploy_spec = [
                 version: "6.21.3",
                 values: {
                     replicas: 1,
+                    deploymentStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: {
+                            maxSurge: 0,
+                            maxUnavailable: 1
+                        }
+                    },
                     image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "8.3.10" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     serviceMonitor: {
@@ -98,6 +105,9 @@ const deploy_spec = [
                                     access: "proxy",
                                     url: "http://loki-query-frontend.logging.svc.cluster.local:3100",
                                     version: 1,
+                                    jsonData: {
+                                        maxLines: 5000
+                                    }
                                 },
                                 {
                                     name: "DS_PROMETHEUS",
