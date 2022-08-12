@@ -100,7 +100,7 @@ save ""`,
                             sidecarsService: "kube-prometheus-stack-thanos-discovery",
                             sidecarsNamespace: "monitoring"
                         },
-                        stores: [],
+                        stores: ["10.101.4.43:10901", "10.101.4.43:10903"],
                         extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response"],
                         replicaCount: 1,
                         resources: {

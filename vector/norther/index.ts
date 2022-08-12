@@ -72,7 +72,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" }
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 1024, timeout_secs: 2 }
                             }
                         }
                     },
@@ -119,6 +120,10 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: { partition: 1 }
+                    },
                     service: {
                         enabled: true,
                         type: "LoadBalancer",
@@ -146,7 +151,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" }
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 1024, timeout_secs: 2 }
                             }
                         }
                     },

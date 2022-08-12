@@ -41,17 +41,7 @@ config:
   #   rootLogger.level = info
   #   rootLogger.appenderRef.console.ref = console
   opensearch.yml: |
-    cluster:
-      name: opensearch-cluster
-      max_shards_per_node: 10000
-    http:
-      compression: false
-      cors:
-        enabled: true
-        allow-origin: "*"
-        allow-credentials: true
-        allow-methods: HEAD, GET, POST, PUT, DELETE
-        allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+    cluster.name: opensearch-cluster
 
     # Bind to all interfaces because we don't know what IP address Docker will assign to us.
     network.host: 0.0.0.0
@@ -69,51 +59,11 @@ config:
             pemkey_filepath: esnode-key.pem
             pemtrustedcas_filepath: root-ca.pem
             enforce_hostname_verification: false
-            enabled_protocols:
-              [
-                "TLSv1.2",
-                "TLSv1.3"
-              ]
-            enabled_ciphers:
-              [
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",                
-              ]
           http:
             enabled: true
             pemcert_filepath: esnode.pem
             pemkey_filepath: esnode-key.pem
             pemtrustedcas_filepath: root-ca.pem
-            enabled_protocols:
-              [
-                "TLSv1.2",
-                "TLSv1.3"
-              ]
-            enabled_ciphers:
-              [
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
-                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_RSA_WITH_AES_128_CBC_SHA256",
-                "TLS_RSA_WITH_AES_128_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
-                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
-                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_RSA_WITH_AES_256_CBC_SHA256",
-                "TLS_RSA_WITH_AES_256_CBC_SHA",                
-              ]
         allow_unsafe_democertificates: true
         allow_default_init_securityindex: true
         authcz:
@@ -179,23 +129,20 @@ podAnnotations: {}
 # additionals labels
 labels: {}
 
-opensearchJavaOpts: "-Xmx6144M -Xms6144M -server"
+opensearchJavaOpts: "-Xmx512M -Xms512M"
 
 resources:
-  limits:
-    cpu: 2000m
-    memory: 8192Mi
   requests:
-    cpu: 2000m
-    memory: 8192Mi
+    cpu: "1000m"
+    memory: "100Mi"
 
-initResources:
-  limits:
-    cpu: "25m"
-    memory: "128Mi"
-  requests:
-    cpu: "25m"
-    memory: "128Mi"
+initResources: {}
+#  limits:
+#     cpu: "25m"
+#     memory: "128Mi"
+#  requests:
+#     cpu: "25m"
+#     memory: "128Mi"
 
 sidecarResources: {}
 #   limits:
@@ -249,10 +196,10 @@ persistence:
   #   set, choosing the default provisioner.  (gp2 on AWS, standard on
   #   GKE, AWS & OpenStack)
   #
-  storageClass: "longhorn"
+  # storageClass: "-"
   accessModes:
     - ReadWriteOnce
-  size: 50Gi
+  size: 8Gi
   annotations: {}
 
 extraVolumes: []
@@ -269,28 +216,7 @@ extraContainers: []
   #   image: busybox
   #   command: ['do', 'something']
 
-extraInitContainers:
-  ## Image that performs the sysctl operation to modify Kernel settings (needed sometimes to avoid boot errors)
-  - name: sysctl
-    image: docker.io/bitnami/bitnami-shell:10-debian-10
-    imagePullPolicy: "IfNotPresent"
-    command:
-      - /bin/bash
-      - -ec
-      - |
-        CURRENT=`sysctl -n vm.max_map_count`;
-        DESIRED="262144";
-        if [ "$DESIRED" -gt "$CURRENT" ]; then
-            sysctl -w vm.max_map_count=262144;
-        fi;
-        CURRENT=`sysctl -n fs.file-max`;
-        DESIRED="65536";
-        if [ "$DESIRED" -gt "$CURRENT" ]; then
-            sysctl -w fs.file-max=65536;
-        fi;
-    securityContext:
-      runAsUser: 0
-      privileged: true
+extraInitContainers: []
   # - name: do-somethings
   #   image: busybox
   #   command: ['do', 'something']
@@ -324,7 +250,7 @@ podManagementPolicy: "Parallel"
 # If you experience slow pod startups you probably want to set this to `false`.
 enableServiceLinks: true
 
-protocol: http
+protocol: https
 httpPort: 9200
 transportPort: 9300
 
@@ -333,13 +259,12 @@ service:
   labelsHeadless: {}
   headless:
     annotations: {}
-  type: LoadBalancer
+  type: ClusterIP
   nodePort: ""
-  annotations:
-    metallb.universe.tf/allow-shared-ip: shared
+  annotations: {}
   httpPortName: http
   transportPortName: transport
-  loadBalancerIP: "10.101.4.43"
+  loadBalancerIP: ""
   loadBalancerSourceRanges: []
   externalTrafficPolicy: ""
 
@@ -364,10 +289,10 @@ securityContext:
 
 securityConfig:
   enabled: true
-  path: "/usr/share/opensearch/config/opensearch-security"
+  path: "/usr/share/opensearch/plugins/opensearch-security/securityconfig"
   actionGroupsSecret:
   configSecret:
-  internalUsersSecret: security-config-secret
+  internalUsersSecret:
   rolesSecret:
   rolesMappingSecret:
   tenantsSecret:
@@ -383,9 +308,9 @@ securityConfig:
     # * If you define securityConfigSecret, the chart will assume this secret is
     #   created externally and mount it.
     # * It is an error to define both data and securityConfigSecret.
-    # securityConfigSecret: ""
-    dataComplete: false
-    # data:
+    securityConfigSecret: ""
+    dataComplete: true
+    data: {}
       # config.yml: |-
       # internal_users.yml: |-
       # roles.yml: |-
@@ -398,12 +323,19 @@ terminationGracePeriod: 120
 
 sysctlVmMaxMapCount: 262144
 
-readinessProbe:
-  failureThreshold: 3
-  initialDelaySeconds: 10
+startupProbe:
+  tcpSocket:
+    port: 9200
+  initialDelaySeconds: 5
   periodSeconds: 10
-  successThreshold: 3
-  timeoutSeconds: 2000
+  timeoutSeconds: 3
+  failureThreshold: 30
+readinessProbe:
+  tcpSocket:
+    port: 9200
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
 
 ## Use an alternate scheduler.
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/

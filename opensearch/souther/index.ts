@@ -30,30 +30,176 @@ const deploy_spec = [
             {
                 namespace: "opensearch",
                 name: "opensearch",
-                chart: "../../_chart/opensearch-2.1.0.tgz",
+                chart: "../../_chart/opensearch-2.4.0.tgz",
                 // repository: "https://opensearch-project.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.
-                version: "2.1.0",
-                values: "./opensearch.yaml"
+                version: "2.4.0",
+                values: {
+                    config: {
+                        "opensearch.yml": `
+cluster:
+  name: opensearch-cluster
+  max_shards_per_node: 10000
+http:
+  compression: false
+  cors:
+    enabled: true
+    allow-origin: "*"
+    allow-credentials: true
+    allow-methods: HEAD, GET, POST, PUT, DELETE
+    allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+network.host: 0.0.0.0
+plugins:
+  security:
+    ssl:
+      transport:
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enforce_hostname_verification: false
+        enabled_protocols:
+          [
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        enabled_ciphers:
+          [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_RSA_WITH_AES_256_CBC_SHA",
+          ]
+      http:
+        enabled: true
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enabled_protocols:
+          [
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        enabled_ciphers:
+          [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_RSA_WITH_AES_256_CBC_SHA",
+          ]
+    allow_unsafe_democertificates: true
+    allow_default_init_securityindex: true
+    authcz:
+      admin_dn:
+        - CN=kirk,OU=client,O=client,L=test,C=de
+    audit.type: internal_opensearch
+    enable_snapshot_restore_privilege: true
+    check_snapshot_restore_write_privileges: true
+    restapi:
+      roles_enabled: ["all_access", "security_rest_api_access"]
+    system_indices:
+      enabled: true
+      indices:
+        [
+          ".opendistro-alerting-config",
+          ".opendistro-alerting-alert*",
+          ".opendistro-anomaly-results*",
+          ".opendistro-anomaly-detector*",
+          ".opendistro-anomaly-checkpoints",
+          ".opendistro-anomaly-detection-state",
+          ".opendistro-reports-*",
+          ".opendistro-notifications-*",
+          ".opendistro-notebooks",
+          ".opendistro-asynchronous-search-response*"
+        ]
+`
+                    },
+                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    opensearchJavaOpts: "-Xmx6144M -Xms6144M -server",
+                    resources: {
+                        limits: { cpu: "1000m", memory: "8192Mi" },
+                        requests: { cpu: "1000m", memory: "8192Mi" }
+                    },
+                    initResources: {
+                        limits: { cpu: "25m", memory: "128Mi" },
+                        requests: { cpu: "25m", memory: "128Mi" }
+                    },
+                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi", },
+                    extraInitContainers: [
+                        {
+                            name: "sysctl",
+                            image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+                            imagePullPolicy: "IfNotPresent",
+                            command: [
+                                "/bin/bash",
+                                "-ec",
+                                "sysctl -w vm.max_map_count=262144;",
+                                "sysctl -w fs.file-max=65536;"
+                            ],
+                            securityContext: { runAsUser: 0, privileged: true }
+                        }
+                    ],
+                    securityConfig: {
+                        path: "/usr/share/opensearch/config/opensearch-security",
+                        internalUsersSecret: "security-config-secret"
+                    }
+                }
             },
             {
                 namespace: "opensearch",
                 name: "opensearch-dashboards",
-                chart: "../../_chart/opensearch-dashboards-2.1.0.tgz",
+                chart: "../../_chart/opensearch-dashboards-2.3.0.tgz",
                 // repository: "https://opensearch-project.github.io/helm-charts",
                 repository: "", // Must be empty string if local chart.
-                version: "2.1.0",
-                values: "./opensearch-dashboards.yaml"
+                version: "2.3.0",
+                values: {
+                    secretMounts: [
+                        {
+                            name: "certs",
+                            secretName: "security-config-secret",
+                            path: "/usr/share/opensearch-dashboards/config",
+                        }
+                    ],
+                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        hosts: [
+                            {
+                                host: "souther.example.com",
+                                paths: [
+                                    {
+                                        path: "/opensearch",
+                                        backend: {
+                                            serviceName: "",
+                                            servicePort: ""
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    },
+                }
             }
-            //            {
-            //                namespace: "opensearch",
-            //                name: "kubernetes-logging",
-            //                chart: "../../_chart/kubernetes-logging-3.2.8.tgz",
-            //                // repository: "logging https://nickytd.github.io/kubernetes-logging-helm",
-            //                repository: "", // Must be empty string if local chart.
-            //                version: "3.2.8",
-            //                values: "./kubernetes-logging.yaml"
-            //            }
         ]
     }
 ]
@@ -79,9 +225,9 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
-            }, { dependsOn: [secret], customTimeouts: { create: "10m" } });
+            }, { dependsOn: [namespace] });
         }
         else {
             const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
@@ -89,12 +235,12 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
                 },
-            }, { dependsOn: [secret], customTimeouts: { create: "10m" } });
+            }, { dependsOn: [namespace] });
         }
     }
 }
