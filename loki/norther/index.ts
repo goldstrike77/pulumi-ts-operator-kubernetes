@@ -55,30 +55,30 @@ const deploy_spec = [
                     ingester: {
                         replicas: 2,
                         resources: {
-                            limits: { cpu: "200m", memory: "1024Mi" },
-                            requests: { cpu: "200m", memory: "1024Mi" }
+                            limits: { cpu: "200m", memory: "512Mi" },
+                            requests: { cpu: "200m", memory: "512Mi" }
                         },
                         persistence: { enabled: true, size: "10Gi", storageClass: "longhorn" }
                     },
                     distributor: {
                         replicas: 2,
                         resources: {
-                            limits: { cpu: "200m", memory: "1024Mi" },
-                            requests: { cpu: "200m", memory: "1024Mi" }
+                            limits: { cpu: "200m", memory: "64Mi" },
+                            requests: { cpu: "200m", memory: "64Mi" }
                         }
                     },
                     querier: {
                         replicas: 2,
                         resources: {
-                            limits: { cpu: "200m", memory: "1024Mi" },
-                            requests: { cpu: "200m", memory: "1024Mi" }
+                            limits: { cpu: "200m", memory: "512Mi" },
+                            requests: { cpu: "200m", memory: "512Mi" }
                         }
                     },
                     queryFrontend: {
                         replicas: 1,
                         resources: {
-                            limits: { cpu: "200m", memory: "512Mi" },
-                            requests: { cpu: "200m", memory: "512Mi" }
+                            limits: { cpu: "200m", memory: "64Mi" },
+                            requests: { cpu: "200m", memory: "64Mi" }
                         }
                     },
                     gateway: {
@@ -86,8 +86,8 @@ const deploy_spec = [
                         replicas: 2,
                         verboseLogging: false,
                         resources: {
-                            limits: { cpu: "200m", memory: "256Mi" },
-                            requests: { cpu: "200m", memory: "256Mi" }
+                            limits: { cpu: "200m", memory: "128Mi" },
+                            requests: { cpu: "200m", memory: "128Mi" }
                         },
                         service: {
                             port: 8080,
@@ -108,8 +108,8 @@ const deploy_spec = [
                     memcachedExporter: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "200m", memory: "128Mi" },
-                            requests: { cpu: "200m", memory: "128Mi" }
+                            limits: { cpu: "200m", memory: "64Mi" },
+                            requests: { cpu: "200m", memory: "64Mi" }
                         }
                     },
                     memcachedChunks: {

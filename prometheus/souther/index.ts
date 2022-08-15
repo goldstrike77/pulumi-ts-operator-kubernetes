@@ -60,8 +60,8 @@ save ""`,
                     metrics: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
@@ -95,8 +95,8 @@ save ""`,
                         logLevel: "warn",
                         extraFlags: ["--web.external-prefix=thanos-bucketweb", "--web.route-prefix=thanos-bucketweb"],
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         ingress: {

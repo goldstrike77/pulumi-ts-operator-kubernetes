@@ -63,8 +63,8 @@ save ""`,
                     metrics: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
@@ -104,8 +104,8 @@ save ""`,
                         extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response"],
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "1000m", memory: "1024Mi" },
-                            requests: { cpu: "1000m", memory: "1024Mi" }
+                            limits: { cpu: "200m", memory: "128Mi" },
+                            requests: { cpu: "200m", memory: "128Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         ingress: {
@@ -158,8 +158,8 @@ config:
                         ],
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "1000m", memory: "1024Mi" },
-                            requests: { cpu: "1000m", memory: "1024Mi" }
+                            limits: { cpu: "200m", memory: "128Mi" },
+                            requests: { cpu: "200m", memory: "128Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
                     },
@@ -168,8 +168,8 @@ config:
                         logLevel: "warn",
                         extraFlags: ["--web.external-prefix=thanos-bucketweb", "--web.route-prefix=thanos-bucketweb"],
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         ingress: {
@@ -191,8 +191,8 @@ config:
                             "--compact.concurrency=2"
                         ],
                         resources: {
-                            limits: { cpu: "2000m", memory: "4096Mi" },
-                            requests: { cpu: "2000m", memory: "4096Mi" }
+                            limits: { cpu: "500m", memory: "2048Mi" },
+                            requests: { cpu: "500m", memory: "2048Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         persistence: {
@@ -237,8 +237,8 @@ config:
                         ],
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "1000m", memory: "2048Mi" },
-                            requests: { cpu: "1000m", memory: "2048Mi" }
+                            limits: { cpu: "500m", memory: "2048Mi" },
+                            requests: { cpu: "500m", memory: "2048Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         persistence: {
@@ -320,8 +320,8 @@ config:
                             },
                             externalUrl: "https://norther.example.com/alertmanager/",
                             resources: {
-                                limits: { cpu: "100m", memory: "128Mi" },
-                                requests: { cpu: "100m", memory: "128Mi" }
+                                limits: { cpu: "100m", memory: "64Mi" },
+                                requests: { cpu: "100m", memory: "64Mi" }
                             },
                             volumes: [
                                 {
