@@ -1,5 +1,7 @@
+import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
-import { FileAsset } from "@pulumi/pulumi/asset";
+
+let config = new pulumi.Config();
 
 const deploy_spec = [
     {
@@ -15,11 +17,75 @@ const deploy_spec = [
             {
                 namespace: "minio",
                 name: "minio",
-                chart: "../../_chart/minio-3.5.7.tgz",
-                // repository: "https://charts.min.io/",
+                chart: "../../_chart/minio-11.8.2.tgz",
+                // repository: "https://charts.bitnami.com/bitnami",
                 repository: "", // Must be empty string if local chart.
-                version: "3.5.7",
-                values: "./minio.yaml"
+                version: "11.8.2",
+                values: {
+                    mode: "distributed",
+                    auth: {
+                        rootUser: "admin",
+                        rootPassword: `${config.require("rootPassword")}`
+                    },
+                    statefulset: {
+                        replicaCount: 4,
+                        zones: 1,
+                        drivesPerNode: 1
+                    },
+                    provisioning: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "1000m", memory: "4096Mi" },
+                        requests: { cpu: "1000m", memory: "4096Mi" }
+                    },
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        hostname: "minio-console.example.com",
+                    },
+                    apiIngress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        hostname: "minio-api.example.com",
+                    },
+                    persistence: {
+                        enabled: true,
+                        storageClass: "longhorn",
+                        mountPath: "/data",
+                        size: "50Gi"
+                    },
+                    volumePermissions: {
+                        enabled: false,
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        }
+                    },
+                    metrics: {
+                        serviceMonitor: {
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ],
+                        },
+                        prometheusRule: {
+                            enabled: true,
+                            rules: []
+                        }
+                    },
+                    gateway: { enabled: false }
+                }
             }
         ]
     }
@@ -39,7 +105,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
             }, { dependsOn: [namespace] });
         }
@@ -49,7 +115,7 @@ for (var i in deploy_spec) {
                 name: deploy_spec[i].helm[helm_index].name,
                 chart: deploy_spec[i].helm[helm_index].chart,
                 version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
+                values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
                 repositoryOpts: {
                     repo: deploy_spec[i].helm[helm_index].repository,
