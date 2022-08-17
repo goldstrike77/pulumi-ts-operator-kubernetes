@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1660109211917,
+  "iteration": 1660705887069,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -155,7 +155,7 @@
       },
       "id": 34,
       "panels": [],
-      "title": "Total Cluster Resource Usage",
+      "title": "Cluster Resource",
       "type": "row"
     },
     {
@@ -436,6 +436,7 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -524,7 +525,7 @@
         }
       ],
       "timeFrom": "168h",
-      "title": "Cluster Node Autoscaler",
+      "title": "Cluster Node Scaler",
       "type": "timeseries"
     },
     {
@@ -1669,7 +1670,7 @@
       },
       "id": 47,
       "panels": [],
-      "title": "Resource",
+      "title": "Namespace Resource",
       "type": "row"
     },
     {
@@ -2862,7 +2863,7 @@
         },
         "overrides": []
       },
-      "fill": 0,
+      "fill": 1,
       "fillGradient": 0,
       "grid": {},
       "gridPos": {
@@ -2878,8 +2879,8 @@
         "alignAsTable": true,
         "avg": true,
         "current": true,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "rightSide": true,
         "show": true,
         "sort": "avg",
@@ -2902,7 +2903,7 @@
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
-      "steppedLine": true,
+      "steppedLine": false,
       "targets": [
         {
           "datasource": {
@@ -2938,12 +2939,15 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:65",
+          "decimals": 1,
           "format": "none",
           "label": "cores",
           "logBase": 1,
           "show": true
         },
         {
+          "$$hashKey": "object:66",
           "format": "short",
           "logBase": 1,
           "show": false
@@ -2971,7 +2975,7 @@
         },
         "overrides": []
       },
-      "fill": 0,
+      "fill": 1,
       "fillGradient": 0,
       "grid": {},
       "gridPos": {
@@ -2986,8 +2990,8 @@
         "alignAsTable": true,
         "avg": true,
         "current": true,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "rightSide": true,
         "show": true,
         "sort": "current",
@@ -3000,7 +3004,7 @@
       "links": [],
       "nullPointMode": "connected",
       "options": {
-        "alertThreshold": true
+        "alertThreshold": false
       },
       "percentage": false,
       "pluginVersion": "8.3.10",
@@ -3010,7 +3014,7 @@
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
-      "steppedLine": true,
+      "steppedLine": false,
       "targets": [
         {
           "datasource": {
@@ -3047,12 +3051,14 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:355",
           "decimals": 1,
           "format": "bytes",
           "logBase": 1,
           "show": true
         },
         {
+          "$$hashKey": "object:356",
           "format": "short",
           "logBase": 1,
           "show": false
@@ -3095,8 +3101,8 @@
         "alignAsTable": true,
         "avg": true,
         "current": true,
-        "max": false,
-        "min": false,
+        "max": true,
+        "min": true,
         "rightSide": true,
         "show": true,
         "total": false,
@@ -3107,7 +3113,7 @@
       "links": [],
       "nullPointMode": "connected",
       "options": {
-        "alertThreshold": true
+        "alertThreshold": false
       },
       "percentage": false,
       "pluginVersion": "8.3.10",
@@ -3167,11 +3173,15 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:502",
+          "decimals": 0,
           "format": "Bps",
+          "label": "",
           "logBase": 1,
           "show": true
         },
         {
+          "$$hashKey": "object:503",
           "format": "short",
           "logBase": 1,
           "show": false
@@ -3209,14 +3219,14 @@
             },
             "overrides": []
           },
-          "fill": 0,
+          "fill": 1,
           "fillGradient": 0,
           "grid": {},
           "gridPos": {
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 15
+            "y": 47
           },
           "height": "",
           "hiddenSeries": false,
@@ -3225,8 +3235,8 @@
             "alignAsTable": true,
             "avg": true,
             "current": true,
-            "max": false,
-            "min": false,
+            "max": true,
+            "min": true,
             "rightSide": true,
             "show": true,
             "sort": "current",
@@ -3239,7 +3249,7 @@
           "links": [],
           "nullPointMode": "connected",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": false
           },
           "percentage": false,
           "pluginVersion": "8.3.10",
@@ -3249,7 +3259,7 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "stack": false,
-          "steppedLine": true,
+          "steppedLine": false,
           "targets": [
             {
               "datasource": {
@@ -3257,7 +3267,7 @@
                 "uid": "DS_PROMETHEUS"
               },
               "exemplar": false,
-              "expr": "sum (rate (container_cpu_usage_seconds_total{namespace=~\"kube-system|kubernetes-dashboard\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (pod)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{namespace=~\"kube-system\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (pod)",
               "format": "time_series",
               "hide": false,
               "interval": "$interval",
@@ -3285,12 +3295,15 @@
           },
           "yaxes": [
             {
+              "$$hashKey": "object:1089",
+              "decimals": 1,
               "format": "none",
               "label": "cores",
               "logBase": 1,
               "show": true
             },
             {
+              "$$hashKey": "object:1090",
               "format": "short",
               "logBase": 1,
               "show": false
@@ -3318,14 +3331,14 @@
             },
             "overrides": []
           },
-          "fill": 0,
+          "fill": 1,
           "fillGradient": 0,
           "grid": {},
           "gridPos": {
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 21
+            "y": 53
           },
           "hiddenSeries": false,
           "id": 26,
@@ -3333,8 +3346,8 @@
             "alignAsTable": true,
             "avg": true,
             "current": true,
-            "max": false,
-            "min": false,
+            "max": true,
+            "min": true,
             "rightSide": true,
             "show": true,
             "sort": "current",
@@ -3347,7 +3360,7 @@
           "links": [],
           "nullPointMode": "connected",
           "options": {
-            "alertThreshold": true
+            "alertThreshold": false
           },
           "percentage": false,
           "pluginVersion": "8.3.10",
@@ -3357,7 +3370,7 @@
           "seriesOverrides": [],
           "spaceLength": 10,
           "stack": false,
-          "steppedLine": true,
+          "steppedLine": false,
           "targets": [
             {
               "datasource": {
@@ -3365,7 +3378,7 @@
                 "uid": "DS_PROMETHEUS"
               },
               "exemplar": false,
-              "expr": "sum (container_memory_working_set_bytes{namespace=~\"kube-system|kubernetes-dashboard\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (pod)",
+              "expr": "sum (container_memory_working_set_bytes{namespace=~\"kube-system\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (pod)",
               "format": "time_series",
               "interval": "$interval",
               "intervalFactor": 1,

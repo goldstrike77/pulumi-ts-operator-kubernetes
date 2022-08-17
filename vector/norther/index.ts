@@ -14,10 +14,10 @@ const deploy_spec = [
             {
                 namespace: "datadog",
                 name: "vector-agent",
-                chart: "../../_chart/vector-0.14.0.tgz",
+                chart: "../../_chart/vector-0.15.1.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
-                version: "0.14.0",
+                version: "0.15.1",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -29,7 +29,7 @@ const deploy_spec = [
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
-                        sources: { kubernetes_logs: { type: "kubernetes_logs", max_line_bytes: 65536 } },
+                        sources: { kubernetes_logs: { type: "kubernetes_logs", max_line_bytes: 32768 } },
                         transforms: {
                             kubernetes_remap: {
                                 type: "remap",
@@ -73,7 +73,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
-                                batch: { max_events: 1024, timeout_secs: 2 }
+                                batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
                     },
@@ -108,10 +108,10 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             {
                 namespace: "datadog",
                 name: "vector-syslog",
-                chart: "../../_chart/vector-0.14.0.tgz",
+                chart: "../../_chart/vector-0.15.1.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
-                version: "0.14.0",
+                version: "0.15.1",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -122,7 +122,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     },
                     updateStrategy: {
                         type: "RollingUpdate",
-                        rollingUpdate: { partition: 1 }
+                        rollingUpdate: { partition: 0 }
                     },
                     service: {
                         enabled: true,
@@ -132,7 +132,15 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
-                        sources: { syslog_socket_udp: { type: "socket", address: "0.0.0.0:1514", max_length: 65536, mode: "udp", } },
+                        sources: {
+                            syslog_socket_udp: {
+                                type: "socket",
+                                address: "0.0.0.0:1514",
+                                max_length: 32768,
+                                mode: "udp",
+                                receive_buffer_bytes: 65536
+                            }
+                        },
                         transforms: {
                             syslog_json_udp: {
                                 type: "json_parser",
@@ -152,7 +160,71 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
-                                batch: { max_events: 1024, timeout_secs: 2 }
+                                batch: { max_events: 1024, timeout_secs: 3 }
+                            }
+                        }
+                    },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    podMonitor: {
+                        enabled: false,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    }
+                }
+            },
+            {
+                namespace: "datadog",
+                name: "vector-beats",
+                chart: "../../_chart/vector-0.15.1.tgz",
+                // repository: "https://helm.vector.dev",
+                repository: "", // Must be empty string if local chart.
+                version: "0.15.1",
+                values: {
+                    role: "Aggregator",
+                    replicas: 2,
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
+                    },
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: { partition: 0 }
+                    },
+                    service: {
+                        enabled: true,
+                        type: "LoadBalancer",
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                    },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: {
+                            beats_logstash_tcp: {
+                                type: "logstash",
+                                address: "0.0.0.0:5044",
+                                acknowledgements: null,
+                                keepalive: { time_secs: 30 },
+                                receive_buffer_bytes: 65536
+                            }
+                        },
+                        sinks: {
+                            beats_json_loki: {
+                                type: "loki",
+                                inputs: ["beats_logstash_tcp"],
+                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
+                                labels: { scrape_job: "beats" },
+                                compression: "none",
+                                healthcheck: { enabled: false },
+                                encoding: { codec: "json", except_fields: ["source_type"] },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
                     },
@@ -170,17 +242,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             }
-            /**
-                        {
-                            namespace: "datadog",
-                            name: "vector-aggregator-beats",
-                            chart: "../../_chart/vector-0.13.1.tgz",
-                            // repository: "https://helm.vector.dev",
-                            repository: "", // Must be empty string if local chart.
-                            version: "0.13.1",
-                            values: "./vector-aggregator-beat.yaml"
-                        }
-                        */
         ]
     }
 ]

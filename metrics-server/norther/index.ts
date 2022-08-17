@@ -19,15 +19,16 @@ const deploy_spec = [
                 repository: "", // Must be empty string if local chart.
                 version: "3.8.2",
                 values: {
-                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/metrics-server" },
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.1" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     defaultArgs: [
                         "--cert-dir=/tmp",
                         "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
                         "--kubelet-use-node-status-port",
-                        "--metric-resolution=15s",
+                        "--metric-resolution=60s",
                         "--kubelet-insecure-tls"
                     ],
+                    metrics: { enabled: true },
                     resources: {
                         limits: { cpu: "250m", memory: "256Mi" },
                         requests: { cpu: "250m", memory: "256Mi" }

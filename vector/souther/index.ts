@@ -14,10 +14,10 @@ const deploy_spec = [
             {
                 namespace: "datadog",
                 name: "vector-agent",
-                chart: "../../_chart/vector-0.14.0.tgz",
+                chart: "../../_chart/vector-0.15.1.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
-                version: "0.14.0",
+                version: "0.15.1",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
@@ -113,10 +113,10 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             {
                 namespace: "datadog",
                 name: "vector-syslog",
-                chart: "../../_chart/vector-0.14.0.tgz",
+                chart: "../../_chart/vector-0.15.1.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
-                version: "0.14.0",
+                version: "0.15.1",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -124,7 +124,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     resources: { limits: { cpu: "200m", memory: "256Mi" }, requests: { cpu: "200m", memory: "256Mi" } },
                     updateStrategy: {
                         type: "RollingUpdate",
-                        rollingUpdate: { partition: 1 }
+                        rollingUpdate: { partition: 0 }
                     },
                     service: {
                         enabled: true,
