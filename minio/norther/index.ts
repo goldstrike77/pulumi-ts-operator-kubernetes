@@ -25,7 +25,7 @@ const deploy_spec = [
                     mode: "distributed",
                     auth: {
                         rootUser: "admin",
-                        rootPassword: `${config.require("rootPassword")}`
+                        rootPassword: config.require("rootPassword")
                     },
                     statefulset: {
                         replicaCount: 4,
@@ -35,9 +35,63 @@ const deploy_spec = [
                     provisioning: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
-                        }
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        policies: [
+                            {
+                                name: "test-bucket-specific-policy",
+                                statements: [
+                                    {
+                                        resources: ["arn:aws:s3:::test-bucket"],
+                                        effect: "Allow",
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                    },
+                                    {
+                                        resources: ["arn:aws:s3:::test-bucket/*"],
+                                        effect: "Allow",
+                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                    }
+                                ]
+                            }
+                        ],
+                        users: [
+                            {
+                                username: "superuser",
+                                password: config.require("superPassword"),
+                                disabled: false,
+                                policies: ["readwrite", "consoleAdmin", "diagnostics"],
+                                setPolicies: true
+                            },
+                            {
+                                username: "testuser",
+                                password: config.require("testPassword"),
+                                disabled: false,
+                                policies: ["test-bucket-specific-policy"],
+                                setPolicies: true
+                            }
+                        ],
+                        buckets: [
+                            {
+                                name: "test-bucket",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [
+                                    {
+                                        id: "TestPrefix7dRetention",
+                                        prefix: "test-prefix",
+                                        disabled: false,
+                                        expiry: {
+                                            days: "7",
+                                            nonconcurrentDays: "3"
+                                        }
+                                    }
+                                ],
+                                quota: { type: "hard", size: "10GiB", },
+                                tags: {}
+                            }
+                        ]
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
@@ -48,11 +102,13 @@ const deploy_spec = [
                         enabled: true,
                         ingressClassName: "nginx",
                         hostname: "minio-console.example.com",
+                        annotations: { "nginx.ingress.kubernetes.io/proxy-body-size": "100m" }
                     },
                     apiIngress: {
                         enabled: true,
                         ingressClassName: "nginx",
                         hostname: "minio-api.example.com",
+                        annotations: { "nginx.ingress.kubernetes.io/proxy-body-size": "100m" }
                     },
                     persistence: {
                         enabled: true,
