@@ -45,7 +45,7 @@ tcp-keepalive 60
 tcp-backlog 8192
 maxclients 1000
 bind 0.0.0.0
-databases 2
+databases 4
 save ""`,
                     master: {
                         resources: {
@@ -53,11 +53,7 @@ save ""`,
                             requests: { cpu: "300m", memory: "576Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        podSecurityContext: {
-                            enabled: true,
-                            fsGroup: 1001,
-                            sysctls: [{ name: "net.core.somaxconn", value: "8192" }]
-                        },
+                        podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
                         persistence: { enabled: false }
                     },
                     metrics: {
@@ -79,7 +75,13 @@ save ""`,
                             ]
                         }
                     },
-                    sysctl: { enabled: true }
+                    sysctl: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        }
+                    }
                 }
             },
             {
@@ -132,6 +134,7 @@ save ""`,
 type: REDIS
 config:
   addr: "thanos-redis-master:6379"
+  db: 3
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
@@ -145,6 +148,7 @@ config:
 type: REDIS
 config:
   addr: "thanos-redis-master:6379"
+  db: 2
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
@@ -187,7 +191,7 @@ config:
                         retentionResolution5m: "30d",
                         retentionResolution1h: "30d",
                         extraFlags: [
-                            "--compact.cleanup-interval=1h",
+                            "--compact.cleanup-interval=6h",
                             "--compact.concurrency=2"
                         ],
                         resources: {
@@ -211,6 +215,7 @@ config:
 type: REDIS
 config:
   addr: "thanos-redis-master:6379"
+  db: 1
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
@@ -224,6 +229,7 @@ config:
 type: REDIS
 config:
   addr: "thanos-redis-master:6379"
+  db: 0
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s

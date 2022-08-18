@@ -95,8 +95,8 @@ const deploy_spec = [
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "1000m", memory: "4096Mi" },
-                        requests: { cpu: "1000m", memory: "4096Mi" }
+                        limits: { cpu: "500m", memory: "4096Mi" },
+                        requests: { cpu: "500m", memory: "4096Mi" }
                     },
                     ingress: {
                         enabled: true,
