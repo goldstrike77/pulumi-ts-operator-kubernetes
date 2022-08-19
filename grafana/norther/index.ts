@@ -142,6 +142,10 @@ const deploy_spec = [
                             plugins: "/var/lib/grafana/plugins",
                             provisioning: "/etc/grafana/provisioning",
                         },
+                        dataproxy: {
+                            timeout: "60",
+                            keep_alive_seconds: "60"
+                        },
                         analytics: {
                             check_for_updates: false,
                             reporting_enabled: false

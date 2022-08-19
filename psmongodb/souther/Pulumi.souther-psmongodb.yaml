@@ -1,0 +1,11 @@
+encryptionsalt: v1:HzwG8gb1/vs=:v1:2IqQCEcCOOtL8VsA:9LTnp+qIVIxOf3M+GrWs6lU/Ed9vNw==
+config:
+  demo:backupPassword:
+    secure: v1:BhOphsyfdSi4LAvN:B28lhfSEF79nluQaUeAHOA+twSY+D1ei
+  demo:clusteradminPassword:
+    secure: v1:29ApqNTypuN1TIX9:vQ3+axh5MVZtqHYMvBzQZQMSU0i9+m3q
+  demo:secretaccesskey:
+    secure: v1:X269KfWBec6jnTkX:x2F7PfPXel+tuwmEHv5I0/nt3Pql2nvkt0/6Yq+XyhXfvfyW0YOrofp0CtjpSi8muzSIwMhrhFnWnPfPx75K6p2HlMvpp9Aw
+  demo:useradminPassword:
+    secure: v1:46kE0TDYTzE+TN8g:g1NoAbHsQnFdzRUUBZRnFHCwSHscheQL
+  kubernetes:context: kubernetes-admin@souther

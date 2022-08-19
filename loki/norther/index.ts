@@ -63,22 +63,22 @@ const deploy_spec = [
                     distributor: {
                         replicas: 2,
                         resources: {
-                            limits: { cpu: "200m", memory: "64Mi" },
-                            requests: { cpu: "200m", memory: "64Mi" }
+                            limits: { cpu: "200m", memory: "128Mi" },
+                            requests: { cpu: "200m", memory: "128Mi" }
                         }
                     },
                     querier: {
                         replicas: 2,
                         resources: {
-                            limits: { cpu: "200m", memory: "512Mi" },
-                            requests: { cpu: "200m", memory: "512Mi" }
+                            limits: { cpu: "500m", memory: "1024Mi" },
+                            requests: { cpu: "500m", memory: "1024Mi" }
                         }
                     },
                     queryFrontend: {
                         replicas: 1,
                         resources: {
-                            limits: { cpu: "200m", memory: "128Mi" },
-                            requests: { cpu: "200m", memory: "128Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
                     gateway: {
