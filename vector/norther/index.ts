@@ -13,7 +13,7 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "datadog",
-                name: "kubernetes-pods",
+                name: "kubernetes-pod",
                 chart: "../../_chart/vector-0.15.1.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
@@ -22,8 +22,8 @@ const deploy_spec = [
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "512Mi" },
+                        requests: { cpu: "200m", memory: "512Mi" }
                     },
                     service: { enabled: false },
                     customConfig: {
@@ -68,11 +68,11 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 type: "loki",
                                 inputs: ["kubernetes_json_labels"],
                                 endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "kubernetes-pods", cluster: "norther" },
+                                labels: { scrape_job: "kubernetes-pod", cluster: "norther" },
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                buffer: { type: "memory", max_events: 15360, when_full: "drop_newest" },
                                 batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
@@ -253,8 +253,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "512Mi" },
+                        requests: { cpu: "200m", memory: "512Mi" }
                     },
                     nodeSelector: { "node-role.kubernetes.io/master": "" },
                     tolerations: [{ key: "node-role.kubernetes.io/master", effect: "NoSchedule" }],
@@ -262,7 +262,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
-                        sources: { kubernetes_audit: { type: "file", include: ["/data/log/kube-audit/audit.log"] } },
+                        sources: { kubernetes_audit: { type: "file", max_line_bytes: 32768, include: ["/data/log/kube-audit/audit.log"] } },
                         transforms: {
                             kubernetes_audit_json: {
                                 type: "json_parser",
@@ -281,7 +281,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                buffer: { type: "memory", max_events: 15360, when_full: "drop_newest" },
                                 batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }

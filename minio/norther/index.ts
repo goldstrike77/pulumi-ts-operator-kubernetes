@@ -28,6 +28,7 @@ const deploy_spec = [
                         rootPassword: config.require("rootPassword")
                     },
                     statefulset: {
+                        podManagementPolicy: "OrderedReady",
                         replicaCount: 4,
                         zones: 1,
                         drivesPerNode: 1
