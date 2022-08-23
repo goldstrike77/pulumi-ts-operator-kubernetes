@@ -102,13 +102,25 @@ const deploy_spec = [
                         enabled: true,
                         ingressClassName: "nginx",
                         hostname: "minio-console.example.com",
-                        annotations: { "nginx.ingress.kubernetes.io/proxy-body-size": "100m" }
+                        annotations: {
+                            "nginx.ingress.kubernetes.io/client-body-buffer-size": "100m",
+                            "nginx.ingress.kubernetes.io/proxy-body-size": "100m",
+                            "nginx.ingress.kubernetes.io/proxy-connect-timeout": "300",
+                            "nginx.ingress.kubernetes.io/proxy-read-timeout": "300",
+                            "nginx.ingress.kubernetes.io/proxy-send-timeout": "300"
+                        }
                     },
                     apiIngress: {
                         enabled: true,
                         ingressClassName: "nginx",
                         hostname: "minio-api.example.com",
-                        annotations: { "nginx.ingress.kubernetes.io/proxy-body-size": "100m" }
+                        annotations: {
+                            "nginx.ingress.kubernetes.io/client-body-buffer-size": "100m",
+                            "nginx.ingress.kubernetes.io/proxy-body-size": "100m",
+                            "nginx.ingress.kubernetes.io/proxy-connect-timeout": "300",
+                            "nginx.ingress.kubernetes.io/proxy-read-timeout": "300",
+                            "nginx.ingress.kubernetes.io/proxy-send-timeout": "300"
+                        }
                     },
                     persistence: {
                         enabled: true,

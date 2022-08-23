@@ -13,7 +13,7 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "datadog",
-                name: "vector-agent",
+                name: "kubernetes-pods",
                 chart: "../../_chart/vector-0.15.1.tgz",
                 // repository: "https://helm.vector.dev",
                 repository: "", // Must be empty string if local chart.
@@ -81,14 +81,14 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         {
                             name: "varlibdockercontainers",
                             hostPath: {
-                                path: "/data/docker/containers"
+                                path: "/data/containerd"
                             }
                         }
                     ],
                     extraVolumeMounts: [
                         {
                             name: "varlibdockercontainers",
-                            mountPath: "/data/docker/containers",
+                            mountPath: "/data/containerd",
                             readOnly: true
                         }
                     ],
@@ -229,6 +229,78 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         }
                     },
                     persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    podMonitor: {
+                        enabled: false,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    }
+                }
+            },
+            {
+                namespace: "datadog",
+                name: "kubernetes-audit",
+                chart: "../../_chart/vector-0.15.1.tgz",
+                // repository: "https://helm.vector.dev",
+                repository: "", // Must be empty string if local chart.
+                version: "0.15.1",
+                values: {
+                    role: "Agent",
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
+                    },
+                    nodeSelector: { "node-role.kubernetes.io/master": "" },
+                    tolerations: [{ key: "node-role.kubernetes.io/master", effect: "NoSchedule" }],
+                    service: { enabled: false },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: { kubernetes_audit: { type: "file", include: ["/data/log/kube-audit/audit.log"] } },
+                        transforms: {
+                            kubernetes_audit_json: {
+                                type: "json_parser",
+                                drop_invalid: false,
+                                drop_field: true,
+                                field: "message",
+                                inputs: ["kubernetes_audit"],
+                            }
+                        },
+                        sinks: {
+                            kubernetes_logs_loki: {
+                                type: "loki",
+                                inputs: ["kubernetes_audit_json"],
+                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
+                                labels: { scrape_job: "kubernetes-audit", cluster: "norther" },
+                                compression: "none",
+                                healthcheck: { enabled: false },
+                                encoding: { codec: "json", except_fields: ["source_type"] },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 1024, timeout_secs: 3 }
+                            }
+                        }
+                    },
+                    extraVolumes: [
+                        {
+                            name: "varlibdockercontainers",
+                            hostPath: {
+                                path: "/data/log/kube-audit"
+                            }
+                        }
+                    ],
+                    extraVolumeMounts: [
+                        {
+                            name: "varlibdockercontainers",
+                            mountPath: "/data/log/kube-audit",
+                            readOnly: true
+                        }
+                    ],
                     podMonitor: {
                         enabled: false,
                         relabelings: [
