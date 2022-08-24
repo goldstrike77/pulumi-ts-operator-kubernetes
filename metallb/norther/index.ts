@@ -14,9 +14,8 @@ const deploy_spec = [
             {
                 namespace: "metallb-system",
                 name: "metallb",
-                chart: "../../_chart/metallb-3.0.12.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
+                chart: "metallb",
+                repository: "https://charts.bitnami.com/bitnami",
                 version: "3.0.12",
                 values: {
                     configInline: { "address-pools": [{ name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.41-10.101.4.42"] }] },
@@ -77,28 +76,16 @@ for (var i in deploy_spec) {
     });
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
 }

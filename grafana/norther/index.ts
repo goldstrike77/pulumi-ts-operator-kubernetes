@@ -46,10 +46,9 @@ const deploy_spec = [
             {
                 namespace: "visualization",
                 name: "grafana",
-                chart: "../../_chart/grafana-6.21.3.tgz",
-                // repository: "https://grafana.github.io/helm-charts",
-                repository: "", // Must be empty string if local chart.
-                version: "6.21.3",
+                chart: "grafana",
+                repository: "https://grafana.github.io/helm-charts",
+                version: "6.21.3", /** do not upgrade */
                 values: {
                     replicas: 1,
                     deploymentStrategy: {
@@ -191,28 +190,16 @@ for (var i in deploy_spec) {
     // }
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
 }

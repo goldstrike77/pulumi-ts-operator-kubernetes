@@ -17,10 +17,9 @@ const deploy_spec = [
             {
                 namespace: "minio",
                 name: "minio",
-                chart: "../../_chart/minio-11.8.2.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "11.8.2",
+                chart: "minio",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "11.9.2",
                 values: {
                     mode: "distributed",
                     auth: {
@@ -28,7 +27,7 @@ const deploy_spec = [
                         rootPassword: config.require("rootPassword")
                     },
                     statefulset: {
-                        podManagementPolicy: "OrderedReady",
+                        podManagementPolicy: "Parallel",
                         replicaCount: 4,
                         zones: 1,
                         drivesPerNode: 1
@@ -168,28 +167,16 @@ for (var i in deploy_spec) {
     });
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
 }

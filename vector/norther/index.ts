@@ -14,9 +14,8 @@ const deploy_spec = [
             {
                 namespace: "datadog",
                 name: "kubernetes-pod",
-                chart: "../../_chart/vector-0.15.1.tgz",
-                // repository: "https://helm.vector.dev",
-                repository: "", // Must be empty string if local chart.
+                chart: "vector",
+                repository: "https://helm.vector.dev",
                 version: "0.15.1",
                 values: {
                     role: "Agent",
@@ -108,9 +107,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             {
                 namespace: "datadog",
                 name: "vector-syslog",
-                chart: "../../_chart/vector-0.15.1.tgz",
-                // repository: "https://helm.vector.dev",
-                repository: "", // Must be empty string if local chart.
+                chart: "vector",
+                repository: "https://helm.vector.dev",
                 version: "0.15.1",
                 values: {
                     role: "Aggregator",
@@ -181,9 +179,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             {
                 namespace: "datadog",
                 name: "vector-beats",
-                chart: "../../_chart/vector-0.15.1.tgz",
-                // repository: "https://helm.vector.dev",
-                repository: "", // Must be empty string if local chart.
+                chart: "vector",
+                repository: "https://helm.vector.dev",
                 version: "0.15.1",
                 values: {
                     role: "Aggregator",
@@ -245,9 +242,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             {
                 namespace: "datadog",
                 name: "kubernetes-audit",
-                chart: "../../_chart/vector-0.15.1.tgz",
-                // repository: "https://helm.vector.dev",
-                repository: "", // Must be empty string if local chart.
+                chart: "vector",
+                repository: "https://helm.vector.dev",
                 version: "0.15.1",
                 values: {
                     role: "Agent",
@@ -326,28 +322,16 @@ for (var i in deploy_spec) {
     });
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
 }

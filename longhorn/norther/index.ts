@@ -33,10 +33,9 @@ const deploy_spec = [
             {
                 namespace: "longhorn-system",
                 name: "longhorn",
-                chart: "../../_chart/longhorn-1.3.0.tgz",
-                // repository: "https://charts.longhorn.io",
-                repository: "", // Must be empty string if local chart.
-                version: "1.3.0",
+                chart: "longhorn",
+                repository: "https://charts.longhorn.io",
+                version: "1.3.1",
                 values: {
                     global: { cattle: { systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com" } },
                     image: {
@@ -111,37 +110,25 @@ for (var i in deploy_spec) {
     }
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
-    }
-/**
-    // Create service monitor.
-    for (var yaml_index in deploy_spec[i].yaml) {
-        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
-            file: deploy_spec[i].yaml[yaml_index].name,
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
             skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
         }, { dependsOn: [namespace] });
     }
- */
+    /**
+        // Create service monitor.
+        for (var yaml_index in deploy_spec[i].yaml) {
+            const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
+                file: deploy_spec[i].yaml[yaml_index].name,
+                skipAwait: true,
+            }, { dependsOn: [namespace] });
+        }
+     */
 }

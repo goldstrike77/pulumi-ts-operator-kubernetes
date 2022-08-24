@@ -32,10 +32,9 @@ const deploy_spec = [
             {
                 namespace: "monitoring",
                 name: "thanos",
-                chart: "../../_chart/thanos-11.1.4.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "11.1.4",
+                chart: "thanos",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "11.2.2",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -222,10 +221,9 @@ config:
             {
                 namespace: "monitoring",
                 name: "kube-prometheus-stack",
-                chart: "../../_chart/kube-prometheus-stack-39.5.0.tgz",
-                // repository: "https://prometheus-community.github.io/helm-charts",
-                repository: "", // Must be empty string if local chart.                
-                version: "39.5.0",
+                chart: "kube-prometheus-stack",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "39.9.0",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: {
@@ -571,11 +569,10 @@ config:
             },
             {
                 namespace: "monitoring",
-                name: "thanos-redis",
-                chart: "../../_chart/redis-17.0.7.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "17.0.7",
+                name: "redis",
+                chart: "redis",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "17.1.1",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -656,29 +653,17 @@ for (var i in deploy_spec) {
     }
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
     // Create Prometheus rules.
     /**
