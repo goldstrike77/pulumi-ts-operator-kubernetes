@@ -1,0 +1,3 @@
+encryptionsalt: v1:9hSD8tYyVtE=:v1:Kkn1V7/iwAmLZUWr:BCTwtJb92MrEQQJlxl+jmVUlShrZPw==
+config:
+  kubernetes:context: kubernetes-admin@souther

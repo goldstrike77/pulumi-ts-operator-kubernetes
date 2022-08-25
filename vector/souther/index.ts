@@ -13,7 +13,7 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "datadog",
-                name: "kubernetes-pod",
+                name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.15.1",
@@ -180,7 +180,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             },
             {
                 namespace: "datadog",
-                name: "kubernetes-audit",
+                name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.15.1",

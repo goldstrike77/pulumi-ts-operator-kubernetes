@@ -13,7 +13,7 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "datadog",
-                name: "kubernetes-pod",
+                name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.15.1",
@@ -67,7 +67,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 type: "loki",
                                 inputs: ["kubernetes_json_labels"],
                                 endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "kubernetes-pod", cluster: "norther" },
+                                labels: { scrape_job: "kube-pod", cluster: "norther" },
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
@@ -241,7 +241,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             },
             {
                 namespace: "datadog",
-                name: "kubernetes-audit",
+                name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.15.1",
@@ -273,7 +273,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 type: "loki",
                                 inputs: ["kubernetes_audit_json"],
                                 endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "kubernetes-audit", cluster: "norther" },
+                                labels: { scrape_job: "kube-audit", cluster: "norther" },
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
