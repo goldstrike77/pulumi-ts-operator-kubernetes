@@ -106,7 +106,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             },
             {
                 namespace: "datadog",
-                name: "vector-syslog",
+                name: "syslog",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.15.1",
@@ -178,7 +178,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             },
             {
                 namespace: "datadog",
-                name: "vector-beats",
+                name: "beats",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.15.1",

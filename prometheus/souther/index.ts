@@ -137,7 +137,7 @@ save ""`,
                             "--store.grpc.series-sample-limit=50000", `--index-cache.config=
 type: REDIS
 config:
-  addr: "thanos-redis-master:6379"
+  addr: "redis-master:6379"
   db: 1
   dial_timeout: 10s
   read_timeout: 10s
@@ -151,7 +151,7 @@ config:
 `, `--store.caching-bucket.config=
 type: REDIS
 config:
-  addr: "thanos-redis-master:6379"
+  addr: "redis-master:6379"
   db: 0
   dial_timeout: 10s
   read_timeout: 10s

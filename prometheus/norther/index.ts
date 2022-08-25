@@ -77,7 +77,7 @@ const deploy_spec = [
                             "--query-range.partial-response", `--query-range.response-cache-config=
 type: REDIS
 config:
-  addr: "thanos-redis-master:6379"
+  addr: "redis-master:6379"
   db: 3
   dial_timeout: 10s
   read_timeout: 10s
@@ -91,7 +91,7 @@ config:
 `, `--labels.response-cache-config=
 type: REDIS
 config:
-  addr: "thanos-redis-master:6379"
+  addr: "redis-master:6379"
   db: 2
   dial_timeout: 10s
   read_timeout: 10s
@@ -158,7 +158,7 @@ config:
                             "--store.grpc.series-sample-limit=50000", `--index-cache.config=
 type: REDIS
 config:
-  addr: "thanos-redis-master:6379"
+  addr: "redis-master:6379"
   db: 1
   dial_timeout: 10s
   read_timeout: 10s
@@ -172,7 +172,7 @@ config:
 `, `--store.caching-bucket.config=
 type: REDIS
 config:
-  addr: "thanos-redis-master:6379"
+  addr: "redis-master:6379"
   db: 0
   dial_timeout: 10s
   read_timeout: 10s
