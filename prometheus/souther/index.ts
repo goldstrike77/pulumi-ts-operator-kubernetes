@@ -28,11 +28,10 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "monitoring",
-                name: "thanos-redis",
-                chart: "../../_chart/redis-17.0.7.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "17.0.7",
+                name: "redis",
+                chart: "redis",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "17.1.1",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -84,10 +83,9 @@ save ""`,
             {
                 namespace: "monitoring",
                 name: "thanos",
-                chart: "../../_chart/thanos-11.1.4.tgz",
-                // repository: "https://charts.bitnami.com/bitnami",
-                repository: "", // Must be empty string if local chart.
-                version: "11.1.4",
+                chart: "thanos",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "11.2.2",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: { enabled: false },
@@ -211,10 +209,9 @@ config:
             {
                 namespace: "monitoring",
                 name: "kube-prometheus-stack",
-                chart: "../../_chart/kube-prometheus-stack-39.5.0.tgz",
-                // repository: "https://prometheus-community.github.io/helm-charts",
-                repository: "", // Must be empty string if local chart.                
-                version: "39.5.0",
+                chart: "kube-prometheus-stack",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "39.9.0",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: { enabled: false },

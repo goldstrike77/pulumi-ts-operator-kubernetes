@@ -1,5 +1,4 @@
 import * as k8s from "@pulumi/kubernetes";
-import { FileAsset } from "@pulumi/pulumi/asset";
 
 const deploy_spec = [
     {
@@ -48,11 +47,100 @@ const deploy_spec = [
             {
                 namespace: "ingress-nginx",
                 name: "ingress-nginx",
-                chart: "../../_chart/ingress-nginx-4.0.16.tgz",
-                // repository: "https://kubernetes.github.io/ingress-nginx",
-                repository: "", // Must be empty string if local chart.
-                version: "4.0.16",
-                values: "./ingress-nginx.yaml"
+                chart: "ingress-nginx",
+                repository: "https://kubernetes.github.io/ingress-nginx",
+                version: "4.2.3",
+                values: {
+                    controller: {
+                        image: {
+                            registry: "registry.cn-hangzhou.aliyuncs.com",
+                            image: "goldstrike/ingress-nginx",
+                            digest: "sha256:067673df26a65ec5c2d5b30f25db869bad4d7d391fc81882250134577e581ef0"
+                        },
+                        config: {
+                            "compute-full-forwarded-for": "true",
+                            "enable-brotli": "true",
+                            "enable-modsecurity": "false",
+                            "enable-owasp-modsecurity-crs": "false",
+                            "force-ssl-redirect": "true",
+                            "forwarded-for-header": "X-Forwarded-For",
+                            "keep-alive": "60",
+                            "keep-alive-requests": "2048",
+                            "max-worker-connections": "20480",
+                            "real_ip_header": "X-Forwarded-For",
+                            "ssl_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
+                            "ssl_protocols": "TLSv1.2 TLSv1.3",
+                            "upstream-keepalive-connections": "8192",
+                            "upstream-keepalive-requests": "256",
+                            "upstream-keepalive-timeout": "60",
+                            "use-geoip": "false",
+                            "use-gzip": "false",
+                            "use-http2": "true",
+                            "worker-cpu-affinity": "auto",
+                        },
+                        configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
+                        addHeaders: {
+                            "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                            "X-Frame-Options": "DENY",
+                            "X-Content-Type-Options": "nosniff",
+                            "X-XSS-Protection": "1; mode=block"
+                        },
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                        sysctls: {
+                            "net.core.somaxconn": "8192",
+                            "net.ipv4.ip_local_port_range": "1024 65000"
+                        },
+                        extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
+                        },
+                        service: {
+                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
+                            loadBalancerIP: "10.101.4.41"
+                        },
+                        admissionWebhooks: {
+                            patch: {
+                                image: {
+                                    registry: "registry.cn-hangzhou.aliyuncs.com",
+                                    image: "google_containers/kube-webhook-certgen"
+                                }
+                            }
+                        },
+                        metrics: {
+                            enabled: true,
+                            serviceMonitor: {
+                                enabled: true,
+                                relabelings: [
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                                ]
+                            },
+                            prometheusRule: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    defaultBackend: {
+                        enabled: true,
+                        image: {
+                            registry: "registry.cn-hangzhou.aliyuncs.com",
+                            image: "goldstrike/defaultbackend-amd64",
+                            digest: "sha256:4dc5e07c8ca4e23bddb3153737d7b8c556e5fb2f29c4558b7cd6e6df99c512c7"
+                        },
+                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        }
+                    }
+                }
             }
         ]
     }
@@ -75,28 +163,16 @@ for (var i in deploy_spec) {
     }
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
 }

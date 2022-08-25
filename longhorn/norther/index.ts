@@ -35,7 +35,7 @@ const deploy_spec = [
                 name: "longhorn",
                 chart: "longhorn",
                 repository: "https://charts.longhorn.io",
-                version: "1.3.1",
+                version: "1.2.4",
                 values: {
                     global: { cattle: { systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com" } },
                     image: {

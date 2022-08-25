@@ -16,7 +16,7 @@ const deploy_spec = [
                 name: "metallb",
                 chart: "metallb",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "3.0.12",
+                version: "3.0.12", /** do not upgrade */
                 values: {
                     configInline: { "address-pools": [{ name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.41-10.101.4.42"] }] },
                     prometheusRule: { enabled: false },

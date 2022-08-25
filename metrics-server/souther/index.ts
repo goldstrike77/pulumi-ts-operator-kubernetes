@@ -1,5 +1,4 @@
 import * as k8s from "@pulumi/kubernetes";
-import { FileAsset } from "@pulumi/pulumi/asset";
 
 const deploy_spec = [
     {
@@ -15,11 +14,25 @@ const deploy_spec = [
             {
                 namespace: "metrics-server",
                 name: "metrics-server",
-                chart: "../../_chart/metrics-server-3.7.0.tgz",
-                // repository: "https://kubernetes-sigs.github.io/metrics-server",
-                repository: "", // Must be empty string if local chart.
-                version: "3.7.0",
-                values: "./metrics-server.yaml"
+                chart: "metrics-server",
+                repository: "https://kubernetes-sigs.github.io/metrics-server",
+                version: "3.8.2",
+                values: {
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.1" },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    defaultArgs: [
+                        "--cert-dir=/tmp",
+                        "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
+                        "--kubelet-use-node-status-port",
+                        "--metric-resolution=60s",
+                        "--kubelet-insecure-tls"
+                    ],
+                    metrics: { enabled: true },
+                    resources: {
+                        limits: { cpu: "250m", memory: "256Mi" },
+                        requests: { cpu: "250m", memory: "256Mi" }
+                    }
+                }
             }
         ]
     }
@@ -33,28 +46,16 @@ for (var i in deploy_spec) {
     });
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
     }
 }
