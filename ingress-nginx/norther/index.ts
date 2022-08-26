@@ -98,7 +98,7 @@ const deploy_spec = [
                         },
                         service: {
                             annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
-                            loadBalancerIP: "10.101.4.41"
+                            loadBalancerIP: "10.101.4.42"
                         },
                         admissionWebhooks: {
                             patch: {
