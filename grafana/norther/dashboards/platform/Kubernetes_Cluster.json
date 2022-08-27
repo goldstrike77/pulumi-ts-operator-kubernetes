@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1660705887069,
+  "iteration": 1661579704664,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -2924,7 +2924,7 @@
       ],
       "thresholds": [],
       "timeRegions": [],
-      "title": "Pods CPU usage",
+      "title": "CPU usage",
       "tooltip": {
         "msResolution": true,
         "shared": true,
@@ -3022,7 +3022,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum (container_memory_working_set_bytes{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (pod)",
+          "expr": "container_memory_usage_bytes{container!=\"\",namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -3036,7 +3036,7 @@
       ],
       "thresholds": [],
       "timeRegions": [],
-      "title": "Pods memory usage",
+      "title": "Memory usage",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -3158,7 +3158,7 @@
       ],
       "thresholds": [],
       "timeRegions": [],
-      "title": "Pods network I/O",
+      "title": "Network Bandwidth",
       "tooltip": {
         "msResolution": false,
         "shared": true,
@@ -3378,7 +3378,7 @@
                 "uid": "DS_PROMETHEUS"
               },
               "exemplar": false,
-              "expr": "sum (container_memory_working_set_bytes{namespace=~\"kube-system\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (pod)",
+              "expr": "container_memory_usage_bytes{container!=\"\",namespace=~\"kube-system\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}",
               "format": "time_series",
               "interval": "$interval",
               "intervalFactor": 1,

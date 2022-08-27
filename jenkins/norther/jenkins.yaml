@@ -18,10 +18,10 @@ renderHelmLabels: true
 controller:
   # Used for label app.kubernetes.io/component
   componentName: "jenkins-controller"
-  image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jenkins"
-  tag: "2.319.3-jdk11"
-  #tagLabel: jdk11
-  imagePullPolicy: "IfNotPresent"
+  image: "jenkins/jenkins"
+  # tag: "2.346.3-jdk11"
+  tagLabel: jdk11
+  imagePullPolicy: "Always"
   imagePullSecretName:
   # Optionally configure lifetime for controller-container
   lifecycle:
@@ -31,7 +31,7 @@ controller:
   #      - "uname"
   #      - "-a"
   disableRememberMe: false
-  numExecutors: 1
+  numExecutors: 0
   # configures the executor mode of the Jenkins node. Possible values are: NORMAL or EXCLUSIVE
   executorMode: "NORMAL"
   # This is ignored if enableRawHtmlMarkupFormatter is true
@@ -65,10 +65,10 @@ controller:
   resources:
     requests:
       cpu: "50m"
-      memory: "6144Mi"
+      memory: "256Mi"
     limits:
       cpu: "2000m"
-      memory: "6144Mi"
+      memory: "4096Mi"
   # Overrides the init container default values
   # initContainerResources:
   #   requests:
@@ -78,20 +78,14 @@ controller:
   #     cpu: "2000m"
   #     memory: "4096Mi"
   # Environment variables that get added to the init container (useful for e.g. http_proxy)
-  initContainerEnv:
-    - name: JENKINS_UC_DOWNLOAD
-      value: https://mirrors.aliyun.com/jenkins
-    - name: JENKINS_UC
-      value: https://mirrors.aliyun.com/jenkins/updates/stable/update-center.json
-    - name: JENKINS_UC_EXPERIMENTAL
-      value: https://mirrors.aliyun.com/jenkins/updates/experimental/update-center.json
+  # initContainerEnv:
   #   - name: http_proxy
   #     value: "http://192.168.64.1:3128"
   # containerEnv:
   #   - name: http_proxy
   #     value: "http://192.168.64.1:3128"
   # Set min/max heap here if needed with:
-  javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=90 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true"
+  # javaOpts: "-Xms512m -Xmx512m"
   # jenkinsOpts: ""
   # If you are using the ingress definitions provided by this chart via the `controller.ingress` block the configured hostname will be the ingress hostname starting with `https://` or `http://` depending on the `tls` configuration.
   # The Protocol can be overwritten by specifying `controller.jenkinsUrlProtocol`.
@@ -99,7 +93,7 @@ controller:
   # If you are not using the provided ingress you can specify `controller.jenkinsUrl` to change the url definition.
   # jenkinsUrl: ""
   # If you set this prefix and use ingress controller then you might want to set the ingress path below
-  jenkinsUriPrefix: "/jenkins"
+  # jenkinsUriPrefix: "/jenkins"
   # Enable pod security context (must be `true` if podSecurityContextOverride, runAsUser or fsGroup are set)
   usePodSecurityContext: true
   # Note that `runAsUser`, `fsGroup`, and `securityContextCapabilities` are
@@ -196,6 +190,9 @@ controller:
   agentListenerPort: 50000
   agentListenerHostPort:
   agentListenerNodePort:
+  agentListenerExternalTrafficPolicy:
+  agentListenerLoadBalancerSourceRanges:
+  - 0.0.0.0/0
   disabledAgentProtocols:
     - JNLP-connect
     - JNLP2-connect
@@ -241,16 +238,10 @@ controller:
 
   # List of plugins to be install during Jenkins controller start
   installPlugins:
-    - active-directory
-    - cloudbees-disk-usage-simple
-    - configuration-as-code
-    - git
-    - github
-    - kubernetes
-    - ldap
-    - prometheus
-    - skip-certificate-check
-    - workflow-aggregator
+    - kubernetes:3600.v144b_cd192ca_a_
+    - workflow-aggregator:581.v0c46fa_697ffd
+    - git:4.11.3
+    - configuration-as-code:1429.v09b_044a_c93de
 
   # Set to false to download the minimum required version of all dependencies.
   installLatestPlugins: true
@@ -259,9 +250,7 @@ controller:
   installLatestSpecifiedPlugins: false
 
   # List of plugins to install in addition to those listed in controller.installPlugins
-  additionalPlugins:
-    - ansible
-    - nodejs
+  additionalPlugins: []
 
   # Enable to initialize the Jenkins controller only once on initial installation.
   # Without this, whenever the controller gets restarted (Evicted, etc.) it will fetch plugin updates which has the potential to cause breakage.
@@ -273,6 +262,9 @@ controller:
 
   # Configures if plugins bundled with `controller.image` should be overwritten with the values of 'controller.installPlugins' on upgrade or redeployment.
   overwritePluginsFromImage: true
+
+  # Configures the restrictions for naming projects. Set this key to null or empty to skip it in the default config.
+  projectNamingStrategy: standard
 
   # Enable HTML parsing using OWASP Markup Formatter Plugin (antisamy-markup-formatter), useful with ghprb plugin.
   # The plugin is not installed by default, please update controller.installPlugins.
@@ -325,14 +317,17 @@ controller:
   # etc.  Best reference is https://<jenkins_url>/configuration-as-code/reference.  The example below creates a welcome message:
   JCasC:
     defaultConfig: true
-    configScripts:
-      settings: |
-        jenkins:
-          noUsageStatistics: true
-          updateCenter:
-            sites:
-            - id: "default"
-              url: "https://updates.jenkins.io/stable/update-center.json"
+    configScripts: {}
+    #  welcome-message: |
+    #    jenkins:
+    #      systemMessage: Welcome to our CI\CD server.  This Jenkins is configured and managed 'as code'.
+    # Allows adding to the top-level security JCasC section. For legacy,  default the chart includes apiToken configurations
+    security:
+      apiToken:
+        creationOfLegacyTokenEnabled: false
+        tokenGenerationOnCreationEnabled: false
+        usageStatisticsEnabled: true
+    # Ignored if securityRealm is defined in controller.JCasC.configScripts
     securityRealm: |-
       local:
         allowsSignup: false
@@ -360,13 +355,13 @@ controller:
       enabled: true
       image: kiwigrid/k8s-sidecar:1.15.0
       imagePullPolicy: IfNotPresent
-      resources:
-        limits:
-          cpu: 100m
-          memory: 100Mi
-        requests:
-          cpu: 50m
-          memory: 50Mi
+      resources: {}
+        #   limits:
+        #     cpu: 100m
+        #     memory: 100Mi
+        #   requests:
+        #     cpu: 50m
+        #     memory: 50Mi
       # How many connection-related errors to retry on
       reqRetryConnect: 10
       # env:
@@ -433,7 +428,7 @@ controller:
   updateStrategy: {}
 
   ingress:
-    enabled: true
+    enabled: false
     # Override for the default paths that map requests to the backend
     paths: []
     # - backend:
@@ -449,14 +444,15 @@ controller:
     apiVersion: "extensions/v1beta1"
     labels: {}
     annotations: {}
+    # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    ingressClassName: nginx
+    # ingressClassName: nginx
     # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
-    path: "/jenkins"
+    # path: "/jenkins"
     # configures the hostname e.g. jenkins.example.com
-    hostName: norther.example.com
+    hostName:
     tls:
     # - secretName: jenkins.cluster.local
     #   hosts:
@@ -520,7 +516,7 @@ controller:
   prometheus:
     # If enabled, add the prometheus plugin to the list of plugins to install
     # https://plugins.jenkins.io/prometheus
-    enabled: true
+    enabled: false
     # Additional labels to add to the ServiceMonitor object
     serviceMonitorAdditionalLabels: {}
     # Set a custom namespace where to deploy ServiceMonitor resource
@@ -723,6 +719,10 @@ agent:
   # Annotations to apply to the pod.
   annotations: {}
 
+  # Disable the default Jenkins Agent configuration.
+  # Useful when configuring agents only with the podTemplates value, since the default podTemplate populated by values mentioned above will be excluded in the rendered template.
+  disableDefaultAgent: false
+
   # Below is the implementation of custom pod templates for the default configured kubernetes cloud.
   # Add a key under podTemplates for each pod template. Each key (prior to | character) is just a label, and can be any value.
   # Keys are only used to give the pod template a meaningful name.  The only restriction is they may only contain RFC 1123 \ DNS label
@@ -780,7 +780,7 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: longhorn
+  storageClass:
   annotations: {}
   labels: {}
   accessMode: "ReadWriteOnce"
@@ -857,6 +857,7 @@ backup:
   image:
     repository: "maorfr/kube-tasks"
     tag: "0.2.0"
+  imagePullSecretName:
   # Additional arguments for kube-tasks
   # Ref: https://github.com/maorfr/kube-tasks#simple-backup
   extraArgs: []

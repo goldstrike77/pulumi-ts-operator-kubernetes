@@ -128,7 +128,7 @@ plugins:
 `
                     },
                     labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-                    opensearchJavaOpts: "-Xmx6144M -Xms6144M -server",
+                    opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
                     resources: {
                         limits: { cpu: "1000m", memory: "8192Mi" },
                         requests: { cpu: "1000m", memory: "8192Mi" }
