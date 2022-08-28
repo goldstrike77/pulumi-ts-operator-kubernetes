@@ -1,5 +1,20 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+import * as random from "@pulumi/random";
+
+// Generate random minutes from 10 to 59.
+const minutes = new random.RandomInteger("minutes", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 59,
+    min: 10,
+});
+
+// Generate random hours from UTC 17 to 21.
+const hours = new random.RandomInteger("hours", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 21,
+    min: 17,
+});
 
 let config = new pulumi.Config();
 
@@ -88,7 +103,7 @@ const deploy_spec = [
                     persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
                     backup: {
                         enabled: true,
-                        schedule: "05 19 * * *",
+                        schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
                         activeDeadlineSeconds: "3600",
                         env: [
                             { name: "AWS_ACCESS_KEY_ID", value: config.require("AWS_ACCESS_KEY_ID"), },
