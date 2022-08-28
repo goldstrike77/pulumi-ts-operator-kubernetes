@@ -1,4 +1,7 @@
+import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+
+let config = new pulumi.Config();
 
 const deploy_spec = [
     {
@@ -24,9 +27,10 @@ const deploy_spec = [
                         imagePullPolicy: "IfNotPresent",
                         numExecutors: 1,
                         adminUser: "admin",
+                        adminPassword: config.require("adminPassword"),
                         resources: {
-                            limits: { cpu: "2000m", memory: "6144Mi" },
-                            requests: { cpu: "2000m", memory: "6144Mi" }
+                            limits: { cpu: "1000m", memory: "6144Mi" },
+                            requests: { cpu: "1000m", memory: "6144Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=90 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true",
@@ -81,7 +85,26 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" }
+                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
+                    backup: {
+                        enabled: true,
+                        schedule: "05 19 * * *",
+                        activeDeadlineSeconds: "3600",
+                        env: [
+                            { name: "AWS_ACCESS_KEY_ID", value: config.require("AWS_ACCESS_KEY_ID"), },
+                            { name: "AWS_SECRET_ACCESS_KEY", value: config.require("AWS_SECRET_ACCESS_KEY"), },
+                            { name: "AWS_REGION", value: "us-east-1" },
+                            { name: "AWS_S3_NO_SSL", value: "true" },
+                            { name: "AWS_S3_FORCE_PATH_STYLE", value: "true" },
+                            { name: "AWS_S3_ENDPOINT", value: "http://minio.minio.svc.cluster.local:9000" }
+                        ],
+                        resources: {
+                            limits: { cpu: "500m", memory: "1024Mi" },
+                            requests: { cpu: "500m", memory: "1024Mi" }
+                        },
+                        destination: "s3://backup/jenkins",
+                        onlyJobs: false
+                    }
                 }
             }
         ]

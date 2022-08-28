@@ -43,12 +43,27 @@ const deploy_spec = [
                                 name: "test-bucket-specific-policy",
                                 statements: [
                                     {
-                                        resources: ["arn:aws:s3:::test-bucket"],
+                                        resources: ["arn:aws:s3:::test"],
                                         effect: "Allow",
                                         actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
                                     },
                                     {
-                                        resources: ["arn:aws:s3:::test-bucket/*"],
+                                        resources: ["arn:aws:s3:::test/*"],
+                                        effect: "Allow",
+                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "backup-bucket-specific-policy",
+                                statements: [
+                                    {
+                                        resources: ["arn:aws:s3:::backup"],
+                                        effect: "Allow",
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                    },
+                                    {
+                                        resources: ["arn:aws:s3:::backup/*"],
                                         effect: "Allow",
                                         actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
                                     }
@@ -69,11 +84,18 @@ const deploy_spec = [
                                 disabled: false,
                                 policies: ["test-bucket-specific-policy"],
                                 setPolicies: true
+                            },
+                            {
+                                username: "backup",
+                                password: config.require("backupPassword"),
+                                disabled: false,
+                                policies: ["backup-bucket-specific-policy"],
+                                setPolicies: true
                             }
                         ],
                         buckets: [
                             {
-                                name: "test-bucket",
+                                name: "test",
                                 region: "us-east-1",
                                 versioning: false,
                                 withLock: true,
@@ -90,7 +112,26 @@ const deploy_spec = [
                                 ],
                                 quota: { type: "hard", size: "10GiB", },
                                 tags: {}
-                            }
+                            },
+                            {
+                                name: "backup",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [
+                                    {
+                                        id: "BackupPrefix7dRetention",
+                                        prefix: "backup-prefix",
+                                        disabled: false,
+                                        expiry: {
+                                            days: "7",
+                                            nonconcurrentDays: "3"
+                                        }
+                                    }
+                                ],
+                                quota: { type: "hard", size: "10GiB", },
+                                tags: {}
+                            },
                         ]
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
