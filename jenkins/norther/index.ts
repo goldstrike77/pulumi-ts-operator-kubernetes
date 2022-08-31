@@ -95,6 +95,9 @@ const deploy_spec = [
                         prometheus: { enabled: true }
                     },
                     agent: {
+                        enabled: true,
+                        image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/inbound-agent",
+                        tag: "4.11.2-4",
                         resources: {
                             limits: { cpu: "500m", memory: "512Mi" },
                             requests: { cpu: "500m", memory: "512Mi" }
