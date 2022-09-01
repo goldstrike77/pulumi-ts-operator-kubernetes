@@ -7,7 +7,7 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "mongodb",
+                name: "mongodb-operator",
                 annotations: {},
                 labels: {}
             },
@@ -17,7 +17,7 @@ const deploy_spec = [
             {
                 metadata: {
                     name: "backup-conf-secret",
-                    namespace: "mongodb",
+                    namespace: "mongodb-operator",
                     annotations: {},
                     labels: {}
                 },
@@ -31,11 +31,10 @@ const deploy_spec = [
         ],
         helm: [
             {
-                namespace: "mongodb",
+                namespace: "mongodb-operator",
                 name: "psmdb-operator",
-                chart: "../../_chart/psmdb-operator-1.12.1.tgz",
-                // repository: "https://percona.github.io/percona-helm-charts",
-                repository: "", // Must be empty string if local chart.
+                chart: "psmdb-operator",
+                repository: "https://percona.github.io/percona-helm-charts",
                 version: "1.12.1",
                 values: {
                     replicaCount: 1,
@@ -46,37 +45,29 @@ const deploy_spec = [
                     }
                 }
             },
+/**
             {
-                namespace: "mongodb",
+                namespace: "mongodb-operator",
                 name: "psmdb-db",
-                chart: "../../_chart/psmdb-db-1.12.3.tgz",
-                // repository: "https://percona.github.io/percona-helm-charts",
-                repository: "", // Must be empty string if local chart.
+                chart: "psmdb-db",
+                repository: "https://percona.github.io/percona-helm-charts",
                 version: "1.12.3",
                 values: {
                     finalizers: ["delete-psmdb-pods-in-order"],
+                    upgradeOptions: {
+                        versionServiceEndpoint: "https://check.percona.com",
+                        apply: "disabled",
+                        schedule: "0 2 * * *",
+                        setFCV: false
+                    },
                     imagePullPolicy: "IfNotPresent",
                     replsets: [
                         {
                             name: "rs0",
-                            size: 3,
+                            size: 1,
                             labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                             storage: {
-                                engine: "wiredTiger",
-                                directoryPerDB: true,
-                                wiredTiger: {
-                                    engineConfig: {
-                                        cacheSizeRatio: 0.5,
-                                        directoryForIndexes: true,
-                                        journalCompressor: "snappy"
-                                    },
-                                    collectionConfig: {
-                                        blockCompressor: "snappy"
-                                    },
-                                    indexConfig: {
-                                        prefixCompression: true
-                                    }
-                                }
+                                engine: "wiredTiger"
                             },
                             resources: {
                                 limits: { cpu: "500m", memory: "1024Mi" },
@@ -104,9 +95,9 @@ const deploy_spec = [
                                 type: "s3",
                                 s3: {
                                     bucket: "backup",
-                                    prefix: "psmongodb",
+                                    prefix: "mongodb",
                                     region: "us-east-1",
-                                    endpointUrl: "https://demo-prd-cluster-storage-minio-oss.service.dc01.local",
+                                    endpointUrl: "http://minio.minio.svc.cluster.local:9000",
                                     insecureSkipTLSVerify: true,
                                     credentialsSecret: "backup-conf-secret"
                                 }
@@ -123,6 +114,7 @@ const deploy_spec = [
                     }
                 }
             }
+             */
         ]
     }
 ]

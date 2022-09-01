@@ -34,7 +34,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.2.2",
+                version: "11.3.1",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -223,7 +223,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "39.9.0",
+                version: "39.11.0",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: {
@@ -572,7 +572,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.1.1",
+                version: "17.1.2",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },

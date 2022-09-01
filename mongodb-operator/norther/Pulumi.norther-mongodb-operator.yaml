@@ -8,4 +8,4 @@ config:
     secure: v1:X269KfWBec6jnTkX:x2F7PfPXel+tuwmEHv5I0/nt3Pql2nvkt0/6Yq+XyhXfvfyW0YOrofp0CtjpSi8muzSIwMhrhFnWnPfPx75K6p2HlMvpp9Aw
   demo:useradminPassword:
     secure: v1:46kE0TDYTzE+TN8g:g1NoAbHsQnFdzRUUBZRnFHCwSHscheQL
-  kubernetes:context: kubernetes-admin@souther
+  kubernetes:context: kubernetes-admin@norther

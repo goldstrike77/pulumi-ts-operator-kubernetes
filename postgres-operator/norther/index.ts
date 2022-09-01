@@ -69,7 +69,7 @@ const deploy_spec = [
                         logical_backup_s3_secret_access_key: config.require("AWS_SECRET_ACCESS_KEY"),
                         logical_backup_s3_sse: "AES256",
                         logical_backup_s3_retention_time: "3 days",
-                        logical_backup_schedule: "30 00 * * *",
+                        logical_backup_schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
                     },
                     configConnectionPooler: {
                         connection_pooler_image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/pgbouncer:master-22"
