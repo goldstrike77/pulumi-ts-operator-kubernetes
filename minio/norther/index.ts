@@ -19,7 +19,7 @@ const deploy_spec = [
                 name: "minio",
                 chart: "minio",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.9.2",
+                version: "11.9.3",
                 values: {
                     mode: "distributed",
                     auth: {
@@ -40,17 +40,12 @@ const deploy_spec = [
                         },
                         policies: [
                             {
-                                name: "test-bucket-specific-policy",
+                                name: "readonly-specific-policy",
                                 statements: [
                                     {
-                                        resources: ["arn:aws:s3:::test"],
+                                        resources: ["arn:aws:s3:::*"],
                                         effect: "Allow",
-                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
-                                    },
-                                    {
-                                        resources: ["arn:aws:s3:::test/*"],
-                                        effect: "Allow",
-                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:GetObject", "s3:ListBucketMultipartUploads"]
                                     }
                                 ]
                             },
@@ -79,10 +74,10 @@ const deploy_spec = [
                                 setPolicies: true
                             },
                             {
-                                username: "testuser",
-                                password: config.require("testPassword"),
+                                username: "readonly",
+                                password: config.require("readonlyPassword"),
                                 disabled: false,
-                                policies: ["test-bucket-specific-policy"],
+                                policies: ["readonly-specific-policy"],
                                 setPolicies: true
                             },
                             {

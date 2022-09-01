@@ -31,7 +31,7 @@ const deploy_spec = [
                 name: "loki",
                 chart: "loki-distributed",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "0.55.7",
+                version: "0.56.6",
                 values: {
                     nameOverride: "loki",
                     loki: {

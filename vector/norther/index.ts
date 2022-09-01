@@ -16,7 +16,7 @@ const deploy_spec = [
                 name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -48,24 +48,15 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
 .labels = parse_json!(kubernetes_labels)`,
                             },
                             kubernetes_json: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "kubernetes",
+                                type: "remap",
                                 inputs: ["kubernetes_remap"],
-                            },
-                            kubernetes_json_labels: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "labels",
-                                inputs: ["kubernetes_json"]
-                            },
+                                source: `. = parse_json!(.kubernetes)`
+                            }
                         },
                         sinks: {
                             kubernetes_logs_loki: {
                                 type: "loki",
-                                inputs: ["kubernetes_json_labels"],
+                                inputs: ["kubernetes_json"],
                                 endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
                                 labels: { scrape_job: "kube-pod", cluster: "norther" },
                                 compression: "none",
@@ -109,7 +100,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "syslog",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -141,11 +132,9 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         },
                         transforms: {
                             syslog_json_udp: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "message",
-                                inputs: ["syslog_socket_udp"]
+                                type: "remap",
+                                inputs: ["syslog_socket_udp"],
+                                source: `. = parse_json!(.message)`
                             }
                         },
                         sinks: {
@@ -181,7 +170,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "beats",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -244,7 +233,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -261,11 +250,9 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         sources: { kubernetes_audit: { type: "file", max_line_bytes: 32768, include: ["/data/log/kube-audit/audit.log"] } },
                         transforms: {
                             kubernetes_audit_json: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "message",
+                                type: "remap",
                                 inputs: ["kubernetes_audit"],
+                                source: `. = parse_json!(.message)`
                             }
                         },
                         sinks: {
