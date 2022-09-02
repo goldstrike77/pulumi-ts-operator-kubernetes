@@ -21,48 +21,49 @@ const deploy_spec = [
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "512Mi" },
-                        requests: { cpu: "200m", memory: "512Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
                     service: { enabled: false },
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
-                        sources: { kubernetes_logs: { type: "kubernetes_logs", max_line_bytes: 32768 } },
+                        sources: {
+                            kubernetes_logs: {
+                                type: "kubernetes_logs",
+                                max_line_bytes: 32768
+                            }
+                        },
                         transforms: {
                             kubernetes_remap: {
                                 type: "remap",
                                 inputs: ["kubernetes_logs"],
                                 source: `kubernetes = del(.kubernetes)
 file = del(.file)
+message = del(.message)
 kubernetes_labels = encode_json(kubernetes.pod_labels)
 kubernetes_labels = replace(kubernetes_labels, "app.kubernetes.io", "app_kubernetes_io")
 kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
-.kubernetes = {
-  "container": kubernetes.container_name,
-  "node_name": kubernetes.pod_node_name,
-  "pod": kubernetes.pod_name,
-  "namespace": kubernetes.pod_namespace,
-  "filename": file
-}
-.labels = parse_json!(kubernetes_labels)`,
-                            },
-                            kubernetes_json: {
-                                type: "remap",
-                                inputs: ["kubernetes_remap"],
-                                source: `. = parse_json!(.kubernetes)`
+. = parse_json!(kubernetes_labels)
+.file = file
+.message = message
+.ip = kubernetes.pod_ip
+.container = kubernetes.container_name
+.node = kubernetes.pod_node_name
+.pod = kubernetes.pod_name
+.namespace = kubernetes.pod_namespace`
                             }
                         },
                         sinks: {
                             kubernetes_logs_loki: {
                                 type: "loki",
-                                inputs: ["kubernetes_json"],
+                                inputs: ["kubernetes_remap"],
                                 endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
                                 labels: { scrape_job: "kube-pod", cluster: "norther" },
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "memory", max_events: 15360, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
@@ -82,6 +83,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             readOnly: true
                         }
                     ],
+                    persistence: { hostPath: { path: "/var/lib/vector/kube-pod" } },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
@@ -146,7 +148,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
@@ -209,7 +211,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
@@ -238,8 +240,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "512Mi" },
-                        requests: { cpu: "200m", memory: "512Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
                     nodeSelector: { "node-role.kubernetes.io/master": "" },
                     tolerations: [{ key: "node-role.kubernetes.io/master", effect: "NoSchedule" }],
@@ -264,7 +266,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "memory", max_events: 15360, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
@@ -284,6 +286,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             readOnly: true
                         }
                     ],
+                    persistence: { hostPath: { path: "/var/lib/vector/kube-audit" } },
                     podMonitor: {
                         enabled: false,
                         relabelings: [

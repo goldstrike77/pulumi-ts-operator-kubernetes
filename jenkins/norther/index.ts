@@ -47,6 +47,11 @@ const deploy_spec = [
                             limits: { cpu: "1000m", memory: "6144Mi" },
                             requests: { cpu: "1000m", memory: "6144Mi" }
                         },
+                        initContainerEnv: [
+                            { name: "JENKINS_UC_DOWNLOAD", value: "https://mirrors.aliyun.com/jenkins" },
+                            { name: "JENKINS_UC", value: "https://mirrors.aliyun.com/jenkins/updates/stable/update-center.json" },
+                            { name: "JENKINS_UC_EXPERIMENTAL", value: "https://mirrors.aliyun.com/jenkins/updates/experimental/update-center.json" }
+                        ],
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=90 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true",
                         jenkinsUriPrefix: "/jenkins",
