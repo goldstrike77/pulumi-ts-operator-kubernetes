@@ -99,7 +99,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             },
             {
                 namespace: "datadog",
-                name: "syslog",
+                name: "syslog-gelf",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
                 version: "0.16.0",
@@ -144,7 +144,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 type: "loki",
                                 inputs: ["syslog_json_udp"],
                                 endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "syslog" },
+                                labels: { scrape_job: "syslog-gelf" },
                                 compression: "none",
                                 healthcheck: { enabled: false },
                                 encoding: { codec: "json", except_fields: ["source_type"] },

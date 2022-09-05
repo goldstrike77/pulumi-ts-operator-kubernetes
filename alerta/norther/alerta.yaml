@@ -62,35 +62,52 @@ alertaInstallPlugins:
 
 # ref: http://docs.alerta.io/en/latest/configuration.html
 alertaConfig:
-  DATABASE_URL: "mongodb://sa:password@mongodb-0.mongodb-headless.alerta.svc.cluster.local:27017,mongodb-1.mongodb-headless.alerta.svc.cluster.local:27017,mongodb-2.mongodb-headless.alerta.svc.cluster.local:27017/alerta?replicaSet=alerta&connectTimeoutMS=300000&tls=false&tlsAllowInvalidCertificates=true"
-  DATABASE_NAME: "alerta"
-  DATABASE_RAISE_ON_ERROR: "False"
-  COLUMNS: "['severity', 'status', 'type', 'lastReceiveTime', 'duplicateCount', 'customer', 'environment', 'group', 'resource', 'service', 'text']"
-  AUTH_REQUIRED: "True"
-  CUSTOMER_VIEWS: "True"
-  BASE_URL: "alerta.example.com"
-  USE_PROXYFIX: "False"
-  SECRET_KEY: "WedebbGip4YPYirHF1UXxrBG07sRbRgp"
-  AUTH_PROVIDER: "basic"
-  ADMIN_USERS: "['admin','prometheus@example.com']"
-  SIGNUP_ENABLED: "False"
-  SITE_LOGO_URL: ""
-  SEVERITY_MAP: "{ 'p1': 1, 'p2': 2, 'p3': 3, 'p4': 4, 'ok': 5 }"
-  DEFAULT_NORMAL_SEVERITY: "ok"
-  DEFAULT_PREVIOUS_SEVERITY: "ok"
-  COLOR_MAP: "{ 'severity': { 'p1': 'red', 'p2': 'yellow', 'p3': 'gray', 'p4': 'white', 'ok': '#00CC00' }, 'text': 'black',   'highlight': 'skyblue' }"
+  DATABASE_URL: 'mongodb://alerta:changeme@10.101.4.34:27017/ALERTA?connectTimeoutMS=300000&tls=true&tlsAllowInvalidCertificates=true'
+  DATABASE_NAME: 'ALERTA'
+  DATABASE_RAISE_ON_ERROR: False
+  COLUMNS: ['severity', 'status', 'type', 'lastReceiveTime', 'duplicateCount', 'customer', 'environment', 'group', 'resource', 'service', 'text']
+  CORS_ORIGINS: [ 'https?://\w*\:?\d*/?.*' ]
+  AUTH_REQUIRED: True
+  CUSTOMER_VIEWS: True
+  BASE_URL: ''
+  USE_PROXYFIX: False
+  SECRET_KEY: 'XB3EBNdHL6sW4CxWPgkt8hNp77n6OeGS'
+  AUTH_PROVIDER: 'basic'
+  ADMIN_USERS: ['admin','prometheus@example.com']
+  SIGNUP_ENABLED: False
+  SITE_LOGO_URL: ''
+  SEVERITY_MAP: {
+    'critical': 1,
+    'high': 2,
+    'warning': 3,
+    'info': 4,
+    'ok': 5
+  }
+  DEFAULT_NORMAL_SEVERITY: 'ok'
+  DEFAULT_PREVIOUS_SEVERITY: 'ok'
+  COLOR_MAP: {
+    'severity': {
+      'critical': 'red',
+      'high': 'yellow',
+      'warning': 'gray',
+      'info': 'white',
+      'ok': '#00CC00'
+    },
+    'text': 'black',
+    'highlight': 'skyblue'
+  }
   DEBUG: False
-  LOG_HANDLERS: "['console', 'file']"
-  LOG_FILE: "/var/log/alerta/alertad.log"
-  LOG_MAX_BYTES: "25*1024*1024"
-  LOG_BACKUP_COUNT: "10"
-  LOG_FORMAT: "verbose"
-  ALLOWED_ENVIRONMENTS: "['dev','development','disaster','drs','prd','nprd','production','qa','sit','testing','uat']"
-  DEFAULT_ENVIRONMENT: "dev"
-  PLUGINS: "['prometheus']"
-  PLUGINS_RAISE_ON_ERROR: "False"
-  ALERTMANAGER_API_URL: "b2b-prd-ewms-k8smaster-alertmanager.service.idc-tc.local:9093"
-  ALERTMANAGER_SILENCE_DAYS: "5"
+  LOG_HANDLERS: ['console', 'file']
+  LOG_FILE: '/var/log/alerta/alertad.log'
+  LOG_MAX_BYTES: 25*1024*1024
+  LOG_BACKUP_COUNT: 10
+  LOG_FORMAT: 'verbose'
+  ALLOWED_ENVIRONMENTS: ['dev','development','disaster','drs','prd','nprd','production','qa','sit','testing','uat']
+  DEFAULT_ENVIRONMENT: 'dev'
+  PLUGINS: ['prometheus']
+  PLUGINS_RAISE_ON_ERROR: False
+  ALERTMANAGER_API_URL: 'demo-prd-infra-monitor-alertmanager.service.dc01.local:9093'
+  ALERTMANAGER_SILENCE_DAYS: 5
 # ref: http://docs.alerta.io/en/latest/webui.html
 # alertaWebUIConfig: |
 #   // contents of config.js

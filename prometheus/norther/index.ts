@@ -407,7 +407,6 @@ config:
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
-
                     },
                     kubeStateMetrics: { enabled: true },
                     "kube-state-metrics": {
@@ -536,6 +535,7 @@ config:
                             evaluationInterval: "60s",
                             externalLabels: { cluster: "norther" },
                             externalUrl: "https://norther.example.com/prometheus/",
+                            ruleSelectorNilUsesHelmValues: false,
                             serviceMonitorSelectorNilUsesHelmValues: false,
                             podMonitorSelectorNilUsesHelmValues: false,
                             retention: "1d",
@@ -625,17 +625,17 @@ save ""`,
                 }
             }
         ],
-        /**
-                yaml: [
-                    { name: "../_rules/severity/alertmanager-prometheusRule.yaml" },
-                    { name: "../_rules/severity/kubePrometheus-prometheusRule.yaml" },
-                    { name: "../_rules/severity/kubeStateMetrics-prometheusRule.yaml" },
-                    { name: "../_rules/severity/kubernetesControlPlane-prometheusRule.yaml" },
-                    { name: "../_rules/severity/nodeExporter-prometheusRule.yaml" },
-                    { name: "../_rules/severity/prometheus-prometheusRule.yaml" },
-                    { name: "../_rules/severity/prometheusOperator-prometheusRule.yaml" }
-                ]
-         */
+        rules: [
+            { name: "../_rules/severity/mysql.yaml" },
+            /**
+                                { name: "../_rules/severity/kubePrometheus-prometheusRule.yaml" },
+                                { name: "../_rules/severity/kubeStateMetrics-prometheusRule.yaml" },
+                                { name: "../_rules/severity/kubernetesControlPlane-prometheusRule.yaml" },
+                                { name: "../_rules/severity/nodeExporter-prometheusRule.yaml" },
+                                { name: "../_rules/severity/prometheus-prometheusRule.yaml" },
+                                { name: "../_rules/severity/prometheusOperator-prometheusRule.yaml" }
+                                 */
+        ]
     }
 ]
 
@@ -669,12 +669,10 @@ for (var i in deploy_spec) {
         }, { dependsOn: [namespace] });
     }
     // Create Prometheus rules.
-    /**
-    for (var yaml_index in deploy_spec[i].yaml) {
-        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
-            file: deploy_spec[i].yaml[yaml_index].name,
+    for (var rule_index in deploy_spec[i].rules) {
+        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].rules[rule_index].name, {
+            file: deploy_spec[i].rules[rule_index].name,
             skipAwait: true,
         }, { dependsOn: [namespace] });
     }
-     */
 }
