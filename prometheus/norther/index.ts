@@ -37,7 +37,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.3.1",
+                version: "11.4.0",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -575,7 +575,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.1.2",
+                version: "17.1.4",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },

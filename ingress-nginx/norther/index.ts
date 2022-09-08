@@ -49,13 +49,14 @@ const deploy_spec = [
                 name: "ingress-nginx",
                 chart: "ingress-nginx",
                 repository: "https://kubernetes.github.io/ingress-nginx",
-                version: "4.2.3",
+                version: "4.2.5",
                 values: {
                     controller: {
                         image: {
                             registry: "registry.cn-hangzhou.aliyuncs.com",
                             image: "goldstrike/ingress-nginx",
-                            digest: "sha256:067673df26a65ec5c2d5b30f25db869bad4d7d391fc81882250134577e581ef0"
+                            tag: "v1.3.1",
+                            digest: "sha256:d3642f55a6a7a102a9a579b3382fe73869c73890de4c94f28e36ba5e07925944"
                         },
                         config: {
                             "compute-full-forwarded-for": "true",

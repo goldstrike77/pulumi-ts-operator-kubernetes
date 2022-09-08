@@ -16,7 +16,7 @@ const deploy_spec = [
                 name: "metallb",
                 chart: "metallb",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "4.1.1",
+                version: "4.1.2",
                 values: {
                     addresses: ["10.101.4.41-10.101.4.42"],
                     autoAssign: true,

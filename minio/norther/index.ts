@@ -19,7 +19,7 @@ const deploy_spec = [
                 name: "minio",
                 chart: "minio",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.9.3",
+                version: "11.10.0",
                 values: {
                     mode: "distributed",
                     auth: {
