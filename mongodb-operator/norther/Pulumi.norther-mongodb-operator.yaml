@@ -1,13 +1,13 @@
 encryptionsalt: v1:HzwG8gb1/vs=:v1:2IqQCEcCOOtL8VsA:9LTnp+qIVIxOf3M+GrWs6lU/Ed9vNw==
 config:
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:uMaNunAWxP+9aqGK:iGhxR2UoKg8GBX8x/NhZQ+AeXgW7mKjz
   demo:backupPassword:
     secure: v1:8+iS3e8qlKUR6V8d:FGBBBRIz5uqqUIQFYPXRaj8M+CI6dlTG
   demo:clusteradminPassword:
     secure: v1:+NJMUWDL/Td72AQl:UDNTBwDupwcMR1ZHNppXPK+IujkhzEkC
   demo:clustermonitorPassword:
     secure: v1:TAHCVqWtHEnbySY9:ZhOiDc8zFJZaoOfg1aoZYu+RtRzi2QmV
-  demo:secretaccesskey:
-    secure: v1:X269KfWBec6jnTkX:x2F7PfPXel+tuwmEHv5I0/nt3Pql2nvkt0/6Yq+XyhXfvfyW0YOrofp0CtjpSi8muzSIwMhrhFnWnPfPx75K6p2HlMvpp9Aw
   demo:useradminPassword:
     secure: v1:COyeJ/XkFR72N50i:kjjnx/kSTudNcA0jUcXvEAxMOQnsfMCi
   kubernetes:context: kubernetes-admin@norther

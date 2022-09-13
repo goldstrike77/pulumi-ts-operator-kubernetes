@@ -1,5 +1,12 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+import * as random from "@pulumi/random";
+
+const randomrandomstring = new random.RandomString("random", {
+    keepers: { project: `${pulumi.getStack()}-${pulumi.getProject()}` },
+    length: 32,
+    special: false,
+});
 
 let config = new pulumi.Config();
 
@@ -14,72 +21,63 @@ const deploy_spec = [
             spec: {}
         },
         helm: [
-            /**
-                        {
-                            namespace: "alerta",
-                            name: "alerta",
-                            chart: "../../_chart/alerta.tgz",
-                            // repository: "https://github.com/alerta/docker-alerta",
-                            repository: "", // Must be empty string if local chart.
-                            version: "0.1",
-                            values: "./alerta.yaml"
-                        },
-             */
             {
                 namespace: "alerta",
-                name: "mongodb",
-                chart: "../../_chart/mongodb-11.2.0.tgz",
-                //  repository: "https://charts.bitnami.com/bitnami",
+                name: "alerta",
+                chart: "../../_chart/alerta.tgz",
                 repository: "",
-                version: "11.2.0",
+                version: "0.1",
                 values: {
-                    architecture: "replicaset",
-                    auth: {
-                        enabled: true,
-                        rootUser: "root",
-                        rootPassword: config.require("rootPassword"),
-                        usernames: [],
-                        passwords: [],
-                        databases: [],
-                        replicaSetKey: config.require("replicaSetKey"),
+                    replicaCount: 1,
+                    image: {
+                        repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/alerta-web",
+                        tag: "8.6.3"
                     },
-                    disableSystemLog: false,
-                    replicaCount: 3,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                    podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
+                    ingress: {
+                        enabled: true,
+                        annotations: { "kubernetes.io/ingress.class": "nginx" },
+                        hosts: ["alerta.example.com"]
+                    },
                     resources: {
-                        limits: { cpu: "200m", memory: "512Mi" },
-                        requests: { cpu: "200m", memory: "512Mi" }
+                        limits: { cpu: "1000m", memory: "1024Mi" },
+                        requests: { cpu: "1000m", memory: "1024Mi" }
                     },
-                    replicaSetName: "rs0",
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
-                    volumePermissions: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        }
+                    alertaAdminPassword: config.require("alertaAdminPassword"),
+                    alertaAdminUsers: ["admin@alerta.io"],
+                    alertaInstallPlugins: ["prometheus"],
+                    alertaConfig: {
+                        DATABASE_URL: "'mongodb://alerta:password@alerta-psmdb-db-rs0-0.alerta-psmdb-db-rs0.mongodb.svc.cluster.local:27017,alerta-psmdb-db-rs0-0.alerta-psmdb-db-rs0.mongodb.svc.cluster.local:27017,alerta-psmdb-db-rs0-0.alerta-psmdb-db-rs0.mongodb.svc.cluster.local:27017/alerta?replicaSet=rs0&connectTimeoutMS=300000'",
+                        DATABASE_NAME: "'alerta'",
+                        DATABASE_RAISE_ON_ERROR: "False",
+                        DELETE_EXPIRED_AFTER: 60,
+                        DELETE_INFO_AFTER: 60,
+                        COLUMNS: "['severity', 'status', 'type', 'lastReceiveTime', 'duplicateCount', 'customer', 'environment', 'group', 'resource', 'service', 'text']",
+                        CORS_ORIGINS: "['https://alerta.example.com']",
+                        AUTH_REQUIRED: "True",
+                        SECRET_KEY: pulumi.interpolate`'${randomrandomstring.result}'`,
+                        CUSTOMER_VIEWS: "True",
+                        BASE_URL: "''",
+                        USE_PROXYFIX: "False",
+                        AUTH_PROVIDER: "'basic'",
+                        ADMIN_USERS: "['admin@alerta.io']",
+                        SIGNUP_ENABLED: "False",
+                        SITE_LOGO_URL: "''",
+                        SEVERITY_MAP: "{'critical':1,'high':2,'warning':3,'info':4,'ok':5}",
+                        DEFAULT_NORMAL_SEVERITY: "'ok'",
+                        DEFAULT_PREVIOUS_SEVERITY: "'ok'",
+                        COLOR_MAP: "{'severity':{'critical':'red','high':'yellow','warning':'gray','info':'white','ok':'#00CC00'},'text':'black','highlight':'skyblue'}",
+                        DEBUG: "False",
+                        LOG_HANDLERS: "['console']",
+                        LOG_FORMAT: "'verbose'",
+                        ALLOWED_ENVIRONMENTS: "['dev', 'development', 'disaster', 'drs', 'prd', 'nprd', 'production', 'qa', 'sit', 'testing', 'uat']",
+                        DEFAULT_ENVIRONMENT: "'dev'",
+                        PLUGINS: "['prometheus']",
+                        PLUGINS_RAISE_ON_ERROR: "False",
+                        ALERTMANAGER_API_URL: "'demo-prd-infra-monitor-alertmanager.service.dc01.local:9093'",
+                        ALERTMANAGER_SILENCE_DAYS: 5,
+                        ALERTMANAGER_SILENCE_FROM_ACK: "True"
                     },
-                    arbiter: { enabled: false },
-                    metrics: {
-                        enabled: false,
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        },
-                        serviceMonitor: {
-                            enabled: true,
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                            ],
-                            prometheusRule: { enabled: false }
-                        }
-                    }
+                    postgresql: { enabled: false }
                 }
             }
         ]
@@ -100,7 +98,9 @@ for (var i in deploy_spec) {
             chart: deploy_spec[i].helm[helm_index].chart,
             version: deploy_spec[i].helm[helm_index].version,
             values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true
+            skipAwait: true,
         }, { dependsOn: [namespace] });
     }
 }
+
+export const secretkey = randomrandomstring.result;

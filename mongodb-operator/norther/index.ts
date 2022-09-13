@@ -38,8 +38,8 @@ const deploy_spec = [
                 },
                 type: "Opaque",
                 data: {
-                    "access-key-id": "R0E4MUNFNlJNTEFaWjhFVEVaQ0c=",
-                    "secret-access-key": config.require("secretaccesskey")
+                    "AWS_ACCESS_KEY_ID": Buffer.from("backup").toString('base64'),
+                    "AWS_SECRET_ACCESS_KEY": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64')
                 },
                 stringData: {}
             }
@@ -70,7 +70,7 @@ const deploy_spec = [
                 values: {
                     finalizers: ["delete-psmdb-pods-in-order"],
                     upgradeOptions: { apply: "disabled" },
-                    image: { tag: "4.2.22-22" },
+                    image: { tag: "4.4.16-16" },
                     pmm: { enabled: false },
                     imagePullPolicy: "IfNotPresent",
                     replsets: [
@@ -126,11 +126,11 @@ const deploy_spec = [
                                     prefix: "mongodb",
                                     region: "us-east-1",
                                     endpointUrl: "http://minio.minio.svc.cluster.local:9000",
-                                    insecureSkipTLSVerify: true,
                                     credentialsSecret: "backup-conf-secret"
                                 }
                             }
                         },
+                        pitr: { enabled: true },
                         tasks: [
                             {
                                 name: "daily-s3-us-east-1",
@@ -163,14 +163,21 @@ const deploy_spec = [
                 repository: "https://prometheus-community.github.io/helm-charts",
                 version: "3.1.1",
                 size: 3,
-                extraArgs: ["--collect.collection", "--collect.database", "--collect.indexusage", "--collect.topmetrics"],
+                extraArgs: ["--collect-all"],
                 user: "clusterMonitor",
                 pass: config.require("clustermonitorPassword"),
                 podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                 resources: { limits: { cpu: "100m", memory: "128Mi" }, requests: { cpu: "100m", memory: "128Mi" } },
                 serviceMonitor: {
-                    enabled: false,
-                    targetLabels: []
+                    enabled: true,
+                    metricRelabelings: [
+                        { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
+                        { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
+                        { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
+                        { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
+                        { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                        { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
+                    ]
                 }
             }
         ]
@@ -208,17 +215,18 @@ for (var i in deploy_spec) {
     }
     // Create Exporter pod.
     for (var exporter_index in deploy_spec[i].exporter) {
-        for (let i = 0; i < deploy_spec[i].exporter[exporter_index].size; i++) {
-            const release = new k8s.helm.v3.Release(`${deploy_spec[i].exporter[exporter_index].name}-` + i, {
+        for (let k = 0; k < deploy_spec[i].exporter[exporter_index].size; k++) {
+            const release = new k8s.helm.v3.Release(`${deploy_spec[i].exporter[exporter_index].name}-` + k + "-exporter", {
                 namespace: deploy_spec[i].exporter[exporter_index].namespace,
-                name: `${deploy_spec[i].exporter[exporter_index].name}-` + i,
+                name: `${deploy_spec[i].exporter[exporter_index].name}-` + k + "-exporter",
                 chart: deploy_spec[i].exporter[exporter_index].chart,
                 version: deploy_spec[i].exporter[exporter_index].version,
                 values: {
                     extraArgs: deploy_spec[i].exporter[exporter_index].extraArgs,
                     mongodb: {
-                        uri: `mongodb://$(deploy_spec[i].exporter[exporter_index].user):$(deploy_spec[i].exporter[exporter_index].pass)@$(deploy_spec[i].exporter[exporter_index].name)-$i`
+                        uri: "mongodb://" + deploy_spec[i].exporter[exporter_index].user + ":" + deploy_spec[i].exporter[exporter_index].pass + "@" + deploy_spec[i].exporter[exporter_index].name + "-" + k + "." + deploy_spec[i].exporter[exporter_index].name
                     },
+                    nameOverride: "exporter",
                     podLabels: deploy_spec[i].exporter[exporter_index].podLabels,
                     resources: deploy_spec[i].exporter[exporter_index].resources,
                     serviceMonitor: deploy_spec[i].exporter[exporter_index].serviceMonitor

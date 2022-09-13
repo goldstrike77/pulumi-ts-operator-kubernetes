@@ -1,5 +1,7 @@
 encryptionsalt: v1:ggzl3XqEENc=:v1:MZUAcd0GSMkz9RbL:C8q0bysQN9dkpEpvPQZwfdh+DBHiAQ==
 config:
+  demo:alertaAdminPassword:
+    secure: v1:tHtueB7vAixNBEm8:0RT74WIMb4zJIm08gerDEiLWJmqxA+zt
   demo:replicaSetKey:
     secure: v1:M516vlNqfMt9Ko2s:PNMOGbpLku4ymCuwmRrhVDYnCtsD4GvC
   demo:rootPassword:

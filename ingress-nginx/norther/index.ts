@@ -80,12 +80,14 @@ const deploy_spec = [
                             "worker-cpu-affinity": "auto",
                         },
                         configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
-                        addHeaders: {
-                            "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                            "X-Frame-Options": "DENY",
-                            "X-Content-Type-Options": "nosniff",
-                            "X-XSS-Protection": "1; mode=block"
-                        },
+                        /**
+                                                addHeaders: {
+                                                    "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                                                    "X-Frame-Options": "DENY",
+                                                    "X-Content-Type-Options": "nosniff",
+                                                    "X-XSS-Protection": "1; mode=block"
+                                                },
+                         */
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         sysctls: {
                             "net.core.somaxconn": "8192",
