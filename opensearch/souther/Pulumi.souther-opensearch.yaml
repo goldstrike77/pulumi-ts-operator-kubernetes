@@ -1,3 +1,7 @@
 encryptionsalt: v1:yKWTB6Ku/hA=:v1:RrA04j04+VmUmLr5:wFwrZNT1+vP4pg8hTyiR1c9W5evJDA==
 config:
+  demo:adminPassword:
+    secure: v1:NW5Ivt6O/I0J+2iR:ZjVmYKfIe8OEf2MpdFe5JNn2xEuVg+xM
+  demo:kibanaserverPassword:
+    secure: v1:ZixKhkz6aLX6i/Te:wDdvCuP2bRQmiwI74zsOWeapwHPIGWNA
   kubernetes:context: kubernetes-admin@souther

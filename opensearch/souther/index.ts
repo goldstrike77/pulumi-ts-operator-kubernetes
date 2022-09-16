@@ -1,42 +1,35 @@
+import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 
+let config = new pulumi.Config();
+
 const deploy_spec = [
-    {
-        namespace: {
-            metadata: {
-                name: "opensearch",
-                annotations: {},
-                labels: {}
-            },
-            spec: {}
-        },
-        secret:
-        {
-            metadata: {
-                name: "security-config-secret",
-                namespace: "opensearch",
-                annotations: {},
-                labels: {}
-            },
-            type: "Opaque",
-            data: {
-                "internal_users.yml": "LS0tDQpfbWV0YToNCiAgdHlwZTogImludGVybmFsdXNlcnMiDQogIGNvbmZpZ192ZXJzaW9uOiAyDQoNCmFkbWluOg0KICBoYXNoOiAiJDJhJDEyJFVEaXpUaTFNMGJPS1BJSWpJb0UwRy5JOHpwZnNUTTFrWThMdmNPOGxuTjhXcWprWURwaE1lIg0KICByZXNlcnZlZDogdHJ1ZQ0KICBiYWNrZW5kX3JvbGVzOg0KICAtICJhZG1pbiINCiAgZGVzY3JpcHRpb246ICJEZW1vIGFkbWluIHVzZXIiDQoNCmtpYmFuYXNlcnZlcjoNCiAgaGFzaDogIiQyYSQxMiRWbDRNSTNzMXIzd0Z4LkxQdWtscE1PSFJheVVnb1JEQ3F1M3pTejV6Yk9xRnJMbzVGVm81LiINCiAgcmVzZXJ2ZWQ6IHRydWUNCiAgZGVzY3JpcHRpb246ICJEZW1vIE9wZW5TZWFyY2ggRGFzaGJvYXJkcyB1c2VyIg0KDQpraWJhbmFybzoNCiAgaGFzaDogIiQyYSQxMiRDdkFTck5FLkVsZi40c1lCazg0dTJ1NW45SGIvQW9pSm00VjZJUUR4UVlaS1ZOLmNPOGl4RyINCiAgcmVzZXJ2ZWQ6IGZhbHNlDQogIGJhY2tlbmRfcm9sZXM6DQogIC0gImtpYmFuYXVzZXIiDQogIC0gInJlYWRhbGwiDQogIGF0dHJpYnV0ZXM6DQogICAgYXR0cmlidXRlMTogInZhbHVlMSINCiAgICBhdHRyaWJ1dGUyOiAidmFsdWUyIg0KICAgIGF0dHJpYnV0ZTM6ICJ2YWx1ZTMiDQogIGRlc2NyaXB0aW9uOiAiRGVtbyBPcGVuU2VhcmNoIERhc2hib2FyZHMgcmVhZCBvbmx5IHVzZXIiDQoNCmxvZ3N0YXNoOg0KICBoYXNoOiAiJDJhJDEyJHovY0RuQmQ1NEdCZjBlOHBKNTNvc09mV3FjL2Ruci5QNXZVLjJCUXVOaDhWQkhBZlVvS3ZtIg0KICByZXNlcnZlZDogZmFsc2UNCiAgYmFja2VuZF9yb2xlczoNCiAgLSAibG9nc3Rhc2giDQogIGRlc2NyaXB0aW9uOiAiRGVtbyBsb2dzdGFzaCB1c2VyIg0KDQpyZWFkYWxsOg0KICBoYXNoOiAiJDJhJDEyJHV0NjB4VC5mMlNrZEpzRFY3MEMyY3U2Qzk5eGUzZDVBU1l3VEVIbEhBNkhVN2ZiaFdTV0RxIg0KICByZXNlcnZlZDogZmFsc2UNCiAgYmFja2VuZF9yb2xlczoNCiAgLSAicmVhZGFsbCINCiAgZGVzY3JpcHRpb246ICJEZW1vIHJlYWRhbGwgdXNlciINCg0Kc25hcHNob3RyZXN0b3JlOg0KICBoYXNoOiAiJDJhJDEyJFdEZXdrbWVoQ0pSOEQ5TWxKemlDYi54Rm1JdGk3am10d2gvNy5xSmN3aDlzMEZuM0plZlVDIg0KICByZXNlcnZlZDogZmFsc2UNCiAgYmFja2VuZF9yb2xlczoNCiAgLSAic25hcHNob3RyZXN0b3JlIg0KICBkZXNjcmlwdGlvbjogIkRlbW8gc25hcHNob3RyZXN0b3JlIHVzZXIi",
-                "opensearch_dashboards.yml": "LS0tDQpsb2dnaW5nLnF1aWV0OiB0cnVlDQpvcGVuc2VhcmNoLmhvc3RzOiBbaHR0cHM6Ly9vcGVuc2VhcmNoLWNsdXN0ZXItbWFzdGVyOjkyMDBdDQpvcGVuc2VhcmNoLnNzbC52ZXJpZmljYXRpb25Nb2RlOiBub25lDQpvcGVuc2VhcmNoLnVzZXJuYW1lOiBraWJhbmFzZXJ2ZXINCm9wZW5zZWFyY2gucGFzc3dvcmQ6IHBhc3N3b3JkDQpvcGVuc2VhcmNoLnJlcXVlc3RIZWFkZXJzV2hpdGVsaXN0OiBbYXV0aG9yaXphdGlvbiwgc2VjdXJpdHl0ZW5hbnRdIA0Kb3BlbnNlYXJjaF9zZWN1cml0eS5tdWx0aXRlbmFuY3kuZW5hYmxlZDogdHJ1ZQ0Kb3BlbnNlYXJjaF9zZWN1cml0eS5tdWx0aXRlbmFuY3kudGVuYW50cy5wcmVmZXJyZWQ6IFtQcml2YXRlLCBHbG9iYWxdDQpvcGVuc2VhcmNoX3NlY3VyaXR5LnJlYWRvbmx5X21vZGUucm9sZXM6IFtraWJhbmFfcmVhZF9vbmx5XQ0Kb3BlbnNlYXJjaF9zZWN1cml0eS5jb29raWUuc2VjdXJlOiBmYWxzZQ0Kc2VydmVyLmhvc3Q6ICcwLjAuMC4wJw0Kc2VydmVyLnJld3JpdGVCYXNlUGF0aDogdHJ1ZQ0Kc2VydmVyLmJhc2VQYXRoOiAiL29wZW5zZWFyY2gi"
-            },
-            stringData: {}
-        },
-        helm: [
-            {
-                namespace: "opensearch",
-                name: "opensearch",
-                chart: "opensearch",
-                repository: "https://opensearch-project.github.io/helm-charts",
-                version: "2.4.0",
-                values: {
-                    config: {
-                        "opensearch.yml": `
+  {
+    namespace: {
+      metadata: {
+        name: "opensearch",
+        annotations: {},
+        labels: {}
+      },
+      spec: {}
+    },
+    helm: [
+      {
+        namespace: "opensearch",
+        name: "master",
+        version: "2.6.0",
+        chart: "opensearch",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          clusterName: "opensearch",
+          nodeGroup: "master",
+          masterService: "opensearch-master",
+          roles: ["master", "ingest", "remote_cluster_client"],
+          replicas: 3,
+          config: {
+            "opensearch.yml": `
 cluster:
-  name: opensearch-cluster
+  name: opensearch
   max_shards_per_node: 10000
 http:
   compression: false
@@ -126,106 +119,336 @@ plugins:
           ".opendistro-asynchronous-search-response*"
         ]
 `
-                    },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-                    opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
-                    resources: {
-                        limits: { cpu: "1000m", memory: "8192Mi" },
-                        requests: { cpu: "1000m", memory: "8192Mi" }
-                    },
-                    initResources: {
-                        limits: { cpu: "25m", memory: "128Mi" },
-                        requests: { cpu: "25m", memory: "128Mi" }
-                    },
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi", },
-                    extraInitContainers: [
-                        {
-                            name: "sysctl",
-                            image: "docker.io/bitnami/bitnami-shell:10-debian-10",
-                            imagePullPolicy: "IfNotPresent",
-                            command: [
-                                "/bin/bash",
-                                "-ec",
-                                "sysctl -w vm.max_map_count=262144;",
-                                "sysctl -w fs.file-max=65536;"
-                            ],
-                            securityContext: { runAsUser: 0, privileged: true }
-                        }
-                    ],
-                    securityConfig: {
-                        path: "/usr/share/opensearch/config/opensearch-security",
-                        internalUsersSecret: "security-config-secret"
-                    }
-                }
-            },
+          },
+          labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+          opensearchJavaOpts: "-server -Xmx512M -Xms512M",
+          resources: {
+            limits: { cpu: "500m", memory: "1024Mi" },
+            requests: { cpu: "500m", memory: "1024Mi" }
+          },
+          initResources: {
+            limits: { cpu: "25m", memory: "128Mi" },
+            requests: { cpu: "25m", memory: "128Mi" }
+          },
+          persistence: { enabled: true, storageClass: "longhorn", size: "3Gi", },
+          extraInitContainers: [
             {
-                namespace: "opensearch",
-                name: "opensearch-dashboards",
-                chart: "opensearch-dashboards",
-                repository: "https://opensearch-project.github.io/helm-charts",
-                version: "2.3.0",
-                values: {
-                    secretMounts: [
-                        {
-                            name: "certs",
-                            secretName: "security-config-secret",
-                            path: "/usr/share/opensearch-dashboards/config",
-                        }
-                    ],
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-                    ingress: {
-                        enabled: true,
-                        ingressClassName: "nginx",
-                        hosts: [
-                            {
-                                host: "souther.example.com",
-                                paths: [
-                                    {
-                                        path: "/opensearch",
-                                        backend: {
-                                            serviceName: "",
-                                            servicePort: ""
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    resources: {
-                        limits: { cpu: "500m", memory: "512Mi" },
-                        requests: { cpu: "500m", memory: "512Mi" }
-                    },
-                }
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
             }
+          ],
+          securityConfig: {
+            path: "/usr/share/opensearch/config/opensearch-security",
+            config: {
+              dataComplete: false,
+              data: {
+                "internal_users.yml": `
+---
+_meta:
+  type: "internalusers"
+  config_version: 2
+admin:
+  hash: "$2a$12$UDizTi1M0bOKPIIjIoE0G.I8zpfsTM1kY8LvcO8lnN8WqjkYDphMe"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Demo admin user"
+kibanaserver:
+  hash: "$2a$12$Vl4MI3s1r3wFx.LPuklpMOHRayUgoRDCqu3zSz5zbOqFrLo5FVo5."
+  reserved: true
+  description: "Demo OpenSearch Dashboards user"
+kibanaro:
+  hash: "$2a$12$CvASrNE.Elf.4sYBk84u2u5n9Hb/AoiJm4V6IQDxQYZKVN.cO8ixG"
+  reserved: false
+  backend_roles:
+  - "kibanauser"
+  - "readall"
+  attributes:
+    attribute1: "value1"
+    attribute2: "value2"
+    attribute3: "value3"
+  description: "Demo OpenSearch Dashboards read only user"
+logstash:
+  hash: "$2a$12$z/cDnBd54GBf0e8pJ53osOfWqc/dnr.P5vU.2BQuNh8VBHAfUoKvm"
+  reserved: false
+  backend_roles:
+  - "logstash"
+  description: "Demo logstash user"
+readall:
+  hash: "$2a$12$ut60xT.f2SkdJsDV70C2cu6C99xe3d5ASYwTEHlHA6HU7fbhWSWDq"
+  reserved: false
+  backend_roles:
+  - "readall"
+  description: "Demo readall user"
+snapshotrestore:
+  hash: "$2a$12$WDewkmehCJR8D9MlJziCb.xFmIti7jmtwh/7.qJcwh9s0Fn3JefUC"
+  reserved: false
+  backend_roles:
+  - "snapshotrestore"
+  description: "Demo snapshotrestore user"
+`,
+              }
+            }
+          }
+        }
+      },
+      {
+        namespace: "opensearch",
+        name: "node",
+        version: "2.6.0",
+        chart: "opensearch",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          clusterName: "opensearch",
+          nodeGroup: "data",
+          masterService: "opensearch-master",
+          roles: ["data"],
+          replicas: 2,
+          config: {
+            "opensearch.yml": `
+cluster:
+  name: opensearch
+  max_shards_per_node: 10000
+http:
+  compression: false
+  cors:
+    enabled: true
+    allow-origin: "*"
+    allow-credentials: true
+    allow-methods: HEAD, GET, POST, PUT, DELETE
+    allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+network.host: 0.0.0.0
+plugins:
+  security:
+    ssl:
+      transport:
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enforce_hostname_verification: false
+        enabled_protocols:
+          [
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        enabled_ciphers:
+          [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_RSA_WITH_AES_256_CBC_SHA",
+          ]
+      http:
+        enabled: true
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enabled_protocols:
+          [
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        enabled_ciphers:
+          [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_RSA_WITH_AES_256_CBC_SHA",
+          ]
+    allow_unsafe_democertificates: true
+    allow_default_init_securityindex: true
+    authcz:
+      admin_dn:
+        - CN=kirk,OU=client,O=client,L=test,C=de
+    audit.type: internal_opensearch
+    enable_snapshot_restore_privilege: true
+    check_snapshot_restore_write_privileges: true
+    restapi:
+      roles_enabled: ["all_access", "security_rest_api_access"]
+    system_indices:
+      enabled: true
+      indices:
+        [
+          ".opendistro-alerting-config",
+          ".opendistro-alerting-alert*",
+          ".opendistro-anomaly-results*",
+          ".opendistro-anomaly-detector*",
+          ".opendistro-anomaly-checkpoints",
+          ".opendistro-anomaly-detection-state",
+          ".opendistro-reports-*",
+          ".opendistro-notifications-*",
+          ".opendistro-notebooks",
+          ".opendistro-asynchronous-search-response*"
         ]
-    }
+`
+          },
+          labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+          opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
+          resources: {
+            limits: { cpu: "2000m", memory: "8192Mi" },
+            requests: { cpu: "2000m", memory: "8192Mi" }
+          },
+          initResources: {
+            limits: { cpu: "25m", memory: "128Mi" },
+            requests: { cpu: "25m", memory: "128Mi" }
+          },
+          persistence: { enabled: true, storageClass: "longhorn", size: "30Gi", },
+          extraInitContainers: [
+            {
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ]
+        }
+      },
+      {
+        namespace: "opensearch",
+        name: "dashboards",
+        version: "2.5.1",
+        chart: "opensearch-dashboards",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          opensearchHosts: "https://opensearch-master:9200",
+          replicaCount: 1,
+          fullnameOverride: "opensearch-dashboards",
+          config: {
+            "opensearch_dashboards.yml": `
+---
+logging.quiet: true
+opensearch.hosts: [https://opensearch-master:9200]
+opensearch.ssl.verificationMode: none
+opensearch.username: kibanaserver
+opensearch.password: ${config.require("kibanaserverPassword")}
+opensearch.requestHeadersWhitelist: [authorization, securitytenant] 
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: [Private, Global]
+opensearch_security.readonly_mode.roles: [kibana_read_only]
+opensearch_security.cookie.secure: false
+server.host: '0.0.0.0'
+server.rewriteBasePath: true
+server.basePath: "/opensearch"
+`,
+          },
+          labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+          ingress: {
+            enabled: true,
+            ingressClassName: "nginx",
+            hosts: [
+              {
+                host: "souther.example.com",
+                paths: [
+                  {
+                    path: "/opensearch",
+                    backend: {
+                      serviceName: "opensearch-dashboards",
+                      servicePort: 5601
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          resources: {
+            limits: { cpu: "500m", memory: "512Mi" },
+            requests: { cpu: "500m", memory: "512Mi" }
+          },
+        }
+      },
+      {
+        namespace: "opensearch",
+        name: "elasticsearch-exporter",
+        version: "4.14.1",
+        chart: "prometheus-elasticsearch-exporter",
+        repository: "https://prometheus-community.github.io/helm-charts",
+        values: {
+          fullnameOverride: "opensearch-exporter",
+          log: { level: "wran" },
+          resources: {
+            limits: { cpu: "100m", memory: "128Mi" },
+            requests: { cpu: "100m", memory: "128Mi" }
+          },
+          podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+          es: {
+            uri: "https://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
+            all: false,
+            indices: true,
+            indices_settings: true,
+            indices_mappings: true,
+            shards: true,
+            snapshots: true,
+            cluster_settings: true,
+            timeout: "30s",
+            sslSkipVerify: true
+          },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s",
+            scrapeTimeout: "30s",
+            relabelings: [
+              { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+            ]
+          }
+        }
+      }
+    ]
+  }
 ]
 
 for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Kubernetes Secret.
-    const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
-        metadata: deploy_spec[i].secret.metadata,
-        type: deploy_spec[i].secret.type,
-        data: deploy_spec[i].secret.data,
-        stringData: deploy_spec[i].secret.stringData
+  // Create Kubernetes Namespace.
+  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
+    metadata: deploy_spec[i].namespace.metadata,
+    spec: deploy_spec[i].namespace.spec
+  });
+  // Create Release Resource.
+  for (var helm_index in deploy_spec[i].helm) {
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+      namespace: deploy_spec[i].helm[helm_index].namespace,
+      name: deploy_spec[i].helm[helm_index].name,
+      chart: deploy_spec[i].helm[helm_index].chart,
+      version: deploy_spec[i].helm[helm_index].version,
+      values: deploy_spec[i].helm[helm_index].values,
+      skipAwait: true,
+      repositoryOpts: {
+        repo: deploy_spec[i].helm[helm_index].repository,
+      },
     }, { dependsOn: [namespace] });
-    // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+  }
 }

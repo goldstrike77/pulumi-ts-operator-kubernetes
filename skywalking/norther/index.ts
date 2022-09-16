@@ -10,6 +10,42 @@ const deploy_spec = [
             },
             spec: {}
         },
+        secret: [
+            {
+                metadata: {
+                    name: "auth-secret",
+                    namespace: "skywalking",
+                    annotations: {},
+                    labels: {}
+                },
+                type: "Opaque",
+                data: {
+                    auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64')
+                },
+                stringData: {}
+            }
+        ],
+        configmap: [
+            {
+                metadata: {
+                    name: "kibana-custom-conf",
+                    namespace: "skywalking",
+                    annotations: {},
+                    labels: {}
+                },
+                data: {
+                    "kibana.yml": `
+elasticsearch.hosts: [http://elasticsearch:9200]
+logging.quiet: true
+pid.file: /opt/bitnami/kibana/tmp/kibana.pid
+server.basePath: "/kibana"
+server.host: "0.0.0.0"
+server.port: 5601
+server.rewriteBasePath: true
+`,
+                }
+            }
+        ],
         helm: [
             {
                 namespace: "skywalking",
@@ -18,7 +54,7 @@ const deploy_spec = [
                 repository: "",
                 version: "19.3.0",
                 values: {
-                    image: { tag: "7.17.6-debian-11-r7" },
+                    image: { tag: "7.17.4-debian-11-r10" },
                     security: {
                         enabled: false,
                         elasticPassword: "password",
@@ -35,13 +71,15 @@ const deploy_spec = [
                     },
                     master: {
                         replicaCount: 3,
+                        resources: {
+                            requests: { cpu: "100m", memory: "512Mi" }
+                        },
                         heapSize: "128m",
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         persistence: { storageClass: "longhorn", size: "8Gi" }
                     },
-
                     data: {
-                        replicaCount: 1,
+                        replicaCount: 2,
                         resources: {
                             limits: { cpu: "1000m", memory: "4096Mi" },
                             requests: { cpu: "1000m", memory: "4096Mi" }
@@ -54,9 +92,18 @@ const deploy_spec = [
                     ingest: { enabled: false },
                     metrics: {
                         enabled: true,
+                        extraArgs: ["--es.timeout=45s"],
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
                             requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        readinessProbe: {
+                            enabled: true,
+                            initialDelaySeconds: 5,
+                            periodSeconds: 10,
+                            timeoutSeconds: 45,
+                            successThreshold: 1,
+                            failureThreshold: 5,
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
@@ -95,8 +142,17 @@ const deploy_spec = [
                 repository: "",
                 version: "10.2.2",
                 values: {
-                    image: { tag: "7.17.6-debian-11-r6" },
+                    image: { tag: "7.17.4-debian-11-r9" },
                     replicaCount: 1,
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: {
+                            maxSurge: 0,
+                            maxUnavailable: 1
+                        }
+                    },
+                    //                    plugins: ["https://github.com/pjhampton/kibana-prometheus-exporter/releases/download/7.17.4/kibanaPrometheusExporter-7.17.4.zip"],
+                    configurationCM: "kibana-custom-conf",
                     volumePermissions: {
                         enabled: true,
                         resources: {
@@ -104,22 +160,48 @@ const deploy_spec = [
                             requests: { cpu: "100m", memory: "128Mi" }
                         }
                     },
+                    readinessProbe: { enabled: false },
+                    customReadinessProbe: {
+                        failureThreshold: 6,
+                        httpGet: {
+                            path: "/kibana/status",
+                            port: "http",
+                            scheme: "HTTP"
+                        },
+                        initialDelaySeconds: 90,
+                        periodSeconds: 10,
+                        successThreshold: 1,
+                        timeoutSeconds: 5,
+                    },
+                    livenessProbe: { enabled: false },
+                    customLivenessProbe: {
+                        failureThreshold: 6,
+                        httpGet: {
+                            path: "/kibana/login",
+                            port: "http",
+                            scheme: "HTTP"
+                        },
+                        initialDelaySeconds: 90,
+                        periodSeconds: 10,
+                        successThreshold: 1,
+                        timeoutSeconds: 5,
+                    },
                     persistence: { storageClass: "longhorn", size: "8Gi" },
                     ingress: {
                         enabled: true,
-                        hostname: "kibana.example.com",
-                        path: "/",
+                        hostname: "norther.example.com",
+                        path: "/kibana",
                         ingressClassName: "nginx",
                     },
                     resources: {
-                        limits: { cpu: "100m", memory: "256Mi" },
-                        requests: { cpu: "100m", memory: "256Mi" }
+                        limits: { cpu: "500m", memory: "1024Mi" },
+                        requests: { cpu: "500m", memory: "1024Mi" }
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     metrics: {
-                        enabled: true,
+                        enabled: false,
                         serviceMonitor: {
-                            enabled: true,
+                            enabled: false,
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -140,7 +222,7 @@ const deploy_spec = [
                                 kibanaPassword: "password"
                             },
                             tls: {
-                                enabled: true,
+                                enabled: false,
                                 verificationMode: "none"
                             }
                         }
@@ -157,21 +239,24 @@ const deploy_spec = [
                     oap: {
                         storageType: "elasticsearch",
                         replicas: 1,
-                        image: { tag: "9.1.0" },
+                        image: { tag: "9.2.0" },
                         javaOpts: "-Xmx3g -Xms3g",
                         resources: {
-                            limits: { cpu: "1000m", memory: "4096Mi" },
                             requests: { cpu: "1000m", memory: "4096Mi" }
                         }
                     },
                     ui: {
                         replicas: 1,
-                        image: { tag: "9.1.0" },
+                        image: { tag: "9.2.0" },
                         ingress: {
                             enabled: true,
                             annotations: {
-                                "kubernetes.io/ingress.class": "nginx"
+                                "kubernetes.io/ingress.class": "nginx",
+                                "nginx.ingress.kubernetes.io/auth-type": "basic",
+                                "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
+                                "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
                             },
+                            path: "/",
                             hosts: ["skywalking.example.com"]
                         }
                     },
@@ -188,6 +273,22 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].namespace.metadata,
         spec: deploy_spec[i].namespace.spec
     });
+    // Create Kubernetes Secret.
+    for (var secret_index in deploy_spec[i].secret) {
+        const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
+            metadata: deploy_spec[i].secret[secret_index].metadata,
+            type: deploy_spec[i].secret[secret_index].type,
+            data: deploy_spec[i].secret[secret_index].data,
+            stringData: deploy_spec[i].secret[secret_index].stringData
+        }, { dependsOn: [namespace] });
+    }
+    // Create Kubernetes ConfigMap.
+    for (var configmap_index in deploy_spec[i].configmap) {
+        const configmap = new k8s.core.v1.ConfigMap(deploy_spec[i].configmap[configmap_index].metadata.name, {
+            metadata: deploy_spec[i].configmap[configmap_index].metadata,
+            data: deploy_spec[i].configmap[configmap_index].data,
+        }, { dependsOn: [namespace] });
+    }
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
         const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
