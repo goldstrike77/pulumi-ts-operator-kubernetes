@@ -1,5 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+import * as fs from 'fs';
 
 let config = new pulumi.Config();
 
@@ -13,6 +14,25 @@ const deploy_spec = [
       },
       spec: {}
     },
+    secret: [
+      {
+        metadata: {
+          name: "cert-secret",
+          namespace: "opensearch",
+          annotations: {},
+          labels: {}
+        },
+        type: "Opaque",
+        data: {
+          "ca-cert.pem": Buffer.from(fs.readFileSync('./ssl/ca-cert.pem', 'utf8')).toString('base64'),
+          "node.pem": Buffer.from(fs.readFileSync('./ssl/node.pem', 'utf8')).toString('base64'),
+          "node-key.pem": Buffer.from(fs.readFileSync('./ssl/node-key.pem', 'utf8')).toString('base64'),
+          "kirk.pem": Buffer.from(fs.readFileSync('./ssl/kirk.pem', 'utf8')).toString('base64'),
+          "kirk-key.pem": Buffer.from(fs.readFileSync('./ssl/kirk-key.pem', 'utf8')).toString('base64')
+        },
+        stringData: {}
+      }
+    ],
     helm: [
       {
         namespace: "opensearch",
@@ -44,9 +64,9 @@ plugins:
   security:
     ssl:
       transport:
-        pemcert_filepath: esnode.pem
-        pemkey_filepath: esnode-key.pem
-        pemtrustedcas_filepath: root-ca.pem
+        pemcert_filepath: /usr/share/opensearch/config/ssl/node.pem
+        pemkey_filepath: /usr/share/opensearch/config/ssl/node-key.pem
+        pemtrustedcas_filepath: /usr/share/opensearch/config/ssl/ca-cert.pem
         enforce_hostname_verification: false
         resolve_hostname: false
         enabled_protocols:
@@ -69,12 +89,37 @@ plugins:
             "TLS_RSA_WITH_AES_256_CBC_SHA",
           ]
       http:
-        enabled: false
-    allow_unsafe_democertificates: true
+        enabled: true
+        clientauth_mode: NONE
+        pemcert_filepath: /usr/share/opensearch/config/ssl/node.pem
+        pemkey_filepath: /usr/share/opensearch/config/ssl/node-key.pem
+        pemtrustedcas_filepath: /usr/share/opensearch/config/ssl/ca-cert.pem
+        enabled_protocols:
+          [
+            "TLSv1.2"
+          ]
+        enabled_ciphers:
+          [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_RSA_WITH_AES_256_CBC_SHA",
+          ]
+    allow_unsafe_democertificates: false
     allow_default_init_securityindex: true
     authcz:
       admin_dn:
-        - CN=kirk,OU=client,O=client,L=test,C=de
+        - "CN=ROOT,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX"
+    nodes_dn:
+      - "CN=*,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX"
     audit.type: internal_opensearch
     enable_snapshot_restore_privilege: true
     check_snapshot_restore_write_privileges: true
@@ -97,6 +142,7 @@ plugins:
         ]
 `
           },
+          extraEnvs: [{ name: "DISABLE_INSTALL_DEMO_CONFIG", value: "true" }],
           labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
           opensearchJavaOpts: "-server -Xmx512M -Xms512M",
           resources: {
@@ -108,6 +154,21 @@ plugins:
             requests: { cpu: "25m", memory: "128Mi" }
           },
           persistence: { enabled: true, storageClass: "longhorn", size: "3Gi", },
+          extraVolumes: [
+            {
+              name: "cert-secret",
+              secret: {
+                secretName: "cert-secret"
+              }
+            }
+          ],
+          extraVolumeMounts: [
+            {
+              name: "cert-secret",
+              mountPath: "/usr/share/opensearch/config/ssl",
+              readOnly: true
+            }
+          ],
           extraInitContainers: [
             {
               name: "sysctl",
@@ -208,9 +269,9 @@ plugins:
   security:
     ssl:
       transport:
-        pemcert_filepath: esnode.pem
-        pemkey_filepath: esnode-key.pem
-        pemtrustedcas_filepath: root-ca.pem
+        pemcert_filepath: /usr/share/opensearch/config/ssl/node.pem
+        pemkey_filepath: /usr/share/opensearch/config/ssl/node-key.pem
+        pemtrustedcas_filepath: /usr/share/opensearch/config/ssl/ca-cert.pem
         enforce_hostname_verification: false
         resolve_hostname: false
         enabled_protocols:
@@ -233,12 +294,37 @@ plugins:
             "TLS_RSA_WITH_AES_256_CBC_SHA",
           ]
       http:
-        enabled: false
-    allow_unsafe_democertificates: true
+        enabled: true
+        clientauth_mode: NONE
+        pemcert_filepath: /usr/share/opensearch/config/ssl/node.pem
+        pemkey_filepath: /usr/share/opensearch/config/ssl/node-key.pem
+        pemtrustedcas_filepath: /usr/share/opensearch/config/ssl/ca-cert.pem
+        enabled_protocols:
+          [
+            "TLSv1.2"
+          ]
+        enabled_ciphers:
+          [
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_RSA_WITH_AES_128_CBC_SHA256",
+            "TLS_RSA_WITH_AES_128_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+            "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+            "TLS_RSA_WITH_AES_256_CBC_SHA256",
+            "TLS_RSA_WITH_AES_256_CBC_SHA",
+          ]
+    allow_unsafe_democertificates: false
     allow_default_init_securityindex: true
     authcz:
       admin_dn:
-        - CN=kirk,OU=client,O=client,L=test,C=de
+        - "CN=ROOT,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX"
+    nodes_dn:
+      - "CN=*,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX"
     audit.type: internal_opensearch
     enable_snapshot_restore_privilege: true
     check_snapshot_restore_write_privileges: true
@@ -261,6 +347,7 @@ plugins:
         ]
 `
           },
+          extraEnvs: [{ name: "DISABLE_INSTALL_DEMO_CONFIG", value: "true" }],
           labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
           resources: {
@@ -272,6 +359,21 @@ plugins:
             requests: { cpu: "25m", memory: "128Mi" }
           },
           persistence: { enabled: true, storageClass: "longhorn", size: "30Gi", },
+          extraVolumes: [
+            {
+              name: "cert-secret",
+              secret: {
+                secretName: "cert-secret"
+              }
+            }
+          ],
+          extraVolumeMounts: [
+            {
+              name: "cert-secret",
+              mountPath: "/usr/share/opensearch/config/ssl",
+              readOnly: true
+            }
+          ],
           extraInitContainers: [
             {
               name: "sysctl",
@@ -296,14 +398,14 @@ plugins:
         chart: "opensearch-dashboards",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
-          opensearchHosts: "http://opensearch-master:9200",
+          opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
           fullnameOverride: "opensearch-dashboards",
           config: {
             "opensearch_dashboards.yml": `
 ---
 logging.quiet: true
-opensearch.hosts: [http://opensearch-master:9200]
+opensearch.hosts: [https://opensearch-master:9200]
 opensearch.ssl.verificationMode: none
 opensearch.username: kibanaserver
 opensearch.password: ${config.require("kibanaserverPassword")}
@@ -357,7 +459,7 @@ server.basePath: "/opensearch"
           },
           podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
           es: {
-            uri: "http://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
+            uri: "https://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
             all: false,
             indices: true,
             indices_settings: true,
@@ -393,6 +495,15 @@ for (var i in deploy_spec) {
     metadata: deploy_spec[i].namespace.metadata,
     spec: deploy_spec[i].namespace.spec
   });
+  // Create Kubernetes Secret.
+  for (var secret_index in deploy_spec[i].secret) {
+    const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
+      metadata: deploy_spec[i].secret[secret_index].metadata,
+      type: deploy_spec[i].secret[secret_index].type,
+      data: deploy_spec[i].secret[secret_index].data,
+      stringData: deploy_spec[i].secret[secret_index].stringData
+    }, { dependsOn: [namespace] });
+  }
   // Create Release Resource.
   for (var helm_index in deploy_spec[i].helm) {
     const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
