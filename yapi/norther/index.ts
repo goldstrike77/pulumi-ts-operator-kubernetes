@@ -119,7 +119,7 @@ const deploy_spec = [
       "DATABASE": "yapi",
       "port": "27017",
       "user": "yapi",
-      "pass": "password",
+      "pass": "${config.require("yapiPassword")}",
       "authSource": "yapi"
     },
     "mail": {
