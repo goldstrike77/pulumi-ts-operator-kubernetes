@@ -178,8 +178,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     replicas: 2,
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                        limits: { cpu: "300m", memory: "512Mi" },
+                        requests: { cpu: "300m", memory: "512Mi" }
                     },
                     updateStrategy: {
                         type: "RollingUpdate",
@@ -197,7 +197,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             beats_logstash_tcp: {
                                 type: "logstash",
                                 address: "0.0.0.0:5044",
-                                acknowledgements: null,
+                                acknowledgements: { enabled: false },
                                 keepalive: { time_secs: 30 },
                                 receive_buffer_bytes: 65536
                             }
