@@ -63,7 +63,7 @@ const deploy_spec = [
             },
             {
                 namespace: "mongodb",
-                name: "alerta",
+                name: "customer",
                 chart: "psmdb-db",
                 repository: "https://percona.github.io/percona-helm-charts",
                 version: "1.12.4",
@@ -158,7 +158,7 @@ const deploy_spec = [
         exporter: [
             {
                 namespace: "mongodb",
-                name: "alerta-psmdb-db-rs0",
+                name: "customer-psmdb-db-rs0",
                 chart: "prometheus-mongodb-exporter",
                 repository: "https://prometheus-community.github.io/helm-charts",
                 version: "3.1.1",
