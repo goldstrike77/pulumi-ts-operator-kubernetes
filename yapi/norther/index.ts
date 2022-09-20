@@ -127,7 +127,15 @@ const deploy_spec = [
       "auth": {}
     },
     "ldapLogin": {
-      "enable": false
+      "enable": true,
+      "server": "ldap://10.101.4.46",
+      "baseDn": "CN=Administrator,CN=Users,DC=example,DC=com",
+      "bindPassword": "${config.require("bindPassword")}",
+      "searchDn": "OU=yapi,DC=example,DC=com",
+      "searchStandard": "&(objectCategory=Person)(sAMAccountName=%s)",
+      "emailPostfix": "",
+      "emailKey": "",
+      "usernameKey": "sAMAccountName"
     }
 }
 `
@@ -155,7 +163,7 @@ const deploy_spec = [
                     mongodb: { enabled: false }
                 }
             }
-             
+
         ]
     }
 ]
