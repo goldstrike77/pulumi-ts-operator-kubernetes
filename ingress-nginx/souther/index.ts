@@ -54,8 +54,8 @@ const deploy_spec = [
                     controller: {
                         image: {
                             registry: "registry.cn-hangzhou.aliyuncs.com",
-                            image: "goldstrike/ingress-nginx",
-                            digest: "sha256:067673df26a65ec5c2d5b30f25db869bad4d7d391fc81882250134577e581ef0"
+                            image: "goldstrike/skywalking-ingress-nginx",
+                            digest: "sha256:96b4c8a37147c103b77fdea66b41319779e7c57124e30ad0961029e31f834190"
                         },
                         config: {
                             "compute-full-forwarded-for": "true",
@@ -90,6 +90,11 @@ const deploy_spec = [
                             "net.core.somaxconn": "8192",
                             "net.ipv4.ip_local_port_range": "1024 65000"
                         },
+                        extraEnvs: [
+                            { name: "SW_SERVICE_NAME", value: "ingress-nginx" },
+                            { name: "SW_BACKEND_SERVERS", value: "http://skywalking-oap.skywalking.svc.cluster.local:12800" },
+                            { name: "SW_SERVICE_INSTANCE_NAME", valueFrom: { fieldRef: { fieldPath: "metadata.name" } } }
+                        ],
                         extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
                         replicaCount: 1,
                         resources: {

@@ -1,4 +1,7 @@
+import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+
+let config = new pulumi.Config();
 
 const deploy_spec = [
     {
@@ -29,13 +32,13 @@ const deploy_spec = [
             {
                 namespace: "skywalking",
                 name: "skywalking",
-                chart: "../../_chart/skywalking-4.2.0.tgz",
-                repository: "",
-                version: "4.2.0",
+                chart: "skywalking",
+                repository: "https://apache.jfrog.io/artifactory/skywalking-helm",
+                version: "4.3.0",
                 values: {
                     oap: {
                         storageType: "elasticsearch",
-                        replicas: 1,
+                        replicas: 2,
                         image: { tag: "9.2.0" },
                         javaOpts: "-Xmx3g -Xms3g",
                         resources: {
@@ -45,11 +48,17 @@ const deploy_spec = [
                             SW_STORAGE_ES_CLUSTER_NODES: "opensearch-master.opensearch.svc.cluster.local:9200",
                             SW_STORAGE_ES_HTTP_PROTOCOL: "http",
                             SW_ES_USER: "admin",
-                            SW_ES_PASSWORD: "password",
+                            SW_ES_PASSWORD: config.require("SW_ES_PASSWORD"),
                             SW_STORAGE_ES_CONNECT_TIMEOUT: "1000",
-                            SW_STORAGE_ES_INDEX_SHARDS_NUMBER: "1",
+                            SW_STORAGE_ES_BULK_ACTIONS: "1000", // Execute the async bulk record data every requests.
+                            SW_STORAGE_ES_CONCURRENT_REQUESTS: "2", // The number of concurrent requests.
+                            SW_STORAGE_ES_INDEX_SHARDS_NUMBER: "2",
                             SW_STORAGE_ES_INDEX_REPLICAS_NUMBER: "1",
-                            SW_STORAGE_ES_FLUSH_INTERVAL: "15"
+                            SW_STORAGE_ES_FLUSH_INTERVAL: "30", // # Flush the bulk every seconds whatever the number of requests.
+                            SW_STORAGE_ES_ADVANCED: "{\"index.translog.durability\":\"async\",\"index.translog.sync_interval\":\"30s\"}",
+                            SW_CORE_RECORD_DATA_TTL: "3", // Records include traces, logs, topN sampled statements and alarm.
+                            SW_CORE_METRICS_DATA_TTL: "7", // Metrics include all metrics for service, instance, endpoint, and topology map.
+
                         }
                     },
                     ui: {
@@ -104,6 +113,9 @@ for (var i in deploy_spec) {
             version: deploy_spec[i].helm[helm_index].version,
             values: deploy_spec[i].helm[helm_index].values,
             skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
         }, { dependsOn: [namespace] });
     }
 }

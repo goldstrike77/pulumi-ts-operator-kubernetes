@@ -232,9 +232,9 @@ server.rewriteBasePath: true
             {
                 namespace: "skywalking",
                 name: "skywalking",
-                chart: "../../_chart/skywalking-4.2.0.tgz",
+                chart: "../../_chart/skywalking-4.3.0.tgz",
                 repository: "",
-                version: "4.2.0",
+                version: "4.3.0",
                 values: {
                     oap: {
                         storageType: "elasticsearch",
