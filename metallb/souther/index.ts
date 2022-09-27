@@ -16,9 +16,10 @@ const deploy_spec = [
                 name: "metallb",
                 chart: "metallb",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "3.0.12", /** do not upgrade */
+                version: "4.1.3",
                 values: {
-                    configInline: { "address-pools": [{ name: "generic-cluster-pool", protocol: "layer2", addresses: ["10.101.4.43-10.101.4.44"] }] },
+                    addresses: ["10.101.4.43-10.101.4.44"],
+                    autoAssign: true,
                     prometheusRule: { enabled: false },
                     controller: {
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
@@ -87,5 +88,28 @@ for (var i in deploy_spec) {
                 repo: deploy_spec[i].helm[helm_index].repository,
             },
         }, { dependsOn: [namespace] });
+        const ipaddresspool = new k8s.apiextensions.CustomResource(deploy_spec[i].helm[helm_index].name, {
+            apiVersion: "metallb.io/v1beta1",
+            kind: "IPAddressPool",
+            metadata: {
+                name: "generic-cluster-pool",
+                namespace: deploy_spec[i].namespace.metadata.name
+            },
+            spec: {
+                addresses: deploy_spec[i].helm[helm_index].values.addresses,
+                autoAssign: deploy_spec[i].helm[helm_index].values.autoAssign,
+            }
+        }, { dependsOn: [release] });
+        const l2advertisement = new k8s.apiextensions.CustomResource(deploy_spec[i].helm[helm_index].name, {
+            apiVersion: "metallb.io/v1beta1",
+            kind: "L2Advertisement",
+            metadata: {
+                name: "generic-cluster-pool",
+                namespace: deploy_spec[i].namespace.metadata.name
+            },
+            spec: {
+                ipAddressPools: ["generic-cluster-pool"]
+            }
+        }, { dependsOn: [ipaddresspool] });
     }
 }

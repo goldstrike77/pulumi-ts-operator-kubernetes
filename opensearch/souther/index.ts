@@ -17,7 +17,7 @@ const deploy_spec = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.6.0",
+        version: "2.6.1",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -181,7 +181,7 @@ snapshotrestore:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.6.0",
+        version: "2.6.1",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -292,7 +292,7 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.5.1",
+        version: "2.5.2",
         chart: "opensearch-dashboards",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {

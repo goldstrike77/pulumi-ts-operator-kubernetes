@@ -49,7 +49,7 @@ const deploy_spec = [
                 name: "ingress-nginx",
                 chart: "ingress-nginx",
                 repository: "https://kubernetes.github.io/ingress-nginx",
-                version: "4.2.3",
+                version: "4.2.5",
                 values: {
                     controller: {
                         image: {

@@ -16,13 +16,13 @@ const deploy_spec = [
                 name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "512Mi" },
-                        requests: { cpu: "200m", memory: "512Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
                     service: { enabled: false },
                     customConfig: {
@@ -35,48 +35,36 @@ const deploy_spec = [
                                 inputs: ["kubernetes_logs"],
                                 source: `kubernetes = del(.kubernetes)
 file = del(.file)
+message = del(.message)
 kubernetes_labels = encode_json(kubernetes.pod_labels)
 kubernetes_labels = replace(kubernetes_labels, "app.kubernetes.io", "app_kubernetes_io")
 kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
-.kubernetes = {
-  "container": kubernetes.container_name,
-  "node_name": kubernetes.pod_node_name,
-  "pod": kubernetes.pod_name,
-  "namespace": kubernetes.pod_namespace,
-  "filename": file
-}
-.labels = parse_json!(kubernetes_labels)`,
-                            },
-                            kubernetes_json: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "kubernetes",
-                                inputs: ["kubernetes_remap"],
-                            },
-                            kubernetes_json_labels: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "labels",
-                                inputs: ["kubernetes_json"]
-                            },
+. = parse_json!(kubernetes_labels)
+.file = file
+.message = message
+.ip = kubernetes.pod_ip
+.container = kubernetes.container_name
+.node = kubernetes.pod_node_name
+.pod = kubernetes.pod_name
+.namespace = kubernetes.pod_namespace
+.timestamp = to_timestamp(.timestamp) ?? now()`
+                            }
                         },
                         sinks: {
                             kubernetes_logs_elasticsearch: {
                                 type: "elasticsearch",
-                                inputs: ["kubernetes_json_labels"],
-                                bulk: { action: "index", index: "kube-pod-%Y-%m-%d" },
+                                inputs: ["kubernetes_remap"],
+                                bulk: { action: "index", index: "kube-pod-{{`{{ namespace }}`}}-%Y-%m-%d" },
                                 endpoint: "http://opensearch-master.opensearch.svc.cluster.local:9200",
                                 mode: "bulk",
                                 suppress_type_name: true,
-                                acknowledgements: null,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
                                 encoding: null,
                                 healthcheck: null,
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
-                                buffer: { type: "memory", max_events: 15360, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 1024, timeout_secs: 2 }
                             }
                         }
@@ -96,6 +84,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             readOnly: true
                         }
                     ],
+                    persistence: { hostPath: { path: "/var/lib/vector/kube-pod" } },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
@@ -111,15 +100,18 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
             },
             {
                 namespace: "datadog",
-                name: "syslog",
+                name: "syslog-gelf",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-                    resources: { limits: { cpu: "200m", memory: "256Mi" }, requests: { cpu: "200m", memory: "256Mi" } },
+                    resources: {
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
+                    },
                     updateStrategy: {
                         type: "RollingUpdate",
                         rollingUpdate: { partition: 0 }
@@ -132,28 +124,32 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
-                        sources: { syslog_socket_udp: { type: "socket", address: "0.0.0.0:1514", max_length: 32768, mode: "udp", } },
+                        sources: {
+                            syslog_socket_udp: {
+                                type: "socket",
+                                address: "0.0.0.0:1514",
+                                max_length: 32768,
+                                mode: "udp",
+                                receive_buffer_bytes: 65536
+                            }
+                        },
                         transforms: {
                             syslog_json_udp: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "message",
-                                inputs: ["syslog_socket_udp"]
+                                type: "remap",
+                                inputs: ["syslog_socket_udp"],
+                                source: `. = parse_json!(.message)
+.timestamp = to_timestamp(.timestamp) ?? now()`
                             }
                         },
                         sinks: {
                             kubernetes_logs_elasticsearch: {
                                 type: "elasticsearch",
                                 inputs: ["syslog_json_udp"],
-                                bulk: {
-                                    action: "index",
-                                    index: "syslog-%Y-%m-%d"
-                                },
+                                bulk: { action: "index", index: "syslog-%Y-%m-%d" },
                                 endpoint: "http://opensearch-master.opensearch.svc.cluster.local:9200",
                                 mode: "bulk",
                                 suppress_type_name: true,
-                                acknowledgements: null,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
                                 encoding: null,
                                 healthcheck: null,
@@ -183,13 +179,13 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.15.1",
+                version: "0.16.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "512Mi" },
-                        requests: { cpu: "200m", memory: "512Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
                     nodeSelector: { "node-role.kubernetes.io/master": "" },
                     tolerations: [{ key: "node-role.kubernetes.io/master", effect: "NoSchedule" }],
@@ -200,11 +196,9 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         sources: { kubernetes_audit: { type: "file", max_line_bytes: 32768, include: ["/data/log/kube-audit/audit.log"] } },
                         transforms: {
                             kubernetes_audit_json: {
-                                type: "json_parser",
-                                drop_invalid: false,
-                                drop_field: true,
-                                field: "message",
+                                type: "remap",
                                 inputs: ["kubernetes_audit"],
+                                source: `. = parse_json!(.message)`
                             }
                         },
                         sinks: {
@@ -215,13 +209,13 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 endpoint: "http://opensearch-master.opensearch.svc.cluster.local:9200",
                                 mode: "bulk",
                                 suppress_type_name: true,
-                                acknowledgements: null,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
                                 encoding: null,
                                 healthcheck: null,
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
-                                buffer: { type: "memory", max_events: 15360, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 1024, timeout_secs: 2 }
                             }
                         }
@@ -241,6 +235,74 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             readOnly: true
                         }
                     ],
+                    podMonitor: {
+                        enabled: false,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    }
+                }
+            },
+            {
+                namespace: "datadog",
+                name: "beats",
+                chart: "vector",
+                repository: "https://helm.vector.dev",
+                version: "0.16.0",
+                values: {
+                    role: "Aggregator",
+                    replicas: 2,
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "300m", memory: "512Mi" },
+                        requests: { cpu: "300m", memory: "512Mi" }
+                    },
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: { partition: 0 }
+                    },
+                    service: {
+                        enabled: true,
+                        type: "LoadBalancer",
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                    },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: {
+                            beats_logstash_tcp: {
+                                type: "logstash",
+                                address: "0.0.0.0:5044",
+                                acknowledgements: { enabled: false },
+                                keepalive: { time_secs: 30 },
+                                receive_buffer_bytes: 65536
+                            }
+                        },
+                        sinks: {
+                            kubernetes_logs_elasticsearch: {
+                                type: "elasticsearch",
+                                inputs: ["beats_logstash_tcp"],
+                                bulk: { action: "index", index: "beats-%Y-%m-%d" },
+                                endpoint: "http://opensearch-master.opensearch.svc.cluster.local:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
+                                compression: "none",
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
+                                batch: { max_events: 1024, timeout_secs: 2 }
+                            }
+                        }
+                    },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
