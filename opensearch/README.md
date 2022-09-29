@@ -2,6 +2,7 @@
 ```hcl
 pulumi config set kibanaserverPassword [password] --secret
 pulumi config set adminPassword [password] --secret
+pulumi config set ladpPassword [password] --secret
 ```
 
 

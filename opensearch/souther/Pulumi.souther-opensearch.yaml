@@ -4,4 +4,6 @@ config:
     secure: v1:NW5Ivt6O/I0J+2iR:ZjVmYKfIe8OEf2MpdFe5JNn2xEuVg+xM
   demo:kibanaserverPassword:
     secure: v1:ZixKhkz6aLX6i/Te:wDdvCuP2bRQmiwI74zsOWeapwHPIGWNA
+  demo:ladpPassword:
+    secure: v1:HIAbXz9h0G9+2D2t:ElwJGiql5UJzEqi9RhcU7Sbzdju6L9Sk1/C/tg==
   kubernetes:context: kubernetes-admin@souther
