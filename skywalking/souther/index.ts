@@ -32,8 +32,8 @@ const deploy_spec = [
             {
                 namespace: "skywalking",
                 name: "skywalking",
-                chart: "skywalking",
-                repository: "https://apache.jfrog.io/artifactory/skywalking-helm",
+                chart: "../../_chart/skywalking-4.3.0.tgz",
+                repository: "",
                 version: "4.3.0",
                 values: {
                     oap: {
@@ -59,6 +59,11 @@ const deploy_spec = [
                             SW_CORE_RECORD_DATA_TTL: "3", // Records include traces, logs, topN sampled statements and alarm.
                             SW_CORE_METRICS_DATA_TTL: "7", // Metrics include all metrics for service, instance, endpoint, and topology map.
 
+                        },
+                        service: {
+                            type: "LoadBalancer",
+                            loadBalancerIP: "10.101.4.43",
+                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
                         }
                     },
                     ui: {
@@ -113,9 +118,6 @@ for (var i in deploy_spec) {
             version: deploy_spec[i].helm[helm_index].version,
             values: deploy_spec[i].helm[helm_index].values,
             skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
         }, { dependsOn: [namespace] });
     }
 }

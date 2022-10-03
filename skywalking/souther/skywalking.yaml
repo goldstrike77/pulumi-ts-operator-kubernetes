@@ -155,6 +155,9 @@ oap:
   resources: {}
   service:
     type: ClusterIP
+    loadBalancerIP: ""
+    loadBalancerSourceRanges: []
+    annotations: {}
   storageType: null
   tolerations: []
 satellite:

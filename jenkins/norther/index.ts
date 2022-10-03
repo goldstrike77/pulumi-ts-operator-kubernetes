@@ -34,12 +34,9 @@ const deploy_spec = [
                 name: "jenkins",
                 chart: "jenkins",
                 repository: "https://charts.jenkins.io",
-                version: "4.1.17",
+                version: "4.2.6",
                 values: {
                     controller: {
-                        image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jenkins",
-                        tag: "2.346.3-jdk11",
-                        imagePullPolicy: "IfNotPresent",
                         numExecutors: 1,
                         adminUser: "admin",
                         adminPassword: config.require("adminPassword"),
@@ -101,8 +98,6 @@ const deploy_spec = [
                     },
                     agent: {
                         enabled: true,
-                        image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/inbound-agent",
-                        tag: "4.11.2-4",
                         resources: {
                             limits: { cpu: "500m", memory: "512Mi" },
                             requests: { cpu: "500m", memory: "512Mi" }
