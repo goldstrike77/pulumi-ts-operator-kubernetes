@@ -31,7 +31,7 @@ const deploy_spec = [
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.2.0",
+                version: "17.3.1",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -60,7 +60,7 @@ save ""`,
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
                             relabellings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -85,7 +85,7 @@ save ""`,
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.5.1",
+                version: "11.5.4",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: { enabled: false },
@@ -173,8 +173,6 @@ config:
                         service: {
                             type: "LoadBalancer",
                             ports: { grpc: 10903 },
-                            loadBalancerIP: "10.101.4.43",
-                            loadBalancerSourceRanges: ["10.101.4.32/28"],
                             annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
                         },
                         persistence: {
@@ -211,7 +209,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "40.1.2",
+                version: "40.3.1",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: { enabled: false },
@@ -413,9 +411,7 @@ config:
                             limits: { cpu: "200m", memory: "256Mi" },
                             requests: { cpu: "200m", memory: "256Mi" }
                         },
-                        image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/prometheus-operator", tag: "v0.59.1" },
                         prometheusConfigReloader: {
-                            image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/prometheus-config-reloader", tag: "v0.59.1" },
                             resources: {
                                 limits: { cpu: "200m", memory: "64Mi" },
                                 requests: { cpu: "200m", memory: "64Mi" }
@@ -440,9 +436,7 @@ config:
                         },
                         thanosServiceExternal: {
                             enabled: true,
-                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
-                            loadBalancerIP: "10.101.4.43",
-                            loadBalancerSourceRanges: ["10.101.4.32/28"]
+                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
                         },
                         ingress: {
                             enabled: true,

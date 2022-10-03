@@ -58,8 +58,12 @@ const deploy_spec = [
                             snapshotter: { repository: "rancher/mirrored-longhornio-csi-snapshotter" }
                         }
                     },
-                    persistence: { defaultDataLocality: "best-effort" },
+                    persistence: {
+                        defaultClassReplicaCount: 1,
+                        defaultDataLocality: "best-effort"
+                    },
                     defaultSettings: {
+                        defaultReplicaCount: 1,
                         backupTarget: "s3://backup@us-east-1/",
                         backupTargetCredentialSecret: "auth-secret",
                         defaultDataPath: "/data/longhorn",

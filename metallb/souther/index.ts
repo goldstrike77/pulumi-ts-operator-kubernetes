@@ -18,7 +18,7 @@ const deploy_spec = [
                 repository: "https://charts.bitnami.com/bitnami",
                 version: "4.1.3",
                 values: {
-                    addresses: ["10.101.4.43-10.101.4.44"],
+                    addresses: ["192.168.0.110-192.168.0.119"],
                     autoAssign: true,
                     prometheusRule: { enabled: false },
                     controller: {

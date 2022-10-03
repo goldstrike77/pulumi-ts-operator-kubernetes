@@ -16,9 +16,9 @@ const deploy_spec = [
                 name: "metallb",
                 chart: "metallb",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "4.1.2",
+                version: "4.1.3",
                 values: {
-                    addresses: ["10.101.4.41-10.101.4.42"],
+                    addresses: ["192.168.0.100-192.168.0.109"],
                     autoAssign: true,
                     prometheusRule: { enabled: false },
                     controller: {

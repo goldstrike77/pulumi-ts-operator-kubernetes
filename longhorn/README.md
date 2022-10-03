@@ -1,3 +1,8 @@
+#### Installing the Chart
+```shell
+helm repo add longhorn https://charts.longhorn.io
+```
+
 #### Configuration credential values.
 ```hcl
 pulumi config set AWS_ACCESS_KEY_ID [password] --secret

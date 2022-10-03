@@ -37,7 +37,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.4.0",
+                version: "11.5.4",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -49,7 +49,7 @@ const deploy_spec = [
                             sidecarsService: "kube-prometheus-stack-thanos-discovery",
                             sidecarsNamespace: "monitoring"
                         },
-                        stores: ["10.101.4.43:10901", "10.101.4.43:10903"],
+                        stores: ["192.168.0.110:10901", "192.168.0.110:10903"],
                         extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response"],
                         replicaCount: 1,
                         resources: {
@@ -226,7 +226,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "39.11.0",
+                version: "40.3.1",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: {
@@ -253,10 +253,6 @@ config:
                             ]
                         },
                         alertmanagerSpec: {
-                            image: {
-                                repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/alertmanager",
-                                tag: "v0.24.0"
-                            },
                             configSecret: "configuration-secret",
                             logLevel: "warn",
                             replicas: 1,
@@ -412,7 +408,7 @@ config:
                     "kube-state-metrics": {
                         image: {
                             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics",
-                            tag: "v2.5.0"
+                            tag: "v2.6.0"
                         },
                         replicas: 1,
                         customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -465,8 +461,8 @@ config:
                                 enabled: true,
                                 image: {
                                     repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/kube-webhook-certgen",
-                                    tag: "v1.1.1",
-                                    sha: "64d8c73dca984af206adf9d6d7e46aa550362b1d7a01f3a0a91b20cc67868660"
+                                    tag: "v1.3.0",
+                                    sha: "7bbcbd4232c692a36f8796e9602c14f2ec3b6c638d2974ea81b736ee2bd6e279"
                                 }
                             }
                         },
@@ -486,9 +482,7 @@ config:
                             limits: { cpu: "200m", memory: "256Mi" },
                             requests: { cpu: "200m", memory: "256Mi" }
                         },
-                        image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/prometheus-operator", tag: "v0.58.0" },
                         prometheusConfigReloader: {
-                            image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/prometheus-config-reloader", tag: "v0.58.0" },
                             resources: {
                                 limits: { cpu: "200m", memory: "64Mi" },
                                 requests: { cpu: "200m", memory: "64Mi" }
@@ -575,7 +569,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.1.4",
+                version: "17.3.1",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
