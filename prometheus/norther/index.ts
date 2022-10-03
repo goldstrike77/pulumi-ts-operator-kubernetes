@@ -37,11 +37,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-<<<<<<< HEAD
                 version: "11.5.4",
-=======
-                version: "11.5.1",
->>>>>>> 4aef2abc485397da659bae43f76387aa51834686
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -230,11 +226,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-<<<<<<< HEAD
                 version: "40.3.1",
-=======
-                version: "40.1.2",
->>>>>>> 4aef2abc485397da659bae43f76387aa51834686
                 values: {
                     defaultRules: { create: true },
                     alertmanager: {
@@ -577,11 +569,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-<<<<<<< HEAD
                 version: "17.3.1",
-=======
-                version: "17.2.0",
->>>>>>> 4aef2abc485397da659bae43f76387aa51834686
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
