@@ -62,7 +62,6 @@ const deploy_spec = [
                         },
                         service: {
                             type: "LoadBalancer",
-                            loadBalancerIP: "10.101.4.43",
                             annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
                         }
                     },
@@ -78,7 +77,7 @@ const deploy_spec = [
                                 "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
                             },
                             path: "/",
-                            hosts: ["skywalking.example.com"]
+                            hosts: ["skywalking.souther.example.com"]
                         }
                     },
                     elasticsearch: {

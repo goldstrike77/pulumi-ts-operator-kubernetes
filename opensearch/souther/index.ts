@@ -17,7 +17,7 @@ const deploy_spec = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.6.1",
+        version: "2.6.2",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -252,7 +252,7 @@ snapshotrestore:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.6.1",
+        version: "2.6.2",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -363,7 +363,7 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.5.2",
+        version: "2.5.3",
         chart: "opensearch-dashboards",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -416,7 +416,7 @@ server.basePath: "/opensearch"
       {
         namespace: "opensearch",
         name: "elasticsearch-exporter",
-        version: "4.14.1",
+        version: "4.15.0",
         chart: "prometheus-elasticsearch-exporter",
         repository: "https://prometheus-community.github.io/helm-charts",
         values: {

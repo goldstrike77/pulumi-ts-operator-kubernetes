@@ -1,4 +1,8 @@
+import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+
+let config = new pulumi.Config();
+
 
 const deploy_spec = [
     {
@@ -20,7 +24,7 @@ const deploy_spec = [
                 },
                 type: "Opaque",
                 data: {
-                    "objstore.yml": "dHlwZTogczMNCmNvbmZpZzoNCiAgYnVja2V0OiB0aGFub3Mtc291dGhlcg0KICBlbmRwb2ludDogZGVtby1wcmQtY2x1c3Rlci1zdG9yYWdlLW1pbmlvLW9zcy5zZXJ2aWNlLmRjMDEubG9jYWwNCiAgYWNjZXNzX2tleTogR0E4MUNFNlJNTEFaWjhFVEVaQ0cNCiAgc2VjcmV0X2tleTogQVFIVWNNTjd6dTZvOXEzTUVCRnlNRzl1ZDQ5TnAyNEkzZUVLYzZyYQ0KICBpbnNlY3VyZTogZmFsc2UNCiAgaHR0cF9jb25maWc6DQogICAgaWRsZV9jb25uX3RpbWVvdXQ6IDJtDQogICAgcmVzcG9uc2VfaGVhZGVyX3RpbWVvdXQ6IDVtDQogICAgaW5zZWN1cmVfc2tpcF92ZXJpZnk6IHRydWU="
+                    "objstore.yml": config.require("OBJSTORE.YML")
                 },
                 stringData: {}
             }
@@ -110,9 +114,9 @@ save ""`,
                     compactor: {
                         enabled: true,
                         logLevel: "warn",
-                        retentionResolutionRaw: "30d",
-                        retentionResolution5m: "30d",
-                        retentionResolution1h: "30d",
+                        retentionResolutionRaw: "5d",
+                        retentionResolution5m: "5d",
+                        retentionResolution1h: "5d",
                         extraFlags: [
                             "--compact.cleanup-interval=6h",
                             "--compact.concurrency=2"

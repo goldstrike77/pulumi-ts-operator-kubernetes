@@ -134,9 +134,9 @@ config:
                     compactor: {
                         enabled: true,
                         logLevel: "warn",
-                        retentionResolutionRaw: "30d",
-                        retentionResolution5m: "30d",
-                        retentionResolution1h: "30d",
+                        retentionResolutionRaw: "5d",
+                        retentionResolution5m: "5d",
+                        retentionResolution1h: "5d",
                         extraFlags: [
                             "--compact.cleanup-interval=6h",
                             "--compact.concurrency=2"
