@@ -1,11 +1,15 @@
 encryptionsalt: v1:0b9QK3ha4po=:v1:8l8RZ9foIPNthS03:jqUfEKmhcxCszpFYIByBhc8nz7xOuw==
 config:
   demo:backupPassword:
-    secure: v1:YfNJB5Vu5tFkgPX4:bd9A77bi4N3CLds+iacnXTcAu2rOpMyI
+    secure: v1:MRYb8aEdS5+sCBNs:Aldjc/U6ViBA1MFYHRlXC1bwlqwYExHe
+  demo:lokiPassword:
+    secure: v1:9zfAjAMEJFnyt0xN:hAteh9e1DCP9u2x19PzRdSSSp4XQIE3S
   demo:readonlyPassword:
-    secure: v1:jUZycRR2qa/NI0GC:SjXvEKUg5pHDJTGbJLY1+A1y2OyAs2wg
+    secure: v1:tfbHTQfPRMFOKzoU:G3tAJgfsfeKmXrGr+K6cJeU7b1lodniv
   demo:rootPassword:
-    secure: v1:nx4CJNr/z90zXBjL:Qr3M5vH3rW7bT/5SmXNLaF7eF74hOm3z
+    secure: v1:bRSn9DaciSxHvAJy:EYpszNvxxvUQWluR8Bfm74fyYBPglNbV
   demo:superPassword:
-    secure: v1:iS2/1QbjOfJ218ri:rneDm33qTQ9YqG9iZEwR8p6YNORAFkcU
+    secure: v1:Hbx1lLBVad2WLeFv:1cEfAs+CytHc2x8gb8a1/f00GuVBvSbG
+  demo:thanosPassword:
+    secure: v1:nvw2YQy5qOk23RmU:eltBYbNQFr1RRHmNniPCYRSC9yRdgAXT
   kubernetes:context: kubernetes-admin@norther

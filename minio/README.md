@@ -1,6 +1,16 @@
+#### Installing the Chart
+```shell
+helm repo add bitnami https://charts.bitnami.com/bitnami
+```
+
 #### Configuration credential values.
 ```hcl
+pulumi config set superPassword [password] --secret
+pulumi config set readonlyPassword [password] --secret
 pulumi config set rootPassword [password] --secret
+pulumi config set thanosPassword [password] --secret
+pulumi config set lokiPassword [password] --secret
+pulumi config set backupPassword [password] --secret
 ```
 
 #### Print minio accesskey and secretkey.

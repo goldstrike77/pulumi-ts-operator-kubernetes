@@ -63,6 +63,36 @@ const deploy_spec = [
                                         actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
                                     }
                                 ]
+                            },
+                            {
+                                name: "thanos-bucket-specific-policy",
+                                statements: [
+                                    {
+                                        resources: ["arn:aws:s3:::thanos"],
+                                        effect: "Allow",
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                    },
+                                    {
+                                        resources: ["arn:aws:s3:::thanos/*"],
+                                        effect: "Allow",
+                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                    }
+                                ]
+                            },
+                            {
+                                name: "loki-bucket-specific-policy",
+                                statements: [
+                                    {
+                                        resources: ["arn:aws:s3:::loki"],
+                                        effect: "Allow",
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                    },
+                                    {
+                                        resources: ["arn:aws:s3:::loki/*"],
+                                        effect: "Allow",
+                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                    }
+                                ]
                             }
                         ],
                         users: [
@@ -85,6 +115,20 @@ const deploy_spec = [
                                 password: config.require("backupPassword"),
                                 disabled: false,
                                 policies: ["backup-bucket-specific-policy"],
+                                setPolicies: true
+                            },
+                            {
+                                username: "thanos",
+                                password: config.require("thanosPassword"),
+                                disabled: false,
+                                policies: ["thanos-bucket-specific-policy"],
+                                setPolicies: true
+                            },
+                            {
+                                username: "loki",
+                                password: config.require("lokiPassword"),
+                                disabled: false,
+                                policies: ["loki-bucket-specific-policy"],
                                 setPolicies: true
                             }
                         ],
@@ -127,6 +171,24 @@ const deploy_spec = [
                                 quota: { type: "hard", size: "10GiB", },
                                 tags: {}
                             },
+                            {
+                                name: "thanos",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "loki",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            }
                         ]
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -137,7 +199,7 @@ const deploy_spec = [
                     ingress: {
                         enabled: true,
                         ingressClassName: "nginx",
-                        hostname: "minio-console.example.com",
+                        hostname: "minio-console.norther.example.com",
                         annotations: {
                             "nginx.ingress.kubernetes.io/client-body-buffer-size": "100m",
                             "nginx.ingress.kubernetes.io/proxy-body-size": "100m",
@@ -149,7 +211,7 @@ const deploy_spec = [
                     apiIngress: {
                         enabled: true,
                         ingressClassName: "nginx",
-                        hostname: "minio-api.example.com",
+                        hostname: "minio-api.norther.example.com",
                         annotations: {
                             "nginx.ingress.kubernetes.io/client-body-buffer-size": "100m",
                             "nginx.ingress.kubernetes.io/proxy-body-size": "100m",

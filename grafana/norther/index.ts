@@ -1,5 +1,8 @@
 import * as k8s from "@pulumi/kubernetes";
+import * as pulumi from "@pulumi/pulumi";
 import * as fs from 'fs';
+
+let config = new pulumi.Config();
 
 const deploy_spec = [
     {
@@ -93,6 +96,7 @@ const deploy_spec = [
                         },
                     },
                     adminUser: "admin",
+                    adminPassword: config.require("adminPassword"),
                     plugins: ["grafana-piechart-panel", "camptocamp-prometheus-alertmanager-datasource"],
                     datasources: {
                         "datasources.yaml": {

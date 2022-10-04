@@ -55,8 +55,8 @@ const deploy_spec = [
                         image: {
                             registry: "registry.cn-hangzhou.aliyuncs.com",
                             image: "goldstrike/ingress-nginx",
-                            tag: "v1.3.1",
-                            digest: "sha256:d3642f55a6a7a102a9a579b3382fe73869c73890de4c94f28e36ba5e07925944"
+                            tag: "v1.4.0",
+                            digest: "sha256:4c7cc1da44dbb864a5be37d86b63104602339d58ed7b216b36a1485ddd6f9da6"
                         },
                         config: {
                             "compute-full-forwarded-for": "true",
@@ -100,14 +100,14 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "512Mi" }
                         },
                         service: {
-                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
-                            loadBalancerIP: "10.101.4.41"
+                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
                         },
                         admissionWebhooks: {
                             patch: {
                                 image: {
                                     registry: "registry.cn-hangzhou.aliyuncs.com",
-                                    image: "google_containers/kube-webhook-certgen"
+                                    image: "google_containers/kube-webhook-certgen",
+                                    digest: "sha256:cb080cc0a142137398ee9a55268bd36b2e4ca9941203191ec5846ee565b959e8"
                                 }
                             }
                         },
