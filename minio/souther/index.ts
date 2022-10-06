@@ -78,21 +78,6 @@ const deploy_spec = [
                                         actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
                                     }
                                 ]
-                            },
-                            {
-                                name: "loki-bucket-specific-policy",
-                                statements: [
-                                    {
-                                        resources: ["arn:aws:s3:::loki"],
-                                        effect: "Allow",
-                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
-                                    },
-                                    {
-                                        resources: ["arn:aws:s3:::loki/*"],
-                                        effect: "Allow",
-                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
-                                    }
-                                ]
                             }
                         ],
                         users: [
@@ -123,35 +108,9 @@ const deploy_spec = [
                                 disabled: false,
                                 policies: ["thanos-bucket-specific-policy"],
                                 setPolicies: true
-                            },
-                            {
-                                username: "loki",
-                                password: config.require("lokiPassword"),
-                                disabled: false,
-                                policies: ["loki-bucket-specific-policy"],
-                                setPolicies: true
                             }
                         ],
                         buckets: [
-                            {
-                                name: "test",
-                                region: "us-east-1",
-                                versioning: false,
-                                withLock: true,
-                                lifecycle: [
-                                    {
-                                        id: "TestPrefix7dRetention",
-                                        prefix: "test-prefix",
-                                        disabled: false,
-                                        expiry: {
-                                            days: "7",
-                                            nonconcurrentDays: "3"
-                                        }
-                                    }
-                                ],
-                                quota: { type: "hard", size: "10GiB", },
-                                tags: {}
-                            },
                             {
                                 name: "backup",
                                 region: "us-east-1",
@@ -173,15 +132,6 @@ const deploy_spec = [
                             },
                             {
                                 name: "thanos",
-                                region: "us-east-1",
-                                versioning: false,
-                                withLock: true,
-                                lifecycle: [],
-                                quota: { type: "hard", size: "20GiB", },
-                                tags: {}
-                            },
-                            {
-                                name: "loki",
                                 region: "us-east-1",
                                 versioning: false,
                                 withLock: true,

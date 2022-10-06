@@ -16,7 +16,7 @@ const deploy_spec = [
                 name: "metallb",
                 chart: "metallb",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "4.1.3",
+                version: "4.1.4",
                 values: {
                     addresses: ["192.168.0.100-192.168.0.109"],
                     autoAssign: true,
@@ -30,7 +30,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -51,7 +51,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },

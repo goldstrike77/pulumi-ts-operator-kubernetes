@@ -2,8 +2,6 @@ encryptionsalt: v1:gDdRIqZWDLE=:v1:UUaq6BlIbHj7l0dE:b0ia0x1sW3t6777jTq5WELOQCryI
 config:
   demo:backupPassword:
     secure: v1:Q36ogELoiCusuWZg:m3ZuOSNVR6zt9alPzIERVOxUH7F00Ftp
-  demo:lokiPassword:
-    secure: v1:vlr30ixYkuJLj1Lb:7UHNAWhIW8ig5Yo6Bvd1hfv3ig9MjdGk
   demo:readonlyPassword:
     secure: v1:FFahAgFEacHjY1dl:dWYFU4omirPo+XHfn84XMj8wqQ4fwNHl
   demo:rootPassword:

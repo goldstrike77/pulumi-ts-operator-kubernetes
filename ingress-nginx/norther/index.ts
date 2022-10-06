@@ -100,7 +100,7 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "512Mi" }
                         },
                         service: {
-                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                            annotations: { "purelb.io/service-group": "default" }
                         },
                         admissionWebhooks: {
                             patch: {
@@ -114,7 +114,7 @@ const deploy_spec = [
                         metrics: {
                             enabled: true,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
