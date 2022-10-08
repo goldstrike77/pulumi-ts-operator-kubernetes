@@ -59,11 +59,11 @@ const deploy_spec = [
                         }
                     },
                     persistence: {
-                        defaultClassReplicaCount: 1,
+                        defaultClassReplicaCount: 3,
                         defaultDataLocality: "best-effort"
                     },
                     defaultSettings: {
-                        defaultReplicaCount: 1,
+                        defaultReplicaCount: 3,
                         backupTarget: "s3://backup@us-east-1/",
                         backupTargetCredentialSecret: "auth-secret",
                         defaultDataPath: "/data/longhorn",

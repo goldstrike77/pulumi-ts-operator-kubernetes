@@ -98,10 +98,10 @@ plugins:
 `
           },
           labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-          opensearchJavaOpts: "-server -Xmx512M -Xms512M",
+          opensearchJavaOpts: "-server -Xmx1536M -Xms1536M",
           resources: {
-            limits: { cpu: "500m", memory: "1024Mi" },
-            requests: { cpu: "500m", memory: "1024Mi" }
+            limits: { cpu: "500m", memory: "2048Mi" },
+            requests: { cpu: "500m", memory: "2048Mi" }
           },
           initResources: {
             limits: { cpu: "25m", memory: "128Mi" },
@@ -127,6 +127,7 @@ plugins:
             config: {
               dataComplete: false,
               data: {
+/**
                 "config.yml": `---
 _meta:
   type: "config"
@@ -199,6 +200,7 @@ config:
               - readall
               - snapshotrestore
 `,
+ */
                 "internal_users.yml": `---
 _meta:
   type: "internalusers"

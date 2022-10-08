@@ -114,9 +114,9 @@ save ""`,
                     compactor: {
                         enabled: true,
                         logLevel: "warn",
-                        retentionResolutionRaw: "5d",
-                        retentionResolution5m: "5d",
-                        retentionResolution1h: "5d",
+                        retentionResolutionRaw: "10d",
+                        retentionResolution5m: "10d",
+                        retentionResolution1h: "10d",
                         extraFlags: [
                             "--compact.cleanup-interval=6h",
                             "--compact.concurrency=2"

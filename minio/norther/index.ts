@@ -134,25 +134,6 @@ const deploy_spec = [
                         ],
                         buckets: [
                             {
-                                name: "test",
-                                region: "us-east-1",
-                                versioning: false,
-                                withLock: true,
-                                lifecycle: [
-                                    {
-                                        id: "TestPrefix7dRetention",
-                                        prefix: "test-prefix",
-                                        disabled: false,
-                                        expiry: {
-                                            days: "7",
-                                            nonconcurrentDays: "3"
-                                        }
-                                    }
-                                ],
-                                quota: { type: "hard", size: "10GiB", },
-                                tags: {}
-                            },
-                            {
                                 name: "backup",
                                 region: "us-east-1",
                                 versioning: false,

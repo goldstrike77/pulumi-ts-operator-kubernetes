@@ -134,9 +134,10 @@ config:
                     compactor: {
                         enabled: true,
                         logLevel: "warn",
-                        retentionResolutionRaw: "5d",
-                        retentionResolution5m: "5d",
-                        retentionResolution1h: "5d",
+                        // 5m resolution retention must be higher than the minimum block size after which 1h resolution downsampling will occur (10 days).
+                        retentionResolutionRaw: "10d",
+                        retentionResolution5m: "10d",
+                        retentionResolution1h: "10d",
                         extraFlags: [
                             "--compact.cleanup-interval=6h",
                             "--compact.concurrency=2"

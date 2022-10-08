@@ -57,8 +57,8 @@ const deploy_spec = [
                     ingester: {
                         replicas: 2,
                         resources: {
-                            limits: { cpu: "200m", memory: "512Mi" },
-                            requests: { cpu: "200m", memory: "512Mi" }
+                            limits: { cpu: "200m", memory: "1024Mi" },
+                            requests: { cpu: "200m", memory: "1024Mi" }
                         },
                         persistence: { enabled: true, size: "10Gi", storageClass: "longhorn" }
                     },

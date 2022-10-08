@@ -1,5 +1,5 @@
 encryptionsalt: v1:tvlN789yyAc=:v1:34G2ns40knTMgqyv:76hSnLD3qDrCCbX2GVQpQ+vtrI6j1g==
 config:
   demo:SW_ES_PASSWORD:
-    secure: v1:pObNWEK8MAwGR44/:Gun2cb6jfthWHcNNSX4h3Ky6TIfE8YUT
+    secure: v1:ICP5qyU30+0cDCE9:0e8ILnfS1awYS1v8FpuaH0TRH01WWsed
   kubernetes:context: kubernetes-admin@souther

@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1661579704664,
+  "iteration": 1665218966876,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -533,12 +533,13 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [
             {
               "options": {
@@ -563,7 +564,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "cores"
         },
         "overrides": []
       },
@@ -584,11 +585,12 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
         },
+        "text": {},
         "textMode": "auto"
       },
       "pluginVersion": "8.3.10",
@@ -599,9 +601,9 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\",unit=\"core\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}[5m]))",
           "format": "time_series",
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A",
@@ -609,7 +611,7 @@
         }
       ],
       "timeFrom": "$interval",
-      "title": "Requests",
+      "title": "Used",
       "type": "stat"
     },
     {
@@ -647,7 +649,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "cores"
         },
         "overrides": []
       },
@@ -668,7 +670,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -706,7 +708,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [
             {
               "options": {
@@ -767,7 +769,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",cluster=\"$cluster\",environment=\"$environment\"})",
+          "expr": "sum(node_memory_MemTotal_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} - (node_memory_MemFree_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} + node_memory_Buffers_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} + node_memory_Cached_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -777,7 +779,7 @@
         }
       ],
       "timeFrom": "$interval",
-      "title": "Requests",
+      "title": "Used",
       "type": "stat"
     },
     {
@@ -933,7 +935,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "none"
+                "value": "%"
               },
               {
                 "id": "custom.displayMode",
@@ -3427,7 +3429,7 @@
       "type": "row"
     }
   ],
-  "refresh": "1m",
+  "refresh": false,
   "schemaVersion": 34,
   "style": "dark",
   "tags": [
