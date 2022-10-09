@@ -34,10 +34,6 @@ const deploy_spec = [
                     },
                     provisioning: {
                         enabled: true,
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        },
                         policies: [
                             {
                                 name: "readonly-specific-policy",

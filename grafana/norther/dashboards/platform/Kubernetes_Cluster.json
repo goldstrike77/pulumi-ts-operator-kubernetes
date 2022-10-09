@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1665218966876,
+  "iteration": 1665312524949,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -601,9 +601,9 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(rate(container_cpu_usage_seconds_total{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}[5m]))",
+          "expr": "sum(irate(container_cpu_usage_seconds_total{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}[5m]))",
           "format": "time_series",
-          "interval": "5m",
+          "interval": "1m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A",
@@ -685,9 +685,9 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum (machine_cpu_cores{group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
+          "expr": "sum(machine_cpu_cores{group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
           "format": "time_series",
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A",
@@ -1316,7 +1316,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "",
+          "interval": "1m",
           "legendFormat": "",
           "refId": "J"
         }
@@ -1840,7 +1840,7 @@
         }
       ],
       "timeFrom": "$interval",
-      "title": "Requests CPU",
+      "title": "Requests Core",
       "type": "stat"
     },
     {
@@ -2488,7 +2488,7 @@
         }
       ],
       "timeFrom": "$interval",
-      "title": "Limits CPU",
+      "title": "Limits Core",
       "type": "stat"
     },
     {
@@ -2835,12 +2835,419 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "right",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests Core"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Limits Core"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Requests Memory"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Limits Memory"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usage Core"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usage Memory"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "custom.width",
+                "value": 200
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Namespace"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Pod"
+            },
+            "properties": [
+              {
+                "id": "custom.align",
+                "value": "left"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 98,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_requests{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"core\"}) by (namespace,pod)",
+          "format": "table",
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_limits{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"core\"}) by (namespace,pod)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_requests{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"byte\"}) by (namespace,pod)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_limits{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"byte\"}) by (namespace,pod)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (namespace,pod)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(container_memory_usage_bytes{container!=\"\",container!=\"\",namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (namespace,pod)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "F"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "pod"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Time 6": true,
+              "Value #E": false,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "__name__ 4": true,
+              "__name__ 5": true,
+              "container 1": true,
+              "container 2": true,
+              "container 3": true,
+              "container 4": true,
+              "container 5": true,
+              "customer 1": true,
+              "customer 2": true,
+              "customer 3": true,
+              "customer 4": true,
+              "customer 5": true,
+              "datacenter": true,
+              "domain 1": true,
+              "domain 2": true,
+              "domain 3": true,
+              "domain 4": true,
+              "domain 5": true,
+              "endpoint 1": true,
+              "endpoint 2": true,
+              "endpoint 3": true,
+              "endpoint 4": true,
+              "endpoint 5": true,
+              "environment 1": true,
+              "environment 2": true,
+              "environment 3": true,
+              "environment 4": true,
+              "environment 5": true,
+              "group 1": true,
+              "group 2": true,
+              "group 3": true,
+              "group 4": true,
+              "group 5": true,
+              "id": true,
+              "image": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true,
+              "instance 4": true,
+              "instance 5": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "job 5": true,
+              "metrics_path": true,
+              "name": true,
+              "namespace 1": true,
+              "namespace 2": true,
+              "namespace 3": true,
+              "namespace 4": true,
+              "namespace 5": false,
+              "namespace 6": true,
+              "node 1": true,
+              "node 2": true,
+              "node 3": true,
+              "node 4": true,
+              "node 5": true,
+              "project 1": true,
+              "project 2": true,
+              "project 3": true,
+              "project 4": true,
+              "project 5": true,
+              "prometheus 1": true,
+              "prometheus 2": true,
+              "prometheus 3": true,
+              "prometheus 4": true,
+              "prometheus 5": true,
+              "resource 1": true,
+              "resource 2": true,
+              "resource 3": true,
+              "resource 4": true,
+              "service 1": true,
+              "service 2": true,
+              "service 3": true,
+              "service 4": true,
+              "service 5": true,
+              "uid 1": true,
+              "uid 2": true,
+              "uid 3": true,
+              "uid 4": true,
+              "unit 1": true,
+              "unit 2": true,
+              "unit 3": true,
+              "unit 4": true
+            },
+            "indexByName": {
+              "Time 1": 4,
+              "Time 2": 7,
+              "Time 3": 9,
+              "Time 4": 12,
+              "Time 5": 14,
+              "Time 6": 17,
+              "Value #A": 5,
+              "Value #B": 6,
+              "Value #C": 11,
+              "Value #D": 13,
+              "Value #E": 15,
+              "Value #F": 16,
+              "namespace 1": 1,
+              "namespace 2": 8,
+              "namespace 3": 10,
+              "namespace 4": 2,
+              "namespace 5": 0,
+              "namespace 6": 18,
+              "pod": 3
+            },
+            "renameByName": {
+              "Time 1": "",
+              "Time 2": "",
+              "Value #A": "Requests Core",
+              "Value #B": "Limits Core",
+              "Value #C": "Requests Memory",
+              "Value #D": "Limits Memory",
+              "Value #E": "Usage Core",
+              "Value #F": "Usage Memory",
+              "job 1": "",
+              "namespace 1": "",
+              "namespace 4": "Namespace",
+              "namespace 5": "Namespace",
+              "pod": "Pod"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 33
       },
       "id": 39,
       "panels": [],
@@ -2872,7 +3279,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 34
       },
       "height": "",
       "hiddenSeries": false,
@@ -2984,7 +3391,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 41
       },
       "hiddenSeries": false,
       "id": 25,
@@ -3095,7 +3502,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 48
       },
       "hiddenSeries": false,
       "id": 16,
@@ -3199,7 +3606,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 55
       },
       "id": 36,
       "panels": [
@@ -3228,7 +3635,7 @@
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 47
+            "y": 56
           },
           "height": "",
           "hiddenSeries": false,
@@ -3340,7 +3747,7 @@
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 53
+            "y": 62
           },
           "hiddenSeries": false,
           "id": 26,
@@ -3429,7 +3836,7 @@
       "type": "row"
     }
   ],
-  "refresh": false,
+  "refresh": "1m",
   "schemaVersion": 34,
   "style": "dark",
   "tags": [
@@ -3584,7 +3991,7 @@
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "",
+        "regex": "/^(?!.*kube-system|kube-flannel$).*$/",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
@@ -3623,6 +4030,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 1,
+  "version": 4,
   "weekStart": ""
 }
