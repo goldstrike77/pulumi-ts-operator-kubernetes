@@ -98,10 +98,10 @@ plugins:
 `
           },
           labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-          opensearchJavaOpts: "-server -Xmx1536M -Xms1536M",
+          opensearchJavaOpts: "-server -Xmx2048M -Xms2048M",
           resources: {
-            limits: { cpu: "500m", memory: "2048Mi" },
-            requests: { cpu: "500m", memory: "2048Mi" }
+            limits: { cpu: "500m", memory: "3072Mi" },
+            requests: { cpu: "500m", memory: "3072Mi" }
           },
           initResources: {
             limits: { cpu: "25m", memory: "128Mi" },
