@@ -438,6 +438,11 @@ config:
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
+                        extraArgs: [
+                            "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)",
+                            "--collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$",
+                            "--collector.cpu.info"
+                        ],
                         podLabels: { jobLabel: "node-exporter", customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         prometheus: {
                             monitor: {
