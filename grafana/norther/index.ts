@@ -32,7 +32,7 @@ const deploy_spec = [
         configmap: [
             {
                 metadata: {
-                    name: "grafana-dashboards-extra",
+                    name: "grafana-dashboards-kubernetes",
                     namespace: "visualization",
                     annotations: {},
                     labels: {
@@ -40,8 +40,23 @@ const deploy_spec = [
                     }
                 },
                 data: {
-                    "Kubernetes_Cluster.json": fs.readFileSync('./dashboards/platform/Kubernetes_Cluster.json', 'utf8'),
-                    "Linux_System_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_System_Overview.json', 'utf8')
+                    "Kubernetes_Cluster.json": fs.readFileSync('./dashboards/platform/Kubernetes_Cluster.json', 'utf8')
+                }
+            },
+            {
+                metadata: {
+                    name: "grafana-dashboards-linux",
+                    namespace: "visualization",
+                    annotations: {},
+                    labels: {
+                        grafana_dashboard: ""
+                    }
+                },
+                data: {
+                    "Linux_System_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_System_Overview.json', 'utf8'),
+                    "Linux_Disk_Performance.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Performance.json', 'utf8'),
+                    "Linux_Network_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Network_Overview.json', 'utf8'),
+                    "Linux_Disk_Space.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Space.json', 'utf8')
                 }
             }
         ],
