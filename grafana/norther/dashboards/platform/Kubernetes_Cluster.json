@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1665411147975,
+  "iteration": 1665461948627,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -153,7 +153,7 @@
         "x": 0,
         "y": 0
       },
-      "id": 34,
+      "id": 100,
       "panels": [],
       "title": "Cluster Resource",
       "type": "row"
@@ -163,6 +163,7 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "description": "Container CPU usage may be completely different from IaaS or Hypervisor.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -199,7 +200,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -233,14 +234,14 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "(1 - avg(irate(node_cpu_seconds_total{mode='idle',customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"}[5m]))) * 100",
+          "expr": "sum(irate(container_cpu_usage_seconds_total{container!=\"\",pod!=\"\",group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}[5m])) / sum (machine_cpu_cores{customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"})",
           "interval": "1m",
           "legendFormat": "",
           "refId": "A"
         }
       ],
       "timeFrom": "$interval",
-      "title": "Cluster CPU Usage",
+      "title": "Container CPU Usage",
       "type": "gauge"
     },
     {
@@ -283,7 +284,7 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -317,7 +318,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "avg((node_memory_MemTotal_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} - (node_memory_MemFree_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} + node_memory_Buffers_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} + node_memory_Cached_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"})) / node_memory_MemTotal_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}) * 100",
+          "expr": "sum(container_memory_usage_bytes{container!=\"\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) / sum(machine_memory_bytes{group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -327,7 +328,7 @@
         }
       ],
       "timeFrom": "$interval",
-      "title": "Cluster Memory Usage",
+      "title": "Container Memory Usage",
       "type": "gauge"
     },
     {
@@ -401,7 +402,7 @@
       ],
       "thresholds": [],
       "timeRegions": [],
-      "title": "Cluster Network Bandwidth",
+      "title": "Container Network Bandwidth",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -597,7 +598,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(irate(container_cpu_usage_seconds_total{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}[5m]))",
+          "expr": "sum(irate(container_cpu_usage_seconds_total{container!=\"\",pod!=\"\",group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}[5m]))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -742,7 +743,7 @@
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "last"
           ],
           "fields": "",
           "values": false
@@ -757,7 +758,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(node_memory_MemTotal_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} - (node_memory_MemFree_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} + node_memory_Buffers_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"} + node_memory_Cached_bytes{group=\"$cluster\",customer=\"$customer\",environment=\"$environment\"}))",
+          "expr": "sum(container_memory_usage_bytes{container!=\"\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -837,7 +838,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum (machine_memory_bytes{group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
+          "expr": "sum(machine_memory_bytes{group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,
@@ -849,6 +850,19 @@
       "timeFrom": "$interval",
       "title": "Total",
       "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 34,
+      "panels": [],
+      "title": "Hypervisor Resource",
+      "type": "row"
     },
     {
       "datasource": {
@@ -938,6 +952,10 @@
                 "value": {
                   "mode": "continuous-GrYlRd"
                 }
+              },
+              {
+                "id": "custom.width",
+                "value": 200
               }
             ]
           },
@@ -964,6 +982,10 @@
                 "value": {
                   "mode": "continuous-GrYlRd"
                 }
+              },
+              {
+                "id": "custom.width",
+                "value": 200
               }
             ]
           },
@@ -995,19 +1017,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 80
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Mode"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
+                "value": 100
               }
             ]
           },
@@ -1028,18 +1038,6 @@
               {
                 "id": "decimals",
                 "value": 0
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Region"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
               }
             ]
           },
@@ -1070,6 +1068,10 @@
                 "value": {
                   "mode": "continuous-GrYlRd"
                 }
+              },
+              {
+                "id": "custom.width",
+                "value": 200
               }
             ]
           },
@@ -1081,7 +1083,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 80
+                "value": 100
               },
               {
                 "id": "color",
@@ -1118,18 +1120,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Pool"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Version"
             },
             "properties": [
@@ -1145,7 +1135,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 10
       },
       "id": 83,
       "options": {
@@ -1254,7 +1244,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "label_replace(node_filesystem_size_bytes{mountpoint=\"/\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"},\"node\", \"$1\", \"instance\", \"(.*)\")",
+          "expr": "label_replace(sum(node_filesystem_size_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"}) by (instance),\"node\", \"$1\", \"instance\", \"(.*)\")",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1268,7 +1258,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "(1- sum by(node)(label_replace(node_filesystem_free_bytes{mountpoint=\"/\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"},\"node\", \"$1\", \"instance\", \"(.*)\")) / sum by(node)(label_replace(node_filesystem_size_bytes{mountpoint=\"/\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"},\"node\", \"$1\", \"instance\", \"(.*)\"))) * 100",
+          "expr": "(1- sum by(node)(label_replace(node_filesystem_free_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"},\"node\", \"$1\", \"instance\", \"(.*)\")) / sum by(node)(label_replace(node_filesystem_size_bytes{fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"},\"node\", \"$1\", \"instance\", \"(.*)\"))) * 100",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1296,13 +1286,27 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "kube_node_info{customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"}",
+          "expr": "label_replace(count(node_cpu_info{cpu=\"0\",customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"}) by (instance,model_name),\"node\", \"$1\", \"instance\", \"(.*)\")",
           "format": "table",
           "hide": false,
           "instant": true,
           "interval": "1m",
           "legendFormat": "",
           "refId": "J"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "kube_node_info{customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "K"
         }
       ],
       "transformations": [
@@ -1318,6 +1322,7 @@
             "excludeByName": {
               "Time 1": true,
               "Time 10": true,
+              "Time 11": true,
               "Time 2": true,
               "Time 3": true,
               "Time 4": true,
@@ -1329,6 +1334,7 @@
               "Value #A": true,
               "Value #I": false,
               "Value #J": true,
+              "Value #K": true,
               "__name__": true,
               "__name__ 2": true,
               "__name__ 3": true,
@@ -1473,145 +1479,122 @@
               "system_uuid": true
             },
             "indexByName": {
-              "Time 1": 3,
-              "Time 10": 115,
-              "Time 2": 28,
-              "Time 3": 30,
-              "Time 4": 33,
-              "Time 5": 35,
-              "Time 6": 37,
-              "Time 7": 40,
-              "Time 8": 44,
-              "Time 9": 99,
-              "Value #A": 27,
-              "Value #B": 29,
-              "Value #C": 31,
-              "Value #D": 34,
-              "Value #E": 36,
-              "Value #F": 39,
-              "Value #G": 32,
-              "Value #H": 38,
-              "Value #I": 114,
-              "Value #J": 138,
-              "__name__ 1": 45,
-              "__name__ 2": 85,
-              "__name__ 3": 100,
-              "__name__ 4": 116,
-              "cluster_env 1": 46,
-              "cluster_env 2": 59,
-              "cluster_env 3": 72,
-              "cluster_env 4": 86,
-              "cluster_env 5": 101,
-              "cluster_env 6": 117,
-              "container 1": 47,
-              "container 2": 60,
-              "container 3": 73,
-              "container 4": 87,
-              "container 5": 102,
-              "container 6": 118,
-              "container_runtime_version": 119,
-              "customer 1": 48,
-              "customer 2": 61,
-              "customer 3": 74,
-              "customer 4": 88,
-              "customer 5": 103,
-              "customer 6": 120,
-              "device": 41,
-              "endpoint 1": 49,
-              "endpoint 2": 62,
-              "endpoint 3": 75,
-              "endpoint 4": 89,
-              "endpoint 5": 104,
-              "endpoint 6": 121,
-              "environment 1": 50,
-              "environment 2": 63,
-              "environment 3": 76,
-              "environment 4": 90,
-              "environment 5": 105,
-              "environment 6": 122,
-              "fstype": 42,
-              "group 1": 51,
-              "group 2": 64,
-              "group 3": 77,
-              "group 4": 91,
-              "group 5": 106,
-              "group 6": 123,
-              "instance 1": 52,
-              "instance 2": 65,
-              "instance 3": 78,
-              "instance 4": 92,
-              "instance 5": 107,
-              "instance 6": 124,
-              "internal_ip": 125,
-              "job 1": 53,
-              "job 2": 66,
-              "job 3": 79,
-              "job 4": 93,
-              "job 5": 108,
-              "job 6": 126,
-              "kernel_version": 127,
-              "kubelet_version": 2,
-              "kubeproxy_version": 128,
-              "label_agentpool": 0,
-              "label_beta_kubernetes_io_arch": 4,
-              "label_beta_kubernetes_io_instance_type": 5,
-              "label_beta_kubernetes_io_os": 17,
-              "label_failure_domain_beta_kubernetes_io_region": 6,
-              "label_failure_domain_beta_kubernetes_io_zone": 7,
-              "label_kubernetes_azure_com_agentpool": 8,
-              "label_kubernetes_azure_com_cluster": 9,
-              "label_kubernetes_azure_com_kubelet_identity_client_id": 10,
-              "label_kubernetes_azure_com_mode": 11,
-              "label_kubernetes_azure_com_node_image_version": 18,
-              "label_kubernetes_azure_com_os_sku": 19,
-              "label_kubernetes_azure_com_role": 12,
-              "label_kubernetes_azure_com_storageprofile": 13,
-              "label_kubernetes_azure_com_storagetier": 14,
-              "label_kubernetes_io_arch": 15,
-              "label_kubernetes_io_hostname": 16,
-              "label_kubernetes_io_os": 20,
-              "label_kubernetes_io_role": 21,
-              "label_node_kubernetes_io_instance_type": 22,
-              "label_storageprofile": 23,
-              "label_storagetier": 24,
-              "label_topology_kubernetes_io_region": 25,
-              "label_topology_kubernetes_io_zone": 26,
-              "mountpoint": 43,
-              "namespace 1": 54,
-              "namespace 2": 67,
-              "namespace 3": 80,
-              "namespace 4": 94,
-              "namespace 5": 109,
-              "namespace 6": 129,
-              "node": 1,
-              "os_image": 130,
-              "pod 1": 55,
-              "pod 2": 68,
-              "pod 3": 81,
-              "pod 4": 95,
-              "pod 5": 110,
-              "pod 6": 131,
-              "pod_cidr": 132,
-              "project 1": 56,
-              "project 2": 69,
-              "project 3": 82,
-              "project 4": 96,
+              "Time 1": 5,
+              "Time 10": 26,
+              "Time 11": 93,
+              "Time 2": 12,
+              "Time 3": 15,
+              "Time 4": 20,
+              "Time 5": 21,
+              "Time 6": 22,
+              "Time 7": 23,
+              "Time 8": 24,
+              "Time 9": 25,
+              "Value #A": 11,
+              "Value #B": 13,
+              "Value #C": 16,
+              "Value #D": 14,
+              "Value #E": 17,
+              "Value #F": 2,
+              "Value #G": 18,
+              "Value #H": 19,
+              "Value #I": 1,
+              "Value #J": 27,
+              "Value #K": 115,
+              "__name__ 1": 41,
+              "__name__ 2": 79,
+              "__name__ 3": 94,
+              "container 1": 42,
+              "container 2": 54,
+              "container 3": 66,
+              "container 4": 80,
+              "container 5": 95,
+              "container_runtime_version": 96,
+              "customer 1": 43,
+              "customer 2": 55,
+              "customer 3": 67,
+              "customer 4": 81,
+              "customer 5": 97,
+              "datacenter 1": 36,
+              "datacenter 2": 38,
+              "domain 1": 28,
+              "domain 2": 37,
+              "domain 3": 39,
+              "domain 4": 40,
+              "domain 5": 98,
+              "endpoint 1": 44,
+              "endpoint 2": 56,
+              "endpoint 3": 68,
+              "endpoint 4": 82,
+              "endpoint 5": 99,
+              "environment 1": 45,
+              "environment 2": 57,
+              "environment 3": 69,
+              "environment 4": 83,
+              "environment 5": 100,
+              "group 1": 46,
+              "group 2": 58,
+              "group 3": 70,
+              "group 4": 84,
+              "group 5": 101,
+              "instance 1": 47,
+              "instance 2": 59,
+              "instance 3": 71,
+              "instance 4": 78,
+              "instance 5": 85,
+              "instance 6": 92,
+              "instance 7": 102,
+              "internal_ip": 103,
+              "job 1": 48,
+              "job 2": 60,
+              "job 3": 72,
+              "job 4": 86,
+              "job 5": 104,
+              "kernel_version": 105,
+              "kubelet_version": 3,
+              "kubeproxy_version": 106,
+              "label_beta_kubernetes_io_arch": 6,
+              "label_beta_kubernetes_io_os": 9,
+              "label_customer": 29,
+              "label_datacenter": 30,
+              "label_domain": 31,
+              "label_environment": 32,
+              "label_group": 33,
+              "label_kubernetes_io_arch": 7,
+              "label_kubernetes_io_hostname": 8,
+              "label_kubernetes_io_os": 10,
+              "label_longhorn_node": 34,
+              "label_project": 35,
+              "model_name": 4,
+              "namespace 1": 49,
+              "namespace 2": 61,
+              "namespace 3": 73,
+              "namespace 4": 87,
+              "namespace 5": 107,
+              "node": 0,
+              "os_image": 108,
+              "pod 1": 50,
+              "pod 2": 62,
+              "pod 3": 74,
+              "pod 4": 88,
+              "pod 5": 109,
+              "pod_cidr": 110,
+              "project 1": 51,
+              "project 2": 63,
+              "project 3": 75,
+              "project 4": 89,
               "project 5": 111,
-              "project 6": 133,
-              "prometheus 1": 57,
-              "prometheus 2": 70,
-              "prometheus 3": 83,
-              "prometheus 4": 97,
+              "prometheus 1": 52,
+              "prometheus 2": 64,
+              "prometheus 3": 76,
+              "prometheus 4": 90,
               "prometheus 5": 112,
-              "prometheus 6": 134,
-              "provider_id": 135,
-              "service 1": 58,
-              "service 2": 71,
-              "service 3": 84,
-              "service 4": 98,
+              "service 1": 53,
+              "service 2": 65,
+              "service 3": 77,
+              "service 4": 91,
               "service 5": 113,
-              "service 6": 136,
-              "system_uuid": 137
+              "system_uuid": 114
             },
             "renameByName": {
               "Time 1": "",
@@ -1625,8 +1608,10 @@
               "Value #G": "Disk",
               "Value #H": "Disk Usage",
               "Value #I": "Status",
+              "Value #K": "",
               "instance": "",
               "job": "",
+              "kernel_version": "",
               "kubelet_version": "Version",
               "kubeproxy_version": "",
               "label_agentpool": "Pool",
@@ -1638,6 +1623,7 @@
               "label_kubernetes_azure_com_node_image_version": "Image",
               "label_kubernetes_azure_com_os_sku": "",
               "label_kubernetes_azure_com_storageprofile": "",
+              "model_name": "Model",
               "node": "Node",
               "project 5": ""
             }
@@ -1652,7 +1638,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 18
       },
       "id": 47,
       "panels": [],
@@ -1700,7 +1686,7 @@
         "h": 3,
         "w": 3,
         "x": 0,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 79,
@@ -1782,7 +1768,7 @@
         "h": 3,
         "w": 3,
         "x": 3,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 84,
@@ -1863,7 +1849,7 @@
         "h": 3,
         "w": 3,
         "x": 6,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 86,
@@ -1944,7 +1930,7 @@
         "h": 3,
         "w": 2,
         "x": 9,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 59,
@@ -2025,7 +2011,7 @@
         "h": 3,
         "w": 2,
         "x": 11,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 81,
@@ -2106,7 +2092,7 @@
         "h": 3,
         "w": 2,
         "x": 13,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 78,
@@ -2209,7 +2195,7 @@
         "h": 6,
         "w": 9,
         "x": 15,
-        "y": 18
+        "y": 19
       },
       "hideTimeOverride": true,
       "id": 93,
@@ -2320,7 +2306,7 @@
         "h": 3,
         "w": 3,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 94,
@@ -2402,7 +2388,7 @@
         "h": 3,
         "w": 3,
         "x": 3,
-        "y": 21
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 87,
@@ -2483,7 +2469,7 @@
         "h": 3,
         "w": 3,
         "x": 6,
-        "y": 21
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 88,
@@ -2564,7 +2550,7 @@
         "h": 3,
         "w": 2,
         "x": 9,
-        "y": 21
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 89,
@@ -2645,7 +2631,7 @@
         "h": 3,
         "w": 2,
         "x": 11,
-        "y": 21
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 90,
@@ -2727,7 +2713,7 @@
         "h": 3,
         "w": 2,
         "x": 13,
-        "y": 21
+        "y": 22
       },
       "hideTimeOverride": true,
       "id": 77,
@@ -2927,7 +2913,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 25
       },
       "id": 98,
       "options": {
@@ -3003,7 +2989,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (namespace,pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\",pod!=\"\",namespace=~\"$namespace\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (namespace,pod)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3017,7 +3003,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(container_memory_usage_bytes{container!=\"\",container!=\"\",namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (namespace,pod)",
+          "expr": "sum(container_memory_usage_bytes{container!=\"\",pod!=\"\",namespace=~\"$namespace\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (namespace,pod)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3180,7 +3166,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 34
       },
       "id": 39,
       "panels": [],
@@ -3212,7 +3198,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 35
       },
       "height": "",
       "hiddenSeries": false,
@@ -3324,7 +3310,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 41
+        "y": 42
       },
       "hiddenSeries": false,
       "id": 25,
@@ -3435,7 +3421,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 49
       },
       "hiddenSeries": false,
       "id": 16,
@@ -3539,7 +3525,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 55
+        "y": 56
       },
       "id": 36,
       "panels": [
@@ -3568,7 +3554,7 @@
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 56
+            "y": 57
           },
           "height": "",
           "hiddenSeries": false,
@@ -3609,7 +3595,7 @@
                 "uid": "DS_PROMETHEUS"
               },
               "exemplar": false,
-              "expr": "sum (rate (container_cpu_usage_seconds_total{namespace=~\"kube-system\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (pod)",
+              "expr": "sum (rate (container_cpu_usage_seconds_total{namespace=~\"kube-.*\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (pod)",
               "format": "time_series",
               "hide": false,
               "interval": "$interval",
@@ -3680,7 +3666,7 @@
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 62
+            "y": 63
           },
           "hiddenSeries": false,
           "id": 26,
@@ -3720,7 +3706,7 @@
                 "uid": "DS_PROMETHEUS"
               },
               "exemplar": false,
-              "expr": "container_memory_usage_bytes{container!=\"\",namespace=~\"kube-system\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}",
+              "expr": "container_memory_usage_bytes{container!=\"\",namespace=~\"kube-.*\",pod!=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}",
               "format": "time_series",
               "interval": "$interval",
               "intervalFactor": 1,
@@ -3924,7 +3910,7 @@
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
-        "regex": "/^(?!.*kube-system|kube-flannel$).*$/",
+        "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",

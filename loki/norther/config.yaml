@@ -90,6 +90,8 @@ ruler:
     local:
       directory: /etc/loki/rules
     type: local
+runtime_config:
+  file: /var/loki-runtime/runtime.yaml
 schema_config:
   configs:
   - chunks:
@@ -122,7 +124,7 @@ storage_config:
     insecure: true
     region: s3_region
     s3forcepathstyle: true
-    secret_access_key: thanos
+    secret_access_key: loki
     sse_encryption: false
   boltdb_shipper:
     active_index_directory: /var/loki/index

@@ -61,7 +61,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1665406339953,
+  "iteration": 1665466286593,
   "links": [
     {
       "$$hashKey": "object:22075",
@@ -294,6 +294,7 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -366,7 +367,7 @@
           "step": 300
         }
       ],
-      "title": "Size",
+      "title": "Model",
       "type": "stat"
     },
     {
