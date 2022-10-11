@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1665461948627,
+  "iteration": 1665489309966,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -922,6 +922,10 @@
               {
                 "id": "custom.width",
                 "value": 300
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
               }
             ]
           },
@@ -955,7 +959,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 160
               }
             ]
           },
@@ -985,7 +989,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 160
               }
             ]
           },
@@ -1018,6 +1022,10 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
               }
             ]
           },
@@ -1071,7 +1079,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 200
+                "value": 160
               }
             ]
           },
@@ -1126,6 +1134,22 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Model"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "json-view"
               }
             ]
           }
@@ -3769,7 +3793,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },
@@ -3949,6 +3973,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

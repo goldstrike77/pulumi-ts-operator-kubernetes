@@ -65,7 +65,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 2 }
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
@@ -156,7 +156,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
-                                batch: { max_events: 1024, timeout_secs: 2 }
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
@@ -216,7 +216,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 2 }
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
@@ -298,7 +298,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 2 }
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
