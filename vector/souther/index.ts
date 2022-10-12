@@ -248,6 +248,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+/**
             {
                 namespace: "datadog",
                 name: "beats",
@@ -316,6 +317,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             }
+ */
         ]
     }
 ]

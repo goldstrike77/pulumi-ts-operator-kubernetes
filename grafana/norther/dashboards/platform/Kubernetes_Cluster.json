@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1665489309966,
+  "iteration": 1665557036532,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -877,7 +877,7 @@
           },
           "custom": {
             "align": "center",
-            "displayMode": "auto",
+            "displayMode": "color-text",
             "filterable": false
           },
           "mappings": [],
@@ -885,7 +885,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "text",
                 "value": null
               }
             ]
@@ -922,10 +922,6 @@
               {
                 "id": "custom.width",
                 "value": 300
-              },
-              {
-                "id": "custom.displayMode",
-                "value": "json-view"
               }
             ]
           },
@@ -1022,10 +1018,6 @@
               {
                 "id": "custom.width",
                 "value": 100
-              },
-              {
-                "id": "custom.displayMode",
-                "value": "json-view"
               }
             ]
           },
@@ -1134,10 +1126,6 @@
               {
                 "id": "custom.width",
                 "value": 100
-              },
-              {
-                "id": "custom.displayMode",
-                "value": "json-view"
               }
             ]
           },
@@ -1146,12 +1134,7 @@
               "id": "byName",
               "options": "Model"
             },
-            "properties": [
-              {
-                "id": "custom.displayMode",
-                "value": "json-view"
-              }
-            ]
+            "properties": []
           }
         ]
       },
@@ -3973,6 +3956,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
