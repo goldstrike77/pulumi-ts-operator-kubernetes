@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1665557036532,
+  "iteration": 1665660521048,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -181,7 +181,7 @@
               "type": "special"
             }
           ],
-          "max": 100,
+          "max": 1,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -192,11 +192,11 @@
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
-                "value": 65
+                "value": 0.75
               },
               {
                 "color": "rgba(245, 54, 54, 0.9)",
-                "value": 90
+                "value": 0.9
               }
             ]
           },
@@ -265,7 +265,7 @@
               "type": "special"
             }
           ],
-          "max": 100,
+          "max": 1,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -276,11 +276,11 @@
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
-                "value": 65
+                "value": 0.75
               },
               {
                 "color": "rgba(245, 54, 54, 0.9)",
-                "value": 90
+                "value": 0.9
               }
             ]
           },
@@ -1128,13 +1128,6 @@
                 "value": 100
               }
             ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Model"
-            },
-            "properties": []
           }
         ]
       },
@@ -3776,7 +3769,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },

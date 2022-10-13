@@ -1,0 +1,2442 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "DS_PROMETHEUS",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": [],
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "8.3.10"
+    },
+    {
+      "type": "panel",
+      "id": "piechart",
+      "name": "Pie chart",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "iteration": 1665660642185,
+  "links": [
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "OS"
+      ],
+      "title": "OS",
+      "type": "dashboards"
+    },
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "Databases"
+      ],
+      "title": "Databases",
+      "type": "dashboards"
+    },
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "Insight"
+      ],
+      "title": "Insight",
+      "type": "dashboards"
+    },
+    {
+      "$$hashKey": "object:1205",
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "Network"
+      ],
+      "title": "Network",
+      "type": "dashboards"
+    },
+    {
+      "asDropdown": true,
+      "icon": "external link",
+      "includeVars": true,
+      "keepTime": true,
+      "tags": [
+        "Platform"
+      ],
+      "title": "Platform",
+      "type": "dashboards"
+    }
+  ],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.75
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 23,
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_host_cpu_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}) / sum(vmware_host_cpu_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
+          "interval": "$interval",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumed CPU",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "semi-dark-green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.75
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 25,
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_host_memory_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}) / sum(vmware_host_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
+          "interval": "$interval",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumed Memory",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisGridShow": false,
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 40,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 7,
+            "scaleDistribution": {
+              "log": 2,
+              "type": "log"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 8,
+        "y": 0
+      },
+      "hideTimeOverride": false,
+      "id": 19,
+      "interval": "1488",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "count(vmware_host_power_state{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
+          "interval": "10h",
+          "legendFormat": "hypervisor",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": "168h",
+      "title": "Hypervisor Scaler",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 14,
+        "y": 0
+      },
+      "id": 12,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_datastore_capacity_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name!~\"local-.*\"})",
+          "format": "time_series",
+          "interval": "10m",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Storage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "color-text",
+            "filterable": false
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
+                "id": "unit",
+                "value": "rothz"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mem"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "kbytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "vm_name"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "auto"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 40,
+      "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_vm_cpu_usagemhz_average{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"} * 1000000",
+          "format": "table",
+          "instant": true,
+          "interval": "$interval",
+          "legendFormat": "",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_vm_mem_consumed_average{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "$interval",
+          "legendFormat": "",
+          "refId": "B"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "vm_name"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Time 1": true,
+              "Time 2": true,
+              "Value #A": false,
+              "__name__": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "cluster_name": true,
+              "cluster_name 1": true,
+              "cluster_name 2": true,
+              "container": true,
+              "container 1": true,
+              "container 2": true,
+              "customer": true,
+              "customer 1": true,
+              "customer 2": true,
+              "datacenter": true,
+              "datacenter 1": true,
+              "datacenter 2": true,
+              "dc_name": true,
+              "dc_name 1": true,
+              "domain": true,
+              "domain 1": true,
+              "domain 2": true,
+              "ds_name": true,
+              "ds_name 1": true,
+              "ds_name 2": true,
+              "endpoint": true,
+              "endpoint 1": true,
+              "endpoint 2": true,
+              "environment": true,
+              "environment 1": true,
+              "environment 2": true,
+              "group": true,
+              "group 1": true,
+              "group 2": true,
+              "host_name": true,
+              "host_name 1": true,
+              "host_name 2": true,
+              "instance": true,
+              "instance 1": true,
+              "instance 2": true,
+              "job": true,
+              "job 1": true,
+              "job 2": true,
+              "namespace": true,
+              "namespace 1": true,
+              "namespace 2": true,
+              "pod": true,
+              "pod 1": true,
+              "pod 2": true,
+              "project": true,
+              "project 1": true,
+              "project 2": true,
+              "prometheus": true,
+              "prometheus 2": true,
+              "service": true,
+              "service 1": true,
+              "service 2": true,
+              "tags": true,
+              "tags 1": true,
+              "tags 2": true
+            },
+            "indexByName": {},
+            "renameByName": {
+              "Value": "CPU Usage",
+              "Value #A": "CPU",
+              "Value #B": "Mem",
+              "__name__ 1": "",
+              "vm_name": "Virtual Machines"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "min": 0,
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Free"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Provisoned"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 14,
+        "y": 3
+      },
+      "id": 27,
+      "options": {
+        "displayLabels": [
+          "name",
+          "value"
+        ],
+        "legend": {
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_datastore_capacity_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name!~\"local-.*\"}) - sum(vmware_datastore_freespace_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name!~\"local-.*\"})",
+          "interval": "$interval",
+          "legendFormat": "Used",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_datastore_freespace_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name!~\"local-.*\"})",
+          "hide": false,
+          "interval": "$interval",
+          "legendFormat": "Free",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_datastore_provisoned_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name!~\"local-.*\"})",
+          "hide": false,
+          "interval": "$interval",
+          "legendFormat": "Provisoned",
+          "refId": "C"
+        }
+      ],
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "rothz"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 7
+      },
+      "id": 8,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_host_cpu_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
+          "format": "time_series",
+          "interval": "10m",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Max Frequency",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "super-light-yellow",
+                "value": null
+              }
+            ]
+          },
+          "unit": "mbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 7
+      },
+      "id": 7,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(vmware_host_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
+          "format": "time_series",
+          "interval": "10m",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Memory",
+      "type": "stat"
+    },
+    {
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 37,
+      "title": "Hypervisor",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "center",
+            "displayMode": "color-text"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "__name__"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 226
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frequency ->"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "rothz"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory ->"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "mbytes"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Uptime"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Version"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Build"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cores"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 60
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #G"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #H"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.width",
+                "value": 150
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              },
+              {
+                "id": "max",
+                "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "0": {
+                        "color": "semi-dark-green",
+                        "index": 0,
+                        "text": "Normal"
+                      },
+                      "1": {
+                        "color": "semi-dark-red",
+                        "index": 1,
+                        "text": "Alarm"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Guests"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 60
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #K"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value #L"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 21,
+      "options": {
+        "footer": {
+          "fields": [
+            "Value #B",
+            "Value #A",
+            "Value #J"
+          ],
+          "reducer": [
+            "sum"
+          ],
+          "show": true
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "instant": true,
+          "interval": "1h",
+          "legendFormat": "",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_cpu_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1h",
+          "legendFormat": "",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "time() - vmware_host_boot_timestamp_seconds{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_product_info{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1h",
+          "legendFormat": "",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_hardware_info{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1h",
+          "legendFormat": "",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_num_cpu{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1h",
+          "legendFormat": "",
+          "refId": "F"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_cpu_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"} / vmware_host_cpu_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "G"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_memory_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"} / vmware_host_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "H"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "vmware_host_red_alarms{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "I"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum (vmware_vm_power_state{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"} == 1) by (host_name)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "1m",
+          "legendFormat": "",
+          "refId": "J"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(vmware_vm_max_cpu_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}) by (host_name) / sum (vmware_host_cpu_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}) by (host_name)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "10m",
+          "legendFormat": "",
+          "refId": "K"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": false,
+          "expr": "sum(vmware_vm_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}) by (host_name) / sum (vmware_host_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}) by (host_name)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "10m",
+          "legendFormat": "",
+          "refId": "L"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "seriesToColumns",
+          "options": {
+            "byField": "host_name"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 10": true,
+              "Time 11": true,
+              "Time 12": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Time 6": true,
+              "Time 7": true,
+              "Time 8": true,
+              "Time 9": true,
+              "Value #D": true,
+              "Value #E": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "__name__ 4": true,
+              "__name__ 5": true,
+              "__name__ 6": true,
+              "alarms": true,
+              "build": false,
+              "cluster_name 1": true,
+              "cluster_name 2": true,
+              "cluster_name 3": true,
+              "cluster_name 4": true,
+              "cluster_name 5": true,
+              "cluster_name 6": true,
+              "cluster_name 7": true,
+              "cluster_name 8": true,
+              "cluster_name 9": true,
+              "container 1": true,
+              "container 2": true,
+              "container 3": true,
+              "container 4": true,
+              "container 5": true,
+              "container 6": true,
+              "container 7": true,
+              "container 8": true,
+              "container 9": true,
+              "customer 1": true,
+              "customer 2": true,
+              "customer 3": true,
+              "customer 4": true,
+              "customer 5": true,
+              "customer 6": true,
+              "customer 7": true,
+              "customer 8": true,
+              "customer 9": true,
+              "datacenter 1": true,
+              "datacenter 2": true,
+              "datacenter 3": true,
+              "datacenter 4": true,
+              "datacenter 5": true,
+              "datacenter 6": true,
+              "datacenter 7": true,
+              "datacenter 8": true,
+              "datacenter 9": true,
+              "dc_name 1": true,
+              "dc_name 2": true,
+              "dc_name 3": true,
+              "dc_name 4": true,
+              "dc_name 5": true,
+              "dc_name 6": true,
+              "dc_name 7": true,
+              "dc_name 8": true,
+              "dc_name 9": true,
+              "domain 1": true,
+              "domain 2": true,
+              "domain 3": true,
+              "domain 4": true,
+              "domain 5": true,
+              "domain 6": true,
+              "domain 7": true,
+              "domain 8": true,
+              "domain 9": true,
+              "endpoint 1": true,
+              "endpoint 2": true,
+              "endpoint 3": true,
+              "endpoint 4": true,
+              "endpoint 5": true,
+              "endpoint 6": true,
+              "endpoint 7": true,
+              "endpoint 8": true,
+              "endpoint 9": true,
+              "environment 1": true,
+              "environment 2": true,
+              "environment 3": true,
+              "environment 4": true,
+              "environment 5": true,
+              "environment 6": true,
+              "environment 7": true,
+              "environment 8": true,
+              "environment 9": true,
+              "group 1": true,
+              "group 2": true,
+              "group 3": true,
+              "group 4": true,
+              "group 5": true,
+              "group 6": true,
+              "group 7": true,
+              "group 8": true,
+              "group 9": true,
+              "hardware_model": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true,
+              "instance 4": true,
+              "instance 5": true,
+              "instance 6": true,
+              "instance 7": true,
+              "instance 8": true,
+              "instance 9": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "job 5": true,
+              "job 6": true,
+              "job 7": true,
+              "job 8": true,
+              "job 9": true,
+              "namespace 1": true,
+              "namespace 2": true,
+              "namespace 3": true,
+              "namespace 4": true,
+              "namespace 5": true,
+              "namespace 6": true,
+              "namespace 7": true,
+              "namespace 8": true,
+              "namespace 9": true,
+              "pod 1": true,
+              "pod 2": true,
+              "pod 3": true,
+              "pod 4": true,
+              "pod 5": true,
+              "pod 6": true,
+              "pod 7": true,
+              "pod 8": true,
+              "pod 9": true,
+              "project 1": true,
+              "project 2": true,
+              "project 3": true,
+              "project 4": true,
+              "project 5": true,
+              "project 6": true,
+              "project 7": true,
+              "project 8": true,
+              "project 9": true,
+              "prometheus 1": true,
+              "prometheus 2": true,
+              "prometheus 3": true,
+              "prometheus 4": true,
+              "prometheus 5": true,
+              "prometheus 6": true,
+              "prometheus 7": true,
+              "prometheus 8": true,
+              "prometheus 9": true,
+              "service 1": true,
+              "service 2": true,
+              "service 3": true,
+              "service 4": true,
+              "service 5": true,
+              "service 6": true,
+              "service 7": true,
+              "service 8": true,
+              "service 9": true,
+              "tags 1": true,
+              "tags 10": true,
+              "tags 2": true,
+              "tags 3": true,
+              "tags 4": true,
+              "tags 5": true,
+              "tags 6": true,
+              "tags 7": true,
+              "tags 8": true,
+              "tags 9": true,
+              "vm_name": true
+            },
+            "indexByName": {
+              "Time 1": 7,
+              "Time 10": 185,
+              "Time 11": 187,
+              "Time 12": 188,
+              "Time 2": 32,
+              "Time 3": 51,
+              "Time 4": 69,
+              "Time 5": 89,
+              "Time 6": 110,
+              "Time 7": 129,
+              "Time 8": 147,
+              "Time 9": 165,
+              "Value #A": 29,
+              "Value #B": 26,
+              "Value #C": 2,
+              "Value #D": 88,
+              "Value #E": 109,
+              "Value #F": 6,
+              "Value #G": 27,
+              "Value #H": 30,
+              "Value #I": 1,
+              "Value #J": 186,
+              "Value #K": 28,
+              "Value #L": 31,
+              "__name__ 1": 8,
+              "__name__ 2": 33,
+              "__name__ 3": 70,
+              "__name__ 4": 90,
+              "__name__ 5": 111,
+              "__name__ 6": 166,
+              "alarms": 167,
+              "build": 4,
+              "cluster_name 1": 9,
+              "cluster_name 2": 34,
+              "cluster_name 3": 52,
+              "cluster_name 4": 71,
+              "cluster_name 5": 91,
+              "cluster_name 6": 112,
+              "cluster_name 7": 130,
+              "cluster_name 8": 148,
+              "cluster_name 9": 168,
+              "container 1": 10,
+              "container 2": 35,
+              "container 3": 53,
+              "container 4": 72,
+              "container 5": 92,
+              "container 6": 113,
+              "container 7": 131,
+              "container 8": 149,
+              "container 9": 169,
+              "customer 1": 11,
+              "customer 2": 36,
+              "customer 3": 54,
+              "customer 4": 73,
+              "customer 5": 93,
+              "customer 6": 114,
+              "customer 7": 132,
+              "customer 8": 150,
+              "customer 9": 170,
+              "datacenter 1": 12,
+              "datacenter 2": 37,
+              "datacenter 3": 55,
+              "datacenter 4": 74,
+              "datacenter 5": 94,
+              "datacenter 6": 115,
+              "datacenter 7": 133,
+              "datacenter 8": 151,
+              "datacenter 9": 171,
+              "dc_name 1": 13,
+              "dc_name 2": 38,
+              "dc_name 3": 56,
+              "dc_name 4": 75,
+              "dc_name 5": 95,
+              "dc_name 6": 116,
+              "dc_name 7": 134,
+              "dc_name 8": 152,
+              "dc_name 9": 172,
+              "domain 1": 14,
+              "domain 2": 39,
+              "domain 3": 57,
+              "domain 4": 76,
+              "domain 5": 96,
+              "domain 6": 117,
+              "domain 7": 135,
+              "domain 8": 153,
+              "domain 9": 173,
+              "endpoint 1": 15,
+              "endpoint 2": 40,
+              "endpoint 3": 58,
+              "endpoint 4": 77,
+              "endpoint 5": 97,
+              "endpoint 6": 118,
+              "endpoint 7": 136,
+              "endpoint 8": 154,
+              "endpoint 9": 174,
+              "environment 1": 16,
+              "environment 2": 41,
+              "environment 3": 59,
+              "environment 4": 78,
+              "environment 5": 98,
+              "environment 6": 119,
+              "environment 7": 137,
+              "environment 8": 155,
+              "environment 9": 175,
+              "group 1": 17,
+              "group 2": 42,
+              "group 3": 60,
+              "group 4": 79,
+              "group 5": 99,
+              "group 6": 120,
+              "group 7": 138,
+              "group 8": 156,
+              "group 9": 176,
+              "hardware_cpu_model": 5,
+              "hardware_model": 100,
+              "host_name": 0,
+              "instance 1": 18,
+              "instance 2": 43,
+              "instance 3": 61,
+              "instance 4": 80,
+              "instance 5": 101,
+              "instance 6": 121,
+              "instance 7": 139,
+              "instance 8": 157,
+              "instance 9": 177,
+              "job 1": 19,
+              "job 2": 44,
+              "job 3": 62,
+              "job 4": 81,
+              "job 5": 102,
+              "job 6": 122,
+              "job 7": 140,
+              "job 8": 158,
+              "job 9": 178,
+              "namespace 1": 20,
+              "namespace 2": 45,
+              "namespace 3": 63,
+              "namespace 4": 82,
+              "namespace 5": 103,
+              "namespace 6": 123,
+              "namespace 7": 141,
+              "namespace 8": 159,
+              "namespace 9": 179,
+              "pod 1": 21,
+              "pod 2": 46,
+              "pod 3": 64,
+              "pod 4": 83,
+              "pod 5": 104,
+              "pod 6": 124,
+              "pod 7": 142,
+              "pod 8": 160,
+              "pod 9": 180,
+              "project 1": 22,
+              "project 2": 47,
+              "project 3": 65,
+              "project 4": 84,
+              "project 5": 105,
+              "project 6": 125,
+              "project 7": 143,
+              "project 8": 161,
+              "project 9": 181,
+              "prometheus 1": 23,
+              "prometheus 2": 48,
+              "prometheus 3": 66,
+              "prometheus 4": 85,
+              "prometheus 5": 106,
+              "prometheus 6": 126,
+              "prometheus 7": 144,
+              "prometheus 8": 162,
+              "prometheus 9": 182,
+              "service 1": 24,
+              "service 2": 49,
+              "service 3": 67,
+              "service 4": 86,
+              "service 5": 107,
+              "service 6": 127,
+              "service 7": 145,
+              "service 8": 163,
+              "service 9": 183,
+              "tags 1": 25,
+              "tags 2": 50,
+              "tags 3": 68,
+              "tags 4": 87,
+              "tags 5": 108,
+              "tags 6": 128,
+              "tags 7": 146,
+              "tags 8": 164,
+              "tags 9": 184,
+              "version": 3
+            },
+            "renameByName": {
+              "Value #A": "Memory ->",
+              "Value #B": "Frequency ->",
+              "Value #C": "Uptime",
+              "Value #F": "Cores",
+              "Value #G": "Consumed",
+              "Value #H": "Consumed",
+              "Value #I": "Status",
+              "Value #J": "Guests",
+              "Value #K": "Overcommit",
+              "Value #L": "Overcommit",
+              "__name__ 2": "",
+              "build": "Build",
+              "group 4": "",
+              "group 5": "",
+              "hardware_cpu_model": "Processor",
+              "hardware_model": "",
+              "host_name": "Hypervisor",
+              "service 2": "",
+              "tags 1": "",
+              "version": "Version"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisGridShow": true,
+            "axisLabel": "",
+            "axisPlacement": "left",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 5,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 8,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 29,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "vmware_host_cpu_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"} / vmware_host_cpu_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "interval": "$interval",
+          "legendFormat": "{{ host_name }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumed CPU %",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 8,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "id": 31,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "vmware_host_memory_usage{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"} / vmware_host_memory_max{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "interval": "$interval",
+          "legendFormat": "{{ host_name }}",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumed Memory %",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 14,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "Kibits"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 35,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "vmware_host_disk_read_average{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "interval": "$interval",
+          "legendFormat": "Read: {{ host_name }}",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "vmware_host_disk_write_average{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "hide": false,
+          "interval": "$interval",
+          "legendFormat": "Write: {{ host_name }}",
+          "refId": "B"
+        }
+      ],
+      "title": "Disk Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 16,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "Kbits"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "id": 38,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean",
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "vmware_host_net_bytesRx_average{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "interval": "",
+          "legendFormat": "Received: {{ host_name }}",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "- vmware_host_net_bytesTx_average{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"}",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Transmitted:  {{ host_name }}",
+          "refId": "B"
+        }
+      ],
+      "title": "Network Rate",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 34,
+  "style": "dark",
+  "tags": [
+    "Platform"
+  ],
+  "templating": {
+    "list": [
+      {
+        "auto": true,
+        "auto_count": 200,
+        "auto_min": "1m",
+        "current": {
+          "selected": false,
+          "text": "auto",
+          "value": "$__auto_interval_interval"
+        },
+        "hide": 0,
+        "label": "Interval",
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "auto",
+            "value": "$__auto_interval_interval"
+          },
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "1d",
+            "value": "1d"
+          }
+        ],
+        "query": "1m,5m,1h,6h,1d",
+        "refresh": 2,
+        "skipUrlSync": false,
+        "type": "interval"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
+        "definition": "label_values(vmware_host_boot_timestamp_seconds, customer)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Customer",
+        "multi": false,
+        "name": "customer",
+        "options": [],
+        "query": {
+          "query": "label_values(vmware_host_boot_timestamp_seconds, customer)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
+        "definition": "label_values(vmware_host_boot_timestamp_seconds{customer=\"$customer\"}, dc_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datacenter",
+        "multi": false,
+        "name": "datacenter",
+        "options": [],
+        "query": {
+          "query": "label_values(vmware_host_boot_timestamp_seconds{customer=\"$customer\"}, dc_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
+        "definition": "label_values(vmware_host_boot_timestamp_seconds{customer=\"$customer\",dc_name=\"$datacenter\"}, cluster_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Cluster",
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "label_values(vmware_host_boot_timestamp_seconds{customer=\"$customer\",dc_name=\"$datacenter\"}, cluster_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-2h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "browser",
+  "title": "VMware vSphere Overview",
+  "uid": "8LdfoUEmz",
+  "version": 85,
+  "weekStart": ""
+}

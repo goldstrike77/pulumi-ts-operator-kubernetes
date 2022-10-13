@@ -35,12 +35,16 @@ const deploy_spec = [
                         }
                     },
                     image: { tag: "v0.18.3" },
+                    service: { enabled: true },
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
                     }
                 }
             }
+        ],
+        servicemonitor: [
+            { name: "./servicemonitor.yaml" },
         ]
     }
 ]
@@ -59,6 +63,13 @@ for (var i in deploy_spec) {
             chart: deploy_spec[i].helm[helm_index].chart,
             version: deploy_spec[i].helm[helm_index].version,
             values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+        }, { dependsOn: [namespace] });
+    }
+    // Create service monitor.
+    for (var yaml_index in deploy_spec[i].servicemonitor) {
+        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].servicemonitor[yaml_index].name, {
+            file: deploy_spec[i].servicemonitor[yaml_index].name,
             skipAwait: true,
         }, { dependsOn: [namespace] });
     }

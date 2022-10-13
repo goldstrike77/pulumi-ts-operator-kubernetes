@@ -32,7 +32,7 @@ const deploy_spec = [
         configmap: [
             {
                 metadata: {
-                    name: "grafana-dashboards-kubernetes",
+                    name: "grafana-dashboards-platform",
                     namespace: "visualization",
                     annotations: {},
                     labels: {
@@ -40,12 +40,13 @@ const deploy_spec = [
                     }
                 },
                 data: {
-                    "Kubernetes_Cluster.json": fs.readFileSync('./dashboards/platform/Kubernetes_Cluster.json', 'utf8')
+                    "Kubernetes_Cluster.json": fs.readFileSync('./dashboards/platform/Kubernetes_Cluster.json', 'utf8'),
+                    "VMware_vSphere_Overview.json": fs.readFileSync('./dashboards/platform/VMware_vSphere_Overview.json', 'utf8')
                 }
             },
             {
                 metadata: {
-                    name: "grafana-dashboards-linux",
+                    name: "grafana-dashboards-operatingsystem",
                     namespace: "visualization",
                     annotations: {},
                     labels: {

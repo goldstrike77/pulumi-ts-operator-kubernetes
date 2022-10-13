@@ -1,0 +1,47 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vmware-exporter-servicemonitor
+  namespace: vmware-exporter
+  labels:
+    name: vmware-exporter-servicemonitor
+spec:
+  selector:
+    matchLabels:
+      app: vmware-exporter
+  namespaceSelector:
+    matchNames:
+    - vmware-exporter
+  endpoints:
+  - port: http
+    relabelings:
+      - action: replace
+        replacement: demo
+        sourceLabels:
+          - __address__
+        targetLabel: customer
+      - action: replace
+        replacement: dev
+        sourceLabels:
+          - __address__
+        targetLabel: environment
+      - action: replace
+        replacement: cluster
+        sourceLabels:
+          - __address__
+        targetLabel: project
+      - action: replace
+        replacement: norther
+        sourceLabels:
+          - __address__
+        targetLabel: group
+      - action: replace
+        replacement: dc01
+        sourceLabels:
+          - __address__
+        targetLabel: datacenter
+      - action: replace
+        replacement: local
+        sourceLabels:
+          - __address__
+        targetLabel: domain
