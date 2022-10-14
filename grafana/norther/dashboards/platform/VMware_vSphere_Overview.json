@@ -77,7 +77,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1665660642185,
+  "iteration": 1665722712837,
   "links": [
     {
       "asDropdown": true,
@@ -366,7 +366,7 @@
           },
           "exemplar": true,
           "expr": "count(vmware_host_power_state{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
-          "interval": "10h",
+          "interval": "8h",
           "legendFormat": "hypervisor",
           "refId": "A"
         }
@@ -384,7 +384,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#fffac3",
+            "mode": "fixed"
           },
           "decimals": 1,
           "mappings": [
@@ -462,6 +463,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "fixedColor": "#939393",
             "mode": "fixed"
           },
           "custom": {
@@ -475,7 +477,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "transparent",
+                "color": "text",
                 "value": null
               }
             ]
@@ -500,13 +502,6 @@
               {
                 "id": "unit",
                 "value": "rothz"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-green",
-                  "mode": "fixed"
-                }
               }
             ]
           },
@@ -527,25 +522,6 @@
               {
                 "id": "custom.width",
                 "value": 100
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "vm_name"
-            },
-            "properties": [
-              {
-                "id": "custom.displayMode",
-                "value": "auto"
               }
             ]
           }
@@ -833,7 +809,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#fffac3",
+            "mode": "fixed"
           },
           "mappings": [
             {
@@ -850,7 +827,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-yellow",
+                "color": "#fffbd1",
                 "value": null
               }
             ]
@@ -909,7 +886,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "#fffac3",
+            "mode": "fixed"
           },
           "mappings": [
             {
@@ -926,7 +904,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-yellow",
+                "color": "#fffbd1",
                 "value": null
               }
             ]
@@ -2196,7 +2174,7 @@
             "lineStyle": {
               "fill": "solid"
             },
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -2437,6 +2415,6 @@
   "timezone": "browser",
   "title": "VMware vSphere Overview",
   "uid": "8LdfoUEmz",
-  "version": 85,
+  "version": 1,
   "weekStart": ""
 }

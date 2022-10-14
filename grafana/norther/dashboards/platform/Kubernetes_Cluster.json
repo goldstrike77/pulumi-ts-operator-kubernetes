@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1665660521048,
+  "iteration": 1665724266830,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -556,7 +556,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-orange",
+                "color": "#fffac3",
                 "value": null
               }
             ]
@@ -637,7 +637,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-orange",
+                "color": "#fffac3",
                 "value": null
               }
             ]
@@ -717,7 +717,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-orange",
+                "color": "#fffac3",
                 "value": null
               }
             ]
@@ -797,7 +797,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "super-light-orange",
+                "color": "#fffac3",
                 "value": null
               }
             ]
@@ -3769,7 +3769,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },
