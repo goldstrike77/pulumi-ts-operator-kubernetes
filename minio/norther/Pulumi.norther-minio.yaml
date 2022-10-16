@@ -2,6 +2,8 @@ encryptionsalt: v1:0b9QK3ha4po=:v1:8l8RZ9foIPNthS03:jqUfEKmhcxCszpFYIByBhc8nz7xO
 config:
   demo:backupPassword:
     secure: v1:MRYb8aEdS5+sCBNs:Aldjc/U6ViBA1MFYHRlXC1bwlqwYExHe
+  demo:gitlabPassword:
+    secure: v1:RzYnbQyh/ZJMp0ZP:ejAB5FqHn/cBtuS8A+kACcWPRvrl0jJj
   demo:lokiPassword:
     secure: v1:9zfAjAMEJFnyt0xN:hAteh9e1DCP9u2x19PzRdSSSp4XQIE3S
   demo:readonlyPassword:

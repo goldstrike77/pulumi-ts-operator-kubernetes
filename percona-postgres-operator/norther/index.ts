@@ -1,5 +1,5 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+import * as pulumi from "@pulumi/pulumi";
 
 let config = new pulumi.Config();
 
@@ -7,7 +7,7 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "postgresql",
+                name: "postgres-operator",
                 annotations: {},
                 labels: {}
             },
@@ -15,20 +15,24 @@ const deploy_spec = [
         },
         helm: [
             {
-                namespace: "postgresql",
+                namespace: "postgres-operator",
                 name: "pg-operator",
                 chart: "pg-operator",
                 repository: "https://percona.github.io/percona-helm-charts",
                 version: "1.3.0",
-                values: {}
-            },
-            {
-                namespace: "postgresql",
-                name: "pg-db",
-                chart: "pg-db",
-                repository: "https://percona.github.io/percona-helm-charts",
-                version: "1.3.0",
-                values: {}
+                values: {
+                    archive_mode: "true",
+                    archive_timeout: "60",
+                    backrest_aws_s3_bucket: "backup",
+                    backrest_aws_s3_endpoint: "http://minio.minio.svc.cluster.local:9000",
+                    backrest_aws_s3_key: config.require("AWS_ACCESS_KEY_ID"),
+                    backrest_aws_s3_region: "us-east-1",
+                    backrest_aws_s3_secret: config.require("AWS_SECRET_ACCESS_KEY"),
+                    backrest_aws_s3_verify_tls: "false",
+                    metrics: "true",
+                    pgo_admin_password: config.require("adminPassword"),
+                    disable_telemetry: "true"
+                }
             }
         ]
     }

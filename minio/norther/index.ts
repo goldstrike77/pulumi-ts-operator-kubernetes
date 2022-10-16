@@ -89,6 +89,21 @@ const deploy_spec = [
                                         actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
                                     }
                                 ]
+                            },
+                            {
+                                name: "gitlab-bucket-specific-policy",
+                                statements: [
+                                    {
+                                        resources: ["arn:aws:s3:::gitlab-lfs", "arn:aws:s3:::gitlab-artifacts", "arn:aws:s3:::gitlab-uploads", "arn:aws:s3:::gitlab-packages", "arn:aws:s3:::gitlab-backup", "arn:aws:s3:::gitlab-tmp"],
+                                        effect: "Allow",
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                    },
+                                    {
+                                        resources: ["arn:aws:s3:::gitlab-lfs/*", "arn:aws:s3:::gitlab-artifacts/*", "arn:aws:s3:::gitlab-uploads/*", "arn:aws:s3:::gitlab-packages/*", "arn:aws:s3:::gitlab-backup/*", "arn:aws:s3:::gitlab-tmp/*"],
+                                        effect: "Allow",
+                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                    }
+                                ]
                             }
                         ],
                         users: [
@@ -126,6 +141,13 @@ const deploy_spec = [
                                 disabled: false,
                                 policies: ["loki-bucket-specific-policy"],
                                 setPolicies: true
+                            },
+                            {
+                                username: "gitlab",
+                                password: config.require("gitlabPassword"),
+                                disabled: false,
+                                policies: ["gitlab-bucket-specific-policy"],
+                                setPolicies: true
                             }
                         ],
                         buckets: [
@@ -159,6 +181,60 @@ const deploy_spec = [
                             },
                             {
                                 name: "loki",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "gitlab-lfs",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "gitlab-artifacts",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "gitlab-uploads",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "gitlab-packages",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "gitlab-backup",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "20GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "gitlab-tmp",
                                 region: "us-east-1",
                                 versioning: false,
                                 withLock: true,
