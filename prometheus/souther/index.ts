@@ -35,7 +35,7 @@ const deploy_spec = [
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.3.1",
+                version: "17.3.7",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -89,7 +89,7 @@ save ""`,
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.5.4",
+                version: "11.5.5",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: { enabled: false },
@@ -128,7 +128,7 @@ save ""`,
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         persistence: {
                             enabled: true,
-                            storageClass: "longhorn",
+                            storageClass: "nfs-client",
                             size: "8Gi"
                         }
                     },
@@ -181,7 +181,7 @@ config:
                         },
                         persistence: {
                             enabled: true,
-                            storageClass: "longhorn",
+                            storageClass: "nfs-client",
                             size: "8Gi"
                         }
                     },
@@ -213,7 +213,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "40.3.1",
+                version: "41.7.0",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: { enabled: false },
@@ -485,7 +485,7 @@ config:
                             storageSpec: {
                                 volumeClaimTemplate: {
                                     spec: {
-                                        storageClassName: "longhorn",
+                                        storageClassName: "nfs-client",
                                         resources: { requests: { storage: "8Gi" } }
                                     }
                                 }

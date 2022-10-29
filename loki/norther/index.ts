@@ -19,7 +19,7 @@ const deploy_spec = [
         name: "loki",
         chart: "loki-distributed",
         repository: "https://grafana.github.io/helm-charts",
-        version: "0.63.0",
+        version: "0.63.2",
         values: {
           nameOverride: "loki",
           loki: {
@@ -143,7 +143,7 @@ storage_config:
   aws:
     access_key_id: ${config.require("AWS_ACCESS_KEY_ID")}
     bucketnames: loki
-    endpoint: minio.minio.svc.cluster.local:9000
+    endpoint: storage.node.home.local
     http_config:
       idle_conn_timeout: 2m
       insecure_skip_verify: true
@@ -197,7 +197,7 @@ analytics:
               limits: { cpu: "200m", memory: "512Mi" },
               requests: { cpu: "200m", memory: "512Mi" }
             },
-            persistence: { enabled: true, size: "10Gi", storageClass: "longhorn" }
+            persistence: { enabled: true, size: "10Gi", storageClass: "nfs-client" }
           },
           distributor: {
             replicas: 2,
@@ -240,7 +240,7 @@ analytics:
               limits: { cpu: "200m", memory: "256Mi" },
               requests: { cpu: "200m", memory: "256Mi" }
             },
-            persistence: { enabled: true, size: "8Gi", storageClass: "longhorn" }
+            persistence: { enabled: true, size: "8Gi", storageClass: "nfs-client" }
           },
           ruler: { enabled: false, replicas: 1, resources: {}, directories: {} },
           memcachedExporter: {

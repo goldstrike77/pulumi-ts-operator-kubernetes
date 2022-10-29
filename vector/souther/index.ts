@@ -16,7 +16,7 @@ const deploy_spec = [
                 name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.16.0",
+                version: "0.16.3",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
@@ -103,7 +103,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "syslog-gelf",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.16.0",
+                version: "0.16.3",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -160,7 +160,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "nfs-client", size: "5Gi" },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
@@ -179,7 +179,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.16.0",
+                version: "0.16.3",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -248,13 +248,12 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-/**
             {
                 namespace: "datadog",
                 name: "beats",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.16.0",
+                version: "0.16.3",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -303,7 +302,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "nfs-client", size: "5Gi" },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
@@ -317,7 +316,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             }
- */
         ]
     }
 ]
