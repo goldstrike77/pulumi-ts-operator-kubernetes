@@ -10,16 +10,75 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
-            {
-                namespace: "consul",
-                name: "consul",
-                chart: "consul",
-                repository: "https://helm.releases.hashicorp.com",
-                version: "0.49.0",
-                values: {}
+        helm: {
+            namespace: "consul",
+            name: "consul",
+            chart: "../../_chart/consul-0.49.0.tgz",
+            // repository: "https://helm.releases.hashicorp.com",
+            repository: "",
+            version: "0.49.0",
+            devel: true,
+            values: {
+                global: {
+                    name: "",
+                    domain: "norther",
+                    datacenter: "home",
+                    gossipEncryption: {
+                        autoGenerate: true
+                    },
+                    recursors: ["192.168.0.1"],
+                    tls: {
+                        enabled: true,
+                        enableAutoEncrypt: true,
+                        verify: false
+                    },
+                    metrics: {
+                        enabled: true,
+                        enableAgentMetrics: true
+                    },
+                    consulSidecarContainer: {
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        }
+                    },
+                    consulAPITimeout: "10s"
+                },
+                server: {
+                    replicas: 3,
+                    storage: "10Gi",
+                    storageClass: "nfs-client",
+                    resources: {
+                        limits: { cpu: "200m", memory: "128Mi" },
+                        requests: { cpu: "200m", memory: "128Mi" }
+                    },
+                    extraLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    exposeService: {
+                        type: "LoadBalancer",
+                        annotations: null
+                    }
+                },
+                client: {
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    }
+                },
+                ui: {
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        pathType: "ImplementationSpecific",
+                        hosts: [
+                            {
+                                host: "consul.example.com",
+                                paths: ["/"]
+                            }
+                        ]
+                    }
+                }
             }
-        ]
+        }
     }
 ]
 
@@ -30,17 +89,13 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.chart, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        devel: deploy_spec[i].helm.devel,
+        values: deploy_spec[i].helm.values,
+        skipAwait: false
+    }, { dependsOn: [namespace] });
 }

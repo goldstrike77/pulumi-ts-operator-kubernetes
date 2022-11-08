@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1667640851510,
+  "iteration": 1667807496377,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -1005,7 +1005,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 100
+                "value": 80
               }
             ]
           },
@@ -1017,7 +1017,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 100
+                "value": 80
               }
             ]
           },
@@ -1083,7 +1083,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 100
+                "value": 80
               },
               {
                 "id": "color",
@@ -1125,7 +1125,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 100
+                "value": 80
               }
             ]
           }
@@ -3986,6 +3986,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }

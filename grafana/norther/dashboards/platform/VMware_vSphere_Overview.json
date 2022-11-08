@@ -77,7 +77,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1665722712837,
+  "iteration": 1667807861732,
   "links": [
     {
       "asDropdown": true,
@@ -191,7 +191,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "text": {
+          "valueSize": 50
+        }
       },
       "pluginVersion": "8.3.10",
       "targets": [
@@ -262,7 +265,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "text": {
+          "valueSize": 50
+        }
       },
       "pluginVersion": "8.3.10",
       "targets": [
@@ -366,7 +372,7 @@
           },
           "exemplar": true,
           "expr": "count(vmware_host_power_state{customer=\"$customer\",dc_name=\"$datacenter\",cluster_name=\"$cluster\"})",
-          "interval": "8h",
+          "interval": "10h",
           "legendFormat": "hypervisor",
           "refId": "A"
         }
@@ -996,18 +1002,6 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "__name__"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 226
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
               "options": "Frequency ->"
             },
             "properties": [
@@ -1077,7 +1071,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 100
+                "value": 80
               }
             ]
           },
@@ -1109,7 +1103,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 150
+                "value": 120
               },
               {
                 "id": "custom.displayMode",
@@ -1139,7 +1133,7 @@
               },
               {
                 "id": "custom.width",
-                "value": 150
+                "value": 120
               },
               {
                 "id": "decimals",
@@ -1238,6 +1232,18 @@
               {
                 "id": "custom.width",
                 "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Hypervisor"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
               }
             ]
           }
