@@ -68,11 +68,11 @@ const deploy_spec = [
                     ingress: {
                         enabled: true,
                         ingressClassName: "nginx",
-                        pathType: "ImplementationSpecific",
+                        pathType: "Prefix",
                         hosts: [
                             {
-                                host: "consul.example.com",
-                                paths: ["/"]
+                                host: "norther.example.com",
+                                paths: ["/ui"]
                             }
                         ]
                     }

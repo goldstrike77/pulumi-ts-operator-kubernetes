@@ -1,0 +1,9 @@
+encryptionsalt: v1:nnIZeS2vlIA=:v1:QZnpPa6idtnk1y89:HSYMwGOLZz/u+Q79nRTSH1Vkf8ksUA==
+config:
+  demo:rootPassword:
+    secure: v1:aeB96y8Y9NClQfJp:EVN9WNPwmdHJYyzaLWHAviYsNaQVXyFz
+  demo:secretkey:
+    secure: v1:UxS1JlnZZI5ZMIqk:K91BrEJcUZvvRzl0P3lTJ/1zfpsc2N21lECnQUl/XhI=
+  demo:userPassword:
+    secure: v1:3k5ZEBkCa+au7mLK:HcFAwqyxzrE0DjBNFCzPgIB0FPtmzBG+
+  kubernetes:context: kubernetes-admin@norther
