@@ -48,7 +48,7 @@ const deploy_spec = [
                     },
                     livenessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                     readinessProbe: { enabled: false },
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
+                    persistence: { enabled: true, storageClass: "nfs-client", size: "8Gi" },
                     volumePermissions: {
                         enabled: true,
                         resources: {
@@ -128,7 +128,7 @@ const deploy_spec = [
     },
     "ldapLogin": {
       "enable": true,
-      "server": "ldap://10.101.4.46",
+      "server": "ldap://192.168.0.251",
       "baseDn": "CN=Administrator,CN=Users,DC=example,DC=com",
       "bindPassword": "${config.require("bindPassword")}",
       "searchDn": "OU=yapi,DC=example,DC=com",
@@ -152,7 +152,7 @@ const deploy_spec = [
                     labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     persistentVolume: {
                         enabled: true,
-                        storageClass: "longhorn",
+                        storageClass: "nfs-client",
                         size: "8Gi"
                     },
                     ingress: {

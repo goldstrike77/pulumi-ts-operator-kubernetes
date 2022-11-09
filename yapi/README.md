@@ -6,7 +6,7 @@ pulumi config set bindPassword [password] --secret
 ```
 
 #### Default access authorization.
-```
+```hcl
 admin@admin.com
 ymfe.org
 ```

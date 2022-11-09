@@ -1,9 +1,9 @@
 encryptionsalt: v1:Fkw5mcL8wbQ=:v1:bASrFbGa2I+/6R/G:0mIz+/ZMVoTN15Gh8qL4Cmpw3VQAlg==
 config:
   demo:bindPassword:
-    secure: v1:sm6J53B3O++g6JJ7:CraPZ7/oc1COdLHkY/BN3TghNTnoEcknCosLuA==
+    secure: v1:yka1E0x9xW3jgOBZ:3DgUPNGqBKPmSJbD4yisdrCu50ICefF2
   demo:rootPassword:
-    secure: v1:WfY8R9TtSIq9ZHCK:/bppkQC85A4Q8lPAd8jyZ4k/pFvsRAyn
+    secure: v1:WK5N5SjMJZkgFuQl:LrjWqHY/U8pB7sYU/YJtmgE3E6HIvRNi
   demo:yapiPassword:
-    secure: v1:AXyeQc1HEB2G8eRS:VmAkZsPG2p9StgGyA69/nW+GQQb+IAqU
+    secure: v1:FCNB9ujdcdrKgw0v:9oTol7h+JIa8Z8NYeRKsUzFLl4klgfAS
   kubernetes:context: kubernetes-admin@norther

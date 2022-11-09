@@ -1,5 +1,5 @@
 #### Installing the Chart.
-```shell
+```hcl
 helm repo add bitnami https://charts.bitnami.com/bitnami
 ```
 

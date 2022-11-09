@@ -1,5 +1,5 @@
 #### Installing the Chart
-```shell
+```hcl
 helm repo add longhorn https://charts.longhorn.io
 ```
 

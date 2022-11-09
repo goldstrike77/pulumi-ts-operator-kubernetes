@@ -1,4 +1,4 @@
 #### Installing the Chart
-```shell
+```hcl
 helm repo add stable https://charts.helm.sh/stable
 ```

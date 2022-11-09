@@ -1,5 +1,5 @@
 #### Installing the Chart.
-```shell
+```hcl
 helm repo add bitnami https://charts.bitnami.com/bitnami
 ```
 
@@ -11,5 +11,7 @@ pulumi config set secretkey [changemechangeit] --secret # 大小写字母均可,
 ```
 
 #### Default authorization.
+```hcl
 user: admin
 pass: Yearning_admin
+```

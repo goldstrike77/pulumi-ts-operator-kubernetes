@@ -1,5 +1,5 @@
 #### Installing the Chart
-```shell
+```hcl
 helm repo add percona https://percona.github.io/percona-helm-charts
 ```
 
