@@ -24,6 +24,7 @@ const deploy_spec = [
                 "config.json": `{
     "port": "3000",
     "adminAccount": "admin@admin.com",
+    "closeRegister": true,
     "db": {
       "servername": "mongodb",
       "DATABASE": "yapi",
@@ -128,7 +129,7 @@ const deploy_spec = [
                 namespace: "yapi"
             },
             spec: {
-                replicas: 1,
+                replicas: 2,
                 selector: {
                     matchLabels: {
                         app: "yapi"
@@ -155,7 +156,7 @@ const deploy_spec = [
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.8.0",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.12.0",
                                 name: "yapi",
                                 livenessProbe: {
                                     failureThreshold: 10,
@@ -164,7 +165,7 @@ const deploy_spec = [
                                         port: "web",
                                         scheme: "HTTP"
                                     },
-                                    initialDelaySeconds: 120,
+                                    initialDelaySeconds: 30,
                                     periodSeconds: 10,
                                     successThreshold: 1,
                                     timeoutSeconds: 30
@@ -176,14 +177,14 @@ const deploy_spec = [
                                         port: "web",
                                         scheme: "HTTP"
                                     },
-                                    initialDelaySeconds: 120,
+                                    initialDelaySeconds: 30,
                                     periodSeconds: 10,
                                     successThreshold: 1,
                                     timeoutSeconds: 10
                                 },
                                 resources: {
-                                    limits: { cpu: "1000m", memory: "1024Mi" },
-                                    requests: { cpu: "1000m", memory: "1024Mi" }
+                                    limits: { cpu: "500m", memory: "256Mi" },
+                                    requests: { cpu: "500m", memory: "256Mi" }
                                 },
                                 ports: [
                                     {
@@ -193,19 +194,14 @@ const deploy_spec = [
                                     }
                                 ],
                                 env: [
-                                    { name: "HOME", value: "/yapi" },
-                                    { name: "VENDORS", value: "/yapi/vendors" },
-                                    { name: "VERSION", value: "1.10.2" }
+                                    { name: "HOME", value: "/home" },
+                                    { name: "VENDORS", value: "/home/vendors" }
                                 ],
                                 volumeMounts: [
                                     {
-                                        mountPath: "/yapi/config.json",
+                                        mountPath: "/home/config.json",
                                         name: "yapi-conf",
                                         subPath: "config.json"
-                                    },
-                                    {
-                                        mountPath: "/yapi",
-                                        name: "data-storage"
                                     }
                                 ]
                             }
@@ -216,12 +212,6 @@ const deploy_spec = [
                                 configMap: {
                                     defaultMode: 420,
                                     name: "yapi-conf"
-                                }
-                            },
-                            {
-                                name: "data-storage",
-                                persistentVolumeClaim: {
-                                    claimName: "yapi"
                                 }
                             }
                         ]
@@ -286,21 +276,6 @@ const deploy_spec = [
                     }
                 ]
             }
-        },
-        pvc: {
-            metadata: {
-                name: "yapi",
-                namespace: "yapi",
-                annotations: {},
-                labels: {}
-            },
-            spec: {
-                accessModes: ["ReadWriteOnce"],
-                storageClassName: "nfs-client",
-                resources: {
-                    requests: { storage: "8Gi" }
-                }
-            }
         }
     }
 ]
@@ -323,16 +298,11 @@ for (var i in deploy_spec) {
             repo: deploy_spec[i].helm.repository,
         },
     }, { dependsOn: [namespace] });
-    // Create Kubernetes PersistentVolumeClaim.
-    const persistentvolumeclaim = new k8s.core.v1.PersistentVolumeClaim(deploy_spec[i].pvc.metadata.name, {
-        metadata: deploy_spec[i].pvc.metadata,
-        spec: deploy_spec[i].pvc.spec,
-    }, { dependsOn: [release] });
     // Create Kubernetes ConfigMap.
     const configmap = new k8s.core.v1.ConfigMap(deploy_spec[i].configmap.metadata.name, {
         metadata: deploy_spec[i].configmap.metadata,
         data: deploy_spec[i].configmap.data,
-    }, { dependsOn: [persistentvolumeclaim] });
+    }, { dependsOn: [release] });
     // Create Deployment Resource.
     const deployment = new k8s.apps.v1.Deployment(deploy_spec[i].deployment.metadata.name, {
         metadata: deploy_spec[i].deployment.metadata,

@@ -7,6 +7,7 @@ pulumi config set bindPassword [password] --secret
 
 #### Default access authorization.
 ```hcl
+初始化管理员帐户 npm run install-server
 admin@admin.com
 ymfe.org
 ```
