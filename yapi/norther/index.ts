@@ -47,7 +47,17 @@ const deploy_spec = [
         "emailPostfix": "",
         "emailKey": "",
         "usernameKey": "sAMAccountName"
-    }
+    },
+    "plugins": [{
+        "name": "qsso",
+        "options": {
+          "type": "sso",
+          "loginUrl": "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize?response_type=code&scope=openid+profile&client_id=e262109f-b83f-4034-990b-57e77068c2bc&redirect_uri=https://yapi.example.com:443/api/user/login_by_token",
+          "emailPostfix": "@goldstrike.partner.onmschina.cn",
+          "AUTH_SERVER": "https://yapi.example.com:443/api/user/login_by_token"
+        }
+      }
+    ]
 }
 `
             }
@@ -129,7 +139,7 @@ const deploy_spec = [
                 namespace: "yapi"
             },
             spec: {
-                replicas: 2,
+                replicas: 1,
                 selector: {
                     matchLabels: {
                         app: "yapi"
@@ -156,7 +166,7 @@ const deploy_spec = [
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.12.0",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.12.0@sha256:b1ae67cb79953a04e05170f98e293fc10e6538230f3120b281e15ce4988d1483",
                                 name: "yapi",
                                 livenessProbe: {
                                     failureThreshold: 10,
