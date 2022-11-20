@@ -13,65 +13,6 @@ const deploy_spec = [
             },
             spec: {}
         },
-        configmap: {
-            metadata: {
-                name: "yapi-conf",
-                namespace: "yapi",
-                annotations: {},
-                labels: {}
-            },
-            data: {
-                "config.json": `{
-  "plugins": [{
-      "name": "ms-oauth",
-      "options": {
-        "type": "oauth2",
-        "hostscheme": "https",
-        "hostname": "login.partner.microsoftonline.cn",
-        "authPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize",
-        "tokenPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token",
-        "redirectUri": "https://yapi.example.com/api/plugin/oauth2/callback",
-        "appId": "d4b1f920-ecf9-4386-adbc-e695565984ab",
-        "appSecret": "ffl3k8E~.s7VsXgXT-l3I5Xt_M5cX2xc3d"
-      }
-    }
-  ],
-  "adminAccount": "admin@admin.com",
-  "adminPassword": "password",
-  "npmRegistry": "https://registry.npm.taobao.org",
-  "closeRegister": true,
-  "port": 3000,
-  "db": {
-    "servername": "mongodb",
-    "port": 27017,
-    "DATABASE": "yapi",
-    "user": "yapi",
-    "pass": "password",
-    "authSource": "yapi"
-  },
-  "mail": {
-    "enable": false,
-    "auth": {}
-  }
-}
-`
-            }
-        },
-        pvc: {
-            metadata: {
-                name: "yapi",
-                namespace: "yapi",
-                annotations: {},
-                labels: {}
-            },
-            spec: {
-                accessModes: ["ReadWriteOnce"],
-                storageClassName: "nfs-client",
-                resources: {
-                    requests: { storage: "8Gi" }
-                }
-            }
-        },
         helm: {
             namespace: "yapi",
             name: "mongodb",
@@ -176,8 +117,8 @@ const deploy_spec = [
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:1416ee7a792be9cf6aeff26299303aa006b5dfb02e2d667a7c592fa57c4ea62f",
-                                name: "yapi",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:712c91b71274ebbeb94cb8cfa6927131911967a9c8ab888b8b2c7b55f14a49b7",
+                                name: "yapi-web",
                                 livenessProbe: {
                                     failureThreshold: 10,
                                     httpGet: {
@@ -203,8 +144,8 @@ const deploy_spec = [
                                     timeoutSeconds: 10
                                 },
                                 resources: {
-                                    limits: { cpu: "500m", memory: "256Mi" },
-                                    requests: { cpu: "500m", memory: "256Mi" }
+                                    limits: { cpu: "500m", memory: "1024Mi" },
+                                    requests: { cpu: "500m", memory: "1024Mi" }
                                 },
                                 ports: [
                                     {
@@ -214,36 +155,31 @@ const deploy_spec = [
                                     }
                                 ],
                                 env: [
-                                    { name: "HOME", value: "/home" },
-                                    { name: "VENDORS", value: "/home/vendors" },
-                                    { name: "NODE_TLS_REJECT_UNAUTHORIZED", value: "0" }
-                                ],
-                                volumeMounts: [
-                                    {
-                                        mountPath: "/home/config.json",
-                                        name: "yapi-conf",
-                                        subPath: "config.json"
-                                    },
-                                    {
-                                        mountPath: "/home/.npm",
-                                        name: "data-storage"
-                                    }
+                                    { name: "HOME", value: "/yapi" },
+                                    { name: "VENDORS", value: "/yapi/vendors" },
+                                    { name: "NODE_TLS_REJECT_UNAUTHORIZED", value: "0" },
+                                    { name: "YAPI_ADMIN_ACCOUNT", value: "admin@admin.com" },
+                                    { name: "YAPI_ADMIN_PASSWORD", value: config.require("YAPI_ADMIN_PASSWORD") },
+                                    { name: "YAPI_CLOSE_REGISTER", value: "true" },
+                                    { name: "YAPI_NPM_REGISTRY", value: "https://registry.npm.taobao.org" },
+                                    { name: "YAPI_DB_SERVERNAME", value: "mongodb" },
+                                    { name: "YAPI_DB_PORT", value: "27017" },
+                                    { name: "YAPI_DB_DATABASE", value: "yapi" },
+                                    { name: "YAPI_DB_USER", value: "yapi" },
+                                    { name: "YAPI_DB_PASS", value: config.require("yapiPassword") },
+                                    { name: "YAPI_DB_AUTH_SOURCE", value: "yapi" },
+                                    { name: "YAPI_MAIL_ENABLE", value: "false" },
+                                    { name: "YAPI_LDAP_LOGIN_ENABLE", value: "true" },
+                                    { name: "YAPI_LDAP_LOGIN_SERVER", value: "ldap://192.168.0.251" },
+                                    { name: "YAPI_LDAP_LOGIN_BASE_DN", value: "CN=Administrator,CN=Users,DC=example,DC=com" },
+                                    { name: "YAPI_LDAP_LOGIN_BIND_PASSWORD", value: config.require("bindPassword") },
+                                    { name: "YAPI_LDAP_LOGIN_SEARCH_DN", value: "OU=yapi,DC=example,DC=com" },
+                                    { name: "YAPI_LDAP_LOGIN_SEARCH_STANDARD", value: "&(objectCategory=Person)(sAMAccountName=%s)" },
+                                    { name: "YAPI_LDAP_LOGIN_EMAIL_POSTFIX", value: "" },
+                                    { name: "YAPI_LDAP_LOGIN_EMAIL_KEY", value: "" },
+                                    { name: "YAPI_LDAP_LOGIN_USERNAME_KEY", value: "sAMAccountName" },
+                                    { name: "YAPI_PLUGINS", value: '[{"name":"ms-oauth","options":{"type":"oauth2","hostscheme":"https","hostname":"login.partner.microsoftonline.cn","authPath":"/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize","tokenPath":"/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token","redirectUri":"https://yapi.example.com/api/plugin/oauth2/callback","appId":"d4b1f920-ecf9-4386-adbc-e695565984ab","appSecret":"ffl3k8E~.s7VsXgXT-l3I5Xt_M5cX2xc3d"}}]' }
                                 ]
-                            }
-                        ],
-                        volumes: [
-                            {
-                                name: "yapi-conf",
-                                configMap: {
-                                    defaultMode: 420,
-                                    name: "yapi-conf"
-                                }
-                            },
-                            {
-                                name: "data-storage",
-                                persistentVolumeClaim: {
-                                    claimName: "yapi"
-                                }
                             }
                         ]
                     }
@@ -329,28 +265,19 @@ for (var i in deploy_spec) {
             repo: deploy_spec[i].helm.repository,
         },
     }, { dependsOn: [namespace] });
-    // Create Kubernetes ConfigMap.
-    const configmap = new k8s.core.v1.ConfigMap(deploy_spec[i].configmap.metadata.name, {
-        metadata: deploy_spec[i].configmap.metadata,
-        data: deploy_spec[i].configmap.data,
-    }, { dependsOn: [release] });
-    const persistentvolumeclaim = new k8s.core.v1.PersistentVolumeClaim(deploy_spec[i].pvc.metadata.name, {
-        metadata: deploy_spec[i].pvc.metadata,
-        spec: deploy_spec[i].pvc.spec,
-    }, { dependsOn: [configmap] });
     // Create Deployment Resource.
     const deployment = new k8s.apps.v1.Deployment(deploy_spec[i].deployment.metadata.name, {
         metadata: deploy_spec[i].deployment.metadata,
         spec: deploy_spec[i].deployment.spec
-    }, { dependsOn: [persistentvolumeclaim] });
+    }, { dependsOn: [namespace] });
     // Create Service Resource.
     const service = new k8s.core.v1.Service(deploy_spec[i].service.metadata.name, {
         metadata: deploy_spec[i].service.metadata,
         spec: deploy_spec[i].service.spec
-    }, { dependsOn: [deployment] });
+    }, { dependsOn: [namespace] });
     // Create Ingress Resource.
     const ingress = new k8s.networking.v1.Ingress(deploy_spec[i].ingress.metadata.name, {
         metadata: deploy_spec[i].ingress.metadata,
         spec: deploy_spec[i].ingress.spec
-    }, { dependsOn: [deployment] });
+    }, { dependsOn: [namespace] });
 }

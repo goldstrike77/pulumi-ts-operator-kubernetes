@@ -1,5 +1,7 @@
 encryptionsalt: v1:Fkw5mcL8wbQ=:v1:bASrFbGa2I+/6R/G:0mIz+/ZMVoTN15Gh8qL4Cmpw3VQAlg==
 config:
+  demo:YAPI_ADMIN_PASSWORD:
+    secure: v1:v5Pep4huNI4fg1uf:/Rv3o+8tlhw5TfSX2ykyVYzd1bEVEScn
   demo:bindPassword:
     secure: v1:yka1E0x9xW3jgOBZ:3DgUPNGqBKPmSJbD4yisdrCu50ICefF2
   demo:rootPassword:

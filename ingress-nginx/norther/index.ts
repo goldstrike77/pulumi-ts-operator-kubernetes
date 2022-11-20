@@ -63,7 +63,7 @@ const deploy_spec = [
                             "enable-brotli": "true",
                             "enable-modsecurity": "false",
                             "enable-owasp-modsecurity-crs": "false",
-                            "force-ssl-redirect": "true",
+                            "force-ssl-redirect": "false",
                             "forwarded-for-header": "X-Forwarded-For",
                             "keep-alive": "60",
                             "keep-alive-requests": "2048",

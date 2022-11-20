@@ -176,7 +176,7 @@ const deploy_spec = [
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:1416ee7a792be9cf6aeff26299303aa006b5dfb02e2d667a7c592fa57c4ea62f",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:60c2c3b0ead2e982de6d86bf1f11e19c7aca9c27ef3f4219a0798562f0022d2b",
                                 name: "yapi",
                                 livenessProbe: {
                                     failureThreshold: 10,

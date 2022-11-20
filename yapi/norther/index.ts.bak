@@ -22,37 +22,42 @@ const deploy_spec = [
             },
             data: {
                 "config.json": `{
-  "plugins": [{
-      "name": "ms-oauth",
-      "options": {
-        "type": "oauth2",
-        "hostscheme": "https",
-        "hostname": "login.partner.microsoftonline.cn",
-        "authPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize",
-        "tokenPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token",
-        "redirectUri": "https://yapi.example.com/api/plugin/oauth2/callback",
-        "appId": "d4b1f920-ecf9-4386-adbc-e695565984ab",
-        "appSecret": "ffl3k8E~.s7VsXgXT-l3I5Xt_M5cX2xc3d"
+    "port": "3000",
+    "adminAccount": "admin@admin.com",
+    "closeRegister": true,
+    "db": {
+      "servername": "mongodb",
+      "DATABASE": "yapi",
+      "port": "27017",
+      "user": "yapi",
+      "pass": "${config.require("yapiPassword")}",
+      "authSource": "yapi"
+    },
+    "mail": {
+      "enable": false,
+      "auth": {}
+    },
+    "ldapLogin": {
+        "enable": true,
+        "server": "ldap://192.168.0.251",
+        "baseDn": "CN=Administrator,CN=Users,DC=example,DC=com",
+        "bindPassword": "${config.require("bindPassword")}",
+        "searchDn": "OU=yapi,DC=example,DC=com",
+        "searchStandard": "&(objectCategory=Person)(sAMAccountName=%s)",
+        "emailPostfix": "",
+        "emailKey": "",
+        "usernameKey": "sAMAccountName"
+    },
+    "plugins": [{
+        "name": "qsso",
+        "options": {
+          "type": "sso",
+          "loginUrl": "http://yapi.example.com/api/user/login_by_token",
+          "emailPostfix": "@goldstrike.partner.onmschina.cn",
+          "AUTH_SERVER": "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize?response_type=code&scope=openid+profile&client_id=d4b1f920-ecf9-4386-adbc-e695565984ab"
+        }
       }
-    }
-  ],
-  "adminAccount": "admin@admin.com",
-  "adminPassword": "password",
-  "npmRegistry": "https://registry.npm.taobao.org",
-  "closeRegister": true,
-  "port": 3000,
-  "db": {
-    "servername": "mongodb",
-    "port": 27017,
-    "DATABASE": "yapi",
-    "user": "yapi",
-    "pass": "password",
-    "authSource": "yapi"
-  },
-  "mail": {
-    "enable": false,
-    "auth": {}
-  }
+    ]
 }
 `
             }
@@ -176,7 +181,7 @@ const deploy_spec = [
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:1416ee7a792be9cf6aeff26299303aa006b5dfb02e2d667a7c592fa57c4ea62f",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.11.0@sha256:36c56bfa40eb70318ee21d60b6e9ad49ea3aa54b69343753cb509482e616f52f",
                                 name: "yapi",
                                 livenessProbe: {
                                     failureThreshold: 10,
