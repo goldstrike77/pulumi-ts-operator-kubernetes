@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1667807496377,
+  "iteration": 1669554381165,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -1160,7 +1160,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "kube_node_labels{customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"}",
+          "expr": "count by(node)(kube_node_labels{customer=\"$customer\",environment=\"$environment\",group=\"$cluster\"})",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1701,6 +1701,18 @@
                 "value": 200
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Stage"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
           }
         ]
       },
@@ -1732,7 +1744,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "kube_pod_status_phase{namespace=~\"$namespace\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\",phase=~\"Pending|Unknown\"}==1",
+          "expr": "count by (namespace,phase,pod)(kube_pod_status_phase{namespace=~\"$namespace\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\",phase=~\"Failed|Pending|Unknown\"}==1)",
           "format": "table",
           "instant": true,
           "interval": "1m",
@@ -1742,7 +1754,7 @@
         }
       ],
       "timeFrom": "$interval",
-      "title": "Pending Pods",
+      "title": "Unsuccessful Pods",
       "transformations": [
         {
           "id": "organize",
@@ -1761,17 +1773,24 @@
               "instance": true,
               "job": true,
               "namespace": false,
-              "phase": true,
+              "phase": false,
               "project": true,
               "prometheus": true,
               "service": true,
               "uid": true
             },
-            "indexByName": {},
+            "indexByName": {
+              "Time": 0,
+              "Value": 4,
+              "namespace": 1,
+              "phase": 3,
+              "pod": 2
+            },
             "renameByName": {
               "job": "",
               "namespace": "Namespace",
-              "pod": "Pod"
+              "phase": "Stage",
+              "pod": "Name"
             }
           }
         }
@@ -3865,7 +3884,7 @@
         "options": [],
         "query": {
           "query": "label_values(machine_cpu_cores, customer)",
-          "refId": "DS_PROMETHEUS-customer-Variable-Query"
+          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -3891,7 +3910,7 @@
         "options": [],
         "query": {
           "query": "label_values(machine_cpu_cores{customer=\"$customer\"}, environment)",
-          "refId": "DS_PROMETHEUS-environment-Variable-Query"
+          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -3986,6 +4005,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

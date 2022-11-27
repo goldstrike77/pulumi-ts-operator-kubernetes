@@ -107,7 +107,7 @@ plugins:
             limits: { cpu: "25m", memory: "128Mi" },
             requests: { cpu: "25m", memory: "128Mi" }
           },
-          persistence: { enabled: true, storageClass: "nfs-client", size: "3Gi", },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "nfs-client", size: "3Gi", },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -127,80 +127,80 @@ plugins:
             config: {
               dataComplete: false,
               data: {
-/**
-                "config.yml": `---
-_meta:
-  type: "config"
-  config_version: 2
-config:
-  dynamic:
-    http:
-      anonymous_auth_enabled: false
-      xff:
-        enabled: false
-    authc:
-      basic_internal_auth_domain:
-        http_enabled: true
-        transport_enabled: true
-        order: 4
-        http_authenticator:
-          type: basic
-          challenge: true
-        authentication_backend:
-          type: intern
-      ldap:
-        http_enabled: true
-        transport_enabled: true
-        order: 5
-        http_authenticator:
-          type: basic
-          challenge: false
-        authentication_backend:
-          type: ldap
-          config:
-            enable_ssl: false
-            enable_start_tls: false
-            enable_ssl_client_auth: false
-            verify_hostnames: false
-            hosts:
-              - 10.101.4.46:389
-            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
-            password: "${config.require("ladpPassword")}"
-            userbase: 'ou=Users,dc=example,dc=com'
-            usersearch: '(sAMAccountName={0})'
-            username_attribute: uid
-    authz:
-      ldap:
-        http_enabled: true
-        transport_enabled: true
-        authorization_backend:
-          type: ldap
-          config:
-            enable_ssl: false
-            enable_start_tls: false
-            enable_ssl_client_auth: false
-            verify_hostnames: false
-            hosts:
-              - 10.101.4.46:389
-            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
-            password: "${config.require("ladpPassword")}"
-            rolebase: 'ou=groups,dc=example,dc=com'
-            rolesearch: '(member={0})'
-            userroleattribute: null
-            userrolename: "memberOf"
-            rolename: cn
-            resolve_nested_roles: true
-            userbase: 'dc=example,dc=com'
-            usersearch: '(uid={0})'
-      skip_users:
-              - admin
-              - kibanaserver
-              - kibanaro
-              - logstash
-              - readall
-              - snapshotrestore
-`,
- */
+                /**
+                                "config.yml": `---
+                _meta:
+                  type: "config"
+                  config_version: 2
+                config:
+                  dynamic:
+                    http:
+                      anonymous_auth_enabled: false
+                      xff:
+                        enabled: false
+                    authc:
+                      basic_internal_auth_domain:
+                        http_enabled: true
+                        transport_enabled: true
+                        order: 4
+                        http_authenticator:
+                          type: basic
+                          challenge: true
+                        authentication_backend:
+                          type: intern
+                      ldap:
+                        http_enabled: true
+                        transport_enabled: true
+                        order: 5
+                        http_authenticator:
+                          type: basic
+                          challenge: false
+                        authentication_backend:
+                          type: ldap
+                          config:
+                            enable_ssl: false
+                            enable_start_tls: false
+                            enable_ssl_client_auth: false
+                            verify_hostnames: false
+                            hosts:
+                              - 10.101.4.46:389
+                            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
+                            password: "${config.require("ladpPassword")}"
+                            userbase: 'ou=Users,dc=example,dc=com'
+                            usersearch: '(sAMAccountName={0})'
+                            username_attribute: uid
+                    authz:
+                      ldap:
+                        http_enabled: true
+                        transport_enabled: true
+                        authorization_backend:
+                          type: ldap
+                          config:
+                            enable_ssl: false
+                            enable_start_tls: false
+                            enable_ssl_client_auth: false
+                            verify_hostnames: false
+                            hosts:
+                              - 10.101.4.46:389
+                            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
+                            password: "${config.require("ladpPassword")}"
+                            rolebase: 'ou=groups,dc=example,dc=com'
+                            rolesearch: '(member={0})'
+                            userroleattribute: null
+                            userrolename: "memberOf"
+                            rolename: cn
+                            resolve_nested_roles: true
+                            userbase: 'dc=example,dc=com'
+                            usersearch: '(uid={0})'
+                      skip_users:
+                              - admin
+                              - kibanaserver
+                              - kibanaro
+                              - logstash
+                              - readall
+                              - snapshotrestore
+                `,
+                 */
                 "internal_users.yml": `---
 _meta:
   type: "internalusers"
@@ -344,7 +344,7 @@ plugins:
             limits: { cpu: "25m", memory: "128Mi" },
             requests: { cpu: "25m", memory: "128Mi" }
           },
-          persistence: { enabled: true, storageClass: "nfs-client", size: "30Gi", },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "nfs-client", size: "30Gi", },
           extraInitContainers: [
             {
               name: "sysctl",

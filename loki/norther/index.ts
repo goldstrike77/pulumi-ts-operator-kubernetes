@@ -19,7 +19,7 @@ const deploy_spec = [
         name: "loki",
         chart: "loki-distributed",
         repository: "https://grafana.github.io/helm-charts",
-        version: "0.63.2",
+        version: "0.66.1",
         values: {
           nameOverride: "loki",
           loki: {
@@ -143,7 +143,7 @@ storage_config:
   aws:
     access_key_id: ${config.require("AWS_ACCESS_KEY_ID")}
     bucketnames: loki
-    endpoint: storage.node.home.local
+    endpoint: minio.minio.svc.cluster.local:9000
     http_config:
       idle_conn_timeout: 2m
       insecure_skip_verify: true
