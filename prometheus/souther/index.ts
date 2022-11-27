@@ -35,7 +35,7 @@ const deploy_spec = [
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.3.7",
+                version: "17.3.11",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -64,7 +64,7 @@ save ""`,
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
-                            enabled: true,
+                            enabled: false,
                             relabellings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -89,7 +89,7 @@ save ""`,
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.5.5",
+                version: "11.6.3",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: { enabled: false },
@@ -203,9 +203,7 @@ config:
                             groups: []
                         }
                     },
-                    volumePermissions: {
-                        enabled: true
-                    }
+                    volumePermissions: { enabled: false }
                 }
             },
             {
@@ -213,7 +211,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "41.7.0",
+                version: "42.0.3",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: { enabled: false },
@@ -398,7 +396,8 @@ config:
                             patch: {
                                 enabled: true,
                                 image: {
-                                    repository: "registry.cn-hangzhou.aliyuncs.com/google_containers/kube-webhook-certgen",
+                                    registry: "registry.cn-hangzhou.aliyuncs.com",
+                                    repository: "google_containers/kube-webhook-certgen",
                                     tag: "v1.3.0",
                                     sha: "7bbcbd4232c692a36f8796e9602c14f2ec3b6c638d2974ea81b736ee2bd6e279"
                                 }

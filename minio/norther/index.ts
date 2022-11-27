@@ -19,7 +19,7 @@ const deploy_spec = [
                 name: "minio",
                 chart: "minio",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.10.3",
+                version: "11.10.18",
                 values: {
                     mode: "distributed",
                     auth: {
@@ -176,7 +176,7 @@ const deploy_spec = [
                                 versioning: false,
                                 withLock: true,
                                 lifecycle: [],
-                                quota: { type: "hard", size: "20GiB", },
+                                quota: { type: "hard", size: "50GiB", },
                                 tags: {}
                             },
                             {
@@ -185,7 +185,7 @@ const deploy_spec = [
                                 versioning: false,
                                 withLock: true,
                                 lifecycle: [],
-                                quota: { type: "hard", size: "20GiB", },
+                                quota: { type: "hard", size: "50GiB", },
                                 tags: {}
                             },
                             {
@@ -244,6 +244,7 @@ const deploy_spec = [
                             }
                         ]
                     },
+                    nodeSelector: { "minio/node": "true" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "500m", memory: "4096Mi" },
@@ -274,10 +275,7 @@ const deploy_spec = [
                         }
                     },
                     persistence: {
-                        enabled: true,
-                        storageClass: "longhorn",
-                        mountPath: "/data",
-                        size: "50Gi"
+                        enabled: false
                     },
                     volumePermissions: {
                         enabled: false,

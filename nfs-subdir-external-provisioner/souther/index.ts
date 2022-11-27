@@ -23,7 +23,7 @@ const deploy_spec = [
                         repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/nfs-subdir-external-provisioner"
                     },
                     nfs: {
-                        server: "storage.node.home.local",
+                        server: "node00.node.home.local",
                         path: "/data/nfs"
                     },
                     resources: {

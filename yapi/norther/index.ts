@@ -27,12 +27,12 @@ const deploy_spec = [
       "options": {
         "type": "oauth2",
         "hostscheme": "https",
-        "hostname": "login.partner.microsoftonline.cn",
-        "authPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize",
-        "tokenPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token",
+        "hostname": "login.microsoftonline.com",
+        "authPath": "/81fa766e-a349-4867-8bf4-ab35e250a08f/oauth2/v2.0/authorize",
+        "tokenPath": "/81fa766e-a349-4867-8bf4-ab35e250a08f/oauth2/v2.0/token",
         "redirectUri": "https://yapi.example.com/api/plugin/oauth2/callback",
-        "appId": "d4b1f920-ecf9-4386-adbc-e695565984ab",
-        "appSecret": "ffl3k8E~.s7VsXgXT-l3I5Xt_M5cX2xc3d"
+        "appId": "e07090c9-abf4-45aa-9a3b-0b0b4c2f6f3a",
+        "appSecret": "Kvs8Q~SVzIscDyttXCFXUOP4nIwalL1uvHj~ycOA"
       }
     }
   ],
@@ -176,7 +176,7 @@ const deploy_spec = [
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:1416ee7a792be9cf6aeff26299303aa006b5dfb02e2d667a7c592fa57c4ea62f",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2-volvo@sha256:0f2c9d189a0cebf11dbfd7734744d174882712e07bafb419b66fe99872ecd79d",
                                 name: "yapi",
                                 livenessProbe: {
                                     failureThreshold: 10,

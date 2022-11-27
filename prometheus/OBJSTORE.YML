@@ -1,7 +1,7 @@
 type: s3
 config:
-  bucket: norther-thanos
-  endpoint: storage.node.home.local
+  bucket: thanos
+  endpoint: minio.minio.svc.cluster.local:9000
   access_key: thanos
   secret_key: password
   insecure: true

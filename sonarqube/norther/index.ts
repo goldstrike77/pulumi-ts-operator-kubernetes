@@ -76,14 +76,13 @@ const deploy_spec = [
                 repository: "https://charts.bitnami.com/bitnami",
                 version: "2.0.1",
                 values: {
-                    image: { tag: "8.9.10-debian-11-r8" },
+                    image: { tag: "8.9.10-debian-11-r10" },
                     sonarqubeUsername: "user",
                     sonarqubePassword: config.require("sonarqubePassword"),
                     sonarqubeEmail: "user@example.com",
                     minHeapSize: "4096m",
                     maxHeapSize: "4096m",
                     extraProperties: [
-                        "sonar.web.host=https://norther.example.com/sonarqube",
                         "sonar.web.context=/sonarqube"
                     ],
                     replicaCount: 1,
@@ -95,8 +94,11 @@ const deploy_spec = [
                     ingress: {
                         enabled: true,
                         ingressClassName: "nginx",
+                        annotations: {
+                            "nginx.ingress.kubernetes.io/rewrite-target": "/$1"
+                        },
                         hostname: "norther.example.com",
-                        path: "/sonarqube"
+                        path: "/sonarqube/?(.*)"
                     },
                     persistence: {
                         enabled: true,
