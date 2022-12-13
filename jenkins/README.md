@@ -1,3 +1,8 @@
+#### Installing the Chart
+```hcl
+helm repo add jenkins https://charts.jenkins.io
+```
+
 #### Configuration credential values.
 ```hcl
 pulumi config set rootPassword [password] --secret

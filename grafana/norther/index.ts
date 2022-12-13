@@ -120,6 +120,13 @@ const deploy_spec = [
                             apiVersion: 1,
                             datasources: [
                                 {
+                                    name: "DS_TEMPO",
+                                    type: "tempo",
+                                    access: "proxy",
+                                    url: "http://tempo-query-frontend.tracing.svc.cluster.local:3100",
+                                    version: 1
+                                },
+                                {
                                     name: "DS_LOKI",
                                     type: "loki",
                                     access: "proxy",
@@ -172,7 +179,12 @@ const deploy_spec = [
                         },
                         log: { mode: "console", level: "warn" },
                         grafana_net: { url: "https://grafana.net" },
-                        user: { default_theme: "dark" }
+                        user: { default_theme: "dark" },
+                        tracing: { type: "jaeger" },
+                        "tracing.jaeger": {
+                            address: "tempo-distributor.tracing.svc.cluster.local:6831",
+                            zipkin_propagation: true
+                        }
                     },
                     sidecar: {
                         resources: {

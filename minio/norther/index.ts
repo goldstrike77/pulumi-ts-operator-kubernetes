@@ -91,6 +91,21 @@ const deploy_spec = [
                                 ]
                             },
                             {
+                                name: "tempo-bucket-specific-policy",
+                                statements: [
+                                    {
+                                        resources: ["arn:aws:s3:::tempo"],
+                                        effect: "Allow",
+                                        actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                    },
+                                    {
+                                        resources: ["arn:aws:s3:::tempo/*"],
+                                        effect: "Allow",
+                                        actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                    }
+                                ]
+                            },
+                            {
                                 name: "gitlab-bucket-specific-policy",
                                 statements: [
                                     {
@@ -143,6 +158,13 @@ const deploy_spec = [
                                 setPolicies: true
                             },
                             {
+                                username: "tempo",
+                                password: config.require("tempoPassword"),
+                                disabled: false,
+                                policies: ["tempo-bucket-specific-policy"],
+                                setPolicies: true
+                            },
+                            {
                                 username: "gitlab",
                                 password: config.require("gitlabPassword"),
                                 disabled: false,
@@ -181,6 +203,15 @@ const deploy_spec = [
                             },
                             {
                                 name: "loki",
+                                region: "us-east-1",
+                                versioning: false,
+                                withLock: true,
+                                lifecycle: [],
+                                quota: { type: "hard", size: "50GiB", },
+                                tags: {}
+                            },
+                            {
+                                name: "tempo",
                                 region: "us-east-1",
                                 versioning: false,
                                 withLock: true,

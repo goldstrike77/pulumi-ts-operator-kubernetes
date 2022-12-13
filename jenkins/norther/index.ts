@@ -34,7 +34,7 @@ const deploy_spec = [
                 name: "jenkins",
                 chart: "jenkins",
                 repository: "https://charts.jenkins.io",
-                version: "4.2.6",
+                version: "4.2.15",
                 values: {
                     controller: {
                         numExecutors: 1,
@@ -64,6 +64,8 @@ const deploy_spec = [
                             "skip-certificate-check",
                             "workflow-aggregator"
                         ],
+                        installLatestPlugins: false,
+                        initializeOnce: true,
                         additionalPlugins: [
                             "ansible",
                             "nodejs"
@@ -103,7 +105,7 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
+                    persistence: { enabled: true, storageClass: "nfs-client", size: "8Gi" },
                     backup: {
                         enabled: true,
                         schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,

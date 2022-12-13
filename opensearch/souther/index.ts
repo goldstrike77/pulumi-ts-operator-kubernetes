@@ -127,81 +127,94 @@ plugins:
             config: {
               dataComplete: false,
               data: {
-                /**
-                                "config.yml": `---
-                _meta:
-                  type: "config"
-                  config_version: 2
-                config:
-                  dynamic:
-                    http:
-                      anonymous_auth_enabled: false
-                      xff:
-                        enabled: false
-                    authc:
-                      basic_internal_auth_domain:
-                        http_enabled: true
-                        transport_enabled: true
-                        order: 4
-                        http_authenticator:
-                          type: basic
-                          challenge: true
-                        authentication_backend:
-                          type: intern
-                      ldap:
-                        http_enabled: true
-                        transport_enabled: true
-                        order: 5
-                        http_authenticator:
-                          type: basic
-                          challenge: false
-                        authentication_backend:
-                          type: ldap
-                          config:
-                            enable_ssl: false
-                            enable_start_tls: false
-                            enable_ssl_client_auth: false
-                            verify_hostnames: false
-                            hosts:
-                              - 10.101.4.46:389
-                            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
-                            password: "${config.require("ladpPassword")}"
-                            userbase: 'ou=Users,dc=example,dc=com'
-                            usersearch: '(sAMAccountName={0})'
-                            username_attribute: uid
-                    authz:
-                      ldap:
-                        http_enabled: true
-                        transport_enabled: true
-                        authorization_backend:
-                          type: ldap
-                          config:
-                            enable_ssl: false
-                            enable_start_tls: false
-                            enable_ssl_client_auth: false
-                            verify_hostnames: false
-                            hosts:
-                              - 10.101.4.46:389
-                            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
-                            password: "${config.require("ladpPassword")}"
-                            rolebase: 'ou=groups,dc=example,dc=com'
-                            rolesearch: '(member={0})'
-                            userroleattribute: null
-                            userrolename: "memberOf"
-                            rolename: cn
-                            resolve_nested_roles: true
-                            userbase: 'dc=example,dc=com'
-                            usersearch: '(uid={0})'
-                      skip_users:
-                              - admin
-                              - kibanaserver
-                              - kibanaro
-                              - logstash
-                              - readall
-                              - snapshotrestore
-                `,
-                 */
-                "internal_users.yml": `---
+"config.yml": `---
+_meta:
+  type: "config"
+  config_version: 2
+config:
+  dynamic:
+    http:
+      anonymous_auth_enabled: false
+      xff:
+        enabled: false
+    authc:
+      basic_internal_auth_domain:
+        http_enabled: true
+        transport_enabled: true
+        order: 4
+        http_authenticator:
+          type: basic
+          challenge: true
+        authentication_backend:
+          type: internal
+      openid_auth_domain:
+        order: 0
+        http_enabled: true
+        transport_enabled: true
+        http_authenticator:
+          type: openid
+          challenge: false
+          config:
+            enable_ssl: true
+            verify_hostnames: false
+            subject_key: preferred_username
+            roles_key: roles
+            openid_connect_url: https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/v2.0/.well-known/openid-configuration
+        authentication_backend:
+          type: noop
+#      ldap:
+#        http_enabled: true
+#        transport_enabled: true
+#        order: 5
+#        http_authenticator:
+#          type: basic
+#          challenge: false
+#        authentication_backend:
+#          type: ldap
+#          config:
+#            enable_ssl: false
+#            enable_start_tls: false
+#            enable_ssl_client_auth: false
+#            verify_hostnames: false
+#            hosts:
+#              - 192.168.0.251:389
+#            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
+#            password: "${config.require("ladpPassword")}"
+#            userbase: 'ou=Users,dc=example,dc=com'
+#            usersearch: '(sAMAccountName={0})'
+#            username_attribute: uid
+    authz:
+      ldap:
+        http_enabled: true
+        transport_enabled: true
+        authorization_backend:
+          type: ldap
+          config:
+            enable_ssl: false
+            enable_start_tls: false
+            enable_ssl_client_auth: false
+            verify_hostnames: false
+            hosts:
+              - 192.168.0.251:389
+            bind_dn: 'cn=Administrator,cn=users,dc=example,dc=com'
+            password: "${config.require("ladpPassword")}"
+            rolebase: 'ou=groups,dc=example,dc=com'
+            rolesearch: '(member={0})'
+            userroleattribute: null
+            userrolename: "memberOf"
+            rolename: cn
+            resolve_nested_roles: true
+            userbase: 'dc=example,dc=com'
+            usersearch: '(uid={0})'
+      skip_users:
+              - admin
+              - kibanaserver
+              - kibanaro
+              - logstash
+              - readall
+              - snapshotrestore
+`,
+"internal_users.yml": `---
 _meta:
   type: "internalusers"
   config_version: 2
@@ -385,6 +398,11 @@ opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: [Private, Global]
 opensearch_security.readonly_mode.roles: [kibana_read_only]
 opensearch_security.cookie.secure: false
+opensearch_security.auth.type: openid
+opensearch_security.openid.client_id: 2925c02f-ae32-49bc-823a-c6a0d10831a3
+opensearch_security.openid.client_secret: 212o~w7Hfig7c3pR~cd.h9CtSztl-ROPVt
+opensearch_security.openid.base_redirect_url: https://souther.example.com/opensearch/auth/openid/login
+opensearch_security.openid.connect_url: https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/v2.0/.well-known/openid-configuration
 server.host: '0.0.0.0'
 server.rewriteBasePath: true
 server.basePath: "/opensearch"

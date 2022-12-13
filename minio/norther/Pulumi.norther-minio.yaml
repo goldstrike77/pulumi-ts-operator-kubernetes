@@ -12,6 +12,8 @@ config:
     secure: v1:bRSn9DaciSxHvAJy:EYpszNvxxvUQWluR8Bfm74fyYBPglNbV
   demo:superPassword:
     secure: v1:Hbx1lLBVad2WLeFv:1cEfAs+CytHc2x8gb8a1/f00GuVBvSbG
+  demo:tempoPassword:
+    secure: v1:A+zxIcLoEKTnyMvQ:s7nodJkZDFP7EYrpahSBeiPjxxm0aXXD
   demo:thanosPassword:
     secure: v1:nvw2YQy5qOk23RmU:eltBYbNQFr1RRHmNniPCYRSC9yRdgAXT
   kubernetes:context: kubernetes-admin@norther

@@ -62,6 +62,7 @@ const deploy_spec = [
                             "compute-full-forwarded-for": "true",
                             "enable-brotli": "true",
                             "enable-modsecurity": "false",
+                            "enable-opentracing": "true",
                             "enable-owasp-modsecurity-crs": "false",
                             "force-ssl-redirect": "false",
                             "forwarded-for-header": "X-Forwarded-For",
@@ -78,6 +79,8 @@ const deploy_spec = [
                             "use-gzip": "false",
                             "use-http2": "true",
                             "worker-cpu-affinity": "auto",
+                            "zipkin-collector-host": "tempo-distributor.tracing.svc.cluster.local",
+                            "zipkin-service-name": "ingress-nginx"
                         },
                         configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
                         /**

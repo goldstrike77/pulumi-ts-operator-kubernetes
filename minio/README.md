@@ -10,6 +10,7 @@ pulumi config set readonlyPassword [password] --secret
 pulumi config set rootPassword [password] --secret
 pulumi config set thanosPassword [password] --secret
 pulumi config set lokiPassword [password] --secret
+pulumi config set tempoPassword [password] --secret
 pulumi config set backupPassword [password] --secret
 pulumi config set gitlabPassword [password] --secret
 ```
