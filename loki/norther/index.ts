@@ -19,7 +19,7 @@ const deploy_spec = [
         name: "loki",
         chart: "loki-distributed",
         repository: "https://grafana.github.io/helm-charts",
-        version: "0.66.1",
+        version: "0.67.0",
         values: {
           nameOverride: "loki",
           loki: {
@@ -193,6 +193,7 @@ analytics:
           prometheusRule: { enabled: true },
           ingester: {
             replicas: 2,
+            maxUnavailable: 1,
             resources: {
               limits: { cpu: "200m", memory: "512Mi" },
               requests: { cpu: "200m", memory: "512Mi" }
@@ -201,6 +202,7 @@ analytics:
           },
           distributor: {
             replicas: 2,
+            maxUnavailable: 1,
             resources: {
               limits: { cpu: "200m", memory: "128Mi" },
               requests: { cpu: "200m", memory: "128Mi" }
@@ -208,6 +210,7 @@ analytics:
           },
           querier: {
             replicas: 2,
+            maxUnavailable: 1,
             resources: {
               limits: { cpu: "500m", memory: "1024Mi" },
               requests: { cpu: "500m", memory: "1024Mi" }
@@ -223,6 +226,7 @@ analytics:
           gateway: {
             enabled: true,
             replicas: 2,
+            maxUnavailable: 1,
             verboseLogging: false,
             resources: {
               limits: { cpu: "200m", memory: "128Mi" },

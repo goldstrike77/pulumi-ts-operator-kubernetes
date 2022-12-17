@@ -101,7 +101,7 @@ const deploy_spec = [
                     opencensus: { enabled: false }
                 },
                 server: {
-                    logLevel: "warn",
+                    logLevel: "info",
                     grpc_server_max_recv_msg_size: 4194304,
                     grpc_server_max_send_msg_size: 4194304
                 },

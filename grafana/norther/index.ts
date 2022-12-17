@@ -134,6 +134,12 @@ const deploy_spec = [
                                     version: 1,
                                     jsonData: {
                                         maxLines: 5000
+                                    },
+                                    derivedFields: {
+                                        datasourceUid: "",
+                                        matcherRegex: "(?:traceID|trace_id)=(\\w+)",
+                                        name: "TraceID",
+                                        url: "${__value.raw}"
                                     }
                                 },
                                 {
@@ -160,8 +166,18 @@ const deploy_spec = [
                         }
                     },
                     "grafana.ini": {
+                        "auth.azuread": {
+                            name: "Azure AD",
+                            enabled: true,
+                            allow_sign_up: true,
+                            client_id: "d0f43902-7d11-40fd-b64f-fc2149f775d3",
+                            client_secret: "4E.zSXw~69wPUx1VuKIwvdTP5a0w.I8_52",
+                            auth_url: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize",
+                            token_url: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token",
+                            role_attribute_strict: false
+                        },
                         server: {
-                            root_url: "http://localhost:3000/grafana",
+                            root_url: "http://norther.example.com/grafana",
                         },
                         paths: {
                             data: "/var/lib/grafana/",
