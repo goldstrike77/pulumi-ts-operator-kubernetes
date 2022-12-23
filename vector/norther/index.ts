@@ -11,12 +11,13 @@ const deploy_spec = [
             spec: {}
         },
         helm: [
+            /**
             {
                 namespace: "datadog",
                 name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.17.0",
+                version: "0.18.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -97,12 +98,13 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+             */
             {
                 namespace: "datadog",
                 name: "syslog-gelf",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.17.0",
+                version: "0.18.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -172,7 +174,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "beats",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.17.0",
+                version: "0.18.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -235,7 +237,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.17.0",
+                version: "0.18.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },

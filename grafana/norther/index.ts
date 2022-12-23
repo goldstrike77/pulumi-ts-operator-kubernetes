@@ -177,7 +177,7 @@ const deploy_spec = [
                             role_attribute_strict: false
                         },
                         server: {
-                            root_url: "http://norther.example.com/grafana",
+                            root_url: "https://norther.example.com/grafana",
                         },
                         paths: {
                             data: "/var/lib/grafana/",

@@ -1,5 +1,7 @@
 import * as k8s from "@pulumi/kubernetes";
-import { FileAsset } from "@pulumi/pulumi/asset";
+import * as pulumi from "@pulumi/pulumi";
+
+let config = new pulumi.Config();
 
 const deploy_spec = [
     {
@@ -11,17 +13,81 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
-            {
-                namespace: "promtail",
-                name: "promtail",
-                chart: "../../_chart/promtail-3.11.0.tgz",
-                // repository: "https://grafana.github.io/helm-charts",
-                repository: "", // Must be empty string if local chart.
-                version: "3.11.0",
-                values: "./promtail.yaml"
+        helm: {
+            namespace: "promtail",
+            name: "promtail",
+            chart: "promtail",
+            repository: "https://grafana.github.io/helm-charts",
+            version: "6.7.4",
+            values: {
+                podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                resources: {
+                    limits: { cpu: "200m", memory: "128Mi" },
+                    requests: { cpu: "200m", memory: "128Mi" }
+                },
+                defaultVolumes: [
+                    {
+                        name: "run",
+                        hostPath: {
+                            path: "/run/promtail"
+                        }
+                    },
+                    {
+                        name: "containers",
+                        hostPath: {
+                            path: "/data/containerd"
+                        }
+                    },
+                    {
+                        name: "pods",
+                        hostPath: {
+                            path: "/var/log/pods"
+                        }
+                    }
+                ],
+                defaultVolumeMounts: [
+                    {
+                        name: "run",
+                        mountPath: "/run/promtail"
+                    },
+                    {
+                        name: "containers",
+                        mountPath: "/data/containerd", readOnly: true
+                    },
+                    {
+                        name: "pods",
+                        mountPath: "/var/log/pods", readOnly: true
+                    }
+                ],
+                serviceMonitor: {
+                    enabled: true,
+                    relabelings: [
+                        { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                        { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                        { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                        { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                        { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                        { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                    ],
+                    prometheusRule: {
+                        enabled: false,
+                        rules: []
+                    }
+                },
+                config: {
+                    logLevel: "warn",
+                    clients: [
+                        { url: "http://loki-distributor.logging.svc.cluster.local:3100/api/prom/push" }
+                    ],
+                    snippets: {
+                        addScrapeJobLabel: true,
+                        extraRelabelConfigs: [
+                            { replacement: "norther", target_label: "cluster" }
+                        ]
+                    }
+                }
             }
-        ]
+        }
     }
 ]
 
@@ -32,29 +98,15 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                valueYamlFiles: [new FileAsset(deploy_spec[i].helm[helm_index].values)],
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        values: deploy_spec[i].helm.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].helm.repository,
+        },
+    }, { dependsOn: [namespace] });
 }
