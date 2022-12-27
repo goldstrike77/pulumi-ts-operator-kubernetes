@@ -95,8 +95,8 @@ const deploy_spec = [
                     },
                     zipkin: { enabled: true },
                     otlp: {
-                        http: { enabled: false },
-                        grpc: { enabled: false }
+                        http: { enabled: true },
+                        grpc: { enabled: true }
                     },
                     opencensus: { enabled: false }
                 },
