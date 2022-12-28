@@ -62,7 +62,7 @@ const deploy_spec = [
                 },
                 spec: {
                     exporter: {
-                        endpoint: "http://opentelemetry-daemonset-collector:4317",
+                        endpoint: "http://opentelemetry-daemonset-collector.open-telemetry.svc.cluster.local:4317",
                     },
                     propagators: ["tracecontext", "baggage", "b3"],
                     sampler: {

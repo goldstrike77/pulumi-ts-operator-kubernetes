@@ -124,6 +124,9 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                             environment: "dev",
                             group: "norther",
                             project: "cluster"
+                        },
+                        annotations: {
+                            "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                         }
                     },
                     spec: {
@@ -197,9 +200,9 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 ports: [
                     {
                         name: "spring-boot",
-                        port: 8778,
+                        port: 8080,
                         protocol: "TCP",
-                        targetPort: 8778,
+                        targetPort: 8080,
                     }
                 ],
                 selector: {
@@ -210,7 +213,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
         ingress: {
             metadata: {
                 annotations: {
-                    "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS"
+                    "nginx.ingress.kubernetes.io/backend-protocol": "HTTP"
                 },
                 labels: {
                     app: "spring-boot"
@@ -230,7 +233,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                                         service: {
                                             name: "spring-boot",
                                             port: {
-                                                number: 8778,
+                                                number: 8080,
                                             }
                                         }
                                     },
