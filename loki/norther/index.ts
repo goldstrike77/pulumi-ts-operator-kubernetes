@@ -217,6 +217,7 @@ analytics:
         },
         queryFrontend: {
           replicas: 1,
+          maxUnavailable: 1,
           resources: {
             limits: { cpu: "500m", memory: "512Mi" },
             requests: { cpu: "500m", memory: "512Mi" }

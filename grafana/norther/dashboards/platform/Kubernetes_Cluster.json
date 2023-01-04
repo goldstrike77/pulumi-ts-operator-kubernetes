@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1670464673982,
+  "iteration": 1672820430512,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -155,7 +155,7 @@
       },
       "id": 100,
       "panels": [],
-      "title": "Cluster Resource",
+      "title": "Cluster",
       "type": "row"
     },
     {
@@ -425,7 +425,7 @@
           "$$hashKey": "object:199",
           "format": "short",
           "logBase": 1,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -861,7 +861,7 @@
       },
       "id": 34,
       "panels": [],
-      "title": "Hypervisor Resource",
+      "title": "Hypervisor",
       "type": "row"
     },
     {
@@ -922,6 +922,10 @@
               {
                 "id": "custom.width",
                 "value": 300
+              },
+              {
+                "id": "custom.align",
+                "value": "left"
               }
             ]
           },
@@ -1309,6 +1313,7 @@
           "refId": "K"
         }
       ],
+      "title": "Resource",
       "transformations": [
         {
           "id": "seriesToColumns",
@@ -1642,7 +1647,7 @@
       },
       "id": 47,
       "panels": [],
-      "title": "Namespace Resource",
+      "title": "Namespace",
       "type": "row"
     },
     {
@@ -2783,7 +2788,7 @@
             "mode": "thresholds"
           },
           "custom": {
-            "align": "right",
+            "align": "center",
             "displayMode": "auto"
           },
           "mappings": [],
@@ -2810,7 +2815,7 @@
             "properties": [
               {
                 "id": "decimals",
-                "value": 1
+                "value": 2
               },
               {
                 "id": "custom.width",
@@ -2826,7 +2831,7 @@
             "properties": [
               {
                 "id": "decimals",
-                "value": 1
+                "value": 2
               },
               {
                 "id": "custom.width",
@@ -2847,6 +2852,10 @@
               {
                 "id": "custom.width",
                 "value": 200
+              },
+              {
+                "id": "decimals",
+                "value": 2
               }
             ]
           },
@@ -2863,6 +2872,10 @@
               {
                 "id": "custom.width",
                 "value": 200
+              },
+              {
+                "id": "decimals",
+                "value": 2
               }
             ]
           },
@@ -2980,7 +2993,13 @@
           ],
           "show": true
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Memory Usage"
+          }
+        ]
       },
       "pluginVersion": "8.3.10",
       "targets": [
@@ -3045,7 +3064,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\",pod!=\"\",namespace=~\"$namespace\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (namespace,pod) / sum(kube_pod_container_resource_requests{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"core\"}) by (namespace,pod)",
+          "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\",pod!=\"\",namespace=~\"$namespace\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (namespace,pod) / sum(kube_pod_container_resource_limits{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"core\"}) by (namespace,pod)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3059,7 +3078,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum(container_memory_usage_bytes{container!=\"\",pod!=\"\",namespace=~\"$namespace\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (namespace,pod) / sum(kube_pod_container_resource_requests{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"byte\"}) by (namespace,pod)",
+          "expr": "sum(container_memory_usage_bytes{container!=\"\",pod!=\"\",namespace=~\"$namespace\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (namespace,pod) / sum(kube_pod_container_resource_limits{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",unit=\"byte\"}) by (namespace,pod)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -3068,6 +3087,7 @@
           "refId": "F"
         }
       ],
+      "title": "Resource",
       "transformations": [
         {
           "id": "seriesToColumns",
@@ -4004,6 +4024,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 3,
+  "version": 2,
   "weekStart": ""
 }

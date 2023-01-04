@@ -89,7 +89,7 @@ save ""`,
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.6.3",
+                version: "11.6.6",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: { enabled: false },
@@ -211,7 +211,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "42.0.3",
+                version: "43.2.1",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: { enabled: false },
@@ -365,8 +365,8 @@ config:
                     nodeExporter: { enabled: true },
                     "prometheus-node-exporter": {
                         resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         },
                         podLabels: { jobLabel: "node-exporter", customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         extraArgs: [

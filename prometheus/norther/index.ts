@@ -37,7 +37,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.6.3",
+                version: "11.6.6",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -74,6 +74,8 @@ const deploy_spec = [
                             "--log.format=logfmt",
                             "--http-address=0.0.0.0:10902",
                             "--query-frontend.downstream-url=http://thanos-query:9090/thanos-query",
+                            "--labels.split-interval=1h",
+                            "--labels.max-retries-per-request=10",
                             "--query-range.split-interval=1h",
                             "--query-range.max-retries-per-request=10",
                             "--query-range.max-query-parallelism=32",
@@ -91,6 +93,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
+  expiration: 24h0m0s
 `, `--labels.response-cache-config=
 type: REDIS
 config:
@@ -105,6 +108,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
+  expiration: 24h0m0s
 `
                         ],
                         replicaCount: 1,
@@ -227,7 +231,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "42.0.3",
+                version: "43.2.1",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: {
@@ -435,8 +439,8 @@ config:
                     nodeExporter: { enabled: true },
                     "prometheus-node-exporter": {
                         resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         },
                         extraArgs: [
                             "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)",
