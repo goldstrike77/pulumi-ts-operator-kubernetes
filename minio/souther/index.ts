@@ -168,7 +168,9 @@ const deploy_spec = [
                         }
                     },
                     persistence: {
-                        enabled: false
+                        enabled: true,
+                        storageClass: "nfs-client",
+                        size: "50Gi"
                     },
                     volumePermissions: {
                         enabled: false,

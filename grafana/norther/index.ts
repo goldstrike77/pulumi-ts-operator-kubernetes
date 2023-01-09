@@ -32,6 +32,19 @@ const deploy_spec = [
         configmap: [
             {
                 metadata: {
+                    name: "grafana-dashboards-universal",
+                    namespace: "visualization",
+                    annotations: {},
+                    labels: {
+                        grafana_dashboard: ""
+                    }
+                },
+                data: {
+                    "Redis_Overview.json": fs.readFileSync('./dashboards/universal/Redis_Overview.json', 'utf8')
+                }
+            },
+            {
+                metadata: {
                     name: "grafana-dashboards-platform",
                     namespace: "visualization",
                     annotations: {},

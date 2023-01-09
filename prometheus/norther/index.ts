@@ -37,7 +37,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.6.6",
+                version: "11.6.8",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -93,6 +93,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
+  cache_size: 128MiB
   expiration: 24h0m0s
 `, `--labels.response-cache-config=
 type: REDIS
@@ -108,6 +109,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
+  cache_size: 128MiB
   expiration: 24h0m0s
 `
                         ],
@@ -177,6 +179,8 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
+  cache_size: 128MiB
+  expiration: 24h0m0s
 `, `--store.caching-bucket.config=
 type: REDIS
 config:
@@ -191,6 +195,8 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
+  cache_size: 128MiB
+  expiration: 24h0m0s
 `
                         ],
                         replicaCount: 1,

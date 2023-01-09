@@ -89,7 +89,7 @@ save ""`,
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.6.6",
+                version: "11.6.8",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: { enabled: false },
