@@ -68,7 +68,7 @@
   "gnetId": 763,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1673257960555,
+  "iteration": 1673322279759,
   "links": [
     {
       "asDropdown": true,
@@ -174,7 +174,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 0
       },
@@ -254,7 +254,7 @@
       "gridPos": {
         "h": 3,
         "w": 2,
-        "x": 3,
+        "x": 2,
         "y": 0
       },
       "hideTimeOverride": true,
@@ -320,7 +320,7 @@
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 5,
+        "x": 4,
         "y": 0
       },
       "hiddenSeries": false,
@@ -421,7 +421,7 @@
       "gridPos": {
         "h": 6,
         "w": 6,
-        "x": 11,
+        "x": 10,
         "y": 0
       },
       "hiddenSeries": false,
@@ -546,11 +546,11 @@
               },
               {
                 "color": "rgba(237, 129, 40, 0.89)",
-                "value": 80
+                "value": 75
               },
               {
                 "color": "rgba(245, 54, 54, 0.9)",
-                "value": 95
+                "value": 90
               }
             ]
           },
@@ -560,8 +560,8 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 4,
-        "x": 17,
+        "w": 5,
+        "x": 16,
         "y": 0
       },
       "hideTimeOverride": true,
@@ -612,7 +612,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [
             {
               "options": {
@@ -628,12 +628,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#fffac3",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -652,7 +648,7 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
@@ -719,7 +715,7 @@
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
+        "w": 2,
         "x": 0,
         "y": 3
       },
@@ -806,7 +802,7 @@
       "gridPos": {
         "h": 3,
         "w": 2,
-        "x": 3,
+        "x": 2,
         "y": 3
       },
       "hideTimeOverride": true,
@@ -859,7 +855,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [
             {
               "options": {
@@ -875,12 +871,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "#fffac3",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -899,7 +891,7 @@
       "links": [],
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "none",
+        "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
@@ -940,6 +932,7 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "decimals": 1,
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1037,6 +1030,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:73",
+          "decimals": 1,
           "format": "bytes",
           "logBase": 1,
           "min": 0,
@@ -1046,7 +1040,7 @@
           "$$hashKey": "object:74",
           "format": "short",
           "logBase": 1,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -1062,6 +1056,7 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "decimals": 1,
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1109,20 +1104,30 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
           "expr": "rate(redis_net_input_bytes_total{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
-          "intervalFactor": 2,
-          "legendFormat": "{{ input }}",
+          "intervalFactor": 1,
+          "legendFormat": "Received",
           "refId": "A",
           "step": 240
         },
         {
-          "expr": "rate(redis_net_output_bytes_total{instance=\"$host\"}[5m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "- rate(redis_net_output_bytes_total{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
-          "intervalFactor": 2,
-          "legendFormat": "{{ output }}",
+          "intervalFactor": 1,
+          "legendFormat": "Transmitted",
           "refId": "B",
           "step": 240
         }
@@ -1145,7 +1150,9 @@
       "yaxes": [
         {
           "$$hashKey": "object:199",
+          "decimals": 1,
           "format": "bytes",
+          "label": "",
           "logBase": 1,
           "show": true
         },
@@ -1153,7 +1160,7 @@
           "$$hashKey": "object:200",
           "format": "short",
           "logBase": 1,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -1218,6 +1225,11 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
           "expr": "sum (redis_db_keys{instance=\"$host\"}) by (db)",
           "format": "time_series",
           "interval": "$interval",
@@ -1270,6 +1282,7 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "decimals": 0,
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1317,7 +1330,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum (redis_db_keys{instance=\"$host\"}) - sum (redis_db_keys_expiring{addr=~\"$addr\"}) ",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum (redis_db_keys{instance=\"$host\"}) - sum (redis_db_keys_expiring{instance=\"$host\"})",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1327,7 +1345,12 @@
           "target": ""
         },
         {
-          "expr": "sum (redis_db_keys_expiring{instance=\"$host\"}) ",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum (redis_db_keys_expiring{instance=\"$host\"})",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1355,7 +1378,9 @@
       "yaxes": [
         {
           "$$hashKey": "object:265",
+          "decimals": 0,
           "format": "short",
+          "label": "",
           "logBase": 1,
           "show": true
         },
@@ -1363,7 +1388,7 @@
           "$$hashKey": "object:266",
           "format": "short",
           "logBase": 1,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -1426,6 +1451,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
+          "$$hashKey": "object:283",
           "alias": "reclaims",
           "yaxis": 2
         }
@@ -1481,7 +1507,7 @@
           "$$hashKey": "object:299",
           "format": "short",
           "logBase": 1,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -1601,7 +1627,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },
@@ -1806,6 +1832,6 @@
   "timezone": "browser",
   "title": "Redis Overview",
   "uid": "ayrQrqY1",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }
