@@ -16,9 +16,9 @@ const deploy_spec = [
                 name: "metrics-server",
                 chart: "metrics-server",
                 repository: "https://kubernetes-sigs.github.io/metrics-server",
-                version: "3.8.2",
+                version: "3.8.3",
                 values: {
-                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.1" },
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.2" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     defaultArgs: [
                         "--cert-dir=/tmp",

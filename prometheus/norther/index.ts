@@ -93,7 +93,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
-  cache_size: 128MiB
+  cache_size: 64MiB
   expiration: 24h0m0s
 `, `--labels.response-cache-config=
 type: REDIS
@@ -109,7 +109,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
-  cache_size: 128MiB
+  cache_size: 64MiB
   expiration: 24h0m0s
 `
                         ],
@@ -155,7 +155,7 @@ config:
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         persistence: {
                             enabled: true,
-                            storageClass: "nfs-client",
+                            storageClass: "longhorn",
                             size: "8Gi"
                         }
                     },
@@ -195,7 +195,7 @@ config:
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
   set_multi_batch_size: 1000
-  cache_size: 128MiB
+  cache_size: 64MiB
   expiration: 24h0m0s
 `
                         ],
@@ -207,7 +207,7 @@ config:
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         persistence: {
                             enabled: true,
-                            storageClass: "nfs-client",
+                            storageClass: "longhorn",
                             size: "8Gi"
                         }
                     },
@@ -237,7 +237,7 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "43.2.1",
+                version: "44.2.1",
                 values: {
                     defaultRules: { create: true },
                     alertmanager: {
@@ -270,8 +270,8 @@ config:
                             storage: {
                                 volumeClaimTemplate: {
                                     spec: {
-                                        storageClassName: "nfs-client",
-                                        resources: { requests: { storage: "1Gi", } }
+                                        storageClassName: "longhorn",
+                                        resources: { requests: { storage: "8Gi", } }
                                     }
                                 }
                             },
@@ -419,7 +419,7 @@ config:
                     "kube-state-metrics": {
                         image: {
                             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics",
-                            tag: "v2.6.0"
+                            tag: "v2.7.0"
                         },
                         replicas: 1,
                         customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -561,7 +561,7 @@ config:
                             storageSpec: {
                                 volumeClaimTemplate: {
                                     spec: {
-                                        storageClassName: "nfs-client",
+                                        storageClassName: "longhorn",
                                         resources: { requests: { storage: "8Gi" } }
                                     }
                                 }
@@ -586,7 +586,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.3.11",
+                version: "17.4.3",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },

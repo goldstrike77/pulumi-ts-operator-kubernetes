@@ -67,7 +67,7 @@ const deploy_spec = [
                     },
                     persistence: {
                         enabled: true,
-                        storageClass: "nfs-client",
+                        storageClass: "longhorn",
                         size: "8Gi"
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }

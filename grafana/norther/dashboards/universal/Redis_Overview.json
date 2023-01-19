@@ -68,7 +68,7 @@
   "gnetId": 763,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1673322279759,
+  "iteration": 1673498757294,
   "links": [
     {
       "asDropdown": true,
@@ -329,6 +329,7 @@
       "legend": {
         "avg": false,
         "current": false,
+        "hideEmpty": false,
         "max": false,
         "min": false,
         "show": false,
@@ -353,11 +354,16 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
           "expr": "rate(redis_commands_processed_total{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
-          "legendFormat": "",
+          "legendFormat": "{{ instance }}",
           "metric": "A",
           "refId": "A",
           "step": 240,
@@ -383,6 +389,7 @@
         {
           "$$hashKey": "object:106",
           "format": "short",
+          "label": "",
           "logBase": 1,
           "show": true
         },
@@ -390,7 +397,7 @@
           "$$hashKey": "object:107",
           "format": "short",
           "logBase": 1,
-          "show": true
+          "show": false
         }
       ],
       "yaxis": {
@@ -1832,6 +1839,6 @@
   "timezone": "browser",
   "title": "Redis Overview",
   "uid": "ayrQrqY1",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

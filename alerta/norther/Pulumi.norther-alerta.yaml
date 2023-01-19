@@ -1,9 +1,9 @@
-encryptionsalt: v1:ggzl3XqEENc=:v1:MZUAcd0GSMkz9RbL:C8q0bysQN9dkpEpvPQZwfdh+DBHiAQ==
+encryptionsalt: v1:sl6kfHHg/kk=:v1:BUcNYw+sXercV2t2:3R5AywwlN7nd2IgMKf9qjUlQJRknqw==
 config:
   demo:alertaAdminPassword:
-    secure: v1:tHtueB7vAixNBEm8:0RT74WIMb4zJIm08gerDEiLWJmqxA+zt
-  demo:replicaSetKey:
-    secure: v1:M516vlNqfMt9Ko2s:PNMOGbpLku4ymCuwmRrhVDYnCtsD4GvC
+    secure: v1:soxm3Z5kDCz9mGba:bt4ekNMoP00vRV5X4MrlCmAegAiWK8L/
+  demo:alertaPassword:
+    secure: v1:tP0RxRwgF7OouPOs:EB14cEbzSZJQnatRBcMYpYF93LaP6W+l
   demo:rootPassword:
-    secure: v1:SU0w6qtTmg7HrekL:4+jOdriCG81jSJvSn1Cbp2a9g4l15wjY
+    secure: v1:Gy0fcEybdVldNp//:V329MApKuVRDJF7hlGPNy4lgbWsChEJo
   kubernetes:context: kubernetes-admin@norther

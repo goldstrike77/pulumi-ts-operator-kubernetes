@@ -36,7 +36,7 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "512Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        persistence: { storageClass: "nfs-client", size: "8Gi" }
+                        persistence: { storageClass: "longhorn", size: "8Gi" }
                     },
                     volumePermissions: {
                         enabled: true,
@@ -102,7 +102,7 @@ const deploy_spec = [
                     },
                     persistence: {
                         enabled: true,
-                        storageClass: "nfs-client",
+                        storageClass: "longhorn",
                         size: "10Gi"
                     },
                     sysctl: {

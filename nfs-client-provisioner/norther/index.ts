@@ -4,7 +4,7 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "nfs-client-provisioner",
+                name: "longhorn-provisioner",
                 annotations: {},
                 labels: {}
             },
@@ -12,15 +12,15 @@ const deploy_spec = [
         },
         helm: [
             {
-                namespace: "nfs-client-provisioner",
-                name: "nfs-client-provisioner",
-                chart: "nfs-client-provisioner",
+                namespace: "longhorn-provisioner",
+                name: "longhorn-provisioner",
+                chart: "longhorn-provisioner",
                 repository: "https://charts.helm.sh/stable",
                 version: "1.2.11",
                 values: {
                     replicaCount: 2,
                     image: {
-                        repository: "registry.cn-hangzhou.aliyuncs.com/kubeapps/quay-nfs-client-provisioner"
+                        repository: "registry.cn-hangzhou.aliyuncs.com/kubeapps/quay-longhorn-provisioner"
                     },
                     nfs: {
                         server: "storage.node.home.local",

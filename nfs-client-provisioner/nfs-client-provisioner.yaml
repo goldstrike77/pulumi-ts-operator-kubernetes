@@ -1,4 +1,4 @@
-# Default values for nfs-client-provisioner.
+# Default values for longhorn-provisioner.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -6,7 +6,7 @@ replicaCount: 1
 strategyType: Recreate
 
 image:
-  repository: quay.io/external_storage/nfs-client-provisioner
+  repository: quay.io/external_storage/longhorn-provisioner
   tag: v3.1.0-k8s1.11
   pullPolicy: IfNotPresent
 
@@ -28,7 +28,7 @@ storageClass:
 
   # Set a StorageClass name
   # Ignored if storageClass.create is false
-  name: nfs-client
+  name: longhorn
 
   # Allow volume to be expanded dynamically
   allowVolumeExpansion: true

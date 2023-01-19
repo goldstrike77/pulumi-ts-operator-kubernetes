@@ -18,13 +18,15 @@ const deploy_spec = [
       name: "loki",
       chart: "loki-distributed",
       repository: "https://grafana.github.io/helm-charts",
-      version: "0.67.1",
+      version: "0.69.0",
       values: {
         nameOverride: "loki",
         loki: {
           podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
           config: `
 auth_enabled: false
+common:
+  compactor_address: {{ include "loki.compactorFullname" . }}:3100
 chunk_store_config:
   chunk_cache_config:
     enable_fifocache: false
@@ -82,7 +84,7 @@ limits_config:
   max_line_size: 32kb
   max_line_size_truncate: true
   reject_old_samples: true
-  reject_old_samples_max_age: 168h
+  reject_old_samples_max_age: 120h
   retention_period: 120h
   split_queries_by_interval: 15m
 memberlist:
@@ -197,7 +199,7 @@ analytics:
             limits: { cpu: "200m", memory: "512Mi" },
             requests: { cpu: "200m", memory: "512Mi" }
           },
-          persistence: { enabled: true, size: "10Gi", storageClass: "nfs-client" }
+          persistence: { enabled: true, size: "10Gi", storageClass: "longhorn" }
         },
         distributor: {
           replicas: 2,
@@ -244,7 +246,7 @@ analytics:
             limits: { cpu: "200m", memory: "256Mi" },
             requests: { cpu: "200m", memory: "256Mi" }
           },
-          persistence: { enabled: true, size: "8Gi", storageClass: "nfs-client" }
+          persistence: { enabled: true, size: "8Gi", storageClass: "longhorn" }
         },
         ruler: { enabled: false, replicas: 1, resources: {}, directories: {} },
         memcachedExporter: {

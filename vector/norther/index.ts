@@ -155,7 +155,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "nfs-client", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
@@ -218,7 +218,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "nfs-client", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
                     podMonitor: {
                         enabled: false,
                         relabelings: [

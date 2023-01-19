@@ -2,9 +2,15 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 import * as random from "@pulumi/random";
 
-const randomrandomstring = new random.RandomString("random", {
+const randomsecretkey = new random.RandomString("randomsecretkey", {
     keepers: { project: `${pulumi.getStack()}-${pulumi.getProject()}` },
     length: 32,
+    special: false,
+});
+
+const randomreplicasetkey = new random.RandomString("randomreplicasetkey", {
+    keepers: { project: `${pulumi.getStack()}-${pulumi.getProject()}` },
+    length: 12,
     special: false,
 });
 
@@ -31,7 +37,7 @@ const deploy_spec = [
                     replicaCount: 1,
                     image: {
                         repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/alerta-web",
-                        tag: "8.6.3"
+                        tag: "8.7.0"
                     },
                     ingress: {
                         enabled: true,
@@ -46,7 +52,7 @@ const deploy_spec = [
                     alertaAdminUsers: ["admin@alerta.io"],
                     alertaInstallPlugins: ["prometheus"],
                     alertaConfig: {
-                        DATABASE_URL: "'mongodb://alerta:password@alerta-psmdb-db-rs0-0.alerta-psmdb-db-rs0.mongodb.svc.cluster.local:27017,alerta-psmdb-db-rs0-0.alerta-psmdb-db-rs0.mongodb.svc.cluster.local:27017,alerta-psmdb-db-rs0-0.alerta-psmdb-db-rs0.mongodb.svc.cluster.local:27017/alerta?replicaSet=rs0&connectTimeoutMS=300000'",
+                        DATABASE_URL: "'mongodb://alerta:password@mongodb-0:27017,mongodb-1:27017,mongodb-2:27017/alerta?replicaSet=rs0-alerta&connectTimeoutMS=300000&tls=true&tlsAllowInvalidCertificates=true'",
                         DATABASE_NAME: "'alerta'",
                         DATABASE_RAISE_ON_ERROR: "False",
                         DELETE_EXPIRED_AFTER: 60,
@@ -54,7 +60,7 @@ const deploy_spec = [
                         COLUMNS: "['severity', 'status', 'type', 'lastReceiveTime', 'duplicateCount', 'customer', 'environment', 'group', 'resource', 'service', 'text']",
                         CORS_ORIGINS: "['https://alerta.example.com']",
                         AUTH_REQUIRED: "True",
-                        SECRET_KEY: pulumi.interpolate`'${randomrandomstring.result}'`,
+                        SECRET_KEY: pulumi.interpolate`'${randomsecretkey.result}'`,
                         CUSTOMER_VIEWS: "True",
                         BASE_URL: "''",
                         USE_PROXYFIX: "False",
@@ -79,6 +85,74 @@ const deploy_spec = [
                     },
                     postgresql: { enabled: false }
                 }
+            },
+            {
+                namespace: "alerta",
+                name: "mongodb",
+                chart: "mongodb",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "13.6.2",
+                values: {
+                    image: {
+                        tag: "4.4.15-debian-10-r8"
+                    },
+                    architecture: "replicaset",
+                    auth: {
+                        rootUser: "root",
+                        rootPassword: config.require("rootPassword"),
+                        username: "alerta",
+                        password: config.require("alertaPassword"),
+                        database: "alerta",
+                        replicaSetKey: pulumi.interpolate`'${randomreplicasetkey.result}'`,
+                    },
+                    tls: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        }
+                    },
+                    replicaSetName: "rs0-alerta",
+                    directoryPerDB: true,
+                    systemLogVerbosity: 0,
+                    disableSystemLog: true,
+                    enableJournal: true,
+                    replicaCount: 3,
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "500m", memory: "1024Mi" },
+                        requests: { cpu: "500m", memory: "1024Mi" }
+                    },
+                    persistence: {
+                        storageClass: "longhorn",
+                        size: "8Gi"
+                    },
+                    arbiter: { enabled: false },
+                    metrics: {
+                        enabled: true,
+                        username: "root",
+                        password: "",
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        serviceMonitor: {
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        prometheusRule: {
+                            enabled: false,
+                            rules: []
+                        }
+                    }
+                }
             }
         ]
     }
@@ -92,15 +166,28 @@ for (var i in deploy_spec) {
     });
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-        }, { dependsOn: [namespace] });
+        if (deploy_spec[i].helm[helm_index].repository === "") {
+            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+                namespace: deploy_spec[i].helm[helm_index].namespace,
+                name: deploy_spec[i].helm[helm_index].name,
+                chart: deploy_spec[i].helm[helm_index].chart,
+                version: deploy_spec[i].helm[helm_index].version,
+                values: deploy_spec[i].helm[helm_index].values,
+                skipAwait: true,
+            }, { dependsOn: [namespace] });
+        }
+        else {
+            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+                namespace: deploy_spec[i].helm[helm_index].namespace,
+                name: deploy_spec[i].helm[helm_index].name,
+                chart: deploy_spec[i].helm[helm_index].chart,
+                version: deploy_spec[i].helm[helm_index].version,
+                values: deploy_spec[i].helm[helm_index].values,
+                skipAwait: true,
+                repositoryOpts: {
+                    repo: deploy_spec[i].helm[helm_index].repository,
+                },
+            }, { dependsOn: [namespace] });
+        }
     }
 }
-
-export const secretkey = randomrandomstring.result;

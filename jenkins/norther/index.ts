@@ -105,7 +105,7 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
-                    persistence: { enabled: true, storageClass: "nfs-client", size: "8Gi" },
+                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
                     backup: {
                         enabled: true,
                         schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,

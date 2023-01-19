@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "promtail",
             chart: "promtail",
             repository: "https://grafana.github.io/helm-charts",
-            version: "6.7.4",
+            version: "6.8.1",
             values: {
                 podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                 resources: {

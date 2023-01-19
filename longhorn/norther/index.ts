@@ -38,7 +38,7 @@ const deploy_spec = [
                 name: "longhorn",
                 chart: "longhorn",
                 repository: "https://charts.longhorn.io",
-                version: "1.3.1",
+                version: "1.3.2",
                 values: {
                     global: { cattle: { systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com" } },
                     image: {
@@ -59,11 +59,11 @@ const deploy_spec = [
                         }
                     },
                     persistence: {
-                        defaultClassReplicaCount: 3,
+                        defaultClassReplicaCount: 2,
                         defaultDataLocality: "best-effort"
                     },
                     defaultSettings: {
-                        defaultReplicaCount: 3,
+                        defaultReplicaCount: 2,
                         backupTarget: "s3://backup@us-east-1/",
                         backupTargetCredentialSecret: "auth-secret",
                         defaultDataPath: "/data/longhorn",
@@ -129,13 +129,11 @@ for (var i in deploy_spec) {
             },
         }, { dependsOn: [namespace] });
     }
-    /**
-        // Create service monitor.
-        for (var yaml_index in deploy_spec[i].yaml) {
-            const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
-                file: deploy_spec[i].yaml[yaml_index].name,
-                skipAwait: true,
-            }, { dependsOn: [namespace] });
-        }
-     */
+    // Create service monitor.
+    for (var yaml_index in deploy_spec[i].yaml) {
+        const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml[yaml_index].name, {
+            file: deploy_spec[i].yaml[yaml_index].name,
+            skipAwait: true,
+        }, { dependsOn: [namespace] });
+    }
 }

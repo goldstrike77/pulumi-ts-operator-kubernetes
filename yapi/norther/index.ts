@@ -66,7 +66,7 @@ const deploy_spec = [
             },
             spec: {
                 accessModes: ["ReadWriteOnce"],
-                storageClassName: "nfs-client",
+                storageClassName: "longhorn",
                 resources: {
                     requests: { storage: "8Gi" }
                 }
@@ -105,7 +105,7 @@ const deploy_spec = [
                 },
                 livenessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                 readinessProbe: { enabled: false },
-                persistence: { enabled: true, storageClass: "nfs-client", size: "8Gi" },
+                persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
                 volumePermissions: {
                     enabled: false,
                     resources: {

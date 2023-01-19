@@ -47,7 +47,7 @@ const deploy_spec = [
                 server: {
                     replicas: 3,
                     storage: "10Gi",
-                    storageClass: "nfs-client",
+                    storageClass: "longhorn",
                     resources: {
                         limits: { cpu: "200m", memory: "128Mi" },
                         requests: { cpu: "200m", memory: "128Mi" }

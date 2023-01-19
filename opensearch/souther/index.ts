@@ -107,7 +107,7 @@ plugins:
             limits: { cpu: "25m", memory: "128Mi" },
             requests: { cpu: "25m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: false, storageClass: "nfs-client", size: "3Gi", },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "3Gi", },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -357,7 +357,7 @@ plugins:
             limits: { cpu: "25m", memory: "128Mi" },
             requests: { cpu: "25m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: false, storageClass: "nfs-client", size: "30Gi", },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi", },
           extraInitContainers: [
             {
               name: "sysctl",

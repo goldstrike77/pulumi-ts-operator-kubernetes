@@ -33,7 +33,7 @@ const deploy_spec = [
                     persistence: {
                         enabled: true,
                         size: "10Gi",
-                        storageClass: "nfs-client"
+                        storageClass: "longhorn"
                     },
                     config: { replication_factor: 2 }
                 },

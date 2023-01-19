@@ -19,7 +19,7 @@ const deploy_spec = [
                 name: "minio",
                 chart: "minio",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.10.18",
+                version: "12.0.0",
                 values: {
                     mode: "distributed",
                     auth: {
@@ -137,7 +137,7 @@ const deploy_spec = [
                             }
                         ]
                     },
-                    nodeSelector: { "minio/node": "true" },
+                    // nodeSelector: { "minio/node": "true" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "500m", memory: "4096Mi" },
@@ -169,7 +169,7 @@ const deploy_spec = [
                     },
                     persistence: {
                         enabled: true,
-                        storageClass: "nfs-client",
+                        storageClass: "longhorn",
                         size: "50Gi"
                     },
                     volumePermissions: {

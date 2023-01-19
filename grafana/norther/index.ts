@@ -117,7 +117,7 @@ const deploy_spec = [
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
-                    persistence: { enabled: true, storageClassName: "nfs-client", size: "8Gi" },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "8Gi" },
                     initChownData: {
                         enabled: false,
                         resources: {
