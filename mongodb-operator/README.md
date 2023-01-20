@@ -1,6 +1,6 @@
 #### Installing the Chart
 ```hcl
-helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add percona https://percona.github.io/percona-helm-charts/
 ```
 
 #### Configuration credential values.
@@ -11,5 +11,4 @@ pulumi config set clusterAdminPassword [password] --secret
 pulumi config set clusterMonitorPassword [password] --secret
 pulumi config set userAdminPassword [password] --secret
 pulumi config set AWS_SECRET_ACCESS_KEY [password] --secret
-pulumi config set alertaAdminPassword [password] --secret
 ```

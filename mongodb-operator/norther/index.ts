@@ -50,7 +50,7 @@ const deploy_spec = [
                 name: "psmdb-operator",
                 chart: "psmdb-operator",
                 repository: "https://percona.github.io/percona-helm-charts",
-                version: "1.12.1",
+                version: "1.13.2",
                 values: {
                     replicaCount: 2,
                     fullnameOverride: "mongodb-operator",
@@ -66,7 +66,7 @@ const deploy_spec = [
                 name: "customer",
                 chart: "psmdb-db",
                 repository: "https://percona.github.io/percona-helm-charts",
-                version: "1.12.4",
+                version: "1.13.0",
                 values: {
                     finalizers: ["delete-psmdb-pods-in-order"],
                     upgradeOptions: { apply: "disabled" },
@@ -145,12 +145,14 @@ const deploy_spec = [
                     users: {
                         MONGODB_BACKUP_USER: "backup",
                         MONGODB_BACKUP_PASSWORD: config.require("backupPassword"),
+                        MONGODB_DATABASE_ADMIN_USER: "databaseAdmin",
+                        MONGODB_DATABASE_ADMIN_PASSWORD: config.require("databaseAdminPassword"),
                         MONGODB_CLUSTER_ADMIN_USER: "clusterAdmin",
-                        MONGODB_CLUSTER_ADMIN_PASSWORD: config.require("clusteradminPassword"),
+                        MONGODB_CLUSTER_ADMIN_PASSWORD: config.require("clusterAdminPassword"),
                         MONGODB_CLUSTER_MONITOR_USER: "clusterMonitor",
-                        MONGODB_CLUSTER_MONITOR_PASSWORD: config.require("clustermonitorPassword"),
+                        MONGODB_CLUSTER_MONITOR_PASSWORD: config.require("clusterMonitorPassword"),
                         MONGODB_USER_ADMIN_USER: "userAdmin",
-                        MONGODB_USER_ADMIN_PASSWORD: config.require("useradminPassword")
+                        MONGODB_USER_ADMIN_PASSWORD: config.require("userAdminPassword")
                     }
                 }
             }
@@ -161,7 +163,7 @@ const deploy_spec = [
                 name: "customer-psmdb-db-rs0",
                 chart: "prometheus-mongodb-exporter",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "3.1.1",
+                version: "3.1.2",
                 size: 3,
                 extraArgs: ["--collect-all"],
                 user: "clusterMonitor",

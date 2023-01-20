@@ -1,9 +1,17 @@
 encryptionsalt: v1:sl6kfHHg/kk=:v1:BUcNYw+sXercV2t2:3R5AywwlN7nd2IgMKf9qjUlQJRknqw==
 config:
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:FUJBw8oDc+lMJ10P:CX4fKfbise7uqUtQMVeNk7KoXLL8QYAy
   demo:alertaAdminPassword:
-    secure: v1:soxm3Z5kDCz9mGba:bt4ekNMoP00vRV5X4MrlCmAegAiWK8L/
-  demo:alertaPassword:
-    secure: v1:tP0RxRwgF7OouPOs:EB14cEbzSZJQnatRBcMYpYF93LaP6W+l
-  demo:rootPassword:
-    secure: v1:Gy0fcEybdVldNp//:V329MApKuVRDJF7hlGPNy4lgbWsChEJo
+    secure: v1:9B/DqVHZGefxU7/Q:HXZYQzRqZ06n8OV/MSvblRrrETP9BzgL
+  demo:backupPassword:
+    secure: v1:KM6WjSbCAOACbW1k:EIrKtAGDMMIxVtZfzDyf/gJMfnXCCHvA
+  demo:clusterAdminPassword:
+    secure: v1:t5GYhtDkiU7I7j/g:FCO1178yRkNNuwvMhvb/Tx8O9xLy6qqb
+  demo:clusterMonitorPassword:
+    secure: v1:qVKIdbsbnmI9RZ0d:RqkqIcJmvjnAx6YooVxj192rR+ePbCg1
+  demo:databaseAdminPassword:
+    secure: v1:b4g49bfItPnDgaAc:067JQ7fvwTOiEHWn8dVoWCQLOXU6Hrwr
+  demo:userAdminPassword:
+    secure: v1:tqG004iftjoedIfI:vUWIOx11aobk8trPl7IDqim5zMRwOH+/
   kubernetes:context: kubernetes-admin@norther

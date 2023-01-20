@@ -8,10 +8,18 @@ const randomsecretkey = new random.RandomString("randomsecretkey", {
     special: false,
 });
 
-const randomreplicasetkey = new random.RandomString("randomreplicasetkey", {
-    keepers: { project: `${pulumi.getStack()}-${pulumi.getProject()}` },
-    length: 12,
-    special: false,
+// Generate random minutes from 10 to 59.
+const minutes = new random.RandomInteger("minutes", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 59,
+    min: 10,
+});
+
+// Generate random hours from UTC 17 to 21.
+const hours = new random.RandomInteger("hours", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 21,
+    min: 17,
 });
 
 let config = new pulumi.Config();
@@ -26,6 +34,22 @@ const deploy_spec = [
             },
             spec: {}
         },
+        secret: [
+            {
+                metadata: {
+                    name: "backup-conf-secret",
+                    namespace: "alerta",
+                    annotations: {},
+                    labels: {}
+                },
+                type: "Opaque",
+                data: {
+                    "AWS_ACCESS_KEY_ID": Buffer.from("backup").toString('base64'),
+                    "AWS_SECRET_ACCESS_KEY": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64')
+                },
+                stringData: {}
+            }
+        ],
         helm: [
             {
                 namespace: "alerta",
@@ -88,69 +112,112 @@ const deploy_spec = [
             },
             {
                 namespace: "alerta",
-                name: "mongodb",
-                chart: "mongodb",
-                repository: "https://charts.bitnami.com/bitnami",
-                version: "13.6.2",
+                name: "psmdb-operator",
+                chart: "psmdb-operator",
+                repository: "https://percona.github.io/percona-helm-charts",
+                version: "1.13.2",
                 values: {
-                    image: {
-                        tag: "4.4.15-debian-10-r8"
-                    },
-                    architecture: "replicaset",
-                    auth: {
-                        rootUser: "root",
-                        rootPassword: config.require("rootPassword"),
-                        username: "alerta",
-                        password: config.require("alertaPassword"),
-                        database: "alerta",
-                        replicaSetKey: pulumi.interpolate`'${randomreplicasetkey.result}'`,
-                    },
-                    tls: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        }
-                    },
-                    replicaSetName: "rs0-alerta",
-                    directoryPerDB: true,
-                    systemLogVerbosity: 0,
-                    disableSystemLog: true,
-                    enableJournal: true,
-                    replicaCount: 3,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    replicaCount: 2,
+                    fullnameOverride: "mongodb-operator",
+                    env: { resyncPeriod: "10s", logVerbose: false },
                     resources: {
-                        limits: { cpu: "500m", memory: "1024Mi" },
-                        requests: { cpu: "500m", memory: "1024Mi" }
-                    },
-                    persistence: {
-                        storageClass: "longhorn",
-                        size: "8Gi"
-                    },
-                    arbiter: { enabled: false },
-                    metrics: {
-                        enabled: true,
-                        username: "root",
-                        password: "",
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        },
-                        serviceMonitor: {
-                            enabled: true,
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                            ]
-                        },
-                        prometheusRule: {
-                            enabled: false,
-                            rules: []
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    }
+                }
+            },
+            {
+                namespace: "alerta",
+                name: "psmdb-db",
+                chart: "psmdb-db",
+                repository: "https://percona.github.io/percona-helm-charts",
+                version: "1.13.0",
+                values: {
+                    finalizers: ["delete-psmdb-pods-in-order"],
+                    upgradeOptions: { apply: "disabled" },
+                    image: { tag: "4.4.16-16" },
+                    pmm: { enabled: false },
+                    imagePullPolicy: "IfNotPresent",
+                    replsets: [
+                        {
+                            name: "rs0-alerta",
+                            size: 3,
+                            configuration: `
+systemLog:
+verbosity: 0
+quiet: true
+auditLog:
+destination: console
+filter: '{ atype: { $in: [ "addShard", "createCollection", "createDatabase", "createIndex", "createRole", "createUser", "dropAllRolesFromDatabase", "dropAllUsersFromDatabase", "dropCollection", "dropDatabase", "dropIndex", "dropRole", "dropUser", "enableSharding", "grantPrivilegesToRole", "grantRolesToRole", "grantRolesToUser", "removeShard", "renameCollection", "replSetReconfig", "revokePrivilegesFromRole", "revokeRolesFromRole", "revokeRolesFromUser", "shardCollection", "shutdown", "updateRole", "updateUser" ] } }'
+`,
+                            labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                            storage: {
+                                engine: "wiredTiger",
+                                wiredTiger: {
+                                    engineConfig: {
+                                        cacheSizeRatio: 0.5,
+                                        directoryForIndexes: true,
+                                        journalCompressor: "snappy"
+                                    }
+                                }
+                            },
+                            resources: {
+                                limits: { cpu: "300m", memory: "512Mi" },
+                                requests: { cpu: "300m", memory: "512Mi" }
+                            },
+                            volumeSpec: {
+                                pvc: {
+                                    storageClassName: "longhorn",
+                                    resources: {
+                                        requests: { storage: "8Gi" }
+                                    }
+                                }
+                            }
                         }
+                    ],
+                    sharding: { enabled: false },
+                    backup: {
+                        enabled: true,
+                        image: { tag: "1.8.1" },
+                        resources: {
+                            limits: { cpu: "300m", memory: "512Mi" },
+                            requests: { cpu: "300m", memory: "512Mi" }
+                        },
+                        storages: {
+                            minio: {
+                                type: "s3",
+                                s3: {
+                                    bucket: "backup",
+                                    prefix: "mongodb",
+                                    region: "us-east-1",
+                                    endpointUrl: "http://minio.minio.svc.cluster.local:9000",
+                                    credentialsSecret: "backup-conf-secret"
+                                }
+                            }
+                        },
+                        pitr: { enabled: true },
+                        tasks: [
+                            {
+                                name: "daily-s3-us-east-1",
+                                enabled: true,
+                                schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
+                                keep: 3,
+                                storageName: "minio",
+                                compressionType: "gzip"
+                            }
+                        ]
+                    },
+                    users: {
+                        MONGODB_BACKUP_USER: "backup",
+                        MONGODB_BACKUP_PASSWORD: config.require("backupPassword"),
+                        MONGODB_DATABASE_ADMIN_USER: "databaseAdmin",
+                        MONGODB_DATABASE_ADMIN_PASSWORD: config.require("databaseAdminPassword"),
+                        MONGODB_CLUSTER_ADMIN_USER: "clusterAdmin",
+                        MONGODB_CLUSTER_ADMIN_PASSWORD: config.require("clusterAdminPassword"),
+                        MONGODB_CLUSTER_MONITOR_USER: "clusterMonitor",
+                        MONGODB_CLUSTER_MONITOR_PASSWORD: config.require("clusterMonitorPassword"),
+                        MONGODB_USER_ADMIN_USER: "userAdmin",
+                        MONGODB_USER_ADMIN_PASSWORD: config.require("userAdminPassword")
                     }
                 }
             }
@@ -164,6 +231,15 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].namespace.metadata,
         spec: deploy_spec[i].namespace.spec
     });
+    // Create Kubernetes Secret.
+    for (var secret_index in deploy_spec[i].secret) {
+        const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
+            metadata: deploy_spec[i].secret[secret_index].metadata,
+            type: deploy_spec[i].secret[secret_index].type,
+            data: deploy_spec[i].secret[secret_index].data,
+            stringData: deploy_spec[i].secret[secret_index].stringData
+        }, { dependsOn: [namespace] });
+    }
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
         if (deploy_spec[i].helm[helm_index].repository === "") {
