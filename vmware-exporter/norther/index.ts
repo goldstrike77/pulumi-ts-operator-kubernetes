@@ -34,7 +34,7 @@ const deploy_spec = [
                             snapshots: false
                         }
                     },
-                    image: { tag: "v0.18.3" },
+                    image: { tag: "v0.18.4" },
                     service: { enabled: true },
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },

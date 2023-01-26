@@ -320,6 +320,7 @@ const deploy_spec = [
                     metrics: {
                         serviceMonitor: {
                             enabled: true,
+                            interval: "60s",
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
