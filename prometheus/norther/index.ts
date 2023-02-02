@@ -37,7 +37,7 @@ const deploy_spec = [
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.6.8",
+                version: "12.0.3",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -237,9 +237,9 @@ config:
                 name: "kube-prometheus-stack",
                 chart: "kube-prometheus-stack",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "44.2.1",
+                version: "44.3.0",
                 values: {
-                    defaultRules: { create: true },
+                    defaultRules: { create: false },
                     alertmanager: {
                         enabled: true,
                         config: {},
@@ -425,8 +425,8 @@ config:
                         customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                         metricLabelsAllowlist: ["nodes=[*]"],
                         resources: {
-                            limits: { cpu: "100m", memory: "256Mi" },
-                            requests: { cpu: "100m", memory: "256Mi" }
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
                         },
                         prometheus: {
                             monitor: {
@@ -445,8 +445,8 @@ config:
                     nodeExporter: { enabled: true },
                     "prometheus-node-exporter": {
                         resources: {
-                            limits: { cpu: "50m", memory: "64Mi" },
-                            requests: { cpu: "50m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "32Mi" },
+                            requests: { cpu: "50m", memory: "32Mi" }
                         },
                         extraArgs: [
                             "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)",
@@ -586,7 +586,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.4.3",
+                version: "17.6.0",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -638,14 +638,35 @@ save ""`,
         ],
         rules: [
             { name: "../_rules/severity/mysql.yaml" },
-            /**
-                                { name: "../_rules/severity/kubePrometheus-prometheusRule.yaml" },
-                                { name: "../_rules/severity/kubeStateMetrics-prometheusRule.yaml" },
-                                { name: "../_rules/severity/kubernetesControlPlane-prometheusRule.yaml" },
-                                { name: "../_rules/severity/nodeExporter-prometheusRule.yaml" },
-                                { name: "../_rules/severity/prometheus-prometheusRule.yaml" },
-                                { name: "../_rules/severity/prometheusOperator-prometheusRule.yaml" }
-                                 */
+            { name: "../_rules/priority/kube-prometheus-stack-alertmanager.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-config-reloaders" },
+            { name: "../_rules/priority/kube-prometheus-stack-etcd" },
+            { name: "../_rules/priority/kube-prometheus-stack-general.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-k8s.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-availability.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-burnrate.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-histogram.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-slos" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-prometheus-general.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-prometheus-node-recording.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-scheduler.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-state-metrics" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubelet.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-apps" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-resources" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-storage" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-apiserver" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-controller-manager" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-kube-proxy" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-kubelet" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-scheduler" },
+            { name: "../_rules/priority/kube-prometheus-stack-node-exporter" },
+            { name: "../_rules/priority/kube-prometheus-stack-node-exporter.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-node-network" },
+            { name: "../_rules/priority/kube-prometheus-stack-node.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-prometheus" },
+            { name: "../_rules/priority/kube-prometheus-stack-prometheus-operator" }
         ]
     }
 ]
