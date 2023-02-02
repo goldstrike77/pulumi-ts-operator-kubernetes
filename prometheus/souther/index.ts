@@ -64,7 +64,8 @@ save ""`,
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
+                            interval: "60s",
                             relabellings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
