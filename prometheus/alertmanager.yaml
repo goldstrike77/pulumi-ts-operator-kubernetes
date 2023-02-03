@@ -7,12 +7,11 @@ route:
   group_by: ['job']
   group_wait: 1m
   group_interval: 15s
-  repeat_interval: 2h
+  repeat_interval: 12h
   receiver: 'null'
   routes:
   - match:
       alertname: Watchdog
-    continue: true
     receiver: 'null'
   - match:
     receiver: 'wechat'

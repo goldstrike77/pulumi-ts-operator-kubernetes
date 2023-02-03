@@ -7,212 +7,149 @@ metadata:
     prometheus-operator-validated: "true"
   labels:
     app: kube-prometheus-stack
-    app.kubernetes.io/instance: kube-prometheus-stack
-    app.kubernetes.io/managed-by: Helm
-    app.kubernetes.io/part-of: kube-prometheus-stack
-    app.kubernetes.io/version: 44.3.0
-    chart: kube-prometheus-stack-44.3.0
-    heritage: Helm
-    release: kube-prometheus-stack
   name: kube-prometheus-stack-node-exporter
   namespace: monitoring
 spec:
   groups:
   - name: node-exporter
     rules:
+    - alert: NodeReboot
+      expr: "(rate(node_boot_time_seconds[10m]) != 0) or (rate(windows_system_system_up_time[10m]) != 0)"
+      for: 5m
+      labels:
+        severity: p2
+      annotations:
+        description: 'Reboots event detected recently.'
+    - alert: NodeLoadUsage
+      expr: "(node_load15 / count without (cpu, mode) (node_cpu_seconds_total{mode='system'})) > 5"
+      for: 10m
+      labels:
+        severity: p2
+      annotations:
+        description: 'Processor load has exceeded the threshold with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: NodeProcessorUsage
+      expr: '((100 * (1 - avg by(datacenter,customer,environment,project,group,instance,service)(irate(node_cpu_seconds_total{mode="idle"}[10m])))) > 90) or ((100 * (1 - avg by(datacenter,customer,environment,project,group,instance,service)(irate(windows_cpu_time_total{mode="idle"}[10m])))) > 90)'
+      for: 10m
+      labels:
+        severity: p2
+      annotations:
+        description: 'Processor usage has exceeded the threshold with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: NodeMemoryUsage
+      expr: '((sum(node_memory_MemTotal_bytes)by(datacenter,customer,environment,project,group,instance,service) - sum(node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes )by(datacenter,customer,environment,project,group,instance,service)) / (sum(node_memory_MemTotal_bytes)by(datacenter,customer,environment,project,group,instance,service)) * 100 > 90) or ((sum(windows_cs_physical_memory_bytes)by(datacenter,customer,environment,project,group,instance,service) - sum(windows_os_physical_memory_free_bytes)by(datacenter,customer,environment,project,group,instance,service)) / (sum(windows_cs_physical_memory_bytes)by(datacenter,customer,environment,project,group,instance,service)) * 100 > 90)'
+      for: 10m
+      labels:
+        severity: p2
+      annotations:
+        description: 'Memory usage has exceeded the threshold with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: NodeFilesystemUsage
+      expr: '((node_filesystem_free_bytes{fstype!~"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs"} / node_filesystem_size_bytes{fstype!~"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs"} < 0.2) or (windows_logical_disk_free_bytes{volume!~"HarddiskVolume.*"} / windows_logical_disk_size_bytes{volume!~"HarddiskVolume.*"} < 0.2)) * 100'
+      for: 10m
+      labels:
+        severity: p2
+      annotations:
+        description: 'Filesystem has less than 20% with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: NodeFilesystemUsage
+      expr: '((node_filesystem_free_bytes{fstype!~"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs"} / node_filesystem_size_bytes{fstype!~"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs"} < 0.1) or (windows_logical_disk_free_bytes{volume!~"HarddiskVolume.*"} / windows_logical_disk_size_bytes{volume!~"HarddiskVolume.*"} < 0.1)) * 100'
+      for: 10m
+      labels:
+        severity: p1
+      annotations:
+        description: 'Filesystem has less than 10% with a value of {{ $value | printf "%.1f" }}%.'
     - alert: NodeFilesystemSpaceFillingUp
-      annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up.
-      expr: |-
-        (
-          node_filesystem_avail_bytes{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_size_bytes{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 15
-        and
-          predict_linear(node_filesystem_avail_bytes{job="node-exporter",fstype!="",mountpoint!=""}[6h], 24*60*60) < 0
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 1h
+      expr: '( node_filesystem_avail_bytes{fstype!=""} / node_filesystem_size_bytes{fstype!=""} * 100 < 40 and predict_linear(node_filesystem_avail_bytes{fstype!=""}[6h], 24*60*60) < 0 and node_filesystem_readonly{fstype!=""} == 0 )'
+      for: 10m
       labels:
-        severity: p3
+        severity: p2
+      annotations:
+        description: 'Filesystem is predicted to run out of space within the next 24 hours.'
     - alert: NodeFilesystemSpaceFillingUp
-      annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left and is filling up fast.
-      expr: |-
-        (
-          node_filesystem_avail_bytes{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_size_bytes{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 10
-        and
-          predict_linear(node_filesystem_avail_bytes{job="node-exporter",fstype!="",mountpoint!=""}[6h], 4*60*60) < 0
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 1h
+      expr: '( node_filesystem_files_free{fstype!=""} / node_filesystem_files{fstype!=""} * 100 < 40 and predict_linear(node_filesystem_files_free{fstype!=""}[6h], 24*60*60) < 0 and node_filesystem_readonly{fstype!=""} == 0 )'
+      for: 10m
       labels:
         severity: p1
-    - alert: NodeFilesystemAlmostOutOfSpace
       annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.
-      expr: |-
-        (
-          node_filesystem_avail_bytes{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_size_bytes{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 5
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 30m
-      labels:
-        severity: p3
-    - alert: NodeFilesystemAlmostOutOfSpace
-      annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available space left.
-      expr: |-
-        (
-          node_filesystem_avail_bytes{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_size_bytes{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 3
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 30m
-      labels:
-        severity: p1
-    - alert: NodeFilesystemFilesFillingUp
-      annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up.
-      expr: |-
-        (
-          node_filesystem_files_free{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_files{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 40
-        and
-          predict_linear(node_filesystem_files_free{job="node-exporter",fstype!="",mountpoint!=""}[6h], 24*60*60) < 0
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 1h
-      labels:
-        severity: p3
-    - alert: NodeFilesystemFilesFillingUp
-      annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left and is filling up fast.
-      expr: |-
-        (
-          node_filesystem_files_free{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_files{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 20
-        and
-          predict_linear(node_filesystem_files_free{job="node-exporter",fstype!="",mountpoint!=""}[6h], 4*60*60) < 0
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 1h
-      labels:
-        severity: p1
+        description: 'Filesystem is predicted to run out of space within the next 4 hours.'
     - alert: NodeFilesystemAlmostOutOfFiles
+      expr: 'node_filesystem_files_free{fstype!~"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs"} / node_filesystem_files{fstype!~"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs"} * 100 < 10'
+      for: 10m
+      labels:
+        severity: p2
       annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.
-      expr: |-
-        (
-          node_filesystem_files_free{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_files{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 5
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
+        description: 'Filesystem on {{ $labels.device }} inodes has less than 10% with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: NodeDiscRead
+      expr: '(irate(node_disk_read_time_seconds_total{device!~"dm-.+"}[5m]) / irate(node_disk_reads_completed_total{device!~"dm-.+"}[5m])) * 1000 > 100'
+      for: 10m
+      labels:
+        severity: p3
+      annotations:
+        description: 'Disk read latency > 100ms with a value of {{ $value | printf "%.0f" }}ms.'
+    - alert: NodeDiscWrite 
+      expr: '(irate(node_disk_write_time_seconds_total{device!~"dm-.+"}[5m]) / irate(node_disk_writes_completed_total{device!~"dm-.+"}[5m])) * 1000 > 100'
+      for: 10m
+      labels:
+        severity: p3
+      annotations:
+        description: 'Disk write latency > 100ms with a value of {{ $value | printf "%.0f" }}ms.'
+    - alert: NodeNicReceive
+      expr: '(irate(node_network_receive_bytes_total{device!~"lo|docker.*"}[5m]) > 300000000) or (irate(windows_net_bytes_received_total[5m]) > 300000000)'
+      for: 10m
+      labels:
+        severity: p3
+      annotations:
+        description: "{{ $labels.device }} has more than 300M receive."
+    - alert: NodeNicTransmit
+      expr: '(irate(node_network_transmit_bytes_total{device!~"lo|docker.*"}[5m]) > 30000000) or (irate(windows_net_bytes_sent_total[5m]) > 30000000)'
+      for: 10m
+      labels:
+        severity: p3
+      annotations:
+        description: "{{ $labels.device }} has more than 300M traffic."
+    - alert: NodeService
+      expr: '(node_systemd_unit_state{state="inactive"} == 1) or (windows_service_state{state="stopped"} == 1)'
+      for: 10m
+      labels:
+        severity: p2
+      annotations:
+        description: "Service has been stoped."
+    - alert: NodeDiscRead
+      expr: '(sum by (datacenter,customer,environment,project,group,instance,service) (irate(node_disk_read_bytes_total{device!~"dm-.+"}[5m])) / 1024 / 1024 > 50) or (sum by (datacenter,customer,environment,project,group,instance,service) (irate(windows_logical_disk_read_bytes_total{volume!~"HarddiskVolume.*"}[5m])) / 1024 / 1024 > 50)'
+      for: 10m
+      labels:
+        severity: p3
+      annotations:
+        description: 'Disk is probably reading too much data with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: node_Disc_Write
+      expr: '(sum by (datacenter,customer,environment,project,group,instance,service) (irate(node_disk_written_bytes_total{device!~"dm-.+"}[5m])) / 1024 / 1024 > 50) or (sum by (datacenter,customer,environment,project,group,instance,service) (irate(windows_logical_disk_write_bytes_total{volume!~"HarddiskVolume.*"}[5m])) / 1024 / 1024 > 50)'
+      for: 10m
+      labels:
+        severity: p3
+      annotations:
+        description: 'Disk is probably writing too much data with a value of {{ $value | printf "%.1f" }}%.'
+    - alert: NodeOomDetected
+      expr: 'increase(node_vmstat_oom_kill[1h]) > 2'
       for: 1h
       labels:
-        severity: p3
-    - alert: NodeFilesystemAlmostOutOfFiles
+        severity: p2
       annotations:
-        description: Filesystem on {{ $labels.device }} at {{ $labels.instance }} has only {{ printf "%.2f" $value }}% available inodes left.
-      expr: |-
-        (
-          node_filesystem_files_free{job="node-exporter",fstype!="",mountpoint!=""} / node_filesystem_files{job="node-exporter",fstype!="",mountpoint!=""} * 100 < 3
-        and
-          node_filesystem_readonly{job="node-exporter",fstype!="",mountpoint!=""} == 0
-        )
-      for: 1h
-      labels:
-        severity: p1
-    - alert: NodeNetworkReceiveErrs
-      annotations:
-        description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} receive errors in the last two minutes.'
-      expr: rate(node_network_receive_errs_total[2m]) / rate(node_network_receive_packets_total[2m])
-        > 0.01
-      for: 1h
-      labels:
-        severity: p3
-    - alert: NodeNetworkTransmitErrs
-      annotations:
-        description: '{{ $labels.instance }} interface {{ $labels.device }} has encountered {{ printf "%.0f" $value }} transmit errors in the last two minutes.'
-      expr: rate(node_network_transmit_errs_total[2m]) / rate(node_network_transmit_packets_total[2m])
-        > 0.01
-      for: 1h
-      labels:
-        severity: p3
-    - alert: NodeHighNumberConntrackEntriesUsed
-      annotations:
-        description: '{{ $value | humanizePercentage }} of conntrack entries are used.'
-      expr: (node_nf_conntrack_entries / node_nf_conntrack_entries_limit) > 0.75
-      labels:
-        severity: p3
-    - alert: NodeTextFileCollectorScrapeError
-      annotations:
-        description: Node Exporter text file collector failed to scrape.
-      expr: node_textfile_scrape_error{job="node-exporter"} == 1
-      labels:
-        severity: p3
+        description: 'Several OOM kills detected recently.'
     - alert: NodeClockSkewDetected
-      annotations:
-        description: Clock on {{ $labels.instance }} is out of sync by more than 300s. Ensure NTP is configured correctly on this host.
-      expr: |-
-        (
-          node_timex_offset_seconds{job="node-exporter"} > 0.05
-        and
-          deriv(node_timex_offset_seconds{job="node-exporter"}[5m]) >= 0
-        )
-        or
-        (
-          node_timex_offset_seconds{job="node-exporter"} < -0.05
-        and
-          deriv(node_timex_offset_seconds{job="node-exporter"}[5m]) <= 0
-        )
+      expr: '( node_timex_offset_seconds > 0.05 and deriv(node_timex_offset_seconds[5m]) >= 0 ) or ( node_timex_offset_seconds < -0.05 and deriv(node_timex_offset_seconds[5m]) <= 0 ) or windows_time_computed_time_offset_seconds > 1'
       for: 10m
       labels:
-        severity: p3
+        severity: p2
+      annotations:
+        description: 'Clock skew detected.'
     - alert: NodeClockNotSynchronising
+      expr: 'min_over_time(node_timex_sync_status[5m]) == 0 or max_over_time(windows_time_ntp_client_time_source_count[10m]) == 0'
+      for: 10m
+      labels:
+        severity: p2
       annotations:
-        description: Clock on {{ $labels.instance }} is not synchronising. Ensure NTP is configured on this host.
-      expr: |-
-        min_over_time(node_timex_sync_status{job="node-exporter"}[5m]) == 0
-        and
-        node_timex_maxerror_seconds{job="node-exporter"} >= 16
+        description: 'Clock not synchronising.'
+    - alert: NodeHighNumberConntrackEntriesUsed
+      expr: '(node_nf_conntrack_entries / node_nf_conntrack_entries_limit) > 0.75'
       for: 10m
       labels:
         severity: p3
-    - alert: NodeRAIDDegraded
       annotations:
-        description: RAID array '{{ $labels.device }}' on {{ $labels.instance }} is in degraded state due to one or more disks failures. Number of spare drives is insufficient to fix issue automatically.
-      expr: node_md_disks_required{job="node-exporter",device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|md.+|dasd.+)"}
-        - ignoring (state) (node_md_disks{state="active",job="node-exporter",device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|md.+|dasd.+)"})
-        > 0
-      for: 15m
-      labels:
-        severity: p1
-    - alert: NodeRAIDDiskFailure
-      annotations:
-        description: At least one device in RAID array on {{ $labels.instance }} failed. Array '{{ $labels.device }}' needs attention and possibly a disk swap.
-      expr: node_md_disks{state="failed",job="node-exporter",device=~"(/dev/)?(mmcblk.p.+|nvme.+|rbd.+|sd.+|vd.+|xvd.+|dm-.+|md.+|dasd.+)"}
-        > 0
-      labels:
-        severity: p3
-    - alert: NodeFileDescriptorLimit
-      annotations:
-        description: File descriptors limit at {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.
-      expr: |-
-        (
-          node_filefd_allocated{job="node-exporter"} * 100 / node_filefd_maximum{job="node-exporter"} > 70
-        )
-      for: 15m
-      labels:
-        severity: p3
-    - alert: NodeFileDescriptorLimit
-      annotations:
-        description: File descriptors limit at {{ $labels.instance }} is currently at {{ printf "%.2f" $value }}%.
-      expr: |-
-        (
-          node_filefd_allocated{job="node-exporter"} * 100 / node_filefd_maximum{job="node-exporter"} > 90
-        )
-      for: 15m
-      labels:
-        severity: p1
+        description: 'Number of conntrack are getting close to the limit.'

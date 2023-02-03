@@ -239,6 +239,7 @@ config:
                 repository: "https://prometheus-community.github.io/helm-charts",
                 version: "44.3.0",
                 values: {
+                    fullnameOverride: "kubepromstack",
                     defaultRules: { create: false },
                     alertmanager: {
                         enabled: true,
@@ -417,6 +418,7 @@ config:
                     },
                     kubeStateMetrics: { enabled: true },
                     "kube-state-metrics": {
+                        fullnameOverride: "kube-state-metrics",
                         image: {
                             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics",
                             tag: "v2.7.0"
@@ -444,6 +446,7 @@ config:
                     },
                     nodeExporter: { enabled: true },
                     "prometheus-node-exporter": {
+                        fullnameOverride: "node-exporter",
                         resources: {
                             limits: { cpu: "50m", memory: "32Mi" },
                             requests: { cpu: "50m", memory: "32Mi" }
@@ -638,21 +641,20 @@ save ""`,
             }
         ],
         rules: [
-            { name: "../_rules/severity/mysql.yaml" },
-            { name: "../_rules/priority/kube-prometheus-stack-alertmanager.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-alertmanager" },
             { name: "../_rules/priority/kube-prometheus-stack-config-reloaders" },
             { name: "../_rules/priority/kube-prometheus-stack-etcd" },
-            { name: "../_rules/priority/kube-prometheus-stack-general.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-k8s.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-availability.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-burnrate.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-histogram.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-general" },
+            { name: "../_rules/priority/kube-prometheus-stack-k8s" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-availability" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-burnrate" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-histogram" },
             { name: "../_rules/priority/kube-prometheus-stack-kube-apiserver-slos" },
-            { name: "../_rules/priority/kube-prometheus-stack-kube-prometheus-general.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-kube-prometheus-node-recording.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-kube-scheduler.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-prometheus-general" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-prometheus-node-recording" },
+            { name: "../_rules/priority/kube-prometheus-stack-kube-scheduler" },
             { name: "../_rules/priority/kube-prometheus-stack-kube-state-metrics" },
-            { name: "../_rules/priority/kube-prometheus-stack-kubelet.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-kubelet" },
             { name: "../_rules/priority/kube-prometheus-stack-kubernetes-apps" },
             { name: "../_rules/priority/kube-prometheus-stack-kubernetes-resources" },
             { name: "../_rules/priority/kube-prometheus-stack-kubernetes-storage" },
@@ -663,9 +665,7 @@ save ""`,
             { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-kubelet" },
             { name: "../_rules/priority/kube-prometheus-stack-kubernetes-system-scheduler" },
             { name: "../_rules/priority/kube-prometheus-stack-node-exporter" },
-            { name: "../_rules/priority/kube-prometheus-stack-node-exporter.rules" },
-            { name: "../_rules/priority/kube-prometheus-stack-node-network" },
-            { name: "../_rules/priority/kube-prometheus-stack-node.rules" },
+            { name: "../_rules/priority/kube-prometheus-stack-node" },
             { name: "../_rules/priority/kube-prometheus-stack-prometheus" },
             { name: "../_rules/priority/kube-prometheus-stack-prometheus-operator" }
         ]
