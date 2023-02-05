@@ -1,0 +1,5 @@
+encryptionsalt: v1:m6XoEiaEBqc=:v1:/05QT5ap6xLqwNYD:2iKy0Q4Wvy5NogJI4y+MY244EnK6Ng==
+config:
+  demo:adminPassword:
+    secure: v1:2taXNmACLuC2FNgh:Qobk16iyYanG+VZ/Aa7xKgjCVOyIkLlX
+  kubernetes:context: kubernetes-admin@central

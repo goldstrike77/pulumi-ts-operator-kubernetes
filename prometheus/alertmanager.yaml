@@ -31,6 +31,6 @@ receivers:
 - name: 'alerta'
   webhook_configs:
   - send_resolved: true
-    url: 'https://10.101.4.34:8443/api/webhooks/prometheus?api-key=jFiZhyFED477Ze4zfkNpP5-zBLXmqAhTSMATXeVm'
+    url: 'http://alerta.alerta.svc.cluster.local/api/webhooks/prometheus?api-key=jFiZhyFED477Ze4zfkNpP5-zBLXmqAhTSMATXeVm'
 templates:
 - '/etc/alertmanager/config/*.tmpl'

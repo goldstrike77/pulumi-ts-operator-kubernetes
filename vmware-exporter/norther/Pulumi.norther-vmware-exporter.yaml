@@ -1,5 +1,0 @@
-encryptionsalt: v1:V2+sgdV4gv4=:v1:dwwX+znLhQJarueh:+bUhZxcW75/FeKzsCDb1k8JA7rP8ag==
-config:
-  demo:password:
-    secure: v1:ATvJ9lMQfKL3LNMe:QxZsyr7YWx1q3ANNgrWImy0UHXF62Iv0yw7NHg==
-  kubernetes:context: kubernetes-admin@norther
