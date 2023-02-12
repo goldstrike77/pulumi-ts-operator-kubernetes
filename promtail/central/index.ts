@@ -84,7 +84,7 @@ const deploy_spec = [
                         addScrapeJobLabel: true,
                         extraRelabelConfigs: [
                             { replacement: "demo", target_label: "customer" },
-                            { replacement: "Prd", target_label: "environment" },
+                            { replacement: "dev", target_label: "environment" },
                             { replacement: "cluster", target_label: "project" },
                             { replacement: "central", target_label: "group" },
                             { replacement: "dc01", target_label: "datacenter" },

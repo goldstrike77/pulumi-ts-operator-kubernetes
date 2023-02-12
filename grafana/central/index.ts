@@ -116,8 +116,8 @@ const deploy_spec = [
                         hosts: ["central.example.com"],
                     },
                     resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "384Mi" },
+                        requests: { cpu: "200m", memory: "384Mi" }
                     },
                     persistence: {
                         enabled: true,

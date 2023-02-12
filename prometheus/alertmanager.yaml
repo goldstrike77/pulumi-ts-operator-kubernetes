@@ -4,21 +4,25 @@ global:
       insecure_skip_verify: true    
   resolve_timeout: 5m
 route:
-  group_by: ['job']
+  group_by: ['alertname', 'cluster', 'service']
   group_wait: 1m
   group_interval: 15s
-  repeat_interval: 12h
+  repeat_interval: 24h
   receiver: 'null'
   routes:
-  - match:
-      alertname: Watchdog
+  - matchers:
+    - severity=~"p1|p2"
+    receiver: wechat
+    continue: true
+  - matchers:
+    - alertname=Watchdog
     receiver: 'null'
-  - match:
-    receiver: 'wechat'
-    continue: true
-  - match:
-    receiver: 'alerta'
-    continue: true
+inhibit_rules:
+- source_match:
+    severity: 'p1'
+  target_match:
+    severity: 'p2'
+  equal: ['alertname', 'cluster', 'service']
 receivers:
 - name: 'null'
 - name: 'wechat'
@@ -28,9 +32,5 @@ receivers:
     agent_id: '1000005'
     corp_id: 'wxe787605f1d1700da'
     api_secret: '0BfjWZhwqFi0IUHN8sMh0JEd89383iin1TTaJajJ_SI'
-- name: 'alerta'
-  webhook_configs:
-  - send_resolved: true
-    url: 'http://alerta.alerta.svc.cluster.local/api/webhooks/prometheus?api-key=jFiZhyFED477Ze4zfkNpP5-zBLXmqAhTSMATXeVm'
 templates:
 - '/etc/alertmanager/config/*.tmpl'
