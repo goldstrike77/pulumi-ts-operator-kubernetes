@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1672820430512,
+  "iteration": 1676200347378,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -2955,7 +2955,7 @@
               },
               {
                 "id": "custom.align",
-                "value": "left"
+                "value": "auto"
               }
             ]
           },
@@ -3156,11 +3156,11 @@
               "job 5": true,
               "metrics_path": true,
               "name": true,
-              "namespace 1": true,
+              "namespace 1": false,
               "namespace 2": true,
               "namespace 3": true,
               "namespace 4": true,
-              "namespace 5": false,
+              "namespace 5": true,
               "namespace 6": true,
               "node 1": true,
               "node 2": true,
@@ -3226,7 +3226,7 @@
               "Value #E": "Core Usage",
               "Value #F": "Memory Usage",
               "job 1": "",
-              "namespace 1": "",
+              "namespace 1": "Namespace",
               "namespace 4": "Namespace",
               "namespace 5": "Namespace",
               "pod": "Pod"
@@ -3996,7 +3996,7 @@
     ]
   },
   "time": {
-    "from": "now-2h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {
@@ -4024,6 +4024,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

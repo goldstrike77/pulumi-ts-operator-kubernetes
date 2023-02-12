@@ -1,19 +1,19 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: vmware-exporter-servicemonitor
-  namespace: vmware-exporter
+  name: longhorn-prometheus-servicemonitor
+  namespace: longhorn-system
   labels:
-    name: vmware-exporter-servicemonitor
+    name: longhorn-prometheus-servicemonitor
 spec:
   selector:
     matchLabels:
-      app: vmware-exporter
+      app: longhorn-manager
   namespaceSelector:
     matchNames:
-    - vmware-exporter
+    - longhorn-system
   endpoints:
-  - port: http
+  - port: manager
     relabelings:
       - action: replace
         replacement: demo

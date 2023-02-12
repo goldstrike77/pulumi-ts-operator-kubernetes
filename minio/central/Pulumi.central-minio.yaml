@@ -1,13 +1,13 @@
 encryptionsalt: v1:SptoIDRrkMU=:v1:x59GTL2CO/n1qDeN:y3dmIDGgy8XRcz7eTCx1HG/2EWvkcA==
 config:
   demo:lokiPassword:
-    secure: v1:7RB7E1Zm95C/fRZK:bpcB4PHYLO9aOz44VDrnFLOtW1tHsc4h
+    secure: v1:bJPIlfVxjXZInctB:BnCKOJ15Q0F6dO2hWEtLCxWjBTs7Di6R
   demo:rootPassword:
-    secure: v1:L1dvFvRS4Rq4KOlE:mXvtRMzqeIWQucYdMgukedjpR8ph6b6m
+    secure: v1:5H90g6JT/QnEyXcs:w0U+d/NtIbD0bK0F3DVsk2scaoVCNify
   demo:superPassword:
     secure: v1:NnhyJ8GdDs11Qwqc:aUgLYHKLrCQynfNUnU8EN3YKwbb5KVJb
   demo:tempoPassword:
-    secure: v1:sSOSXGxeZfusZF5q:OMhCNwZp86Ice6ym10tf6h5LG7dExT05
+    secure: v1:GVaNRTsL/cMZ3jYp:ttnvbQwYuOM799MCI7fPBzsgNUFyOidT
   demo:thanosPassword:
-    secure: v1:IlMbSn60fhX2uH4o:7CHCpcTnZuwFyY9sLaeHAREukynKDhKB
+    secure: v1:LiOu/eNQKoMG5DfW:fvEbtc2OSIFKv9JgqqaDTD+WRcrkyGBG
   kubernetes:context: kubernetes-admin@central

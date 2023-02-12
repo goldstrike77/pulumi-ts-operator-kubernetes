@@ -18,11 +18,11 @@ const deploy_spec = [
       name: "loki",
       chart: "loki-distributed",
       repository: "https://grafana.github.io/helm-charts",
-      version: "0.69.0",
+      version: "0.69.4",
       values: {
         nameOverride: "loki",
         loki: {
-          podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+          podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "central", datacenter: "dc01", domain: "local" },
           config: `
 auth_enabled: false
 common:
@@ -183,6 +183,7 @@ analytics:
         serviceMonitor: {
           enabled: true,
           relabelings: [
+            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -199,7 +200,7 @@ analytics:
             limits: { cpu: "200m", memory: "512Mi" },
             requests: { cpu: "200m", memory: "512Mi" }
           },
-          persistence: { enabled: true, size: "10Gi", storageClass: "longhorn" }
+          persistence: { enabled: true, size: "8Gi", storageClass: "longhorn" }
         },
         distributor: {
           replicas: 2,
@@ -258,26 +259,26 @@ analytics:
         },
         memcachedChunks: {
           enabled: true,
-          extraArgs: ["-m 2000", "-I 2m", "-v"],
+          extraArgs: ["-m 500", "-I 2m", "-v"],
           resources: {
-            limits: { cpu: "1000m", memory: "2048Mi" },
-            requests: { cpu: "1000m", memory: "2048Mi" }
+            limits: { cpu: "200m", memory: "512Mi" },
+            requests: { cpu: "200m", memory: "512Mi" }
           }
         },
         memcachedFrontend: {
           enabled: true,
-          extraArgs: ["-m 2000", "-I 2m", "-v"],
+          extraArgs: ["-m 500", "-I 2m", "-v"],
           resources: {
-            limits: { cpu: "1000m", memory: "2048Mi" },
-            requests: { cpu: "1000m", memory: "2048Mi" }
+            limits: { cpu: "200m", memory: "512Mi" },
+            requests: { cpu: "200m", memory: "512Mi" }
           }
         },
         memcachedIndexQueries: {
           enabled: true,
-          extraArgs: ["-m 2000", "-I 2m", "-v"],
+          extraArgs: ["-m 500", "-I 2m", "-v"],
           resources: {
-            limits: { cpu: "1000m", memory: "2048Mi" },
-            requests: { cpu: "1000m", memory: "2048Mi" }
+            limits: { cpu: "200m", memory: "512Mi" },
+            requests: { cpu: "200m", memory: "512Mi" }
           }
         },
         memcachedIndexWrites: { enabled: false }

@@ -40,7 +40,9 @@ const deploy_spec = [
                     }
                 },
                 data: {
-                    "Redis_Overview.json": fs.readFileSync('./dashboards/universal/Redis_Overview.json', 'utf8')
+                    "Redis_Overview.json": fs.readFileSync('./dashboards/universal/Redis_Overview.json', 'utf8'),
+                    "Memcached_Overview.json": fs.readFileSync('./dashboards/universal/Memcached_Overview.json', 'utf8'),
+                    "Loki_Kubernetes_Logs.json": fs.readFileSync('./dashboards/universal/Loki_Kubernetes_Logs.json', 'utf8')
                 }
             },
             {
@@ -117,7 +119,11 @@ const deploy_spec = [
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
-                    persistence: { enabled: false },
+                    persistence: {
+                        enabled: true,
+                        storageClassName: "longhorn",
+                        size: "8Gi"
+                    },
                     initChownData: { enabled: false },
                     adminUser: "admin",
                     adminPassword: config.require("adminPassword"),

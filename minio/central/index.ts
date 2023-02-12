@@ -20,10 +20,16 @@ const deploy_spec = [
             repository: "https://charts.bitnami.com/bitnami",
             version: "12.1.3",
             values: {
-                mode: "standalone",
+                mode: "distributed",
                 auth: {
                     rootUser: "admin",
                     rootPassword: config.require("rootPassword")
+                },
+                statefulset: {
+                    podManagementPolicy: "Parallel",
+                    replicaCount: 4,
+                    zones: 1,
+                    drivesPerNode: 1
                 },
                 provisioning: {
                     enabled: true,
@@ -137,8 +143,8 @@ const deploy_spec = [
                 // nodeSelector: { "minio/node": "true" },
                 podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "central", datacenter: "dc01", domain: "local" },
                 resources: {
-                    limits: { cpu: "200m", memory: "2048Mi" },
-                    requests: { cpu: "200m", memory: "2048Mi" }
+                    limits: { cpu: "200m", memory: "1024Mi" },
+                    requests: { cpu: "200m", memory: "1024Mi" }
                 },
                 ingress: {
                     enabled: true,
@@ -164,13 +170,24 @@ const deploy_spec = [
                         "nginx.ingress.kubernetes.io/proxy-send-timeout": "300"
                     }
                 },
-                persistence: { enabled: false },
-                volumePermissions: { enabled: false },
+                persistence: {
+                    enabled: true,
+                    storageClass: "longhorn",
+                    size: "50Gi"
+                },
+                volumePermissions: {
+                    enabled: true,
+                    resources: {
+                        limits: { cpu: "100m", memory: "64Mi" },
+                        requests: { cpu: "100m", memory: "64Mi" }
+                    }
+                },
                 metrics: {
                     serviceMonitor: {
                         enabled: true,
                         interval: "60s",
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },

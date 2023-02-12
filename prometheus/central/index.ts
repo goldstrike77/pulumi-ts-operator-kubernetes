@@ -67,7 +67,18 @@ const deploy_spec = [
                         configSecret: "configuration-secret",
                         logLevel: "warn",
                         replicas: 1,
-                        storage: {},
+                        storage: {
+                            volumeClaimTemplate: {
+                                spec: {
+                                    storageClassName: "longhorn",
+                                    resources: {
+                                        requests: {
+                                            storage: "2Gi"
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         externalUrl: "https://central.example.com/alertmanager/",
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
@@ -282,6 +293,7 @@ const deploy_spec = [
                     logLevel: "warn",
                     serviceMonitor: {
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -309,6 +321,7 @@ const deploy_spec = [
                     thanosServiceMonitor: {
                         enabled: true,
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
                             { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
                             { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
@@ -326,6 +339,7 @@ const deploy_spec = [
                     },
                     serviceMonitor: {
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
                             { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
                             { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
@@ -353,7 +367,18 @@ const deploy_spec = [
                             limits: { cpu: "1000m", memory: "2048Mi" },
                             requests: { cpu: "1000m", memory: "2048Mi" }
                         },
-                        storageSpec: {},
+                        storageSpec: {
+                            volumeClaimTemplate: {
+                                spec: {
+                                    storageClassName: "longhorn",
+                                    resources: {
+                                        requests: {
+                                            storage: "8Gi"
+                                        }
+                                    }
+                                }
+                            }
+                        },
                         /**
                         additionalScrapeConfigsSecret: {
                             enabled: true,
@@ -489,11 +514,15 @@ config:
                             "--compact.concurrency=2"
                         ],
                         resources: {
-                            limits: { cpu: "500m", memory: "2048Mi" },
-                            requests: { cpu: "500m", memory: "2048Mi" }
+                            limits: { cpu: "500m", memory: "1024Mi" },
+                            requests: { cpu: "500m", memory: "1024Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "central", datacenter: "dc01", domain: "local" },
-                        persistence: { enabled: false }
+                        persistence: {
+                            enabled: true,
+                            storageClass: "longhorn",
+                            size: "8Gi"
+                        }
                     },
                     storegateway: {
                         enabled: true,
@@ -541,13 +570,18 @@ config:
                             requests: { cpu: "500m", memory: "1024Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "central", datacenter: "dc01", domain: "local" },
-                        persistence: { enabled: false }
+                        persistence: {
+                            enabled: true,
+                            storageClass: "longhorn",
+                            size: "8Gi"
+                        }
                     },
                     metrics: {
                         enabled: true,
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -602,6 +636,7 @@ save ""`,
                             enabled: true,
                             interval: "60s",
                             relabellings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -668,6 +703,7 @@ for (var i in deploy_spec) {
             stringData: deploy_spec[i].secret[secret_index].stringData
         }, { dependsOn: [namespace] });
     }
+    // Create kube-prometheus-stack Release Resource.
     const kubepromstack = new k8s.helm.v3.Release(deploy_spec[i].kubepromstack.name, {
         namespace: deploy_spec[i].kubepromstack.namespace,
         name: deploy_spec[i].kubepromstack.name,

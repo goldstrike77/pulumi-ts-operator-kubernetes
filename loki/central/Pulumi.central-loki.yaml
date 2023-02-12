@@ -1,0 +1,7 @@
+encryptionsalt: v1:kEaFSN6MRoE=:v1:55rxLBs2BPYjg8eL:KEWcSC70jOb4Uz7699e4iBiHcjAMTw==
+config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:dheFDgE120z43jzI:0bDT7+qp5G8HFOhSNX1x2rr/Ewc=
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:0JMDVqBgEQ3PkBa8:DJfnHyDzzSgIrbzUgkl8EkKYc1qHqWWH
+  kubernetes:context: kubernetes-admin@central

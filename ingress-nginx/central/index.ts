@@ -101,7 +101,7 @@ const deploy_spec = [
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
                     service: {
-                        annotations: { "purelb.io/service-group": "default" }
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
                     },
                     admissionWebhooks: {
                         patch: {
