@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.4"
+      "version": "8.3.10"
     },
     {
       "type": "panel",
@@ -61,7 +61,7 @@
   "gnetId": 15141,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1675923982012,
+  "iteration": 1676364012094,
   "links": [
     {
       "asDropdown": true,
@@ -246,7 +246,7 @@
         "showLabels": false,
         "showTime": true,
         "sortOrder": "Descending",
-        "wrapLogMessage": false
+        "wrapLogMessage": true
       },
       "targets": [
         {
@@ -275,7 +275,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },

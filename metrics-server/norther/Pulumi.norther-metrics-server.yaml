@@ -1,3 +1,3 @@
-encryptionsalt: v1:NTI5lmT7Hjc=:v1:uFBHlAagdCkoV6Ob:vzH8dPvbzS7USloU3MWNTOlgKKwEUQ==
+encryptionsalt: v1:mkft8PCww0s=:v1:GxhLKp+rEZYc/HCd:gECDqyYfTo+aggvCWXGdBXk4jomvYg==
 config:
   kubernetes:context: kubernetes-admin@norther

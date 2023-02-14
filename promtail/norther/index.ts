@@ -18,12 +18,12 @@ const deploy_spec = [
             name: "promtail",
             chart: "promtail",
             repository: "https://grafana.github.io/helm-charts",
-            version: "6.8.1",
+            version: "6.8.2",
             values: {
                 podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                 resources: {
-                    limits: { cpu: "200m", memory: "128Mi" },
-                    requests: { cpu: "200m", memory: "128Mi" }
+                    limits: { cpu: "100m", memory: "64Mi" },
+                    requests: { cpu: "100m", memory: "64Mi" }
                 },
                 defaultVolumes: [
                     {
@@ -62,6 +62,7 @@ const deploy_spec = [
                 serviceMonitor: {
                     enabled: true,
                     relabelings: [
+                        { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                         { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                         { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                         { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -82,7 +83,12 @@ const deploy_spec = [
                     snippets: {
                         addScrapeJobLabel: true,
                         extraRelabelConfigs: [
-                            { replacement: "norther", target_label: "cluster" }
+                            { replacement: "demo", target_label: "customer" },
+                            { replacement: "dev", target_label: "environment" },
+                            { replacement: "cluster", target_label: "project" },
+                            { replacement: "norther", target_label: "group" },
+                            { replacement: "dc01", target_label: "datacenter" },
+                            { replacement: "local", target_label: "domain" }
                         ]
                     }
                 }

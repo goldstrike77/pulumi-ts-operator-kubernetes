@@ -93,7 +93,7 @@ const deploy_spec = [
                         }
                     },
                     image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "8.3.10" },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "central", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     serviceMonitor: {
                         enabled: true,
                         relabelings: [
@@ -113,7 +113,7 @@ const deploy_spec = [
                             "nginx.ingress.kubernetes.io/use-regex": "true"
                         },
                         path: "/grafana/?(.*)",
-                        hosts: ["central.example.com"],
+                        hosts: ["norther.example.com"],
                     },
                     resources: {
                         limits: { cpu: "200m", memory: "384Mi" },
@@ -190,7 +190,7 @@ const deploy_spec = [
                             role_attribute_strict: false
                         },
                         server: {
-                            root_url: "https://central.example.com/grafana",
+                            root_url: "https://norther.example.com/grafana",
                         },
                         paths: {
                             data: "/var/lib/grafana/",

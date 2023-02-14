@@ -43,111 +43,109 @@ const deploy_spec = [
                 stringData: {}
             }
         ],
-        helm: [
-            {
-                namespace: "ingress-nginx",
-                name: "ingress-nginx",
-                chart: "ingress-nginx",
-                repository: "https://kubernetes.github.io/ingress-nginx",
-                version: "4.4.2",
-                values: {
-                    controller: {
-                        image: {
-                            registry: "registry.cn-hangzhou.aliyuncs.com",
-                            image: "goldstrike/ingress-nginx",
-                            tag: "v1.5.1",
-                            digest: "sha256:97fa1ff828554ff4ee1b0416e54ae2238b27d1faa6d314d5a94a92f1f99cf767"
-                        },
-                        config: {
-                            "compute-full-forwarded-for": "true",
-                            "enable-brotli": "true",
-                            "enable-modsecurity": "false",
-                            "enable-opentracing": "true",
-                            "enable-owasp-modsecurity-crs": "false",
-                            "force-ssl-redirect": "false",
-                            "forwarded-for-header": "X-Forwarded-For",
-                            "keep-alive": "60",
-                            "keep-alive-requests": "2048",
-                            "max-worker-connections": "20480",
-                            "real_ip_header": "X-Forwarded-For",
-                            "ssl_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
-                            "ssl_protocols": "TLSv1.2 TLSv1.3",
-                            "upstream-keepalive-connections": "8192",
-                            "upstream-keepalive-requests": "256",
-                            "upstream-keepalive-timeout": "60",
-                            "use-geoip": "false",
-                            "use-gzip": "false",
-                            "use-http2": "true",
-                            "worker-cpu-affinity": "auto",
-                            "zipkin-collector-host": "tempo-distributor.tracing.svc.cluster.local",
-                            "zipkin-service-name": "ingress-nginx"
-                        },
-                        configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
-                        addHeaders: {
-                            "Access-Control-Allow-Origin": "$http_origin",
-                            "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                            "X-Frame-Options": "DENY",
-                            "X-Content-Type-Options": "nosniff",
-                            "X-XSS-Protection": "1; mode=block"
-                        },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        sysctls: {
-                            "net.core.somaxconn": "8192",
-                            "net.ipv4.ip_local_port_range": "1024 65000"
-                        },
-                        extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
-                        replicaCount: 1,
-                        resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
-                        },
-                        service: {
-                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
-                        },
-                        admissionWebhooks: {
-                            patch: {
-                                image: {
-                                    registry: "registry.cn-hangzhou.aliyuncs.com",
-                                    image: "google_containers/kube-webhook-certgen",
-                                    digest: "sha256:cb080cc0a142137398ee9a55268bd36b2e4ca9941203191ec5846ee565b959e8"
-                                }
-                            }
-                        },
-                        metrics: {
-                            enabled: true,
-                            serviceMonitor: {
-                                enabled: false,
-                                relabelings: [
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                                ]
-                            },
-                            prometheusRule: {
-                                enabled: false
+        helm: {
+            namespace: "ingress-nginx",
+            name: "ingress-nginx",
+            chart: "ingress-nginx",
+            repository: "https://kubernetes.github.io/ingress-nginx",
+            version: "4.4.2",
+            values: {
+                controller: {
+                    image: {
+                        registry: "registry.cn-hangzhou.aliyuncs.com",
+                        image: "goldstrike/ingress-nginx",
+                        tag: "v1.5.1",
+                        digest: "sha256:97fa1ff828554ff4ee1b0416e54ae2238b27d1faa6d314d5a94a92f1f99cf767"
+                    },
+                    config: {
+                        "compute-full-forwarded-for": "true",
+                        "enable-brotli": "true",
+                        "enable-modsecurity": "false",
+                        "enable-opentracing": "true",
+                        "enable-owasp-modsecurity-crs": "false",
+                        "force-ssl-redirect": "false",
+                        "forwarded-for-header": "X-Forwarded-For",
+                        "keep-alive": "60",
+                        "keep-alive-requests": "2048",
+                        "max-worker-connections": "20480",
+                        "real_ip_header": "X-Forwarded-For",
+                        "ssl_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
+                        "ssl_protocols": "TLSv1.2 TLSv1.3",
+                        "upstream-keepalive-connections": "8192",
+                        "upstream-keepalive-requests": "256",
+                        "upstream-keepalive-timeout": "60",
+                        "use-geoip": "false",
+                        "use-gzip": "false",
+                        "use-http2": "true",
+                        "worker-cpu-affinity": "auto",
+                        "zipkin-collector-host": "tempo-distributor.tracing.svc.cluster.local",
+                        "zipkin-service-name": "ingress-nginx"
+                    },
+                    configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
+                    addHeaders: {
+                        "Access-Control-Allow-Origin": "$http_origin",
+                        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                        "X-Frame-Options": "DENY",
+                        "X-Content-Type-Options": "nosniff",
+                        "X-XSS-Protection": "1; mode=block"
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    sysctls: {
+                        "net.core.somaxconn": "8192",
+                        "net.ipv4.ip_local_port_range": "1024 65000"
+                    },
+                    extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
+                    replicaCount: 1,
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    service: {
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                    },
+                    admissionWebhooks: {
+                        patch: {
+                            image: {
+                                registry: "registry.cn-hangzhou.aliyuncs.com",
+                                image: "google_containers/kube-webhook-certgen",
+                                digest: "sha256:cb080cc0a142137398ee9a55268bd36b2e4ca9941203191ec5846ee565b959e8"
                             }
                         }
                     },
-                    defaultBackend: {
+                    metrics: {
                         enabled: true,
-                        image: {
-                            registry: "registry.cn-hangzhou.aliyuncs.com",
-                            image: "goldstrike/defaultbackend-amd64",
-                            digest: "sha256:4dc5e07c8ca4e23bddb3153737d7b8c556e5fb2f29c4558b7cd6e6df99c512c7"
+                        serviceMonitor: {
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        replicaCount: 1,
-                        resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
+                        prometheusRule: {
+                            enabled: false
                         }
+                    }
+                },
+                defaultBackend: {
+                    enabled: true,
+                    image: {
+                        registry: "registry.cn-hangzhou.aliyuncs.com",
+                        image: "goldstrike/defaultbackend-amd64",
+                        digest: "sha256:4dc5e07c8ca4e23bddb3153737d7b8c556e5fb2f29c4558b7cd6e6df99c512c7"
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    replicaCount: 1,
+                    resources: {
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
                     }
                 }
             }
-        ]
+        }
     }
 ]
 
@@ -167,17 +165,15 @@ for (var i in deploy_spec) {
         }, { dependsOn: [namespace] });
     }
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        values: deploy_spec[i].helm.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].helm.repository,
+        },
+    }, { dependsOn: [namespace] });
 }

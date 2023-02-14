@@ -1,7 +1,7 @@
-encryptionsalt: v1:od2u+ydvkUk=:v1:+tF2WEZFeTHJszpw:DQa/556dUv9h3Fm+4nGezMi+Lu+H8g==
+encryptionsalt: v1:RIvtu0Cc9gE=:v1:RU33tuavcKFOmwpX:Qh388RMV3KU6ygg03o32nu+cRS2Wkg==
 config:
   demo:AWS_ACCESS_KEY_ID:
-    secure: v1:1CBrak64RNk/ndLr:hfm7rth8ZBJKwWjy8+Qv26wiDwMGsS2fRdoQlmWTDKIJlEmM
+    secure: v1:jWNFmt9Bn7mY0EVe:vZa/cToeb48SKO6bw6mHypmcA5p80g==
   demo:AWS_SECRET_ACCESS_KEY:
-    secure: v1:aPYiZA/bww0laafi:1REdtBYDYHR6+A6rwi9A3GCLRmeJ9aYClxtZwzmL4XQOadqT2lrEgaM02EfsGPDATha6vuivsEA=
+    secure: v1:GjL4Dh6dzbRhkPp2:Yox+siGD7e8Ei2WCUBi3PRm7wFjPR/p7
   kubernetes:context: kubernetes-admin@norther

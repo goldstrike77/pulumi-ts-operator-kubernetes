@@ -22,7 +22,7 @@ const deploy_spec = [
       values: {
         nameOverride: "loki",
         loki: {
-          podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "central", datacenter: "dc01", domain: "local" },
+          podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
           config: `
 auth_enabled: false
 common:

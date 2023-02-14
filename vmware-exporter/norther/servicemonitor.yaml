@@ -31,7 +31,7 @@ spec:
           - __address__
         targetLabel: project
       - action: replace
-        replacement: central
+        replacement: norther
         sourceLabels:
           - __address__
         targetLabel: group

@@ -29,8 +29,8 @@ const deploy_spec = [
                     ],
                     metrics: { enabled: true },
                     resources: {
-                        limits: { cpu: "250m", memory: "256Mi" },
-                        requests: { cpu: "250m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "128Mi" },
+                        requests: { cpu: "200m", memory: "128Mi" }
                     }
                 }
             }
