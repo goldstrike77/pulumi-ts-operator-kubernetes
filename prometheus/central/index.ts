@@ -598,7 +598,6 @@ config:
                     volumePermissions: { enabled: false }
                 }
             },
-
             {
                 namespace: "monitoring",
                 name: "redis",
