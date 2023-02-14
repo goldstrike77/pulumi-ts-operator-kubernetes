@@ -16,6 +16,66 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "oncall",
+                name: "rabbitmq",
+                chart: "rabbitmq",
+                repository: "https://charts.bitnami.com/bitnami",
+                version: "11.9.0",
+                values: {
+                    auth: {
+                        username: "admin",
+                        password: config.require("adminPassword"),
+                    },
+                    memoryHighWatermark: {
+                        enabled: true,
+                        type: "relative",
+                        value: 0.4
+                    },
+                    plugins: "rabbitmq_management rabbitmq_peer_discovery_k8s",
+                    clustering: { enabled: false },
+                    extraConfiguration: `
+disk_free_limit.absolute = 2GB
+`,
+                    replicaCount: 1,
+                    podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "1000m", memory: "2048Mi" },
+                        requests: { cpu: "1000m", memory: "2048Mi" }
+                    },
+                    persistence: {
+                        enabled: true,
+                        storageClass: "longhorn",
+                        size: "8Gi"
+                    },
+                    metrics: {
+                        enabled: true,
+                        serviceMonitor: {
+                            enabled: true,
+                            interval: "60s",
+                            relabellings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        prometheusRule: {
+                            enabled: false
+                        }
+                    },
+                    volumePermissions: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                    }
+                }
+            },
+            {
+                namespace: "oncall",
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",

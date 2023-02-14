@@ -68,7 +68,7 @@
   "gnetId": 763,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1673498757294,
+  "iteration": 1676378792493,
   "links": [
     {
       "asDropdown": true,
@@ -204,7 +204,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "redis_uptime_in_seconds{instance=\"$host\"}",
+          "expr": "redis_uptime_in_seconds{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "10m",
           "intervalFactor": 2,
@@ -283,7 +283,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "redis_instance_info{instance=\"$host\"}",
+          "expr": "redis_instance_info{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 2,
@@ -359,7 +359,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "rate(redis_commands_processed_total{instance=\"$host\"}[5m])",
+          "expr": "rate(redis_commands_processed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -461,7 +461,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "irate(redis_keyspace_hits_total{instance=\"$host\"}[5m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "irate(redis_keyspace_hits_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -473,7 +478,12 @@
           "target": ""
         },
         {
-          "expr": "irate(redis_keyspace_misses_total{instance=\"$host\"}[5m])",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "irate(redis_keyspace_misses_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -595,7 +605,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "100 * (redis_memory_used_bytes{instance=\"$host\"}  / redis_memory_max_bytes{instance=\"$host\"} )",
+          "expr": "100 * (redis_memory_used_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}  / redis_memory_max_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"} )",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -671,7 +681,12 @@
       "pluginVersion": "8.3.10",
       "targets": [
         {
-          "expr": "redis_memory_used_bytes{instance=\"$host\"}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "redis_memory_used_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -752,7 +767,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "redis_sentinel_master_sentinels{instance=\"$host\"}",
+          "expr": "redis_sentinel_master_sentinels{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "10m",
           "intervalFactor": 2,
@@ -838,7 +853,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "redis_connected_clients{instance=\"$host\"}",
+          "expr": "redis_connected_clients{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -914,7 +929,12 @@
       "pluginVersion": "8.3.10",
       "targets": [
         {
-          "expr": "redis_memory_max_bytes{instance=\"$host\"}",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "redis_memory_max_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -994,7 +1014,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "redis_memory_used_bytes{instance=\"$host\"}",
+          "expr": "redis_memory_used_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1009,7 +1029,8 @@
             "type": "prometheus",
             "uid": "DS_PROMETHEUS"
           },
-          "expr": "redis_memory_max_bytes{instance=\"$host\"}",
+          "exemplar": true,
+          "expr": "redis_memory_max_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -1116,7 +1137,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "rate(redis_net_input_bytes_total{instance=\"$host\"}[5m])",
+          "expr": "rate(redis_net_input_bytes_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
@@ -1130,7 +1151,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "- rate(redis_net_output_bytes_total{instance=\"$host\"}[5m])",
+          "expr": "- rate(redis_net_output_bytes_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
@@ -1237,7 +1258,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum (redis_db_keys{instance=\"$host\"}) by (db)",
+          "expr": "sum (redis_db_keys{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}) by (db)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1342,7 +1363,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum (redis_db_keys{instance=\"$host\"}) - sum (redis_db_keys_expiring{instance=\"$host\"})",
+          "expr": "sum (redis_db_keys{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}) - sum (redis_db_keys_expiring{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"})",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1357,7 +1378,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum (redis_db_keys_expiring{instance=\"$host\"})",
+          "expr": "sum (redis_db_keys_expiring{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"})",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1468,7 +1489,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(redis_expired_keys_total{instance=\"$host\"}[5m])) by (addr)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(redis_expired_keys_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])) by (addr)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1479,7 +1505,12 @@
           "target": ""
         },
         {
-          "expr": "sum(rate(redis_evicted_keys_total{instance=\"$host\"}[5m])) by (addr)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(redis_evicted_keys_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])) by (addr)",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1577,7 +1608,12 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "topk(5, irate(redis_commands_duration_seconds_total{instance=\"$host\"} [5m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "topk(5, irate(redis_commands_duration_seconds_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"} [5m]))",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 2,
@@ -1710,7 +1746,7 @@
           "type": "prometheus",
           "uid": "DS_PROMETHEUS"
         },
-        "definition": "label_values(redis_connected_clients{customer=~\"$customer\"}, environment)",
+        "definition": "label_values(redis_connected_clients{customer=\"$customer\"}, environment)",
         "hide": 0,
         "includeAll": false,
         "label": "Environment",
@@ -1718,60 +1754,8 @@
         "name": "environment",
         "options": [],
         "query": {
-          "query": "label_values(redis_connected_clients{customer=~\"$customer\"}, environment)",
-          "refId": "DS_PROMETHEUS-environment-Variable-Query"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "DS_PROMETHEUS"
-        },
-        "definition": "label_values(redis_connected_clients{customer=~\"$customer\",environment=~\"$environment\"}, project)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Project",
-        "multi": false,
-        "name": "project",
-        "options": [],
-        "query": {
-          "query": "label_values(redis_connected_clients{customer=~\"$customer\",environment=~\"$environment\"}, project)",
-          "refId": "DS_PROMETHEUS-project-Variable-Query"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "DS_PROMETHEUS"
-        },
-        "definition": "label_values(redis_connected_clients{customer=~\"$customer\",environment=~\"$environment\",project=~\"$project\"},group)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Group",
-        "multi": false,
-        "name": "group",
-        "options": [],
-        "query": {
-          "query": "label_values(redis_connected_clients{customer=~\"$customer\",environment=~\"$environment\",project=~\"$project\"},group)",
-          "refId": "DS_PROMETHEUS-group-Variable-Query"
+          "query": "label_values(redis_connected_clients{customer=\"$customer\"}, environment)",
+          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -1788,7 +1772,59 @@
           "type": "prometheus",
           "uid": "DS_PROMETHEUS"
         },
-        "definition": "label_values(redis_connected_clients{customer=~\"$customer\",environment=~\"$environment\",project=~\"$project\",group=~\"$group\"},instance)",
+        "definition": "label_values(redis_connected_clients{customer=\"$customer\",environment=\"$environment\"}, project)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Project",
+        "multi": false,
+        "name": "project",
+        "options": [],
+        "query": {
+          "query": "label_values(redis_connected_clients{customer=\"$customer\",environment=\"$environment\"}, project)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
+        "definition": "label_values(redis_connected_clients{customer=\"$customer\",environment=\"$environment\",project=\"$project\"},group)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Group",
+        "multi": false,
+        "name": "group",
+        "options": [],
+        "query": {
+          "query": "label_values(redis_connected_clients{customer=\"$customer\",environment=\"$environment\",project=\"$project\"},group)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {},
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
+        "definition": "label_values(redis_connected_clients{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"},instance)",
         "hide": 0,
         "includeAll": false,
         "label": "Host",
@@ -1796,8 +1832,8 @@
         "name": "host",
         "options": [],
         "query": {
-          "query": "label_values(redis_connected_clients{customer=~\"$customer\",environment=~\"$environment\",project=~\"$project\",group=~\"$group\"},instance)",
-          "refId": "DS_PROMETHEUS-host-Variable-Query"
+          "query": "label_values(redis_connected_clients{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"},instance)",
+          "refId": "StandardVariableQuery"
         },
         "refresh": 1,
         "regex": "",
@@ -1839,6 +1875,6 @@
   "timezone": "browser",
   "title": "Redis Overview",
   "uid": "ayrQrqY1",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

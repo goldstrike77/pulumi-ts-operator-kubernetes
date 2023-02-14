@@ -517,7 +517,7 @@ config:
                             limits: { cpu: "500m", memory: "1024Mi" },
                             requests: { cpu: "500m", memory: "1024Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
                         persistence: {
                             enabled: true,
                             storageClass: "longhorn",
@@ -621,7 +621,7 @@ save ""`,
                             limits: { cpu: "300m", memory: "576Mi" },
                             requests: { cpu: "300m", memory: "576Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
                         podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
                         persistence: { enabled: false }
                     },
@@ -631,7 +631,7 @@ save ""`,
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
                             enabled: true,
                             interval: "60s",
