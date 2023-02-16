@@ -16,10 +16,78 @@ const deploy_spec = [
         helm: [
             {
                 namespace: "oncall",
+                name: "oncall",
+                chart: "oncall",
+                repository: "https://grafana.github.io/helm-charts",
+                version: "1.1.23",
+                values: {
+                    engine: {
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        }
+                    },
+                    celery: {
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        }
+                    },
+                    ingress: {
+                        enabled: true,
+                        annotations: {
+                            "kubernetes.io/ingress.class": "nginx"
+                        },
+                        extraPaths: [
+                            {
+                                path: "/oncall",
+                                pathType: "Prefix",
+                                backend: {
+                                    service: {
+                                        name: "ssl-redirect",
+                                        port: {
+                                            name: "use-annotation"
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    "ingress-nginx": { enabled: false },
+                    "cert-manager": { enabled: false },
+                    database: { type: "mysql" },
+                    mariadb: { enabled: false },
+                    externalMysql: {
+                        host: "mysql",
+                        db_name: "oncall",
+                        user: "oncall",
+                        password: config.require("userPassword")
+                    },
+                    rabbitmq: { enabled: false },
+                    externalRabbitmq: {
+                        host: "rabbitmq",
+                        user: "admin",
+                        password: config.require("adminPassword")
+                    },
+                    redis: { enabled: false },
+                    externalRedis: {
+                        host: "redis-master",
+                        password: " "
+                    },
+                    grafana: { enabled: false },
+                    externalGrafana: {
+                        url: "http://norther.example.com/grafana"
+                    }
+                }
+            },
+            {
+                namespace: "oncall",
                 name: "rabbitmq",
                 chart: "rabbitmq",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.9.0",
+                version: "10.3.9",
                 values: {
                     auth: {
                         username: "admin",
@@ -30,16 +98,15 @@ const deploy_spec = [
                         type: "relative",
                         value: 0.4
                     },
-                    plugins: "rabbitmq_management rabbitmq_peer_discovery_k8s",
                     clustering: { enabled: false },
                     extraConfiguration: `
-disk_free_limit.absolute = 2GB
+disk_free_limit.absolute = 1GB
 `,
                     replicaCount: 1,
                     podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "1000m", memory: "2048Mi" },
-                        requests: { cpu: "1000m", memory: "2048Mi" }
+                        limits: { cpu: "500m", memory: "1024Mi" },
+                        requests: { cpu: "500m", memory: "1024Mi" }
                     },
                     persistence: {
                         enabled: true,
@@ -51,7 +118,7 @@ disk_free_limit.absolute = 2GB
                         serviceMonitor: {
                             enabled: true,
                             interval: "60s",
-                            relabellings: [
+                            relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -68,8 +135,8 @@ disk_free_limit.absolute = 2GB
                     volumePermissions: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         },
                     }
                 }
@@ -110,7 +177,7 @@ save ""`,
                         serviceMonitor: {
                             enabled: true,
                             interval: "60s",
-                            relabellings: [
+                            relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -124,8 +191,8 @@ save ""`,
                     sysctl: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     }
                 }
@@ -191,14 +258,14 @@ save ""`,
                     volumePermissions: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     },
                     metrics: {
                         enabled: true,
                         extraArgs: {
-                            primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.global_variables", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
+                            primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
                         },
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
@@ -223,8 +290,8 @@ save ""`,
                         serviceMonitor: {
                             enabled: true,
                             interval: "60s",
-                            relabellings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_node_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },

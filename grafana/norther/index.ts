@@ -72,7 +72,8 @@ const deploy_spec = [
                     "Linux_System_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_System_Overview.json', 'utf8'),
                     "Linux_Disk_Performance.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Performance.json', 'utf8'),
                     "Linux_Network_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Network_Overview.json', 'utf8'),
-                    "Linux_Disk_Space.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Space.json', 'utf8')
+                    "Linux_Disk_Space.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Space.json', 'utf8'),
+                    "Cross_Server_Graphs.json": fs.readFileSync('./dashboards/operatingsystem/Cross_Server_Graphs.json', 'utf8')
                 }
             }
         ],
@@ -127,7 +128,7 @@ const deploy_spec = [
                     initChownData: { enabled: false },
                     adminUser: "admin",
                     adminPassword: config.require("adminPassword"),
-                    plugins: ["grafana-piechart-panel", "camptocamp-prometheus-alertmanager-datasource"],
+                    plugins: ["grafana-piechart-panel", "camptocamp-prometheus-alertmanager-datasource", "grafana-oncall-app"],
                     datasources: {
                         "datasources.yaml": {
                             apiVersion: 1,
@@ -217,8 +218,8 @@ const deploy_spec = [
                     },
                     sidecar: {
                         resources: {
-                            limits: { cpu: "50m", memory: "64Mi" },
-                            requests: { cpu: "50m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "128Mi" },
+                            requests: { cpu: "50m", memory: "128Mi" }
                         },
                         dashboards: { enabled: true, label: "grafana_dashboard" }
                     }

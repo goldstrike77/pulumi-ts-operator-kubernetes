@@ -1,5 +1,6 @@
 #### Installing the Chart.
 ```hcl
+helm repo add grafana https://grafana.github.io/helm-charts
 helm repo add bitnami https://charts.bitnami.com/bitnami
 ```
 
