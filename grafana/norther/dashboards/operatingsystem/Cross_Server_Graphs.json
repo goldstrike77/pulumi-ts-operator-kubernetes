@@ -43,6 +43,12 @@
     },
     {
       "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
       "id": "table",
       "name": "Table",
       "version": ""
@@ -72,7 +78,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1676527116871,
+  "iteration": 1676549090918,
   "links": [
     {
       "$$hashKey": "object:2587",
@@ -145,7 +151,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "#fffac3",
+            "fixedColor": "text",
             "mode": "fixed"
           },
           "custom": {
@@ -241,6 +247,13 @@
               {
                 "id": "custom.width",
                 "value": 80
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fffac3",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -261,6 +274,13 @@
               {
                 "id": "custom.width",
                 "value": 100
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fffac3",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -281,6 +301,13 @@
               {
                 "id": "decimals",
                 "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#fffac3",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -301,6 +328,13 @@
               {
                 "id": "decimals",
                 "value": 1
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-green",
+                  "mode": "fixed"
+                }
               }
             ]
           },
@@ -312,7 +346,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 120
+                "value": 200
               }
             ]
           },
@@ -348,12 +382,7 @@
           "show": false
         },
         "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "Project"
-          }
-        ]
+        "sortBy": []
       },
       "pluginVersion": "8.3.10",
       "repeatDirection": "h",
@@ -368,7 +397,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "$interval",
+          "interval": "5m",
           "legendFormat": "",
           "refId": "F"
         },
@@ -382,7 +411,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "$interval",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A",
@@ -398,7 +427,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "$interval",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "B"
@@ -413,7 +442,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "$interval",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "C"
@@ -428,7 +457,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "$interval",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "D"
@@ -443,7 +472,7 @@
           "format": "table",
           "hide": false,
           "instant": true,
-          "interval": "$interval",
+          "interval": "5m",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "E"
@@ -565,6 +594,185 @@
         "type": "prometheus",
         "uid": "DS_PROMETHEUS"
       },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#fffbd1",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 3,
+        "x": 0,
+        "y": 9
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "(count(node_memory_MemTotal_bytes{instance=~\"$host\"}) or vector(0)) + (count(windows_os_visible_memory_bytes{instance=~\"$host\"}) or vector(0))",
+          "interval": "5m",
+          "legendFormat": "Instance",
+          "refId": "A"
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "super-light-blue",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Memory"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Storage"
+            },
+            "properties": [
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 9,
+        "x": 3,
+        "y": 9
+      },
+      "id": 23,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": false
+      },
+      "pluginVersion": "8.3.10",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "(sum(windows_cs_logical_processors{instance=~\"$host\"}) or vector(0)) + (count(node_cpu_seconds_total{instance=~\"$host\",mode=\"user\"}) or vector(0))",
+          "interval": "5m",
+          "legendFormat": "VCore",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "((sum(node_memory_MemTotal_bytes{instance=~\"$host\"}) or vector(0)) + (sum(windows_os_visible_memory_bytes{instance=~\"$host\"}) or vector(0)))",
+          "hide": false,
+          "interval": "5m",
+          "legendFormat": "Memory",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "((sum(node_filesystem_size_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) or vector(0)) + (sum(node_memory_SwapTotal_bytes{instance=~\"$host\"}) or vector(0)) + (sum(windows_logical_disk_size_bytes{instance=~\"$host\"}) or vector(0)))",
+          "hide": false,
+          "interval": "5m",
+          "legendFormat": "Storage",
+          "refId": "C"
+        }
+      ],
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -602,7 +810,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "semi-dark-orange",
                   "mode": "fixed"
                 }
               }
@@ -617,7 +825,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "green",
+                  "fixedColor": "light-green",
                   "mode": "fixed"
                 }
               }
@@ -628,7 +836,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 0,
+        "x": 12,
         "y": 9
       },
       "hideTimeOverride": true,
@@ -665,7 +873,7 @@
           "exemplar": true,
           "expr": "(1 - avg(irate(node_cpu_seconds_total{instance=~\"$host\",mode='idle'}[5m]))) or (1 - avg(irate(windows_cpu_time_total{mode=\"idle\", instance=~\"$host\"}[5m])))",
           "instant": false,
-          "interval": "$interval",
+          "interval": "5m",
           "legendFormat": "Usage",
           "refId": "A"
         },
@@ -677,14 +885,13 @@
           "exemplar": true,
           "expr": "(1 - (1 - avg(irate(node_cpu_seconds_total{instance=~\"$host\",mode='idle'}[5m])))) or (1 - (1 - avg(irate(windows_cpu_time_total{mode=\"idle\", instance=~\"$host\"}[5m]))))",
           "hide": false,
-          "interval": "$interval",
+          "interval": "5m",
           "legendFormat": "Free",
           "refId": "B"
         }
       ],
       "timeFrom": "$interval",
       "title": "Combine CPU Usage",
-      "transparent": true,
       "type": "piechart"
     },
     {
@@ -728,7 +935,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "semi-dark-orange",
                   "mode": "fixed"
                 }
               }
@@ -754,7 +961,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 4,
+        "x": 16,
         "y": 9
       },
       "hideTimeOverride": true,
@@ -790,7 +997,7 @@
           },
           "exemplar": true,
           "expr": "avg((node_memory_MemTotal_bytes{instance=~\"$host\"} - (node_memory_MemFree_bytes{instance=~\"$host\"} + node_memory_Buffers_bytes{instance=~\"$host\"} + node_memory_Cached_bytes{instance=~\"$host\"})) / node_memory_MemTotal_bytes{instance=~\"$host\"}) or avg((windows_cs_physical_memory_bytes{instance=~\"$host\"} - windows_os_physical_memory_free_bytes{instance=~\"$host\"}) / windows_cs_physical_memory_bytes{instance=~\"$host\"})",
-          "interval": "$interval",
+          "interval": "5m",
           "legendFormat": "Usage",
           "refId": "A"
         },
@@ -802,14 +1009,13 @@
           "exemplar": true,
           "expr": "(1 - avg((node_memory_MemTotal_bytes{instance=~\"$host\"} - (node_memory_MemFree_bytes{instance=~\"$host\"} + node_memory_Buffers_bytes{instance=~\"$host\"} + node_memory_Cached_bytes{instance=~\"$host\"})) / node_memory_MemTotal_bytes{instance=~\"$host\"})) or (1 - avg((windows_cs_physical_memory_bytes{instance=~\"$host\"} - windows_os_physical_memory_free_bytes{instance=~\"$host\"}) / windows_cs_physical_memory_bytes{instance=~\"$host\"}))",
           "hide": false,
-          "interval": "",
+          "interval": "5m",
           "legendFormat": "Free",
           "refId": "B"
         }
       ],
       "timeFrom": "$interval",
       "title": "Memory Usage",
-      "transparent": true,
       "type": "piechart"
     },
     {
@@ -853,7 +1059,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
+                  "fixedColor": "semi-dark-orange",
                   "mode": "fixed"
                 }
               }
@@ -879,7 +1085,7 @@
       "gridPos": {
         "h": 7,
         "w": 4,
-        "x": 8,
+        "x": 20,
         "y": 9
       },
       "hideTimeOverride": true,
@@ -915,7 +1121,7 @@
           },
           "exemplar": true,
           "expr": "(1- sum(node_filesystem_free_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) / sum (node_filesystem_size_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"})) or (1- sum(windows_logical_disk_free_bytes{instance=~\"$host\"}) / sum(windows_logical_disk_size_bytes{instance=~\"$host\"}))",
-          "interval": "$interval",
+          "interval": "5m",
           "legendFormat": "Usage",
           "refId": "A"
         },
@@ -927,168 +1133,14 @@
           "exemplar": true,
           "expr": "(sum(node_filesystem_free_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) / sum (node_filesystem_size_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"})) or (sum(windows_logical_disk_free_bytes{instance=~\"$host\"}) / sum(windows_logical_disk_size_bytes{instance=~\"$host\"}))",
           "hide": false,
-          "interval": "",
+          "interval": "5m",
           "legendFormat": "Free",
           "refId": "B"
         }
       ],
       "timeFrom": "$interval",
       "title": "Disc Usage",
-      "transparent": true,
       "type": "piechart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "DS_PROMETHEUS"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "#fff7a0",
-            "mode": "fixed"
-          },
-          "decimals": 0,
-          "displayName": "",
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Memory"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Storage"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "id": 15,
-      "links": [],
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "text": {}
-      },
-      "pluginVersion": "8.3.10",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "DS_PROMETHEUS"
-          },
-          "exemplar": true,
-          "expr": "(count(node_memory_MemTotal_bytes{instance=~\"$host\"}) or vector(0)) + (count(windows_os_visible_memory_bytes{instance=~\"$host\"}) or vector(0))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Instance",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "DS_PROMETHEUS"
-          },
-          "exemplar": true,
-          "expr": "(sum(windows_cs_logical_processors{instance=~\"$host\"}) or vector(0)) + (count(node_cpu_seconds_total{instance=~\"$host\",mode=\"user\"}) or vector(0))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "VCore",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "DS_PROMETHEUS"
-          },
-          "exemplar": true,
-          "expr": "((sum(node_memory_MemTotal_bytes{instance=~\"$host\"}) or vector(0)) + (sum(windows_os_visible_memory_bytes{instance=~\"$host\"}) or vector(0)))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Memory",
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "DS_PROMETHEUS"
-          },
-          "exemplar": true,
-          "expr": "((sum(node_filesystem_size_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) or vector(0)) + (sum(node_memory_SwapTotal_bytes{instance=~\"$host\"}) or vector(0)) + (sum(windows_logical_disk_size_bytes{instance=~\"$host\"}) or vector(0)))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Storage",
-          "refId": "D"
-        }
-      ],
-      "timeFrom": "$interval",
-      "title": "Summary",
-      "transparent": true,
-      "type": "bargauge"
     },
     {
       "aliasColors": {},

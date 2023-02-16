@@ -13,6 +13,20 @@ const deploy_spec = [
             },
             spec: {}
         },
+        secret: {
+            metadata: {
+                name: "oncall-rabbitmq-external",
+                namespace: "oncall",
+                annotations: {},
+                labels: {}
+            },
+            type: "Opaque",
+            data: {
+                "username": Buffer.from("admin").toString('base64'),
+                "password": Buffer.from(config.require("adminPassword")).toString('base64')
+            },
+            stringData: {}
+        },
         helm: [
             {
                 namespace: "oncall",
@@ -24,15 +38,15 @@ const deploy_spec = [
                     engine: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
                     celery: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
                     ingress: {
@@ -68,8 +82,7 @@ const deploy_spec = [
                     rabbitmq: { enabled: false },
                     externalRabbitmq: {
                         host: "rabbitmq",
-                        user: "admin",
-                        password: config.require("adminPassword")
+                        existingSecret: "oncall-rabbitmq-external"
                     },
                     redis: { enabled: false },
                     externalRedis: {
@@ -177,7 +190,7 @@ save ""`,
                         serviceMonitor: {
                             enabled: true,
                             interval: "60s",
-                            relabelings: [
+                            relabellings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -215,38 +228,43 @@ save ""`,
                     },
                     primary: {
                         configuration: `
- [mysqld]
- default_authentication_plugin=mysql_native_password
- skip-name-resolve
- explicit_defaults_for_timestamp
- basedir=/opt/bitnami/mysql
- plugin_dir=/opt/bitnami/mysql/lib/plugin
- port=3306
- socket=/opt/bitnami/mysql/tmp/mysql.sock
- datadir=/bitnami/mysql/data
- tmpdir=/opt/bitnami/mysql/tmp
- max_allowed_packet=16M
- bind-address=*
- pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
- log-error=/opt/bitnami/mysql/logs/mysqld.log
- character-set-server=utf8mb4
- collation-server=utf8mb4_general_ci
- slow_query_log=0
- 
- [client]
- port=3306
- socket=/opt/bitnami/mysql/tmp/mysql.sock
- default-character-set=UTF8
- plugin_dir=/opt/bitnami/mysql/lib/plugin
- 
- [manager]
- port=3306
- socket=/opt/bitnami/mysql/tmp/mysql.sock
- pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+[mysqld]
+default_authentication_plugin=mysql_native_password
+skip-name-resolve
+explicit_defaults_for_timestamp
+basedir=/opt/bitnami/mysql
+plugin_dir=/opt/bitnami/mysql/lib/plugin
+port=3306
+socket=/opt/bitnami/mysql/tmp/mysql.sock
+datadir=/bitnami/mysql/data
+tmpdir=/opt/bitnami/mysql/tmp
+max_allowed_packet=16M
+bind-address=*
+pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+log-error=/opt/bitnami/mysql/logs/mysqld.log
+character-set-server=utf8mb4
+collation-server=utf8mb4_general_ci
+slow_query_log=0
+performance_schema_max_table_instances=256
+table_definition_cache=128
+table_open_cache=128
+innodb_buffer_pool_size=512M
+innodb_flush_log_at_trx_commit=2
+
+[client]
+port=3306
+socket=/opt/bitnami/mysql/tmp/mysql.sock
+default-character-set=UTF8
+plugin_dir=/opt/bitnami/mysql/lib/plugin
+
+[manager]
+port=3306
+socket=/opt/bitnami/mysql/tmp/mysql.sock
+pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
 `,
                         resources: {
-                            limits: { cpu: "250m", memory: "512Mi" },
-                            requests: { cpu: "250m", memory: "512Mi" }
+                            limits: { cpu: "500m", memory: "1024Mi" },
+                            requests: { cpu: "500m", memory: "1024Mi" }
                         },
                         persistence: {
                             enabled: true,
@@ -318,6 +336,13 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].namespace.metadata,
         spec: deploy_spec[i].namespace.spec
     });
+    // Create Kubernetes Secret.
+    const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
+        metadata: deploy_spec[i].secret.metadata,
+        type: deploy_spec[i].secret.type,
+        data: deploy_spec[i].secret.data,
+        stringData: deploy_spec[i].secret.stringData
+    }, { dependsOn: [namespace] });
     // Create Release Resource.
     for (var helm_index in deploy_spec[i].helm) {
         const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
