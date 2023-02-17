@@ -33,7 +33,7 @@ const deploy_spec = [
                 name: "oncall",
                 chart: "oncall",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "1.1.23",
+                version: "1.1.24",
                 values: {
                     engine: {
                         replicaCount: 1,
@@ -238,13 +238,14 @@ port=3306
 socket=/opt/bitnami/mysql/tmp/mysql.sock
 datadir=/bitnami/mysql/data
 tmpdir=/opt/bitnami/mysql/tmp
-max_allowed_packet=16M
+max_allowed_packet=128M
 bind-address=*
 pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
 log-error=/opt/bitnami/mysql/logs/mysqld.log
 character-set-server=utf8mb4
 collation-server=utf8mb4_general_ci
 slow_query_log=0
+max_connections=100
 performance_schema_max_table_instances=256
 table_definition_cache=128
 table_open_cache=128
@@ -282,9 +283,11 @@ pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
                     },
                     metrics: {
                         enabled: true,
+                        /**
                         extraArgs: {
                             primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
                         },
+                         */
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
                             requests: { cpu: "100m", memory: "128Mi" }

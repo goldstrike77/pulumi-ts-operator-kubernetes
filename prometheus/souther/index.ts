@@ -342,7 +342,6 @@ config:
                             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics",
                             tag: "v2.7.0"
                         },
-                        replicas: 1,
                         customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                         metricLabelsAllowlist: ["nodes=[*]"],
                         resources: {
@@ -473,7 +472,7 @@ config:
                             externalUrl: "https://souther.example.com/prometheus/",
                             serviceMonitorSelectorNilUsesHelmValues: false,
                             podMonitorSelectorNilUsesHelmValues: false,
-                            retention: "1d",
+                            retention: "12h",
                             retentionSize: "4096MB",
                             replicas: 1,
                             logLevel: "warn",
