@@ -357,7 +357,7 @@ const deploy_spec = [
                         ruleSelectorNilUsesHelmValues: false,
                         serviceMonitorSelectorNilUsesHelmValues: false,
                         podMonitorSelectorNilUsesHelmValues: false,
-                        retention: "12h",
+                        retention: "6h",
                         retentionSize: "4096MB",
                         replicas: 1,
                         logLevel: "warn",

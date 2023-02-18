@@ -32,6 +32,19 @@ const deploy_spec = [
         configmap: [
             {
                 metadata: {
+                    name: "grafana-dashboards-database",
+                    namespace: "visualization",
+                    annotations: {},
+                    labels: {
+                        grafana_dashboard: ""
+                    }
+                },
+                data: {
+                    "MySQL_Overview.json": fs.readFileSync('./dashboards/database/MySQL_Overview.json', 'utf8')
+                }
+            },
+            {
+                metadata: {
                     name: "grafana-dashboards-universal",
                     namespace: "visualization",
                     annotations: {},
@@ -209,7 +222,10 @@ const deploy_spec = [
                         },
                         log: { mode: "console", level: "warn" },
                         grafana_net: { url: "https://grafana.net" },
-                        user: { default_theme: "dark" },
+                        user: {
+                            default_theme: "dark",
+                            home_page: ""
+                        },
                         tracing: { type: "jaeger" },
                         "tracing.jaeger": {
                             address: "tempo-distributor.tracing.svc.cluster.local:6831",

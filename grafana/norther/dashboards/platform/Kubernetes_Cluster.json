@@ -80,7 +80,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1676208182846,
+  "iteration": 1676636210732,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -3315,7 +3315,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "sum (rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}[5m])) by (pod)",
+          "expr": "sum (rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\",pod!=\"\",cluster=\"$cluster\",environment=\"$environment\",customer=\"$customer\",container!=\"\"}[5m])) by (pod)",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -4024,6 +4024,6 @@
   "timezone": "browser",
   "title": "Kubernetes Cluster",
   "uid": "U_gA5P2az",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

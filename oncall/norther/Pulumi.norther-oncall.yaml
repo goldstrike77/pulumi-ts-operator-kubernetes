@@ -1,9 +1,11 @@
 encryptionsalt: v1:MzSxaqSKMYQ=:v1:PM0/vQ2/did2njxe:UMTrlNj2oQ20E/vsT59xGKa/BBYocw==
 config:
-  demo:adminPassword:
-    secure: v1:SDv+nu6o8hlWvUsJ:1XSzchxxzigVoYozsM9RRTx9Bar925Zu
+  demo:mysqlPassword:
+    secure: v1:BHCWSbngtfTU7Ves:vChRtiTazZfnK6Bti+GhFtHTbeWdnekY
+  demo:rabbitmqPassword:
+    secure: v1:U81w3tbZpSIcqzn+:qwp6fPDruUd3O6Tzn55g8at2Drwtj8of
+  demo:redisPassword:
+    secure: v1:YIb8AFC/FzqqR5tp:WuOlVwQkhXdFoY9MSPmqQEQswmWaiIYm
   demo:rootPassword:
-    secure: v1:kqmyAZQ12TbL6vgS:BU/jnWqTYAf42ekxgGBogST8JPintfec
-  demo:userPassword:
-    secure: v1:+Ffv+Pnd30JYL2lG:4XFgvIVRiT7YiLajcRr2kynpdkrAbk6A
+    secure: v1:pH//CwG9xLPV1zU+:AzQMEfkLGEZyhVH2dIAjnc1vK2fCyGvr
   kubernetes:context: kubernetes-admin@norther

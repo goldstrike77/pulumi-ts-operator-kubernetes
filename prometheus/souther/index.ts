@@ -472,7 +472,7 @@ config:
                             externalUrl: "https://souther.example.com/prometheus/",
                             serviceMonitorSelectorNilUsesHelmValues: false,
                             podMonitorSelectorNilUsesHelmValues: false,
-                            retention: "12h",
+                            retention: "6h",
                             retentionSize: "4096MB",
                             replicas: 1,
                             logLevel: "warn",

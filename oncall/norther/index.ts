@@ -23,7 +23,7 @@ const deploy_spec = [
             type: "Opaque",
             data: {
                 "username": Buffer.from("admin").toString('base64'),
-                "password": Buffer.from(config.require("adminPassword")).toString('base64')
+                "password": Buffer.from(config.require("rabbitmqPassword")).toString('base64')
             },
             stringData: {}
         },
@@ -35,34 +35,43 @@ const deploy_spec = [
                 repository: "https://grafana.github.io/helm-charts",
                 version: "1.1.24",
                 values: {
+                    base_url: "norther.example.com",
                     engine: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
+                            limits: { cpu: "1000m", memory: "1024Mi" },
+                            requests: { cpu: "1000m", memory: "1024Mi" }
                         }
                     },
                     celery: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
+                            limits: { cpu: "1000m", memory: "1024Mi" },
+                            requests: { cpu: "1000m", memory: "1024Mi" }
                         }
                     },
+                    env: [
+                        {
+                            name: "UWSGI_LISTEN",
+                            value: "128"
+                        }
+                    ],
                     ingress: {
                         enabled: true,
                         annotations: {
-                            "kubernetes.io/ingress.class": "nginx"
+                            "kubernetes.io/ingress.class": "nginx",
+                            "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
+                            "nginx.ingress.kubernetes.io/configuration-snippet": "rewrite ^(/longhorn)$ $1/ redirect;"
                         },
                         extraPaths: [
                             {
-                                path: "/oncall",
+                                path: "/oncall(/|$)(.*)",
                                 pathType: "Prefix",
                                 backend: {
                                     service: {
-                                        name: "ssl-redirect",
+                                        name: "oncall-engine",
                                         port: {
-                                            name: "use-annotation"
+                                            name: "http"
                                         }
                                     }
                                 }
@@ -74,10 +83,11 @@ const deploy_spec = [
                     database: { type: "mysql" },
                     mariadb: { enabled: false },
                     externalMysql: {
-                        host: "mysql",
+                        host: "mariadb",
+                        port: "3306",
                         db_name: "oncall",
                         user: "oncall",
-                        password: config.require("userPassword")
+                        password: config.require("mysqlPassword")
                     },
                     rabbitmq: { enabled: false },
                     externalRabbitmq: {
@@ -87,11 +97,11 @@ const deploy_spec = [
                     redis: { enabled: false },
                     externalRedis: {
                         host: "redis-master",
-                        password: " "
+                        password: config.require("redisPassword")
                     },
                     grafana: { enabled: false },
                     externalGrafana: {
-                        url: "http://norther.example.com/grafana"
+                        url: "https://norther.example.com/grafana"
                     }
                 }
             },
@@ -104,7 +114,7 @@ const deploy_spec = [
                 values: {
                     auth: {
                         username: "admin",
-                        password: config.require("adminPassword"),
+                        password: config.require("rabbitmqPassword"),
                     },
                     memoryHighWatermark: {
                         enabled: true,
@@ -162,7 +172,11 @@ disk_free_limit.absolute = 1GB
                 version: "17.7.1",
                 values: {
                     architecture: "standalone",
-                    auth: { enabled: false, sentinel: false },
+                    auth: {
+                        enabled: true,
+                        sentinel: false,
+                        password: config.require("redisPassword")
+                    },
                     commonConfiguration: `appendonly no
 maxmemory 256mb
 tcp-keepalive 60
@@ -212,38 +226,38 @@ save ""`,
             },
             {
                 namespace: "oncall",
-                name: "mysql",
-                chart: "mysql",
+                name: "mariadb",
+                chart: "mariadb",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "9.4.8",
+                version: "11.4.7",
                 values: {
-                    image: { tag: "5.7.41-debian-11-r7" },
+                    image: { tag: "10.6.12-debian-11-r3" },
                     architecture: "standalone",
                     auth: {
                         rootPassword: config.require("rootPassword"),
                         createDatabase: true,
                         database: "oncall",
                         username: "oncall",
-                        password: config.require("userPassword")
+                        password: config.require("mysqlPassword")
                     },
                     primary: {
                         configuration: `
 [mysqld]
-default_authentication_plugin=mysql_native_password
 skip-name-resolve
 explicit_defaults_for_timestamp
-basedir=/opt/bitnami/mysql
-plugin_dir=/opt/bitnami/mysql/lib/plugin
+basedir=/opt/bitnami/mariadb
+plugin_dir=/opt/bitnami/mariadb/plugin
 port=3306
-socket=/opt/bitnami/mysql/tmp/mysql.sock
-datadir=/bitnami/mysql/data
-tmpdir=/opt/bitnami/mysql/tmp
-max_allowed_packet=128M
-bind-address=*
-pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
-log-error=/opt/bitnami/mysql/logs/mysqld.log
-character-set-server=utf8mb4
-collation-server=utf8mb4_general_ci
+socket=/opt/bitnami/mariadb/tmp/mysql.sock
+tmpdir=/opt/bitnami/mariadb/tmp
+max_allowed_packet=16M
+bind-address=0.0.0.0
+pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+log-error=/opt/bitnami/mariadb/logs/mysqld.log
+character-set-server=UTF8
+collation-server=utf8_general_ci
+slow_query_log=0
+slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
 slow_query_log=0
 max_connections=100
 performance_schema_max_table_instances=256
@@ -251,18 +265,24 @@ table_definition_cache=128
 table_open_cache=128
 innodb_buffer_pool_size=512M
 innodb_flush_log_at_trx_commit=2
+query_response_time_stats=1
+plugin_load_add=query_response_time
 
 [client]
 port=3306
-socket=/opt/bitnami/mysql/tmp/mysql.sock
+socket=/opt/bitnami/mariadb/tmp/mysql.sock
 default-character-set=UTF8
-plugin_dir=/opt/bitnami/mysql/lib/plugin
+plugin_dir=/opt/bitnami/mariadb/plugin
 
 [manager]
 port=3306
-socket=/opt/bitnami/mysql/tmp/mysql.sock
-pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
+socket=/opt/bitnami/mariadb/tmp/mysql.sock
+pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
 `,
+                        extraEnvVars: [
+                            { name: "MARIADB_COLLATE", value: "utf8mb4_unicode_ci" },
+                            { name: "MARIADB_CHARACTER_SET", value: "utf8mb4" }
+                        ],
                         resources: {
                             limits: { cpu: "500m", memory: "1024Mi" },
                             requests: { cpu: "500m", memory: "1024Mi" }
@@ -283,20 +303,41 @@ pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
                     },
                     metrics: {
                         enabled: true,
-                        /**
                         extraArgs: {
-                            primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
+                            primary: [
+                                "--collect.auto_increment.columns",
+                                "--collect.binlog_size",
+                                "--collect.engine_innodb_status",
+                                "--collect.global_status",
+                                "--collect.global_variables",
+                                "--collect.info_schema.clientstats",
+                                "--collect.info_schema.innodb_metrics",
+                                "--collect.info_schema.innodb_cmp",
+                                "--collect.info_schema.innodb_cmpmem",
+                                "--collect.info_schema.processlist",
+                                "--collect.info_schema.query_response_time",
+                                "--collect.info_schema.tables",
+                                "--collect.info_schema.tablestats",
+                                "--collect.info_schema.schemastats",
+                                "--collect.info_schema.userstats",
+                                "--collect.perf_schema.eventsstatements",
+                                "--collect.perf_schema.eventswaits",
+                                "--collect.perf_schema.file_events",
+                                "--collect.perf_schema.file_instances",
+                                "--collect.perf_schema.indexiowaits",
+                                "--collect.perf_schema.tableiowaits",
+                                "--collect.perf_schema.tablelocks"
+                            ]
                         },
-                         */
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "100m", memory: "256Mi" },
+                            requests: { cpu: "100m", memory: "256Mi" }
                         },
                         livenessProbe: {
                             enabled: true,
                             initialDelaySeconds: 120,
                             periodSeconds: 10,
-                            timeoutSeconds: 5,
+                            timeoutSeconds: 10,
                             successThreshold: 1,
                             failureThreshold: 3
                         },
@@ -304,7 +345,7 @@ pid-file=/opt/bitnami/mysql/tmp/mysqld.pid
                             enabled: true,
                             initialDelaySeconds: 30,
                             periodSeconds: 10,
-                            timeoutSeconds: 5,
+                            timeoutSeconds: 10,
                             successThreshold: 1,
                             failureThreshold: 3
                         },
