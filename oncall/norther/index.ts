@@ -33,21 +33,25 @@ const deploy_spec = [
                 name: "oncall",
                 chart: "oncall",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "1.1.24",
+                version: "1.1.26",
                 values: {
                     base_url: "norther.example.com",
+                    image: {
+                        repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/oncall",
+                        tag: "v1.1.26"
+                    },
                     engine: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "1000m", memory: "1024Mi" },
-                            requests: { cpu: "1000m", memory: "1024Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
                     celery: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "1000m", memory: "1024Mi" },
-                            requests: { cpu: "1000m", memory: "1024Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
                     env: [
@@ -128,8 +132,8 @@ disk_free_limit.absolute = 1GB
                     replicaCount: 1,
                     podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "500m", memory: "1024Mi" },
-                        requests: { cpu: "500m", memory: "1024Mi" }
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
                     },
                     persistence: {
                         enabled: true,
