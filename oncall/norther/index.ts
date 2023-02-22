@@ -65,7 +65,7 @@ const deploy_spec = [
                         annotations: {
                             "kubernetes.io/ingress.class": "nginx",
                             "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
-                            "nginx.ingress.kubernetes.io/configuration-snippet": "rewrite ^(/longhorn)$ $1/ redirect;"
+                            "nginx.ingress.kubernetes.io/configuration-snippet": "rewrite ^(/oncall)$ $1/ redirect;"
                         },
                         extraPaths: [
                             {
@@ -105,7 +105,7 @@ const deploy_spec = [
                     },
                     grafana: { enabled: false },
                     externalGrafana: {
-                        url: "https://norther.example.com/grafana"
+                        url: "http://grafana.visualization.svc.cluster.local/grafana/"
                     }
                 }
             },

@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "8.5.3"
     },
     {
       "type": "panel",
@@ -59,7 +59,9 @@
       {
         "$$hashKey": "object:21",
         "builtIn": 1,
-        "datasource": "",
+        "datasource": {
+          "uid": ""
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -80,7 +82,7 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1676636210732,
+  "iteration": 1677035015989,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -147,6 +149,10 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -226,7 +232,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -310,7 +316,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -367,7 +373,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -447,7 +453,7 @@
           "custom": {
             "axisGridShow": false,
             "axisLabel": "",
-            "axisPlacement": "auto",
+            "axisPlacement": "right",
             "barAlignment": 0,
             "drawStyle": "bars",
             "fillOpacity": 40,
@@ -464,7 +470,7 @@
               "log": 2,
               "type": "log"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": true,
             "stacking": {
               "group": "A",
@@ -505,7 +511,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -590,7 +597,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -670,7 +677,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -750,7 +757,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -781,7 +788,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
+          "decimals": 1,
           "mappings": [
             {
               "options": {
@@ -830,7 +837,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -853,6 +860,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -878,7 +889,8 @@
           "custom": {
             "align": "center",
             "displayMode": "color-text",
-            "filterable": false
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -1156,7 +1168,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -1639,6 +1651,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1665,7 +1681,8 @@
           "custom": {
             "align": "left",
             "displayMode": "color-text",
-            "filterable": false
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [
             {
@@ -1741,7 +1758,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -1863,7 +1880,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -1945,7 +1962,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2026,7 +2043,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2107,7 +2124,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2188,7 +2205,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2269,7 +2286,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2350,7 +2367,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2432,7 +2449,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2513,7 +2530,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2594,7 +2611,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2675,7 +2692,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2757,7 +2774,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -2789,7 +2806,8 @@
           },
           "custom": {
             "align": "center",
-            "displayMode": "auto"
+            "displayMode": "auto",
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -3001,7 +3019,7 @@
           }
         ]
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "targets": [
         {
           "datasource": {
@@ -3238,6 +3256,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3300,7 +3322,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -3411,7 +3433,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -3520,7 +3542,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -3597,6 +3619,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3659,7 +3685,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -3770,7 +3796,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "8.5.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -3831,7 +3857,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [
     "Platform",

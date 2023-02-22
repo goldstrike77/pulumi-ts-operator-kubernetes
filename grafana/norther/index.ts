@@ -96,7 +96,7 @@ const deploy_spec = [
                 name: "grafana",
                 chart: "grafana",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "6.21.3", /** do not upgrade */
+                version: "6.30.3", /** do not upgrade */
                 values: {
                     replicas: 1,
                     deploymentStrategy: {
@@ -106,7 +106,7 @@ const deploy_spec = [
                             maxUnavailable: 1
                         }
                     },
-                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "8.3.10" },
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "8.5.3" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     serviceMonitor: {
                         enabled: true,
