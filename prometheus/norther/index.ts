@@ -25,7 +25,7 @@ const deploy_spec = [
                 data: {
                     "objstore.yml": config.require("OBJSTORE.YML"),
                     "alertmanager.tmpl": "e3sgZGVmaW5lICJfX3N1YmplY3QiIH19W3t7IC5TdGF0dXMgfCB0b1VwcGVyIH19e3sgaWYgZXEgLlN0YXR1cyAiZmlyaW5nIiB9fTp7eyAuQWxlcnRzLkZpcmluZyB8IGxlbiB9fXt7IGVuZCB9fV0ge3sgLkdyb3VwTGFiZWxzLlNvcnRlZFBhaXJzLlZhbHVlcyB8IGpvaW4gIiAiIH19IHt7IGlmIGd0IChsZW4gLkNvbW1vbkxhYmVscykgKGxlbiAuR3JvdXBMYWJlbHMpIH19KHt7IHdpdGggLkNvbW1vbkxhYmVscy5SZW1vdmUgLkdyb3VwTGFiZWxzLk5hbWVzIH19e3sgLlZhbHVlcyB8IGpvaW4gIiAiIH19e3sgZW5kIH19KXt7IGVuZCB9fXt7IGVuZCB9fQp7eyBkZWZpbmUgIl9fZGVzY3JpcHRpb24iIH19e3sgZW5kIH19ICAgICAgCnt7IGRlZmluZSAiX190ZXh0X2FsZXJ0X2ZpcmluZ19saXN0IiB9fXt7IHJhbmdlIC4gfX0KU3RhcnQ6IHt7IC5TdGFydHNBdC5Mb2NhbC5Gb3JtYXQgIk1vbiwgMDIgSmFuIDIwMDYgMTU6MDQ6MDUgTVNUIiB9fQp7eyByYW5nZSAuTGFiZWxzLlNvcnRlZFBhaXJzIH19e3sgLk5hbWUgfCB0aXRsZSB9fToge3sgLlZhbHVlIH19Cnt7IGVuZCB9fXt7IHJhbmdlIC5Bbm5vdGF0aW9ucy5Tb3J0ZWRQYWlycyB9fXt7IC5OYW1lIHwgdGl0bGUgfX06IHt7IC5WYWx1ZSB9fXt7IGVuZCB9fQp7eyBlbmQgfX17eyBlbmQgfX0gICAgICAKe3sgZGVmaW5lICJfX3RleHRfYWxlcnRfcmVzb2x2ZWRfbGlzdCIgfX17eyByYW5nZSAuIH19ClN0YXJ0OiB7eyAuU3RhcnRzQXQuTG9jYWwuRm9ybWF0ICJNb24sIDAyIEphbiAyMDA2IDE1OjA0OjA1IE1TVCIgfX0KRW5kOiAgIHt7IC5FbmRzQXQuTG9jYWwuRm9ybWF0ICJNb24sIDAyIEphbiAyMDA2IDE1OjA0OjA1IE1TVCIgfX0KRHVyYXRpb246IHt7ICguRW5kc0F0LlN1YiAuU3RhcnRzQXQpLlRydW5jYXRlIDEwMDAwMDAwMDAgfX0Ke3sgcmFuZ2UgLkxhYmVscy5Tb3J0ZWRQYWlycyB9fXt7IC5OYW1lIHwgdGl0bGUgfX06IHt7IC5WYWx1ZSB9fQp7eyBlbmQgfX17eyByYW5nZSAuQW5ub3RhdGlvbnMuU29ydGVkUGFpcnMgfX17eyAuTmFtZSB8IHRpdGxlIH19OiB7eyAuVmFsdWUgfX17eyBlbmQgfX0Ke3sgZW5kIH19e3sgZW5kIH19ICAgICAgCnt7IGRlZmluZSAid2VjaGF0LmRlZmF1bHQubWVzc2FnZSIgfX17eyBpZiBndCAobGVuIC5BbGVydHMuRmlyaW5nKSAwIC19fQpXQVJOSU5HIOKYogp7eyB0ZW1wbGF0ZSAiX190ZXh0X2FsZXJ0X2ZpcmluZ19saXN0IiAuQWxlcnRzLkZpcmluZyB9fQp7ey0gZW5kIH19e3sgaWYgZ3QgKGxlbiAuQWxlcnRzLlJlc29sdmVkKSAwIC19fQpSRVNPTFZFRCDinYAKe3sgdGVtcGxhdGUgIl9fdGV4dF9hbGVydF9yZXNvbHZlZF9saXN0IiAuQWxlcnRzLlJlc29sdmVkIH19Cnt7LSBlbmQgfX0Ke3stIGVuZCB9fQp7eyBkZWZpbmUgIndlY2hhdC5kZWZhdWx0LmFwaV9zZWNyZXQiIH19e3sgZW5kIH19Cnt7IGRlZmluZSAid2VjaGF0LmRlZmF1bHQudG9fdXNlciIgfX17eyBlbmQgfX0Ke3sgZGVmaW5lICJ3ZWNoYXQuZGVmYXVsdC50b19wYXJ0eSIgfX17eyBlbmQgfX0Ke3sgZGVmaW5lICJ3ZWNoYXQuZGVmYXVsdC50b190YWciIH19e3sgZW5kIH19Cnt7IGRlZmluZSAid2VjaGF0LmRlZmF1bHQuYWdlbnRfaWQiIH19e3sgZW5kIH19ICAgIAo=",
-                    "alertmanager.yaml": config.require("ALERTMANAGER.YAML"),
+                    //                    "alertmanager.yaml": config.require("ALERTMANAGER.YAML"),
                     //"additionalscrape.job": config.require("ADDITIONALSCRAPE.JOB")
                 },
                 stringData: {}
@@ -42,7 +42,56 @@ const deploy_spec = [
                 defaultRules: { create: false },
                 alertmanager: {
                     enabled: true,
-                    config: {},
+                    config: {
+                        global: {
+                            http_config: {
+                                tls_config: {
+                                    insecure_skip_verify: true
+                                }
+                            },
+                            resolve_timeout: "5m"
+                        },
+                        route: {
+                            group_by: ["alertname", "cluster", "service"],
+                            group_wait: "45s",
+                            group_interval: "5m",
+                            repeat_interval: "24h",
+                            receiver: "null",
+                            routes: [
+                                {
+                                    receiver: "grafana-oncall",
+                                    continue: true
+                                },
+                                {
+                                    matchers: ["alertname = Watchdog"],
+                                    receiver: 'null',
+                                    continue: false
+                                }
+                            ]
+                        },
+                        inhibit_rules: [
+                            {
+                                source_matchers: ["severity = p1"],
+                                target_matchers: ["severity =~ p2|p3|p4"],
+                                equal: ['alertname', 'cluster', 'service']
+                            }
+                        ],
+                        receivers: [
+                            {
+                                name: "null"
+                            },
+                            {
+                                name: "grafana-oncall",
+                                webhook_configs: [
+                                    {
+                                        url: "http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/7KWjhXnudziro5RvuTL8WMJcZ/",
+                                        send_resolved: true
+                                    }
+                                ]
+                            }
+                        ],
+                        templates: ["/etc/alertmanager/config/*.tmpl"]
+                    },
                     ingress: {
                         enabled: true,
                         ingressClassName: "nginx",
@@ -64,7 +113,6 @@ const deploy_spec = [
                         ]
                     },
                     alertmanagerSpec: {
-                        configSecret: "configuration-secret",
                         logLevel: "warn",
                         replicas: 1,
                         storage: {
