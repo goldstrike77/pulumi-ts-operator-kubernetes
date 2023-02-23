@@ -92,10 +92,24 @@ spec:
       annotations:
         description: '{{ $value | humanizePercentage }} throttling of CPU in namespace {{ $labels.namespace }} for container {{ $labels.container }} in pod {{ $labels.pod }}.'
       expr: |-
-        sum(increase(container_cpu_cfs_throttled_periods_total{container!="", }[5m])) by (container, pod, namespace)
+        sum(increase(container_cpu_cfs_throttled_periods_total{container!="", }[5m])) by (namespace,pod,project,environment,group)
           /
-        sum(increase(container_cpu_cfs_periods_total{}[5m])) by (container, pod, namespace)
-          > ( 25 / 100 )
+        sum(increase(container_cpu_cfs_periods_total{}[5m])) by (namespace,pod,project,environment,group)
+          > ( 95 / 100 )
       for: 15m
       labels:
-        severity: p4
+        severity: p3
+    - alert: MemThrottlingHigh
+      annotations:
+        description: '{{$labels.namespace}} / {{$labels.pod_name}} memory usage has exceeded the threshold with a value of {{ $value | printf "%.1f" }}%.'
+      expr: (100 * (sum(container_memory_usage_bytes{container!="",pod!=""}) by (namespace,pod,environment,group,project) / sum(kube_pod_container_resource_limits{unit="byte",pod!=""}) by (namespace,pod,environment,group,project)))>95
+      for: 15m
+      labels:
+        severity: p3
+    - alert: KubeletTooManyPods
+      annotations:
+        description: Kubelet is running {{ $value }} Pods.
+      expr: kubelet_running_pod_count > 110 * 0.9
+      for: 15m
+      labels:
+        severity: p3

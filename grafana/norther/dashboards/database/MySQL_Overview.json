@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.5.3"
+      "version": "8.3.10"
     },
     {
       "type": "panel",
@@ -59,10 +59,7 @@
       {
         "$$hashKey": "object:18",
         "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
+        "datasource": "-- Grafana --",
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -81,7 +78,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1677035341317,
+  "iteration": 1677054237959,
   "links": [
     {
       "$$hashKey": "object:990",
@@ -149,10 +146,6 @@
   "panels": [
     {
       "collapsed": false,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -222,7 +215,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "targets": [
         {
           "calculatedInterval": "10m",
@@ -301,7 +294,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -423,8 +416,7 @@
           "values": false
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -516,7 +508,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -630,7 +622,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "targets": [
         {
           "calculatedInterval": "10m",
@@ -657,10 +649,6 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -729,7 +717,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -888,7 +876,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1009,10 +997,6 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1036,8 +1020,7 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto",
-            "inspect": false
+            "displayMode": "auto"
           },
           "mappings": [],
           "thresholds": {
@@ -1092,7 +1075,7 @@
           }
         ]
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "targets": [
         {
           "datasource": {
@@ -1217,7 +1200,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1286,10 +1269,6 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1385,8 +1364,7 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -1476,7 +1454,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Queries >10s"
+              "options": "> 10s"
             },
             "properties": [
               {
@@ -1491,13 +1469,13 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Queries 1s - 10s"
+              "options": "1s - 10s"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "light-orange",
+                  "fixedColor": "semi-dark-orange",
                   "mode": "fixed"
                 }
               }
@@ -1507,6 +1485,21 @@
             "matcher": {
               "id": "byName",
               "options": "Queries 100ms - 1s"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "semi-dark-yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "< 100ms"
             },
             "properties": [
               {
@@ -1546,8 +1539,7 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -1558,13 +1550,26 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[5m]))",
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.0001'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.0001'}[5m]))",
           "hide": false,
           "interval": "$interval",
           "intervalFactor": 1,
-          "legendFormat": "100ms - 1s",
+          "legendFormat": "< 100ms",
           "metric": "",
           "refId": "A",
+          "step": 300
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
+          "exemplar": true,
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[5m]))",
+          "interval": "$interval",
+          "intervalFactor": 1,
+          "legendFormat": "100ms - 1s",
+          "refId": "B",
           "step": 300
         },
         {
@@ -1577,7 +1582,7 @@
           "interval": "$interval",
           "intervalFactor": 1,
           "legendFormat": "1s - 10s",
-          "refId": "B",
+          "refId": "C",
           "step": 300
         },
         {
@@ -1586,12 +1591,11 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{instance=\"$host\",le='100000'}[$interval])  - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{instance=\"$host\",le='10'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{instance=\"$host\",le='100000'}[5m])  - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{instance=\"$host\",le='10'}[5m]))",
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='100000'}[$interval])  - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='10'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='100000'}[5m])  - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='10'}[5m]))",
+          "hide": false,
           "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": ">10s",
-          "refId": "C",
-          "step": 300
+          "legendFormat": "> 10s",
+          "refId": "D"
         }
       ],
       "title": "Query Response Time Distribution",
@@ -1599,10 +1603,6 @@
     },
     {
       "collapsed": false,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1659,7 +1659,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1782,7 +1782,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "8.3.10",
       "pointradius": 1,
       "points": true,
       "renderer": "flot",
@@ -1962,8 +1962,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2084,8 +2083,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2189,8 +2187,7 @@
           "placement": "right"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2354,8 +2351,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2459,8 +2455,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2596,8 +2591,7 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "single"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2659,10 +2653,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3011,10 +3001,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3311,10 +3297,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3595,10 +3577,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3879,10 +3857,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4105,10 +4079,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4639,10 +4609,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4949,10 +4915,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5211,10 +5173,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5279,7 +5237,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.5.3",
+          "pluginVersion": "8.3.4",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -5458,7 +5416,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.5.3",
+          "pluginVersion": "8.3.4",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -5547,10 +5505,6 @@
     },
     {
       "collapsed": true,
-      "datasource": {
-        "type": "datasource",
-        "uid": "grafana"
-      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5722,7 +5676,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 36,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [
     "Databases"
@@ -5952,6 +5906,6 @@
   "timezone": "browser",
   "title": "MySQL Overview",
   "uid": "MQWgroiiz",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

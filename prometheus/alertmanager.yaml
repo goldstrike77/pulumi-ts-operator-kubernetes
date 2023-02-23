@@ -6,31 +6,27 @@ global:
 route:
   group_by: ['alertname', 'cluster', 'service']
   group_wait: 1m
-  group_interval: 15s
+  group_interval: 1m
   repeat_interval: 24h
   receiver: 'null'
   routes:
   - matchers:
-    - severity=~"p1|p2"
-    receiver: wechat
+    receiver: grafana-oncall
     continue: true
   - matchers:
     - alertname=Watchdog
     receiver: 'null'
 inhibit_rules:
-- source_match:
-    severity: 'p1'
-  target_match:
-    severity: 'p2'
+- source_matchers:
+  - severity=p1
+  target_matchers:
+    - severity=~"p2|p3|p4"
   equal: ['alertname', 'cluster', 'service']
 receivers:
 - name: 'null'
-- name: 'wechat'
-  wechat_configs:
-  - send_resolved: true
-    to_party: '5'
-    agent_id: '1000005'
-    corp_id: 'wxe787605f1d1700da'
-    api_secret: '0BfjWZhwqFi0IUHN8sMh0JEd89383iin1TTaJajJ_SI'
+- name: 'grafana-oncall'
+  webhook_configs:
+  - url: http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/7KWjhXnudziro5RvuTL8WMJcZ/
+    send_resolved: true
 templates:
 - '/etc/alertmanager/config/*.tmpl'

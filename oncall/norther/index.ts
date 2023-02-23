@@ -43,15 +43,15 @@ const deploy_spec = [
                     engine: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
+                            limits: { cpu: "500m", memory: "1024Mi" },
+                            requests: { cpu: "500m", memory: "1024Mi" }
                         }
                     },
                     celery: {
                         replicaCount: 1,
                         resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
+                            limits: { cpu: "500m", memory: "1024Mi" },
+                            requests: { cpu: "500m", memory: "1024Mi" }
                         }
                     },
                     env: [
@@ -105,7 +105,7 @@ const deploy_spec = [
                     },
                     grafana: { enabled: false },
                     externalGrafana: {
-                        url: "http://grafana.visualization.svc.cluster.local/grafana/"
+                        url: "http://grafana.visualization.svc.cluster.local/grafana"
                     }
                 }
             },
@@ -132,8 +132,8 @@ disk_free_limit.absolute = 1GB
                     replicaCount: 1,
                     podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "500m", memory: "512Mi" },
-                        requests: { cpu: "500m", memory: "512Mi" }
+                        limits: { cpu: "500m", memory: "1024Mi" },
+                        requests: { cpu: "500m", memory: "1024Mi" }
                     },
                     persistence: {
                         enabled: true,
@@ -288,8 +288,8 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             { name: "MARIADB_CHARACTER_SET", value: "utf8mb4" }
                         ],
                         resources: {
-                            limits: { cpu: "500m", memory: "1024Mi" },
-                            requests: { cpu: "500m", memory: "1024Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         },
                         persistence: {
                             enabled: true,
