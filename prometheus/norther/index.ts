@@ -110,7 +110,6 @@ const deploy_spec = [
                     },
                     templateFiles: {
                         "default.tmpl": `
-{{ define "__subject" }}[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .Labels.alertname }} {{ .Labels.customer }} {{ .Labels.environment }} {{ .Labels.project }} {{ .Labels.severity }} {{ .Labels.datacenter }}{{ end }}
 {{ define "__description" }}{{ end }}      
 {{ define "__text_alert_firing_list" }}{{ range . }}
 Start: {{ .StartsAt.Local.Format "Mon, 02 Jan 2006 15:04:05 MST" }}
@@ -139,7 +138,6 @@ RESOLVED ❀
 {{ define "wechat.default.agent_id" }}{{ end }}    
 
 
-{{ define "email.default.subject" }}{{ template "__subject" . }}{{ end }}
 {{ define "email.default.html" }}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
@@ -171,7 +169,6 @@ SOFTWARE.
 <head style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
 <meta name="viewport" content="width=device-width" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;" />
-<title style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">{{ template "__subject" . }}</title>
 
 </head>
 
