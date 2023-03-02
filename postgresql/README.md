@@ -5,6 +5,6 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 
 #### Configuration credential values.
 ```hcl
-pulumi config set gossipKey [string] --secret
-pulumi config set tokensMaster [string] --secret
+pulumi config set postgresPassword [string] --secret
+pulumi config set password [string] --secret
 ```

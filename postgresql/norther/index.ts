@@ -7,47 +7,64 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "consul",
+                name: "postgresql",
                 annotations: {},
                 labels: {}
             },
             spec: {}
         },
         helm: {
-            namespace: "consul",
-            name: "consul",
-            chart: "consul",
+            namespace: "postgresql",
+            name: "postgresql",
+            chart: "postgresql",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "10.9.12",
+            version: "12.2.1",
             values: {
-                datacenterName: "dc1",
-                domain: "consul",
-                gossipKey: config.require("gossipKey"),
-                localConfig: `
-{
-    "acl": {
-        "enabled": true,
-        "default_policy": "deny",
-        "enable_token_persistence": true,
-        "tokens": {
-          "initial_management": "${config.require("tokensMaster")}",
-          "agent": "${config.require("tokensMaster")}"
-        }
-    }
-}`,
-                extraEnvVars: [
-                    { name: "CONSUL_HTTP_TOKEN", value: config.require("tokensMaster") }
-                ],
-                podLabels: { customer: "demo", environment: "dev", project: "ServiceDiscovery", group: "consul", datacenter: "dc01", domain: "local" },
-                replicaCount: 3,
-                resources: {
-                    limits: { cpu: "200m", memory: "128Mi" },
-                    requests: { cpu: "200m", memory: "128Mi" }
-                },
-                persistence: {
-                    enabled: true,
+                global: {
                     storageClass: "longhorn",
-                    size: "8Gi"
+                    postgresql: {
+                        auth: {
+                            postgresPassword: config.require("postgresPassword"),
+                            username: "user",
+                            password: config.require("password"),
+                            database: "test"
+                        }
+                    }
+                },
+                image: {
+                    debug: false
+                },
+                architecture: "standalone",
+                primary: {
+                    pgHbaConfiguration: `
+local all all trust
+host all all localhost trust
+host test user 10.244.0.0/16 md5
+`,
+                    initdb: {
+                        user: "user",
+                        password: config.require("password"),
+                        scripts: {
+                            "00_init.sql": `
+create table if not exists t_table
+(
+    id bigint not null primary key,
+    name varchar(255),
+    description varchar(2000),
+    created_time timestamp,
+    updated_time timestamp
+);
+`
+                        }
+                    },
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "Test", group: "postgresql", datacenter: "dc01", domain: "local" },
+                    persistence: {
+                        size: "8Gi"
+                    }
                 },
                 volumePermissions: {
                     enabled: true,
@@ -59,12 +76,11 @@ const deploy_spec = [
                 metrics: {
                     enabled: true,
                     resources: {
-                        limits: { cpu: "50m", memory: "64Mi" },
-                        requests: { cpu: "50m", memory: "64Mi" }
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
                     },
                     serviceMonitor: {
                         enabled: true,
-                        interval: "60s",
                         relabelings: [
                             { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
@@ -73,7 +89,11 @@ const deploy_spec = [
                             { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ],
+                        ]
+                    },
+                    prometheusRule: {
+                        enabled: false,
+                        rules: []
                     }
                 }
             }

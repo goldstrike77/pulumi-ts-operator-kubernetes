@@ -17,9 +17,9 @@ spec:
       annotations:
         description: Cluster has overcommitted CPU resource requests for Pods by {{ $value }} CPU shares and cannot tolerate node failure.
       expr: |-
-        sum(namespace_cpu:kube_pod_container_resource_requests:sum{}) - (sum(kube_node_status_allocatable{resource="cpu"}) - max(kube_node_status_allocatable{resource="cpu"})) > 0
+        sum by (namespace, cluster,environment,group,customer,datacenter,project)(namespace_cpu:kube_pod_container_resource_requests:sum{}) - (sum by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="cpu"}) - max by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="cpu"})) > 0
         and
-        (sum(kube_node_status_allocatable{resource="cpu"}) - max(kube_node_status_allocatable{resource="cpu"})) > 0
+        (sum by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="cpu"}) - max by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="cpu"})) > 0
       for: 10m
       labels:
         severity: p3
@@ -27,9 +27,9 @@ spec:
       annotations:
         description: Cluster has overcommitted memory resource requests for Pods by {{ $value | humanize }} bytes and cannot tolerate node failure.
       expr: |-
-        sum(namespace_memory:kube_pod_container_resource_requests:sum{}) - (sum(kube_node_status_allocatable{resource="memory"}) - max(kube_node_status_allocatable{resource="memory"})) > 0
+        sum by (namespace, cluster,environment,group,customer,datacenter,project)(namespace_memory:kube_pod_container_resource_requests:sum{}) - (sum by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="memory"}) - max by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="memory"})) > 0
         and
-        (sum(kube_node_status_allocatable{resource="memory"}) - max(kube_node_status_allocatable{resource="memory"})) > 0
+        (sum by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="memory"}) - max by (namespace, cluster,environment,group,customer,datacenter,project)(kube_node_status_allocatable{resource="memory"})) > 0
       for: 10m
       labels:
         severity: p3
