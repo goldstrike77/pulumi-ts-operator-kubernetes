@@ -1,0 +1,43 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    meta.helm.sh/release-name: kube-prometheus-stack
+    meta.helm.sh/release-namespace: monitoring
+    prometheus-operator-validated: "true"
+  labels:
+    app: kube-prometheus-stack
+  name: blackbox
+  namespace: monitoring
+spec:
+  groups:
+  - name: blackbox
+    rules:
+    - alert: WebSite
+      expr: "avg by (customer,datacenter,environment,group,project,target) (probe_success == 0)"
+      for: 10m
+      labels:
+        severity: p1
+      annotations:
+        description: 'Endpoint has been unreachable.'
+    - alert: SSLCertExpiringSoon
+      expr: "avg by (customer,datacenter,environment,group,project,target) ((probe_ssl_earliest_cert_expiry - time()) / 86400 < 15)"
+      for: 60m
+      labels:
+        severity: p3
+      annotations:
+        description: 'SSL certificate expires in {{ $value | printf "%.0f" }} days.'
+    - alert: SSLCertExpired
+      expr: "avg by (customer,datacenter,environment,group,project,target) ((probe_ssl_earliest_cert_expiry - time()) / 86400 <= 0)"
+      for: 10m
+      labels:
+        severity: p1
+      annotations:
+        description: 'SSL certificate expired.'
+    - alert: StatusCode
+      expr: "avg by (customer,datacenter,environment,group,project,target) (probe_http_status_code <= 99 or probe_http_status_code >= 400)"
+      for: 10m
+      labels:
+        severity: p1
+      annotations:
+        description: "HTTP status code is not 1xx-3xx with a value of {{ $value }}."

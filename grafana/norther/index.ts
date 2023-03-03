@@ -32,7 +32,7 @@ const deploy_spec = [
         configmap: [
             {
                 metadata: {
-                    name: "grafana-dashboards-database",
+                    name: "grafana-dashboards-mysql",
                     namespace: "visualization",
                     annotations: {},
                     labels: {
@@ -41,6 +41,19 @@ const deploy_spec = [
                 },
                 data: {
                     "MySQL_Overview.json": fs.readFileSync('./dashboards/database/MySQL_Overview.json', 'utf8')
+                }
+            },
+            {
+                metadata: {
+                    name: "grafana-dashboards-postgres",
+                    namespace: "visualization",
+                    annotations: {},
+                    labels: {
+                        grafana_dashboard: ""
+                    }
+                },
+                data: {
+                    "PostgreSQL_Overview.json": fs.readFileSync('./dashboards/database/PostgreSQL_Overview.json', 'utf8')
                 }
             },
             {

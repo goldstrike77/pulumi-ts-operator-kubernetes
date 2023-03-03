@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "tempo",
             chart: "tempo-distributed",
             repository: "https://grafana.github.io/helm-charts",
-            version: "0.27.10",
+            version: "1.2.2",
             values: {
                 tempo: {
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
@@ -84,7 +84,6 @@ const deploy_spec = [
                     replicas: 1,
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
                 },
-                search: { enabled: true },
                 multitenancyEnabled: false,
                 traces: {
                     jaeger: {
@@ -101,7 +100,7 @@ const deploy_spec = [
                     opencensus: { enabled: false }
                 },
                 server: {
-                    logLevel: "info",
+                    logLevel: "warn",
                     grpc_server_max_recv_msg_size: 4194304,
                     grpc_server_max_send_msg_size: 4194304
                 },
@@ -125,17 +124,18 @@ const deploy_spec = [
                 memcached: {
                     enabled: true,
                     replicas: 1,
+                    extraArgs: ["-m 500", "-I 2m", "-v"],
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "1000m", memory: "2048Mi" },
-                        requests: { cpu: "1000m", memory: "2048Mi" }
+                        limits: { cpu: "1000m", memory: "512Mi" },
+                        requests: { cpu: "1000m", memory: "512Mi" }
                     }
                 },
                 memcachedExporter: {
                     enabled: true,
                     resources: {
-                        limits: { cpu: "200m", memory: "64Mi" },
-                        requests: { cpu: "200m", memory: "64Mi" }
+                        limits: { cpu: "100m", memory: "64Mi" },
+                        requests: { cpu: "100m", memory: "64Mi" }
                     }
                 },
                 metaMonitoring: {

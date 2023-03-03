@@ -65,7 +65,7 @@
   "gnetId": 9965,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1677752163813,
+  "iteration": 1677813474705,
   "links": [
     {
       "$$hashKey": "object:1499",
@@ -348,15 +348,15 @@
               },
               {
                 "color": "semi-dark-yellow",
-                "value": 15
+                "value": 1296000
               },
               {
                 "color": "semi-dark-green",
-                "value": 31
+                "value": 2678400
               }
             ]
           },
-          "unit": "none"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -391,7 +391,7 @@
             "type": "prometheus",
             "uid": "DS_PROMETHEUS"
           },
-          "expr": "avg((probe_ssl_earliest_cert_expiry{target=\"$target\"}-time()) / 86400)",
+          "expr": "probe_ssl_earliest_cert_expiry{target=\"$target\"}-time()",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "",
@@ -493,7 +493,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },
@@ -670,7 +670,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-2h",
     "to": "now"
   },
   "timepicker": {
@@ -698,6 +698,6 @@
   "timezone": "browser",
   "title": "WebSite Overview",
   "uid": "ynUxXflik",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
