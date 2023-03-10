@@ -1,5 +1,11 @@
 encryptionsalt: v1:tvlN789yyAc=:v1:34G2ns40knTMgqyv:76hSnLD3qDrCCbX2GVQpQ+vtrI6j1g==
 config:
   demo:SW_ES_PASSWORD:
-    secure: v1:ICP5qyU30+0cDCE9:0e8ILnfS1awYS1v8FpuaH0TRH01WWsed
+    secure: v1:t7J9gSTtIEaGiRWr:j1g+VOwlR8pOoTSaU69UjKSHLSVtNmW2
+  demo:adminPassword:
+    secure: v1:/HSfTFgi7UWpR3ZX:910GZrE0VH6ivyLq6mjxnOfz10AdwXo0
+  demo:kibanaserverPassword:
+    secure: v1:KlXWVqsdIGBV22pu:jsWfF/lgcqFMBt+45nD2HBvUi2Yt6Gy2
+  demo:ladpPassword:
+    secure: v1:iI2akw7OlKKz8uig:0Us4vvuDkWLjLrI0JhofwDDQfHwfBZ+V
   kubernetes:context: kubernetes-admin@souther

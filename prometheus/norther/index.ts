@@ -89,7 +89,7 @@ const deploy_spec = [
                                     {
                                         send_resolved: true,
                                         headers: {
-                                            subject: "[{{ .Status | toUpper }}] Alertmanager notify for {{ .CommonLabels.alertname }}"
+                                            subject: "[ {{ .Status | toUpper }} - {{ .CommonLabels.severity | toUpper }} ] Alertmanager notify for {{ .CommonLabels.alertname }}"
                                         },
                                         to: "somebody@example.com"
                                     }

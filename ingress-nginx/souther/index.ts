@@ -49,14 +49,14 @@ const deploy_spec = [
                 name: "ingress-nginx",
                 chart: "ingress-nginx",
                 repository: "https://kubernetes.github.io/ingress-nginx",
-                version: "4.4.0",
+                version: "4.5.2",
                 values: {
                     controller: {
                         image: {
                             registry: "registry.cn-hangzhou.aliyuncs.com",
                             image: "goldstrike/skywalking-ingress-nginx",
-                            tag: "v1.5.1",
-                            digest: "sha256:40b2959d699689cf32f053357e77f2b5ca719b9121937366dcd8fd1f24355537"
+                            tag: "v1.6.4",
+                            digest: "sha256:7f19f16f13f60408aac05fee2e38daaa79c085761a58d43e7dfea22a9f054eec"
                         },
                         config: {
                             "compute-full-forwarded-for": "true",
@@ -115,9 +115,9 @@ const deploy_spec = [
                             }
                         },
                         metrics: {
-                            enabled: true,
+                            enabled: false,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: [
                                     { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                     { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
