@@ -9,7 +9,9 @@ const deploy_spec = [
             metadata: {
                 name: "spring-boot",
                 annotations: {},
-                labels: {}
+                labels: {
+                    "swck-injection": "enabled"
+                }
             },
             spec: {}
         },
@@ -17,9 +19,13 @@ const deploy_spec = [
             namespace: "spring-boot",
             chart: "mysql",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "9.4.1",
+            version: "9.5.2",
             values: {
-                image: { tag: "5.7.40-debian-11-r6" },
+                image: {
+                    registry: "registry.cn-hangzhou.aliyuncs.com",
+                    repository: "goldstrike/mysql",
+                    tag: "5.7.41-debian-11-r15"
+                },
                 architecture: "standalone",
                 auth: {
                     rootPassword: config.require("rootPassword"),
@@ -45,13 +51,13 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                         storageClass: "longhorn",
                         size: "8Gi"
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" }
                 },
                 volumePermissions: {
                     enabled: false,
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "50m", memory: "32Mi" },
+                        requests: { cpu: "50m", memory: "32Mi" }
                     }
                 },
                 metrics: {
@@ -117,15 +123,20 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 template: {
                     metadata: {
                         labels: {
+                            "swck-java-agent-injected": "true",
                             app: "spring-boot",
                             customer: "demo",
                             datacenter: "dc01",
                             domain: "local",
                             environment: "dev",
-                            group: "norther",
+                            group: "souther",
                             project: "cluster"
                         },
                         annotations: {
+                            "strategy.skywalking.apache.org/agent.Overlay": "true",
+                            "agent.skywalking.apache.org/agent.service_name": "demo::spring-boot",
+                            "agent.skywalking.apache.org/collector.backend_service": "skywalking-oap.skywalking:11800",
+                            "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-hangzhou.aliyuncs.com/goldstrike/skywalking-java-agent:8.10.0-java8",
                             "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                         }
                     },
@@ -155,8 +166,8 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                                     timeoutSeconds: 10
                                 },
                                 resources: {
-                                    limits: { cpu: "500m", memory: "256Mi" },
-                                    requests: { cpu: "500m", memory: "256Mi" }
+                                    limits: { cpu: "500m", memory: "1024Mi" },
+                                    requests: { cpu: "500m", memory: "1024Mi" }
                                 },
                                 ports: [
                                     {
@@ -266,12 +277,12 @@ for (var i in deploy_spec) {
         repositoryOpts: {
             repo: deploy_spec[i].helm.repository,
         },
-    }, { dependsOn: [namespace] });
+    }, { dependsOn: [namespace], customTimeouts: { create: "10m" } });
     // Create Deployment Resource.
     const deployment = new k8s.apps.v1.Deployment(deploy_spec[i].deployment.metadata.name, {
         metadata: deploy_spec[i].deployment.metadata,
         spec: deploy_spec[i].deployment.spec
-    }, { dependsOn: [release] });
+    }, { dependsOn: [release], customTimeouts: { create: "30m" } });
     // Create Service Resource.
     const service = new k8s.core.v1.Service(deploy_spec[i].service.metadata.name, {
         metadata: deploy_spec[i].service.metadata,

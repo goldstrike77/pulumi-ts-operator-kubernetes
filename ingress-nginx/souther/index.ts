@@ -92,7 +92,7 @@ const deploy_spec = [
                             "net.ipv4.ip_local_port_range": "1024 65000"
                         },
                         extraEnvs: [
-                            { name: "SW_SERVICE_NAME", value: "ingress-nginx" },
+                            { name: "SW_SERVICE_NAME", value: "demo::ingress-nginx" },
                             { name: "SW_BACKEND_SERVERS", value: "http://skywalking-oap.skywalking.svc.cluster.local:12800" },
                             { name: "SW_SERVICE_INSTANCE_NAME", valueFrom: { fieldRef: { fieldPath: "metadata.name" } } }
                         ],

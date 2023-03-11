@@ -465,10 +465,6 @@ const deploy_spec = [
                 values: {
                     fullnameOverride: "skywalking",
                     replicas: 1,
-                    webhook: {
-                        enable: true,
-                        oap_service: "http://skywalking-oap.skywalking:12800"
-                    },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
