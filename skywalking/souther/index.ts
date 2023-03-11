@@ -456,7 +456,6 @@ const deploy_spec = [
                     fullnameOverride: "skywalking"
                 }
             },
-            /**
             {
                 namespace: "skywalking",
                 name: "swck-operator",
@@ -464,14 +463,18 @@ const deploy_spec = [
                 repository: "",
                 version: "0.7.0",
                 values: {
+                    fullnameOverride: "skywalking",
                     replicas: 1,
+                    webhook: {
+                        enable: true,
+                        oap_service: "http://skywalking-oap.skywalking:12800"
+                    },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     }
                 }
             }
-             */
         ]
     }
 ]
@@ -499,7 +502,7 @@ for (var i in deploy_spec) {
                 version: deploy_spec[i].helm[helm_index].version,
                 values: deploy_spec[i].helm[helm_index].values,
                 skipAwait: true,
-            }, { dependsOn: [namespace] });
+            }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
         }
         else {
             const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {

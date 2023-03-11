@@ -37,6 +37,7 @@ crds:
 webhook:
   # If set to false, java agent injector is disabled.
   enable: true
+  oap_service: "http://skywalking-oap.skywalking:12800"
   service:
     port: 9443
 resources:

@@ -16,9 +16,9 @@ const deploy_spec = [
                 name: "metrics-server",
                 chart: "metrics-server",
                 repository: "https://kubernetes-sigs.github.io/metrics-server",
-                version: "3.8.2",
+                version: "3.8.3",
                 values: {
-                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.1" },
+                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.2" },
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
                     defaultArgs: [
                         "--cert-dir=/tmp",
@@ -29,8 +29,8 @@ const deploy_spec = [
                     ],
                     metrics: { enabled: true },
                     resources: {
-                        limits: { cpu: "250m", memory: "256Mi" },
-                        requests: { cpu: "250m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "128Mi" },
+                        requests: { cpu: "200m", memory: "128Mi" }
                     }
                 }
             }
