@@ -58,8 +58,8 @@ const deploy_spec = [
                     replicas: 1,
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "512Mi" },
+                        requests: { cpu: "200m", memory: "512Mi" }
                     },
                     config: {
                         compaction: { block_retention: "168h" }

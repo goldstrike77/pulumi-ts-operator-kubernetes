@@ -110,7 +110,7 @@ const deploy_spec = [
                 ]
         `
                     },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     opensearchJavaOpts: "-server -Xmx2048M -Xms2048M",
                     resources: {
                         limits: { cpu: "500m", memory: "3072Mi" },
@@ -273,7 +273,7 @@ const deploy_spec = [
                 ]
         `
                     },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
                     resources: {
                         limits: { cpu: "2000m", memory: "8192Mi" },
@@ -329,13 +329,13 @@ const deploy_spec = [
         server.basePath: "/opensearch"
         `,
                     },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     ingress: {
                         enabled: true,
                         ingressClassName: "nginx",
                         hosts: [
                             {
-                                host: "souther.example.com",
+                                host: "norther.example.com",
                                 paths: [
                                     {
                                         path: "/opensearch",
@@ -367,7 +367,7 @@ const deploy_spec = [
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     es: {
                         uri: "http://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
                         all: false,
@@ -381,7 +381,7 @@ const deploy_spec = [
                         sslSkipVerify: true
                     },
                     serviceMonitor: {
-                        enabled: false,
+                        enabled: true,
                         interval: "60s",
                         scrapeTimeout: "30s",
                         relabelings: [
@@ -486,7 +486,7 @@ rules:
     silence-period: 10
     message: Response time of endpoint relation {name} is more than 1000ms in 3 minutes of last 10 minutes
 webhooks:
-  - http://norther.example.com/oncall/integrations/v1/webhook/VKr1SLgkxkm1IPxwoTCabh26m/
+  - http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/webhook/VKr1SLgkxkm1IPxwoTCabh26m/
 `
                             }
                         }
@@ -503,7 +503,7 @@ webhooks:
                                 "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
                             },
                             path: "/",
-                            hosts: ["skywalking.souther.example.com"]
+                            hosts: ["skywalking.norther.example.com"]
                         }
                     },
                     elasticsearch: {
