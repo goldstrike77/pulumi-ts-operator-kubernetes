@@ -4,43 +4,43 @@ import * as k8s from "@pulumi/kubernetes";
 let config = new pulumi.Config();
 
 const deploy_spec = [
-    {
-        namespace: {
-            metadata: {
-                name: "skywalking",
-                annotations: {},
-                labels: {}
-            },
-            spec: {}
-        },
-        secret: {
-            metadata: {
-                name: "auth-secret",
-                namespace: "skywalking",
-                annotations: {},
-                labels: {}
-            },
-            type: "Opaque",
-            data: {
-                auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64')
-            },
-            stringData: {}
-        },
-        helm: [
-            {
-                namespace: "skywalking",
-                name: "master",
-                version: "2.11.0",
-                chart: "opensearch",
-                repository: "https://opensearch-project.github.io/helm-charts",
-                values: {
-                    clusterName: "opensearch",
-                    nodeGroup: "master",
-                    masterService: "opensearch-master",
-                    roles: ["master", "ingest", "remote_cluster_client"],
-                    replicas: 3,
-                    config: {
-                        "opensearch.yml": `
+  {
+    namespace: {
+      metadata: {
+        name: "skywalking",
+        annotations: {},
+        labels: {}
+      },
+      spec: {}
+    },
+    secret: {
+      metadata: {
+        name: "auth-secret",
+        namespace: "skywalking",
+        annotations: {},
+        labels: {}
+      },
+      type: "Opaque",
+      data: {
+        auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64')
+      },
+      stringData: {}
+    },
+    helm: [
+      {
+        namespace: "skywalking",
+        name: "master",
+        version: "2.11.0",
+        chart: "opensearch",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          clusterName: "opensearch",
+          nodeGroup: "master",
+          masterService: "opensearch-master",
+          roles: ["master", "ingest", "remote_cluster_client"],
+          replicas: 3,
+          config: {
+            "opensearch.yml": `
         cluster:
           name: opensearch
           max_shards_per_node: 10000
@@ -109,38 +109,38 @@ const deploy_spec = [
                   ".opendistro-asynchronous-search-response*"
                 ]
         `
-                    },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                    opensearchJavaOpts: "-server -Xmx2048M -Xms2048M",
-                    resources: {
-                        limits: { cpu: "500m", memory: "3072Mi" },
-                        requests: { cpu: "500m", memory: "3072Mi" }
-                    },
-                    initResources: {
-                        limits: { cpu: "25m", memory: "128Mi" },
-                        requests: { cpu: "25m", memory: "128Mi" }
-                    },
-                    persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "3Gi", },
-                    extraInitContainers: [
-                        {
-                            name: "sysctl",
-                            image: "docker.io/bitnami/bitnami-shell:10-debian-10",
-                            imagePullPolicy: "IfNotPresent",
-                            command: [
-                                "/bin/bash",
-                                "-ec",
-                                "sysctl -w vm.max_map_count=262144;",
-                                "sysctl -w fs.file-max=65536;"
-                            ],
-                            securityContext: { runAsUser: 0, privileged: true }
-                        }
-                    ],
-                    securityConfig: {
-                        path: "/usr/share/opensearch/config/opensearch-security",
-                        config: {
-                            dataComplete: false,
-                            data: {
-                                "internal_users.yml": `---
+          },
+          labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+          opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
+          resources: {
+            limits: { cpu: "500m", memory: "4096Mi" },
+            requests: { cpu: "500m", memory: "4096Mi" }
+          },
+          initResources: {
+            limits: { cpu: "25m", memory: "128Mi" },
+            requests: { cpu: "25m", memory: "128Mi" }
+          },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "3Gi", },
+          extraInitContainers: [
+            {
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ],
+          securityConfig: {
+            path: "/usr/share/opensearch/config/opensearch-security",
+            config: {
+              dataComplete: false,
+              data: {
+                "internal_users.yml": `---
         _meta:
           type: "internalusers"
           config_version: 2
@@ -184,26 +184,26 @@ const deploy_spec = [
           - "snapshotrestore"
           description: "Demo snapshotrestore user"
         `,
-                            }
-                        }
-                    },
-                    terminationGracePeriod: "60"
-                }
-            },
-            {
-                namespace: "skywalking",
-                name: "node",
-                version: "2.11.0",
-                chart: "opensearch",
-                repository: "https://opensearch-project.github.io/helm-charts",
-                values: {
-                    clusterName: "opensearch",
-                    nodeGroup: "data",
-                    masterService: "opensearch-master",
-                    roles: ["data"],
-                    replicas: 2,
-                    config: {
-                        "opensearch.yml": `
+              }
+            }
+          },
+          terminationGracePeriod: "60"
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "node",
+        version: "2.11.0",
+        chart: "opensearch",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          clusterName: "opensearch",
+          nodeGroup: "data",
+          masterService: "opensearch-master",
+          roles: ["data"],
+          replicas: 2,
+          config: {
+            "opensearch.yml": `
         cluster:
           name: opensearch
           max_shards_per_node: 10000
@@ -272,47 +272,47 @@ const deploy_spec = [
                   ".opendistro-asynchronous-search-response*"
                 ]
         `
-                    },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                    opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
-                    resources: {
-                        limits: { cpu: "2000m", memory: "8192Mi" },
-                        requests: { cpu: "2000m", memory: "8192Mi" }
-                    },
-                    initResources: {
-                        limits: { cpu: "25m", memory: "128Mi" },
-                        requests: { cpu: "25m", memory: "128Mi" }
-                    },
-                    persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi", },
-                    extraInitContainers: [
-                        {
-                            name: "sysctl",
-                            image: "docker.io/bitnami/bitnami-shell:10-debian-10",
-                            imagePullPolicy: "IfNotPresent",
-                            command: [
-                                "/bin/bash",
-                                "-ec",
-                                "sysctl -w vm.max_map_count=262144;",
-                                "sysctl -w fs.file-max=65536;"
-                            ],
-                            securityContext: { runAsUser: 0, privileged: true }
-                        }
-                    ],
-                    terminationGracePeriod: "60"
-                }
-            },
+          },
+          labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+          opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
+          resources: {
+            limits: { cpu: "2000m", memory: "10240Mi" },
+            requests: { cpu: "2000m", memory: "10240Mi" }
+          },
+          initResources: {
+            limits: { cpu: "25m", memory: "128Mi" },
+            requests: { cpu: "25m", memory: "128Mi" }
+          },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi", },
+          extraInitContainers: [
             {
-                namespace: "skywalking",
-                name: "dashboards",
-                version: "2.9.0",
-                chart: "opensearch-dashboards",
-                repository: "https://opensearch-project.github.io/helm-charts",
-                values: {
-                    opensearchHosts: "http://opensearch-master:9200",
-                    replicaCount: 1,
-                    fullnameOverride: "opensearch-dashboards",
-                    config: {
-                        "opensearch_dashboards.yml": `
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ],
+          terminationGracePeriod: "60"
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "dashboards",
+        version: "2.9.0",
+        chart: "opensearch-dashboards",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          opensearchHosts: "http://opensearch-master:9200",
+          replicaCount: 1,
+          fullnameOverride: "opensearch-dashboards",
+          config: {
+            "opensearch_dashboards.yml": `
         ---
         logging.quiet: true
         opensearch.hosts: [http://opensearch-master:9200]
@@ -328,113 +328,113 @@ const deploy_spec = [
         server.rewriteBasePath: true
         server.basePath: "/opensearch"
         `,
-                    },
-                    labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                    ingress: {
-                        enabled: true,
-                        ingressClassName: "nginx",
-                        hosts: [
-                            {
-                                host: "norther.example.com",
-                                paths: [
-                                    {
-                                        path: "/opensearch",
-                                        backend: {
-                                            serviceName: "opensearch-dashboards",
-                                            servicePort: 5601
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    resources: {
-                        limits: { cpu: "500m", memory: "512Mi" },
-                        requests: { cpu: "500m", memory: "512Mi" }
-                    },
-                }
-            },
-            {
-                namespace: "skywalking",
-                name: "elasticsearch-exporter",
-                version: "5.0.0",
-                chart: "prometheus-elasticsearch-exporter",
-                repository: "https://prometheus-community.github.io/helm-charts",
-                values: {
-                    fullnameOverride: "opensearch-exporter",
-                    log: { level: "wran" },
-                    resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
-                    },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                    es: {
-                        uri: "http://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
-                        all: false,
-                        indices: true,
-                        indices_settings: true,
-                        indices_mappings: true,
-                        shards: true,
-                        snapshots: true,
-                        cluster_settings: true,
-                        timeout: "30s",
-                        sslSkipVerify: true
-                    },
-                    serviceMonitor: {
-                        enabled: true,
-                        interval: "60s",
-                        scrapeTimeout: "30s",
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+          },
+          labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+          ingress: {
+            enabled: true,
+            ingressClassName: "nginx",
+            hosts: [
+              {
+                host: "norther.example.com",
+                paths: [
+                  {
+                    path: "/opensearch",
+                    backend: {
+                      serviceName: "opensearch-dashboards",
+                      servicePort: 5601
                     }
-                }
+                  }
+                ]
+              }
+            ]
+          },
+          resources: {
+            limits: { cpu: "500m", memory: "512Mi" },
+            requests: { cpu: "500m", memory: "512Mi" }
+          },
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "elasticsearch-exporter",
+        version: "5.0.0",
+        chart: "prometheus-elasticsearch-exporter",
+        repository: "https://prometheus-community.github.io/helm-charts",
+        values: {
+          fullnameOverride: "opensearch-exporter",
+          log: { level: "wran" },
+          resources: {
+            limits: { cpu: "100m", memory: "64Mi" },
+            requests: { cpu: "100m", memory: "64Mi" }
+          },
+          podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+          es: {
+            uri: "http://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
+            all: false,
+            indices: true,
+            indices_settings: true,
+            indices_mappings: true,
+            shards: true,
+            snapshots: true,
+            cluster_settings: true,
+            timeout: "30s",
+            sslSkipVerify: true
+          },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s",
+            scrapeTimeout: "30s",
+            relabelings: [
+              { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+            ]
+          }
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "skywalking",
+        chart: "../../_chart/skywalking-4.4.0.tgz",
+        repository: "",
+        version: "4.4.0",
+        values: {
+          oap: {
+            storageType: "elasticsearch",
+            replicas: 2,
+            image: { tag: "9.3.0" },
+            javaOpts: "-Xmx3g -Xms3g",
+            resources: {
+              requests: { cpu: "1000m", memory: "4096Mi" },
+              limits: { cpu: "4000m", memory: "4096Mi" },
             },
-            {
-                namespace: "skywalking",
-                name: "skywalking",
-                chart: "../../_chart/skywalking-4.4.0.tgz",
-                repository: "",
-                version: "4.4.0",
-                values: {
-                    oap: {
-                        storageType: "elasticsearch",
-                        replicas: 2,
-                        image: { tag: "9.3.0" },
-                        javaOpts: "-Xmx3g -Xms3g",
-                        resources: {
-                            requests: { cpu: "1000m", memory: "4096Mi" },
-                            limits: { cpu: "4000m", memory: "4096Mi" },
-                        },
-                        env: {
-                            SW_STORAGE_ES_CLUSTER_NODES: "opensearch-master:9200",
-                            SW_STORAGE_ES_HTTP_PROTOCOL: "http",
-                            SW_ES_USER: "admin",
-                            SW_ES_PASSWORD: config.require("SW_ES_PASSWORD"),
-                            SW_STORAGE_ES_CONNECT_TIMEOUT: "1000",
-                            SW_STORAGE_ES_BULK_ACTIONS: "1000", // Execute the async bulk record data every requests.
-                            SW_STORAGE_ES_CONCURRENT_REQUESTS: "2", // The number of concurrent requests.
-                            SW_STORAGE_ES_INDEX_SHARDS_NUMBER: "2",
-                            SW_STORAGE_ES_INDEX_REPLICAS_NUMBER: "1",
-                            SW_STORAGE_ES_FLUSH_INTERVAL: "30", // # Flush the bulk every seconds whatever the number of requests.
-                            SW_STORAGE_ES_ADVANCED: "{\"index.translog.durability\":\"async\",\"index.translog.sync_interval\":\"30s\"}",
-                            SW_CORE_RECORD_DATA_TTL: "3", // Records include traces, logs, topN sampled statements and alarm.
-                            SW_CORE_METRICS_DATA_TTL: "7", // Metrics include all metrics for service, instance, endpoint, and topology map.
+            env: {
+              SW_STORAGE_ES_CLUSTER_NODES: "opensearch-master:9200",
+              SW_STORAGE_ES_HTTP_PROTOCOL: "http",
+              SW_ES_USER: "admin",
+              SW_ES_PASSWORD: config.require("SW_ES_PASSWORD"),
+              SW_STORAGE_ES_CONNECT_TIMEOUT: "1000",
+              SW_STORAGE_ES_BULK_ACTIONS: "1000", // Execute the async bulk record data every requests.
+              SW_STORAGE_ES_CONCURRENT_REQUESTS: "2", // The number of concurrent requests.
+              SW_STORAGE_ES_INDEX_SHARDS_NUMBER: "2",
+              SW_STORAGE_ES_INDEX_REPLICAS_NUMBER: "1",
+              SW_STORAGE_ES_FLUSH_INTERVAL: "30", // # Flush the bulk every seconds whatever the number of requests.
+              SW_STORAGE_ES_ADVANCED: "{\"index.translog.durability\":\"async\",\"index.translog.sync_interval\":\"30s\"}",
+              SW_CORE_RECORD_DATA_TTL: "3", // Records include traces, logs, topN sampled statements and alarm.
+              SW_CORE_METRICS_DATA_TTL: "7", // Metrics include all metrics for service, instance, endpoint, and topology map.
 
-                        },
-                        service: {
-                            type: "LoadBalancer",
-                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
-                        },
-                        dynamicConfig: {
-                            enabled: true,
-                            config: {
-                                "alarm.default.alarm-settings": `
+            },
+            service: {
+              type: "LoadBalancer",
+              annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+            },
+            dynamicConfig: {
+              enabled: true,
+              config: {
+                "alarm.default.alarm-settings": `
 rules:
   service_resp_time_rule:
     metrics-name: service_resp_time
@@ -486,92 +486,96 @@ rules:
     silence-period: 10
     message: Response time of endpoint relation {name} is more than 1000ms in 3 minutes of last 10 minutes
 webhooks:
-  - http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/webhook/VKr1SLgkxkm1IPxwoTCabh26m/
+#  - http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/webhook/VKr1SLgkxkm1IPxwoTCabh26m/
 `
-                            }
-                        }
-                    },
-                    ui: {
-                        replicas: 1,
-                        image: { tag: "9.3.0" },
-                        ingress: {
-                            enabled: true,
-                            annotations: {
-                                "kubernetes.io/ingress.class": "nginx",
-                                "nginx.ingress.kubernetes.io/auth-type": "basic",
-                                "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
-                                "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
-                            },
-                            path: "/",
-                            hosts: ["skywalking.norther.example.com"]
-                        }
-                    },
-                    elasticsearch: {
-                        enabled: false,
-                        config: {
-                            port: { http: 9200 },
-                            host: "opensearch-master"
-                        }
-                    },
-                    fullnameOverride: "skywalking"
-                }
-            },
-            {
-                namespace: "skywalking",
-                name: "swck-operator",
-                chart: "../../_chart/swck-operator-0.7.0.tgz",
-                repository: "",
-                version: "0.7.0",
-                values: {
-                    fullnameOverride: "skywalking",
-                    replicas: 1,
-                    resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
-                    }
-                }
+              }
             }
-        ]
-    }
+          },
+          ui: {
+            replicas: 1,
+            image: { tag: "9.3.0" },
+            resources: {
+              requests: { cpu: "500m", memory: "1024Mi" },
+              limits: { cpu: "500m", memory: "1024Mi" },
+            },
+            ingress: {
+              enabled: true,
+              annotations: {
+                "kubernetes.io/ingress.class": "nginx",
+                "nginx.ingress.kubernetes.io/auth-type": "basic",
+                "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
+                "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
+              },
+              path: "/",
+              hosts: ["skywalking.norther.example.com"]
+            }
+          },
+          elasticsearch: {
+            enabled: false,
+            config: {
+              port: { http: 9200 },
+              host: "opensearch-master"
+            }
+          },
+          fullnameOverride: "skywalking"
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "swck-operator",
+        chart: "../../_chart/swck-operator-0.7.0.tgz",
+        repository: "",
+        version: "0.7.0",
+        values: {
+          fullnameOverride: "skywalking",
+          replicas: 1,
+          resources: {
+            limits: { cpu: "200m", memory: "256Mi" },
+            requests: { cpu: "200m", memory: "256Mi" }
+          }
+        }
+      }
+    ]
+  }
 ]
 
 for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Kubernetes Secret.
-    const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
-        metadata: deploy_spec[i].secret.metadata,
-        type: deploy_spec[i].secret.type,
-        data: deploy_spec[i].secret.data,
-        stringData: deploy_spec[i].secret.stringData
-    }, { dependsOn: [namespace] });
-    // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        if (deploy_spec[i].helm[helm_index].repository === "") {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-            }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
-        }
-        else {
-            const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-                namespace: deploy_spec[i].helm[helm_index].namespace,
-                name: deploy_spec[i].helm[helm_index].name,
-                chart: deploy_spec[i].helm[helm_index].chart,
-                version: deploy_spec[i].helm[helm_index].version,
-                values: deploy_spec[i].helm[helm_index].values,
-                skipAwait: true,
-                repositoryOpts: {
-                    repo: deploy_spec[i].helm[helm_index].repository,
-                },
-            }, { dependsOn: [namespace] });
-        }
+  // Create Kubernetes Namespace.
+  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
+    metadata: deploy_spec[i].namespace.metadata,
+    spec: deploy_spec[i].namespace.spec
+  });
+  // Create Kubernetes Secret.
+  const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
+    metadata: deploy_spec[i].secret.metadata,
+    type: deploy_spec[i].secret.type,
+    data: deploy_spec[i].secret.data,
+    stringData: deploy_spec[i].secret.stringData
+  }, { dependsOn: [namespace] });
+  // Create Release Resource.
+  for (var helm_index in deploy_spec[i].helm) {
+    if (deploy_spec[i].helm[helm_index].repository === "") {
+      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+        namespace: deploy_spec[i].helm[helm_index].namespace,
+        name: deploy_spec[i].helm[helm_index].name,
+        chart: deploy_spec[i].helm[helm_index].chart,
+        version: deploy_spec[i].helm[helm_index].version,
+        values: deploy_spec[i].helm[helm_index].values,
+        skipAwait: true,
+      }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
     }
+    else {
+      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+        namespace: deploy_spec[i].helm[helm_index].namespace,
+        name: deploy_spec[i].helm[helm_index].name,
+        chart: deploy_spec[i].helm[helm_index].chart,
+        version: deploy_spec[i].helm[helm_index].version,
+        values: deploy_spec[i].helm[helm_index].values,
+        skipAwait: true,
+        repositoryOpts: {
+          repo: deploy_spec[i].helm[helm_index].repository,
+        },
+      }, { dependsOn: [namespace] });
+    }
+  }
 }

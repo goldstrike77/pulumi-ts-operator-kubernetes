@@ -166,8 +166,8 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                                     timeoutSeconds: 10
                                 },
                                 resources: {
-                                    limits: { cpu: "200m", memory: "256Mi" },
-                                    requests: { cpu: "200m", memory: "256Mi" }
+                                    limits: { cpu: "300m", memory: "512Mi" },
+                                    requests: { cpu: "300m", memory: "512Mi" }
                                 },
                                 ports: [
                                     {
