@@ -1,0 +1,669 @@
+import * as pulumi from "@pulumi/pulumi";
+import * as k8s from "@pulumi/kubernetes";
+
+let config = new pulumi.Config();
+
+const deploy_spec = [
+  {
+    namespace: {
+      metadata: {
+        name: "skywalking",
+        annotations: {},
+        labels: {}
+      },
+      spec: {}
+    },
+    secret: {
+      metadata: {
+        name: "opensearch-secret",
+        namespace: "skywalking",
+        annotations: {},
+        labels: {}
+      },
+      type: "Opaque",
+      data: {
+        auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64'),
+        kirk: "TFMwdExTMUNSVWRKVGlCRFJWSlVTVVpKUTBGVVJTMHRMUzB0Q2sxSlNVUlVla05EUVdwalEwWkVhRmt4U2toRmRrNVBVM1pvYURSWFRuUkpiVEJoUXpOR1dVcE5RVEJIUTFOeFIxTkpZak5FVVVWQ1EzZFZRVTFIVVhnS1EzcEJTa0puVGxaQ1FWbFVRV3hvV1UxUk1IZERkMWxFVmxGUlNVUkJVazVaV0VwNlRWSlpkMFpCV1VSV1VWRklSRUV4VG1JelZuVmtRMEpRWWtoc2RBcGpTRlo2VFZKQmQwUm5XVVJXVVZGTFJFRmtSR0l5TVhkWlZ6VTFUVkV3ZDBOM1dVUldVVkZNUkVGU1ZtSnRiREJOVVRCM1EzZFpSRlpSVVVSRVFWSlRDbFF3T1ZWTlFqUllSRlJKZWsxRVRYaE9WRVYzVFhwSmVVNUdiMWhFVkZGNlRVUk5lRTVVUlhkTmVrbDVUa1p2ZDFwRVJVeE5RV3RIUVRGVlJVSm9UVU1LVjBabmVFUlVRVXhDWjA1V1FrRm5UVUpGTVdoamJrMTRSbXBCVlVKblRsWkNRV05OUkZVeGRtUlhOVEJKUlRselpWY3hkMlJZVFhoRlJFRlBRbWRPVmdwQ1FXOU5RakJPZG1KWVFtaGlibXQ0UkZSQlRFSm5UbFpDUVhOTlFrWldkV0ZZVVhoRVZFRk1RbWRPVmtKQlRVMUNSa3BRVkRGUmQyZG5SV2xOUVRCSENrTlRjVWRUU1dJelJGRkZRa0ZSVlVGQk5FbENSSGRCZDJkblJVdEJiMGxDUVZGRE1HTllhMVpHVWtaUVdYRXlOM2h4Y0dwUk1YbEhUMEZ1VWxaYWNtc0tlRU0yYUhGR00yb3hPVkZwUVUxdmJEWk9lblp4Tld0dFRrZEpOVkJDVFZOalNFMWxlRzlqTW5aNlpYRlVhamhwU1hBMVRWZDFSVkEwU2sxSFpHbGtZUW9yU2poUGRrSlNlbXg0T0dod09IWkNRMEZKVG5WVlNIZHdMMFUxYTBWcWVuWmpjMFpWVjFST055OVRLemt5Y1VGUVFsUlZWbTQxWTNkNU5IQkhiWE5wQ210bmF6TkZNblZIYzNSMk4waDZZa2xDWTNoSmVqRlNMekZ4VURsa0t5czROeTlTYUN0M05sSXZiM1pVZGxFclRGWktRMmh0SzFOaGEybGpRa2huYlhvS1RFMUNSbEprYjBoalUyNDVORUl6TDJWbU9WRlhRVkEwWmtoMWVGTjBRV1E1VVM5Q01VcFNkMlEyWkVsMlRHSkphM0o1U0hwSVNtZGpSakJZWTBGeVR3cEdVRVZaYzNkV01ETlBUalF5VEdsd1ZWRlhWV3BtTjI5bGJ6Wk9VMU51ZG5oelFXbG1Va05VWTJOaU5qQm9WVlU1VDBaNmNraE9Sa0ZuVFVKQlFVVjNDa1JSV1VwTGIxcEphSFpqVGtGUlJVeENVVUZFWjJkRlFrRkxXRUo2TXk5cEsxWXhWbGxpYVZwdldIRjJXRW8yY3pFclNFTkdVbGxFZGsxaVVFNUxXbWtLVFZwVWVEY3pUMUJsVEdZMlRuTTRPVWRTUjNZd01FTnNUVlpsSzNwUlJqbDBRV0o0U2xwMWFFaGpkV1ppZEd4TVRuVmxPRnBOUkZRM1luZHZRMUk1UWdwU1NXRTVTa0p6ZVRWQk9GbENNbFEzYkZsWFRFWlFOMU5xTVVWclYyTlZZMFZpUmxobmFGYzNiMkYzZDIxS01td3pTRVY2WkUwelUzQjFWMUJ1TkRkb0NrcDJNUzlIZFdwcmFVSkJkblE1YzNKTU9ERkhabE52VW5kRlFtcFZNbEIyVUdaWlMwWmFUM1pHUjJkck5sSXdZMnRsZHl0b2VWaDVWa2s0TWpjM1FrWUtNV1JwVXk5d1NGZHdhMjE2UTFvdmFtUTFRWGd6VTI0MWVIZFFZMXBUU21oM1NEZE1WakprTVhWTFEwSTJNWFpHZURkdmF6TTFTVkV3VDFVMmFtSndWQXBDT0M5ck9HcEZTakpNWmsxMWIxaHdMMUl6WkZkMGMxTXdkbTFsWTNjMlVqRlBMemxDU2pWdVpsUkhUSEZoUVQwS0xTMHRMUzFGVGtRZ1EwVlNWRWxHU1VOQlZFVXRMUzB0TFE9PQ==",
+        "kirk-key": "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktnd2dnU2tBZ0VBQW9JQkFRQzBjWGtWRlJGUFlxMjcKeHFwalExeUdPQW5SVlpya3hDNmhxRjNqMTlRaUFNb2w2Tnp2cTVrbU5HSTVQQk1TY0hNZXhvYzJ2emVxVGo4aQpJcDVNV3VFUDRKTUdkaWRhK0o4T3ZCUnpseDhocDh2QkNBSU51VUh3cC9FNWtFanp2Y3NGVVdUTjcvUys5MnFBClBCVFVWbjVjd3k0cEdtc2lrZ2szRTJ1R3N0djdIemJJQmN4SXoxUi8xcVA5ZCsrODcvUmgrdzZSL292VHZRK0wKVkpDaG0rU2FraWNCSGdtekxNQkZSZG9IY1NuOTRCMy9lZjlRV0FQNGZIdXhTdEFkOVEvQjFKUndkNmRJdkxiSQprcnlIekhKZ2NGMFhjQXJPRlBFWXN3VjAzT040MkxpcFVRV1VqZjdvZW82TlNTbnZ4c0FpZlJDVGNjYjYwaFVVCjlPRnpySE5GQWdNQkFBRUNnZ0VBTzdWSXNiYzA4U1hnQTBDcjVRakhOd3FZQlJMa25FcG1lOHV3dGRJWE9lRTEKQXZKWkdWMlk0ZEYzcHlTLzB0d3UyOElwdiszcVI0cDR6WnpTOE1VcHNBMUoyVnVEamxDeW9UZVBOT2lPdnA0OQpoL1JVYWFJaHRiWjgxZVZ1bm1qeEl5Tlp6ZU5YQTFIdmhkdGJzUitsMUtBcFNDU2J5dWF6OGV1Vkt3OUlSNEh3CmFUNU85WUxrMnpEOWFBU1JheEphSlVVaXhGQm43Z2w5dXZFSVBJMDZ4WUlWT0ZwSXN2cU9ZSlFtT0ZvMTRtZ2UKWks1Y2pIMHQ1TXVidTlNUjNHck03SUE3dC9ZcnljR2t6cW9vaWR1cmNIOWIxYmJGblJRTm5pc2FrditZblYzQQpCeG0wa0N0TjNmd3BkQXpEby84eThSc1l5alhDQTJpcXVTZWJ2V3RTUVFLQmdRRFpRYllHRnVYQzdwVXpKYk9PCjV4K1VXMDNkSVZjaVNaaVBUZW41MFFlMHpNWk14c1FNN1hGcnJNRmRnc25JUFdGOElSVVJsZjZIbm9tN3Nvb1MKQVBIY0lVQ1JRMXVxbDdCcTQvT0s5MDBVYm9yS2k1eTNjRGFra1pGKzNHdkJyaFpNcmFoQ1lWV3cyTkJQZjR5OApLVis2bG5sc1R1VXJvd1FRejlJQ2hJNDF2UUtCZ1FEVW55UDV6dEwrVUF3bGlpT0NKeHJaYm44emRCQkNsQkRFCkZzNDFTYm4rYldOR3g3dDFuWlNZTTFmL0RPQnhsaldyTzNwNFFuWnpTUmpIYWs4bytoWUF0Wm5MVURmZmdzZWIKOHkxNW52M09JdUNpVkJOcENzb3MzVmhXdHJzdE5UQU1mdEIwVWxERG4wNWRMVmpNclZHcTI4UndraG5FUHEwTwpWSFI2b0w2NEtRS0JnQWYveUdEdkJPU3BmaXJVNzRpS2IvbzVabU9HNzd0ZWRGU0tiTnY2MjBySDQyRStURWVoCmtuU0JkdGtua0tCanlpd1UxNzYvQkJFZ1FEZjkrZUZ4MFhYbWI0Y3BzTDFXT25PbEV2bUI0MyttRmt3ZzJkTlQKT1YvVDBFU1lmd3N4aXJhbUNqVHZlb1U1Wm1vVzZ5cWVaMXpxWDJ3aWQ0T2t5K2lHamxmelkzME5Bb0dCQUl4dApIc0dhUzlnUzNqTGM3VjdFblFNRjY1VDhEdEVxSVhpZzUwaGlqU2p3N2lTTlBjNE1hVnVzYlczUi8xcUZycVNNCi8vSDFVMjRJMVFpL3VkQ0NlNDIwWXdMWTFFNFdmZWNOMFBjR2Z2SnFMcHFIbE5wSGVnZnZtS3lNdTBxOFdpT20KamQ2Rmp6bmtPVWxvN2NFZ3AxT0ZHbFNPNmQybTEzMGpZbHFyVjhzaEFvR0JBSXdLeTc3NTB5TkgwcHdLMEM4eAo1aC91blNNcHlXRXMrL294VE5DdjVDNUhIeUpKMHZ6M0MybkFiTW9ib1U0L2FZbTZHK1gvcTdqUXJaNUpFM0YwCjMrZktLZkRWNklDSWROZTNMTTB3OEM3WC9peWw0UGJWcnA3SmJsSVlnUG5BVmJEa1U3b2lIQ0taUkZIR1VTZTgKN0pCTTZXRGlQdksrZldDWE9yV1dGdkgxCi0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=",
+        esnode: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURZekNDQWt1Z0F3SUJBZ0lVT0ZqVWtjUzgwNUsrR0hoWTIwaWJSb0xjVmdnd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1pERUxNQWtHQTFVRUJoTUNXRmd4RFRBTEJnTlZCQWdNQkUxaGNuTXhGakFVQmdOVkJBY01EVTF2ZFc1MApJRTlzZVcxd2RYTXhFREFPQmdOVkJBb01CME52YlhCaGJua3hEVEFMQmdOVkJBc01CRlZ1YVhReERUQUxCZ05WCkJBTU1CRkpQVDFRd0hoY05Nak13TXpFMU1Ea3dPVEU0V2hjTk5ETXdNekUxTURrd09URTRXakJoTVFzd0NRWUQKVlFRR0V3SllXREVOTUFzR0ExVUVDQXdFVFdGeWN6RVdNQlFHQTFVRUJ3d05UVzkxYm5RZ1QyeDViWEIxY3pFUQpNQTRHQTFVRUNnd0hRMjl0Y0dGdWVURU5NQXNHQTFVRUN3d0VWVzVwZERFS01BZ0dBMVVFQXd3QktqQ0NBU0l3CkRRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFNMGdjeFZ6UHdkSStYNVZPd0p3SGZqNnYwb1MKQk9hd0pjdVBnWE1YeGp5aGkrVlREZWxYMTA3WXZGRkw0WDl4eUwvMnVsQmljMUtTUnFmcmdsTzRqZ0dTTzc5ego4WnhQL3BiZWhkdFlERlpPNG5pdUhoT1l2bElram9oWUdaS3NVQ1pyc3JFVngzRWFVQTVkclBKVHROUDAxTnB1Cm9JWjRKeUdEaEUyMVBud2V5M285MDV2Ti9wWlVQZEF1WlV6bjVGQmZJaFR6TzdpbUdHMUlZQUFYVWJ6aTFpSzYKcHNKb0Jjc05YK3F3dkVSMTBzODJsTWcwSjFreUNGR0xCbU9XbkV1S1BVY090allZN2FIbFJML3gyblZkVEh0Ugo1Q1VoNVJvR3Nlb254cVBIVXZwaWlVeFQ4Sjg2ZEprR3dTOFdtMUhkZFJCcnQ4NnpkVThHUG85VjJ5RUNBd0VBCkFhTVFNQTR3REFZRFZSMFJCQVV3QTRJQktqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFmQkU5T2Q1bktvMEsKSDRCUmZLKzEwZzFyOVViV25peXNnaVFTVXRpbEpDVkpVZ01uMU5BWWg2c1dDMFdCL2MwMURnbENkNWIzYVhoZQo0c2FvNjQ1blpqS0NVNTZxZm1hSUhWMnNza2pHWGxIQkhvN1RMMG1uejByb215elB2VWlZY3cvRlhGd3QwTENhCnBsQ3NWM1FiNHdRcWVJTWZnVys4ZXdEK29HNDdOeUdyRWluVG1lRHBqR2lCb3lsNm0wd1BXV3dCWHlzR2srUCsKUUpWbGN5VzQ0Ny9TaUpKQmR0QzJpdFBsallOSjQ2SVlKRG14djR6dGkvRVJ4aUVGMS9JUWl5ZVR5ZTJ2cXNlSQpTVHNmYnR0bkFMbGlVL0lTUXVjRE8wSEVuY2Jwa0ZnbmZoQlZzT28yRk02VWxVWkl0M01HVEYrdVRkbXJTNVFlClVkMnJYZElZMkE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0t",
+        "esnode-key": "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2UUlCQURBTkJna3Foa2lHOXcwQkFRRUZBQVNDQktjd2dnU2pBZ0VBQW9JQkFRRE5JSE1WY3o4SFNQbCsKVlRzQ2NCMzQrcjlLRWdUbXNDWExqNEZ6RjhZOG9ZdmxVdzNwVjlkTzJMeFJTK0YvY2NpLzlycFFZbk5Ta2thbgo2NEpUdUk0QmtqdS9jL0djVC82VzNvWGJXQXhXVHVKNHJoNFRtTDVTSkk2SVdCbVNyRkFtYTdLeEZjZHhHbEFPClhhenlVN1RUOU5UYWJxQ0dlQ2NoZzRSTnRUNThIc3Q2UGRPYnpmNldWRDNRTG1WTTUrUlFYeUlVOHp1NHBoaHQKU0dBQUYxRzg0dFlpdXFiQ2FBWExEVi9xc0x4RWRkTFBOcFRJTkNkWk1naFJpd1pqbHB4TGlqMUhEclkyR08yaAo1VVMvOGRwMVhVeDdVZVFsSWVVYUJySHFKOGFqeDFMNllvbE1VL0NmT25TWkJzRXZGcHRSM1hVUWE3Zk9zM1ZQCkJqNlBWZHNoQWdNQkFBRUNnZ0VBUHFWTllGeXRBQjJTVExuYzVyYTFBS2dicVpSdE9NTE5HQ2tBb05TKzd4OXIKS1NNL1dXZEJVMHd2M3lnc2V3NlYvOEpyVGtkeTd1SExnRmNWbTFuK3pJNExmMEg2cFFGdFFFZy9XeWk5dzlJZApxanVLNWZNOUZMc2phSkozWk9zSkkySzYxUWhRdThNTWRnYTMzZDRnbUticUpyZW9nTWpMTXBvRzJ2Q2lYNmMvCnlTTU4wdFlUVUtNQUd2bmMzT1lwdGc2V2s0YjNGaGhZSlhQMTdPaVd2OGVJRjhPS2JRYUVQc1JmOFlNNS85RDIKWi83aXFWQm9pcDYzTXdZcDJSMWFzbGF6TlpmdWJTM3lySy9Kcm1VcGY2NkpqVUE1QkhTSVdScEo1cTZvUTlRZwowd1lIYUpXODRZZEJiVmkySnk1OUZWUWFBNExCNTdRNG1KUHRiZFRSUFFLQmdRRHpBbUhXSzBzdkJTSG1XeGFrCkNkT0FRNHpzd29JekorSGVFanU2L3dsdjVpdjlPOWwvTmt6SVplYm1IN1JUQkk2SlF2RlhaVTQ3bUh1MDMxUmUKK2pFY0YxS0EyRjJJd3JtN1hTMSt0NGdkdHkrVzdnM1RmVWt0dnhIejJSMUhRai9EVlZ1eDExcnErZ3JReGJzQQpYekZGcnQ3MGozZ3lJWHRyTUcvSjRRU1R0d0tCZ1FEWUY2T2ZpS0tOL3BPQU9JRktaMkRsTGVGb2NaNGNucjJ0CkdkcjJOa3RMRmhaTndGSTAydGhLbDFnL050dXNodEJnZUFoRnRkZlFuN3c1Z3JJWWhzbEgrelN2V0JPdEhEMGoKS3Vub1FmV0daZ0JEQ3NGbEU1SzNnM0U3UHlTdUl2RG9SN3hCVjBJOXZaYWtRKzBzck1wdTBzYll0aGtyL0FHVwpRUFl0MmNuMzV3S0JnUUN3VkRBdHVXaHFpK3pYTzQwb0prRWp0dUJSQTZwNStCeDZpUHh5YVpDdGMzVEQ0V09tClhQNUdBenNTRER0S2Flb0xTMW5Yc3BpYndiOHh0VU9CVDBYSFBsME5SUEpKeEJJRkZFMW92eit6WURMVjc1SjAKdlZvV0thaWJLaFdHbVZtdklRYlIrcFBzSU5jc09lM0JEVkd4WUh4RE5MOWdrTTcvTGp4UFhrbDE3UUtCZ0NuRgo0QmFOOWthV3lQTEhlWTdsanlDZWp1MSswVDdkSFBPaWhPYUZ0bVpzZmFGSUpWd2NWaVdOUGp6eUlPTW9LSTROCmhpUGJ0RDJiTTJxMnJqRDVsVjE1M1VSc05WbUlsUFVBYmJrOVR2Wk5MNDNHUFg2Sm14b29xYkgzVWVMcjFFQkMKNWN5SHpzRmFyZzFSS0Q4em8rcHFpcEFJRzdPYUFzQ0dERkR1d2hGUEFvR0FZNmZxd09yN2dBM1EzQVhMQUFPOQpRQVNjNk1OcWlLeUdEVTlIeVh6RzNFT1Fzc2NRcjExZE5IY1J0RXcwUkhHbDhGd3NDL2xhWUJpNmhSNldYeElXCjJUQ0IxOW5QSUJkS0hoM0NkZzQ4RkptSzJERk9PcmNYdi9NUHFTQUM3cWY4UnliMEt4U21OYldxSEJoSHptZGUKbXF3RXpMT0gxMjhHZWxJK211QWx6a0U9Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0=",
+        "root-ca": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURxVENDQXBHZ0F3SUJBZ0lVYk5PMERtVERFNjBWa2JMOS9zcnk0aFd4Q1hBd0RRWUpLb1pJaHZjTkFRRUwKQlFBd1pERUxNQWtHQTFVRUJoTUNXRmd4RFRBTEJnTlZCQWdNQkUxaGNuTXhGakFVQmdOVkJBY01EVTF2ZFc1MApJRTlzZVcxd2RYTXhFREFPQmdOVkJBb01CME52YlhCaGJua3hEVEFMQmdOVkJBc01CRlZ1YVhReERUQUxCZ05WCkJBTU1CRkpQVDFRd0hoY05Nak13TXpFMU1EVXpOVEkzV2hjTk5ETXdNekUxTURVek5USTNXakJrTVFzd0NRWUQKVlFRR0V3SllXREVOTUFzR0ExVUVDQXdFVFdGeWN6RVdNQlFHQTFVRUJ3d05UVzkxYm5RZ1QyeDViWEIxY3pFUQpNQTRHQTFVRUNnd0hRMjl0Y0dGdWVURU5NQXNHQTFVRUN3d0VWVzVwZERFTk1Bc0dBMVVFQXd3RVVrOVBWRENDCkFTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVcrSmlXbWR4UXJDVU1oekRzRWcxR2cKY1A1Z09BcHlwQkVLMlVYY2NadWFaVnFIWnRjcGptOFhpcUtqdW4xaFRNU1p5bVpuSHNSRzRTd1ZKL3lOSEY3TApvLzRMTlBhRVVkc1hBZFJrc1pmb1RWMmhHV1JoZ3g5NUluaXZWZGtVREYvMndtYjRnSlZvWG12cWE5QnFVR255CjY0M3V0b1hFaExQK242aExPWTdYQjgxZ0t2dHgwaEdUSmVLamQ4NFR2SmIzY1kyclBSM3NIME00UlZQR1VlUkMKWk4yYnNieFJJODVqamxNWVRDN0ZTMmk2Sm1XNFRSOUhoTlBOOWlSc3o3QXZDZTFFR0MwbDJndDViaE1DWVd0QQpvS0NVTlVlUXdHbEZsUDMvZ01haTJlcHhqVkhqSlozUmloc0UxVlBSVUlPNXlOVzBSN1lQOGc2Sk04VnNmbWtDCkF3RUFBYU5UTUZFd0hRWURWUjBPQkJZRUZGR0gzY0hOaThzVW9La0U0Q1hsYW1tQzRDN1FNQjhHQTFVZEl3UVkKTUJhQUZGR0gzY0hOaThzVW9La0U0Q1hsYW1tQzRDN1FNQThHQTFVZEV3RUIvd1FGTUFNQkFmOHdEUVlKS29aSQpodmNOQVFFTEJRQURnZ0VCQUZhQktodjJYWmV2aG9xMzUrOXByZDBWaUpzZU8rODI1TlRaOEZwYkxibDFWaURmCndGR2o2Y0w5amhjS09YKzNTMmJ2S0lma3ZJbVpwUE5YTWNxN2NSTXFFejcrNlVFMVlob1JmY1IvUFp3eWM3MG0KQ2RaM0VrdzhIRzZPUTR5S1JzVWloVm5HK0didk1DY1JUQzFDejBMZUhXV2c2ZXJTek1DdlRiSzFUV0g4QStzcQpROVJNKzJMbUoxTGU4eUlzQXk4TWNRc3RlamxFV1VldDk0R3lHVGE2amFBVncwMVA4USt0VXNrY0FxZmtWc1VlCitOem9NOE1iNDRReDE3K2o4dFRmVDR0akdOampvWVNEMmE3M0lJdWhKcTNENlluT0tybkp5WlEvUStsbFZZUG4KZVpGWlFuVExqTXdldGdKMzUycy9rZzVEd2Z2SFhCSE91anpCYi9nPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0t"
+      },
+      stringData: {}
+    },
+    helm: [
+      {
+        namespace: "skywalking",
+        name: "master",
+        version: "2.11.1",
+        chart: "opensearch",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          clusterName: "opensearch",
+          nodeGroup: "master",
+          masterService: "opensearch-master",
+          roles: ["master", "ingest", "remote_cluster_client"],
+          replicas: 3,
+          config: {
+            "opensearch.yml": `
+cluster:
+  name: opensearch
+  max_shards_per_node: 10000
+http:
+  compression: false
+  cors:
+    enabled: true
+    allow-origin: "*"
+    allow-credentials: true
+    allow-methods: HEAD, GET, POST, PUT, DELETE
+    allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+network.host: 0.0.0.0
+plugins:
+  security:
+    ssl:
+      transport:
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enforce_hostname_verification: false
+        resolve_hostname: false
+        enabled_protocols: ["TLSv1.2"]
+        enabled_ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA","TLS_RSA_WITH_AES_128_CBC_SHA256","TLS_RSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384","TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA","TLS_RSA_WITH_AES_256_CBC_SHA256","TLS_RSA_WITH_AES_256_CBC_SHA"]
+      http:
+        enabled: true
+        clientauth_mode: NONE
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enabled_protocols: ["TLSv1.2"]
+        enabled_ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA","TLS_RSA_WITH_AES_128_CBC_SHA256","TLS_RSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384","TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA","TLS_RSA_WITH_AES_256_CBC_SHA256","TLS_RSA_WITH_AES_256_CBC_SHA"]
+    allow_unsafe_democertificates: true
+    allow_default_init_securityindex: true
+    authcz:
+      admin_dn:
+        - CN=ROOT,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX
+    nodes_dn:
+      - CN=*,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX
+    audit.type: internal_opensearch
+    enable_snapshot_restore_privilege: false
+    check_snapshot_restore_write_privileges: true
+    restapi:
+      roles_enabled: ["all_access", "security_rest_api_access"]
+    system_indices:
+      enabled: true
+      indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
+`
+          },
+          extraEnvs: [{ name: "DISABLE_INSTALL_DEMO_CONFIG", value: "false" }],
+          labels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
+          opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
+          resources: {
+            limits: { cpu: "500m", memory: "4096Mi" },
+            requests: { cpu: "500m", memory: "4096Mi" }
+          },
+          initResources: {
+            limits: { cpu: "25m", memory: "128Mi" },
+            requests: { cpu: "25m", memory: "128Mi" }
+          },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "3Gi", },
+          extraVolumeMounts: [
+            { name: "kirk", mountPath: "/usr/share/opensearch/config/kirk.pem", subPath: "kirk" },
+            { name: "kirk-key", mountPath: "/usr/share/opensearch/config/kirk-key.pem", subPath: "kirk-key" },
+            { name: "esnode", mountPath: "/usr/share/opensearch/config/esnode.pem", subPath: "esnode" },
+            { name: "esnode-key", mountPath: "/usr/share/opensearch/config/esnode-key.pem", subPath: "esnode-key" },
+            { name: "root-ca", mountPath: "/usr/share/opensearch/config/root-ca.pem", subPath: "root-ca" }
+          ],
+          extraVolumes: [
+            {
+              name: "kirk",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "kirk", path: "kirk" }]
+              }
+            },
+            {
+              name: "kirk-key",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "kirk-key", path: "kirk-key" }]
+              }
+            },
+            {
+              name: "esnode",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "esnode", path: "esnode" }]
+              }
+            },
+            {
+              name: "esnode-key",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "esnode-key", path: "esnode-key" }]
+              },
+            },
+            {
+              name: "root-ca",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "root-ca", path: "root-ca" }]
+              }
+            }
+          ],
+          extraInitContainers: [
+            {
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ],
+          securityConfig: {
+            path: "/usr/share/opensearch/config/opensearch-security",
+            config: {
+              dataComplete: false,
+              data: {
+                "internal_users.yml": `
+---
+_meta:
+  type: "internalusers"
+  config_version: 2
+admin:
+  hash: "$2a$12$UDizTi1M0bOKPIIjIoE0G.I8zpfsTM1kY8LvcO8lnN8WqjkYDphMe"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Demo admin user"
+kibanaserver:
+  hash: "$2a$12$Vl4MI3s1r3wFx.LPuklpMOHRayUgoRDCqu3zSz5zbOqFrLo5FVo5."
+  reserved: true
+  description: "Demo OpenSearch Dashboards user"
+kibanaro:
+  hash: "$2a$12$CvASrNE.Elf.4sYBk84u2u5n9Hb/AoiJm4V6IQDxQYZKVN.cO8ixG"
+  reserved: false
+  backend_roles:
+  - "kibanauser"
+  - "readall"
+  attributes:
+    attribute1: "value1"
+    attribute2: "value2"
+    attribute3: "value3"
+  description: "Demo OpenSearch Dashboards read only user"
+logstash:
+  hash: "$2a$12$z/cDnBd54GBf0e8pJ53osOfWqc/dnr.P5vU.2BQuNh8VBHAfUoKvm"
+  reserved: false
+  backend_roles:
+  - "logstash"
+  description: "Demo logstash user"
+readall:
+  hash: "$2a$12$ut60xT.f2SkdJsDV70C2cu6C99xe3d5ASYwTEHlHA6HU7fbhWSWDq"
+  reserved: false
+  backend_roles:
+  - "readall"
+  description: "Demo readall user"
+snapshotrestore:
+  hash: "$2a$12$WDewkmehCJR8D9MlJziCb.xFmIti7jmtwh/7.qJcwh9s0Fn3JefUC"
+  reserved: false
+  backend_roles:
+  - "snapshotrestore"
+  description: "Demo snapshotrestore user"
+`,
+              }
+            }
+          },
+          terminationGracePeriod: "60"
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "node",
+        version: "2.11.1",
+        chart: "opensearch",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          clusterName: "opensearch",
+          nodeGroup: "data",
+          masterService: "opensearch-master",
+          roles: ["data"],
+          replicas: 2,
+          config: {
+            "opensearch.yml": `
+cluster:
+  name: opensearch
+  max_shards_per_node: 10000
+http:
+  compression: false
+  cors:
+    enabled: true
+    allow-origin: "*"
+    allow-credentials: true
+    allow-methods: HEAD, GET, POST, PUT, DELETE
+    allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+network.host: 0.0.0.0
+plugins:
+  security:
+    ssl:
+      transport:
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enforce_hostname_verification: false
+        resolve_hostname: false
+        enabled_protocols: ["TLSv1.2"]
+        enabled_ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA","TLS_RSA_WITH_AES_128_CBC_SHA256","TLS_RSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384","TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA","TLS_RSA_WITH_AES_256_CBC_SHA256","TLS_RSA_WITH_AES_256_CBC_SHA"]
+      http:
+        enabled: true
+        clientauth_mode: NONE
+        pemcert_filepath: esnode.pem
+        pemkey_filepath: esnode-key.pem
+        pemtrustedcas_filepath: root-ca.pem
+        enabled_protocols: ["TLSv1.2"]
+        enabled_ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256","TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA","TLS_RSA_WITH_AES_128_CBC_SHA256","TLS_RSA_WITH_AES_128_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384","TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA","TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA","TLS_RSA_WITH_AES_256_CBC_SHA256","TLS_RSA_WITH_AES_256_CBC_SHA"]
+    allow_unsafe_democertificates: true
+    allow_default_init_securityindex: true
+    authcz:
+      admin_dn:
+        - CN=ROOT,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX
+    nodes_dn:
+      - CN=*,OU=Unit,O=Company,L=Mount Olympus,S=Mars,C=XX
+    audit.type: internal_opensearch
+    enable_snapshot_restore_privilege: true
+    check_snapshot_restore_write_privileges: true
+    restapi:
+      roles_enabled: ["all_access", "security_rest_api_access"]
+    system_indices:
+      enabled: true
+      indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
+`
+          },
+          extraEnvs: [{ name: "DISABLE_INSTALL_DEMO_CONFIG", value: "false" }],
+          labels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
+          opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
+          resources: {
+            limits: { cpu: "2000m", memory: "10240Mi" },
+            requests: { cpu: "2000m", memory: "10240Mi" }
+          },
+          initResources: {
+            limits: { cpu: "25m", memory: "128Mi" },
+            requests: { cpu: "25m", memory: "128Mi" }
+          },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi" },
+          extraVolumeMounts: [
+            { name: "kirk", mountPath: "/usr/share/opensearch/config/kirk.pem", subPath: "kirk" },
+            { name: "kirk-key", mountPath: "/usr/share/opensearch/config/kirk-key.pem", subPath: "kirk-key" },
+            { name: "esnode", mountPath: "/usr/share/opensearch/config/esnode.pem", subPath: "esnode" },
+            { name: "esnode-key", mountPath: "/usr/share/opensearch/config/esnode-key.pem", subPath: "esnode-key" },
+            { name: "root-ca", mountPath: "/usr/share/opensearch/config/root-ca.pem", subPath: "root-ca" }
+          ],
+          extraVolumes: [
+            {
+              name: "kirk",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "kirk", path: "kirk" }]
+              }
+            },
+            {
+              name: "kirk-key",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "kirk-key", path: "kirk-key" }]
+              }
+            },
+            {
+              name: "esnode",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "esnode", path: "esnode" }]
+              }
+            },
+            {
+              name: "esnode-key",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "esnode-key", path: "esnode-key" }]
+              },
+            },
+            {
+              name: "root-ca",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "root-ca", path: "root-ca" }]
+              }
+            }
+          ],
+          extraInitContainers: [
+            {
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ],
+          terminationGracePeriod: "60"
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "dashboards",
+        version: "2.9.0",
+        chart: "opensearch-dashboards",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          opensearchHosts: "https://opensearch-master:9200",
+          replicaCount: 1,
+          fullnameOverride: "opensearch-dashboards",
+          extraVolumeMounts: [
+            { name: "esnode", mountPath: "/usr/share/opensearch-dashboards/config/esnode.pem", subPath: "esnode" },
+            { name: "esnode-key", mountPath: "/usr/share/opensearch-dashboards/config/esnode-key.pem", subPath: "esnode-key" },
+            { name: "root-ca", mountPath: "/usr/share/opensearch-dashboards/config/root-ca.pem", subPath: "root-ca" }
+          ],
+          extraVolumes: [
+            {
+              name: "esnode",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "esnode", path: "esnode" }]
+              }
+            },
+            {
+              name: "esnode-key",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "esnode-key", path: "esnode-key" }]
+              },
+            },
+            {
+              name: "root-ca",
+              secret: {
+                secretName: "opensearch-secret",
+                items: [{ key: "root-ca", path: "root-ca" }]
+              }
+            }
+          ],
+          config: {
+            "opensearch_dashboards.yml": `
+---
+logging.quiet: true
+opensearch.hosts: [https://opensearch-master:9200]
+opensearch.ssl.verificationMode: none
+opensearch.username: kibanaserver
+opensearch.password: ${config.require("kibanaserverPassword")}
+opensearch.requestHeadersAllowlist: [authorization, securitytenant] 
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: [Private, Global]
+opensearch_security.readonly_mode.roles: [kibana_read_only]
+opensearch_security.cookie.secure: true
+server.ssl.certificate: /usr/share/opensearch-dashboards/config/esnode.pem
+server.ssl.key: /usr/share/opensearch-dashboards/config/esnode-key.pem
+opensearch.ssl.certificateAuthorities: ["/usr/share/opensearch-dashboards/config/root-ca.pem"]
+server.ssl.enabled: true
+server.host: '0.0.0.0'
+server.rewriteBasePath: true
+server.basePath: "/opensearch"
+`,
+          },
+          labels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
+          ingress: {
+            enabled: true,
+            ingressClassName: "nginx",
+            hosts: [
+              {
+                host: "norther.example.com",
+                paths: [
+                  {
+                    path: "/opensearch",
+                    backend: {
+                      serviceName: "opensearch-dashboards",
+                      servicePort: 5601
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          resources: {
+            limits: { cpu: "500m", memory: "512Mi" },
+            requests: { cpu: "500m", memory: "512Mi" }
+          },
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "elasticsearch-exporter",
+        version: "5.0.0",
+        chart: "prometheus-elasticsearch-exporter",
+        repository: "https://prometheus-community.github.io/helm-charts",
+        values: {
+          fullnameOverride: "opensearch-exporter",
+          log: { level: "wran" },
+          resources: {
+            limits: { cpu: "100m", memory: "64Mi" },
+            requests: { cpu: "100m", memory: "64Mi" }
+          },
+          podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
+          es: {
+            uri: "https://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
+            all: false,
+            indices: true,
+            indices_settings: true,
+            indices_mappings: true,
+            shards: true,
+            snapshots: true,
+            cluster_settings: true,
+            timeout: "30s",
+            sslSkipVerify: true
+          },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s",
+            scrapeTimeout: "30s",
+            relabelings: [
+              { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+            ]
+          }
+        }
+      },
+      /**
+      {
+        namespace: "skywalking",
+        name: "skywalking",
+        chart: "../../_chart/skywalking-4.4.0.tgz",
+        repository: "",
+        version: "4.4.0",
+        values: {
+          oap: {
+            storageType: "elasticsearch",
+            replicas: 2,
+            image: { tag: "9.3.0" },
+            javaOpts: "-Xmx3g -Xms3g",
+            resources: {
+              requests: { cpu: "1000m", memory: "4096Mi" },
+              limits: { cpu: "4000m", memory: "4096Mi" },
+            },
+            env: {
+              SW_STORAGE_ES_CLUSTER_NODES: "opensearch-master:9200",
+              SW_STORAGE_ES_HTTP_PROTOCOL: "http",
+              SW_ES_USER: "admin",
+              SW_ES_PASSWORD: config.require("SW_ES_PASSWORD"),
+              SW_STORAGE_ES_CONNECT_TIMEOUT: "1000",
+              SW_STORAGE_ES_BULK_ACTIONS: "1000", // Execute the async bulk record data every requests.
+              SW_STORAGE_ES_CONCURRENT_REQUESTS: "2", // The number of concurrent requests.
+              SW_STORAGE_ES_INDEX_SHARDS_NUMBER: "2",
+              SW_STORAGE_ES_INDEX_REPLICAS_NUMBER: "1",
+              SW_STORAGE_ES_FLUSH_INTERVAL: "30", // # Flush the bulk every seconds whatever the number of requests.
+              SW_STORAGE_ES_ADVANCED: "{\"index.translog.durability\":\"async\",\"index.translog.sync_interval\":\"30s\"}",
+              SW_CORE_RECORD_DATA_TTL: "3", // Records include traces, logs, topN sampled statements and alarm.
+              SW_CORE_METRICS_DATA_TTL: "7", // Metrics include all metrics for service, instance, endpoint, and topology map.
+
+            },
+            service: {
+              type: "LoadBalancer",
+              annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+            },
+            dynamicConfig: {
+              enabled: true,
+              config: {
+                "alarm.default.alarm-settings": `
+rules:
+  service_resp_time_rule:
+    metrics-name: service_resp_time
+    op: ">"
+    threshold: 1000
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
+  service_sla_rule:
+    metrics-name: service_sla
+    op: "<"
+    threshold: 8500
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Successful rate of service {name} is lower than 80% in 3 minutes of last 10 minutes
+  service_resp_time_percentile_rule:
+    # Metrics value need to be long, double or int
+    metrics-name: service_percentile
+    op: ">"
+    threshold: 1000,1000,1000,1000,1000
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
+  service_instance_resp_time_rule:
+    metrics-name: service_instance_resp_time
+    op: ">"
+    threshold: 1000
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of service instance {name} is more than 1000ms in 3 minutes of last 10 minutes
+  database_access_resp_time_rule:
+    metrics-name: database_access_resp_time
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of database access {name} is more than 1000ms in 3 minutes of last 10 minutes
+  endpoint_relation_resp_time_rule:
+    metrics-name: endpoint_relation_resp_time
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of endpoint relation {name} is more than 1000ms in 3 minutes of last 10 minutes
+webhooks:
+#  - http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/webhook/VKr1SLgkxkm1IPxwoTCabh26m/
+`
+              }
+            }
+          },
+          ui: {
+            replicas: 1,
+            image: { tag: "9.3.0" },
+            resources: {
+              requests: { cpu: "500m", memory: "1024Mi" },
+              limits: { cpu: "500m", memory: "1024Mi" },
+            },
+            ingress: {
+              enabled: true,
+              annotations: {
+                "kubernetes.io/ingress.class": "nginx",
+                "nginx.ingress.kubernetes.io/auth-type": "basic",
+                "nginx.ingress.kubernetes.io/auth-secret": "opensearch-secret",
+                "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
+              },
+              path: "/",
+              hosts: ["skywalking.norther.example.com"]
+            }
+          },
+          elasticsearch: {
+            enabled: false,
+            config: {
+              port: { http: 9200 },
+              host: "opensearch-master"
+            }
+          },
+          fullnameOverride: "skywalking"
+        }
+      },
+      {
+        namespace: "skywalking",
+        name: "swck-operator",
+        chart: "../../_chart/swck-operator-0.7.0.tgz",
+        repository: "",
+        version: "0.7.0",
+        values: {
+          fullnameOverride: "skywalking",
+          replicas: 1,
+          resources: {
+            limits: { cpu: "200m", memory: "256Mi" },
+            requests: { cpu: "200m", memory: "256Mi" }
+          }
+        }
+      }
+       */
+    ]
+  }
+]
+
+for (var i in deploy_spec) {
+  // Create Kubernetes Namespace.
+  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
+    metadata: deploy_spec[i].namespace.metadata,
+    spec: deploy_spec[i].namespace.spec
+  });
+  // Create Kubernetes Secret.
+  const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
+    metadata: deploy_spec[i].secret.metadata,
+    type: deploy_spec[i].secret.type,
+    data: deploy_spec[i].secret.data,
+    stringData: deploy_spec[i].secret.stringData
+  }, { dependsOn: [namespace] });
+  // Create Release Resource.
+  for (var helm_index in deploy_spec[i].helm) {
+    if (deploy_spec[i].helm[helm_index].repository === "") {
+      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+        namespace: deploy_spec[i].helm[helm_index].namespace,
+        name: deploy_spec[i].helm[helm_index].name,
+        chart: deploy_spec[i].helm[helm_index].chart,
+        version: deploy_spec[i].helm[helm_index].version,
+        values: deploy_spec[i].helm[helm_index].values,
+        skipAwait: true,
+      }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
+    }
+    else {
+      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+        namespace: deploy_spec[i].helm[helm_index].namespace,
+        name: deploy_spec[i].helm[helm_index].name,
+        chart: deploy_spec[i].helm[helm_index].chart,
+        version: deploy_spec[i].helm[helm_index].version,
+        values: deploy_spec[i].helm[helm_index].values,
+        skipAwait: true,
+        repositoryOpts: {
+          repo: deploy_spec[i].helm[helm_index].repository,
+        },
+      }, { dependsOn: [namespace] });
+    }
+  }
+}
