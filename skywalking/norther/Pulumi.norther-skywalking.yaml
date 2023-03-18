@@ -1,11 +1,7 @@
-encryptionsalt: v1:X9t7h0CleoM=:v1:eBQbGRb1254nt/7B:v5qM+V6ibKxLEQO7SkVUfGRu7WqLCw==
+encryptionsalt: v1:PDP8NF5+yLI=:v1:XbuR0TrQ9VBR071b:qji4+rksR4dMgSNH6MCciE+sYECp0A==
 config:
-  demo:SW_ES_PASSWORD:
-    secure: v1:21pJbMb4RWWVFOGA:DfF6a7rFCbwhtRYNL8QBG3KdTZ1/QR79
   demo:adminPassword:
-    secure: v1:3uNjC9ec/4xmmaYK:EtIv8DrtIX6qG+dfy0xTEIImT59301LN
+    secure: v1:r24EBraaAYNb62sF:KkHE4VujFFnMmz5GIPQntIcH8zIog2+V
   demo:kibanaserverPassword:
-    secure: v1:rUYe3t9FVLjaEW0N:D4Rc2LOWTIYAnR1iIxhStS6sXsZprKps
-  demo:ladpPassword:
-    secure: v1:6/6/dbKAqi2zKDL7:DtrFpoaYWn+4wVZmQRU9xbizL54Vb25y
+    secure: v1:x2Uw5/SMAJOaLjFd:XGsoKO4L+DeYew+RILY0HoPSbXgvMevO
   kubernetes:context: kubernetes-admin@norther

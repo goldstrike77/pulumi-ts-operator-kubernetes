@@ -15,7 +15,7 @@ const deploy_spec = [
     },
     secret: {
       metadata: {
-        name: "auth-secret",
+        name: "opensearch-secret",
         namespace: "skywalking",
         annotations: {},
         labels: {}
@@ -38,7 +38,7 @@ const deploy_spec = [
           nodeGroup: "master",
           masterService: "opensearch-master",
           roles: ["master", "ingest", "remote_cluster_client"],
-          replicas: 1,
+          replicas: 3,
           config: {
             "opensearch.yml": `
 cluster:
@@ -76,31 +76,34 @@ plugins:
       roles_enabled: ["all_access", "security_rest_api_access"]
     system_indices:
       enabled: true
-      indices:
-        [
-          ".opendistro-alerting-config",
-          ".opendistro-alerting-alert*",
-          ".opendistro-anomaly-results*",
-          ".opendistro-anomaly-detector*",
-          ".opendistro-anomaly-checkpoints",
-          ".opendistro-anomaly-detection-state",
-          ".opendistro-reports-*",
-          ".opendistro-notifications-*",
-          ".opendistro-notebooks",
-          ".opendistro-asynchronous-search-response*"
-        ]`
+      indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
+`
           },
           labels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
           opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
           resources: {
-            limits: { cpu: "1000m", memory: "4096Mi" },
-            requests: { cpu: "1000m", memory: "4096Mi" }
+            limits: { cpu: "500m", memory: "4096Mi" },
+            requests: { cpu: "500m", memory: "4096Mi" }
           },
           initResources: {
             limits: { cpu: "25m", memory: "128Mi" },
             requests: { cpu: "25m", memory: "128Mi" }
           },
           persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "3Gi", },
+          extraInitContainers: [
+            {
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ],
           securityConfig: {
             path: "/usr/share/opensearch/config/opensearch-security",
             config: {
@@ -117,6 +120,39 @@ admin:
   backend_roles:
   - "admin"
   description: "Demo admin user"
+kibanaserver:
+  hash: "$2a$12$Vl4MI3s1r3wFx.LPuklpMOHRayUgoRDCqu3zSz5zbOqFrLo5FVo5."
+  reserved: true
+  description: "Demo OpenSearch Dashboards user"
+kibanaro:
+  hash: "$2a$12$CvASrNE.Elf.4sYBk84u2u5n9Hb/AoiJm4V6IQDxQYZKVN.cO8ixG"
+  reserved: false
+  backend_roles:
+  - "kibanauser"
+  - "readall"
+  attributes:
+    attribute1: "value1"
+    attribute2: "value2"
+    attribute3: "value3"
+  description: "Demo OpenSearch Dashboards read only user"
+logstash:
+  hash: "$2a$12$z/cDnBd54GBf0e8pJ53osOfWqc/dnr.P5vU.2BQuNh8VBHAfUoKvm"
+  reserved: false
+  backend_roles:
+  - "logstash"
+  description: "Demo logstash user"
+readall:
+  hash: "$2a$12$ut60xT.f2SkdJsDV70C2cu6C99xe3d5ASYwTEHlHA6HU7fbhWSWDq"
+  reserved: false
+  backend_roles:
+  - "readall"
+  description: "Demo readall user"
+snapshotrestore:
+  hash: "$2a$12$WDewkmehCJR8D9MlJziCb.xFmIti7jmtwh/7.qJcwh9s0Fn3JefUC"
+  reserved: false
+  backend_roles:
+  - "snapshotrestore"
+  description: "Demo snapshotrestore user"
 `,
               }
             }
@@ -135,7 +171,7 @@ admin:
           nodeGroup: "data",
           masterService: "opensearch-master",
           roles: ["data"],
-          replicas: 1,
+          replicas: 2,
           config: {
             "opensearch.yml": `
 cluster:
@@ -173,19 +209,7 @@ plugins:
       roles_enabled: ["all_access", "security_rest_api_access"]
     system_indices:
       enabled: true
-      indices:
-        [
-          ".opendistro-alerting-config",
-          ".opendistro-alerting-alert*",
-          ".opendistro-anomaly-results*",
-          ".opendistro-anomaly-detector*",
-          ".opendistro-anomaly-checkpoints",
-          ".opendistro-anomaly-detection-state",
-          ".opendistro-reports-*",
-          ".opendistro-notifications-*",
-          ".opendistro-notebooks",
-          ".opendistro-asynchronous-search-response*"
-        ]
+      indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
           labels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
@@ -198,11 +222,78 @@ plugins:
             limits: { cpu: "25m", memory: "128Mi" },
             requests: { cpu: "25m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi", },
+          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi" },
+          extraInitContainers: [
+            {
+              name: "sysctl",
+              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              imagePullPolicy: "IfNotPresent",
+              command: [
+                "/bin/bash",
+                "-ec",
+                "sysctl -w vm.max_map_count=262144;",
+                "sysctl -w fs.file-max=65536;"
+              ],
+              securityContext: { runAsUser: 0, privileged: true }
+            }
+          ],
           terminationGracePeriod: "60"
         }
       },
-      /**
+      {
+        namespace: "skywalking",
+        name: "dashboards",
+        version: "2.9.0",
+        chart: "opensearch-dashboards",
+        repository: "https://opensearch-project.github.io/helm-charts",
+        values: {
+          opensearchHosts: "http://opensearch-master:9200",
+          replicaCount: 1,
+          fullnameOverride: "opensearch-dashboards",
+          config: {
+            "opensearch_dashboards.yml": `
+---
+logging.quiet: true
+opensearch.hosts: [http://opensearch-master:9200]
+opensearch.ssl.verificationMode: none
+opensearch.username: kibanaserver
+opensearch.password: ${config.require("kibanaserverPassword")}
+opensearch.requestHeadersAllowlist: [authorization, securitytenant] 
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: [Private, Global]
+opensearch_security.readonly_mode.roles: [kibana_read_only]
+opensearch_security.cookie.secure: false
+server.ssl.enabled: false
+server.host: '0.0.0.0'
+server.rewriteBasePath: true
+server.basePath: "/opensearch"
+`,
+          },
+          labels: { customer: "demo", environment: "dev", project: "APM", group: "Skywalking", datacenter: "dc01", domain: "local" },
+          ingress: {
+            enabled: true,
+            ingressClassName: "nginx",
+            hosts: [
+              {
+                host: "norther.example.com",
+                paths: [
+                  {
+                    path: "/opensearch",
+                    backend: {
+                      serviceName: "opensearch-dashboards",
+                      servicePort: 5601
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          resources: {
+            limits: { cpu: "500m", memory: "512Mi" },
+            requests: { cpu: "500m", memory: "512Mi" }
+          },
+        }
+      },
       {
         namespace: "skywalking",
         name: "elasticsearch-exporter",
@@ -244,7 +335,6 @@ plugins:
           }
         }
       },
-       */
       {
         namespace: "skywalking",
         name: "skywalking",
@@ -275,8 +365,8 @@ plugins:
               SW_STORAGE_ES_FLUSH_INTERVAL: "30",
               SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE: "10000",
               SW_STORAGE_ES_QUERY_MAX_SIZE: "10000",
-              SW_CORE_RECORD_DATA_TTL: "3",
-              SW_CORE_METRICS_DATA_TTL: "7",
+              SW_CORE_RECORD_DATA_TTL: "30",
+              SW_CORE_METRICS_DATA_TTL: "90"
             },
             service: {
               type: "LoadBalancer",
@@ -287,55 +377,55 @@ plugins:
               config: {
                 "alarm.default.alarm-settings": `
 rules:
-service_resp_time_rule:
-metrics-name: service_resp_time
-op: ">"
-threshold: 1000
-period: 10
-count: 3
-silence-period: 10
-message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
-service_sla_rule:
-metrics-name: service_sla
-op: "<"
-threshold: 8500
-period: 10
-count: 3
-silence-period: 10
-message: Successful rate of service {name} is lower than 80% in 3 minutes of last 10 minutes
-service_resp_time_percentile_rule:
-# Metrics value need to be long, double or int
-metrics-name: service_percentile
-op: ">"
-threshold: 1000,1000,1000,1000,1000
-period: 10
-count: 3
-silence-period: 10
-message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
-service_instance_resp_time_rule:
-metrics-name: service_instance_resp_time
-op: ">"
-threshold: 1000
-period: 10
-count: 3
-silence-period: 10
-message: Response time of service instance {name} is more than 1000ms in 3 minutes of last 10 minutes
-database_access_resp_time_rule:
-metrics-name: database_access_resp_time
-threshold: 1000
-op: ">"
-period: 10
-count: 3
-silence-period: 10
-message: Response time of database access {name} is more than 1000ms in 3 minutes of last 10 minutes
-endpoint_relation_resp_time_rule:
-metrics-name: endpoint_relation_resp_time
-threshold: 1000
-op: ">"
-period: 10
-count: 3
-silence-period: 10
-message: Response time of endpoint relation {name} is more than 1000ms in 3 minutes of last 10 minutes
+  service_resp_time_rule:
+    metrics-name: service_resp_time
+    op: ">"
+    threshold: 1000
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of service {name} is more than 1000ms in 3 minutes of last 10 minutes.
+  service_sla_rule:
+    metrics-name: service_sla
+    op: "<"
+    threshold: 8500
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Successful rate of service {name} is lower than 80% in 3 minutes of last 10 minutes
+  service_resp_time_percentile_rule:
+    # Metrics value need to be long, double or int
+    metrics-name: service_percentile
+    op: ">"
+    threshold: 1000,1000,1000,1000,1000
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Percentile response time of service {name} alarm in 3 minutes of last 10 minutes, due to more than one condition of p50 > 1000, p75 > 1000, p90 > 1000, p95 > 1000, p99 > 1000
+  service_instance_resp_time_rule:
+    metrics-name: service_instance_resp_time
+    op: ">"
+    threshold: 1000
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of service instance {name} is more than 1000ms in 3 minutes of last 10 minutes
+  database_access_resp_time_rule:
+    metrics-name: database_access_resp_time
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of database access {name} is more than 1000ms in 3 minutes of last 10 minutes
+  endpoint_relation_resp_time_rule:
+    metrics-name: endpoint_relation_resp_time
+    threshold: 1000
+    op: ">"
+    period: 10
+    count: 3
+    silence-period: 10
+    message: Response time of endpoint relation {name} is more than 1000ms in 3 minutes of last 10 minutes
 webhooks:
 #  - http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/webhook/VKr1SLgkxkm1IPxwoTCabh26m/
 `
@@ -354,7 +444,7 @@ webhooks:
               annotations: {
                 "kubernetes.io/ingress.class": "nginx",
                 "nginx.ingress.kubernetes.io/auth-type": "basic",
-                "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
+                "nginx.ingress.kubernetes.io/auth-secret": "opensearch-secret",
                 "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
               },
               path: "/",

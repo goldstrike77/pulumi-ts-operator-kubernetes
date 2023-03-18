@@ -9,3 +9,5 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 pulumi config set kibanaserverPassword [password] --secret
 pulumi config set adminPassword [password] --secret
 ```
+
+templates/oap-svc.yaml 添加 annotations
