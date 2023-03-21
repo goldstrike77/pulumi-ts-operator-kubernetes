@@ -28,106 +28,123 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
-            {
-                namespace: "jenkins",
-                name: "jenkins",
-                chart: "jenkins",
-                repository: "https://charts.jenkins.io",
-                version: "4.2.15",
-                values: {
-                    controller: {
-                        numExecutors: 1,
-                        adminUser: "admin",
-                        adminPassword: config.require("adminPassword"),
-                        resources: {
-                            limits: { cpu: "1000m", memory: "6144Mi" },
-                            requests: { cpu: "1000m", memory: "6144Mi" }
-                        },
-                        initContainerEnv: [
-                            { name: "JENKINS_UC_DOWNLOAD", value: "https://mirrors.aliyun.com/jenkins" },
-                            { name: "JENKINS_UC", value: "https://mirrors.aliyun.com/jenkins/updates/stable/update-center.json" },
-                            { name: "JENKINS_UC_EXPERIMENTAL", value: "https://mirrors.aliyun.com/jenkins/updates/experimental/update-center.json" }
-                        ],
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=90 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true",
-                        jenkinsUriPrefix: "/jenkins",
-                        installPlugins: [
-                            "active-directory",
-                            "cloudbees-disk-usage-simple",
-                            "configuration-as-code",
-                            "git",
-                            "github",
-                            "kubernetes",
-                            "ldap",
-                            "prometheus",
-                            "skip-certificate-check",
-                            "workflow-aggregator"
-                        ],
-                        installLatestPlugins: false,
-                        initializeOnce: true,
-                        additionalPlugins: [
-                            "ansible",
-                            "nodejs"
-                        ],
-                        JCasC: {
-                            defaultConfig: true,
-                            configScripts: {
-                                settings: `jenkins:
+        helm:
+        {
+            namespace: "jenkins",
+            name: "jenkins",
+            chart: "jenkins",
+            repository: "https://charts.jenkins.io",
+            version: "4.3.9",
+            values: {
+                controller: {
+                    image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jenkins",
+                    tag: "2.387.1-jdk11",
+                    numExecutors: 1,
+                    adminUser: "admin",
+                    adminPassword: config.require("adminPassword"),
+                    resources: {
+                        limits: { cpu: "2000m", memory: "6144Mi" },
+                        requests: { cpu: "2000m", memory: "6144Mi" }
+                    },
+                    initContainerEnv: [
+                        { name: "JENKINS_UC_DOWNLOAD", value: "https://mirrors.aliyun.com/jenkins" },
+                        { name: "JENKINS_UC", value: "https://mirrors.aliyun.com/jenkins/updates/stable/update-center.json" },
+                        { name: "JENKINS_UC_EXPERIMENTAL", value: "https://mirrors.aliyun.com/jenkins/updates/experimental/update-center.json" }
+                    ],
+                    podLabels: { customer: "demo", environment: "dev", project: "CICD", group: "Jenkins", datacenter: "dc01", domain: "local" },
+                    javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=80 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true",
+                    jenkinsUrlProtocol: "https",
+                    jenkinsUrl: "https://norther.example.com/jenkins/",
+                    jenkinsUriPrefix: "/jenkins",
+                    installPlugins: [
+                        "active-directory:2.30",
+                        "cloudbees-disk-usage-simple:178.v1a_4d2f6359a_8",
+                        "configuration-as-code:1569.vb_72405b_80249",
+                        "git:5.0.0",
+                        "github:1.37.0",
+                        "kubernetes:3896.v19b_160fd9589",
+                        "ldap:671.v2a_9192a_7419d",
+                        "prometheus:2.1.1",
+                        "skip-certificate-check:1.1",
+                        "workflow-aggregator:596.v8c21c963d92d",
+                        "pipeline-model-api:2.2118.v31fd5b_9944b_5",
+                        "workflow-job:1284.v2fe8ed4573d4"
+                    ],
+                    installLatestPlugins: false,
+                    initializeOnce: true,
+                    additionalPlugins: [
+                        "ansible:148.v6b_13c6de3a_47",
+                        "nodejs:1.6.0",
+                        "azure-ad:336.vd05b_01358644"
+                    ],
+                    JCasC: {
+                        defaultConfig: true,
+                        configScripts: {
+                            settings: `jenkins:
   noUsageStatistics: true
   updateCenter:
     sites:
     - id: "default"
       url: "https://updates.jenkins.io/stable/update-center.json"
 `
-                            }
-                        },
-                        sidecars: {
-                            configAutoReload: {
-                                resources: {
-                                    limits: { cpu: "50m", memory: "100Mi" },
-                                    requests: { cpu: "50m", memory: "100Mi" }
-                                }
-                            }
-                        },
-                        ingress: {
-                            enabled: true,
-                            ingressClassName: "nginx",
-                            path: "/jenkins",
-                            hostName: "norther.example.com"
-                        },
-                        prometheus: { enabled: true }
-                    },
-                    agent: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
                         }
                     },
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
-                    backup: {
+                    sidecars: {
+                        configAutoReload: {
+                            resources: {
+                                limits: { cpu: "50m", memory: "100Mi" },
+                                requests: { cpu: "50m", memory: "100Mi" }
+                            }
+                        }
+                    },
+                    ingress: {
                         enabled: true,
-                        schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
-                        activeDeadlineSeconds: "3600",
-                        env: [
-                            { name: "AWS_ACCESS_KEY_ID", value: config.require("AWS_ACCESS_KEY_ID"), },
-                            { name: "AWS_SECRET_ACCESS_KEY", value: config.require("AWS_SECRET_ACCESS_KEY"), },
-                            { name: "AWS_REGION", value: "us-east-1" },
-                            { name: "AWS_S3_NO_SSL", value: "true" },
-                            { name: "AWS_S3_FORCE_PATH_STYLE", value: "true" },
-                            { name: "AWS_S3_ENDPOINT", value: "http://minio.minio.svc.cluster.local:9000" }
-                        ],
-                        resources: {
-                            limits: { cpu: "500m", memory: "1024Mi" },
-                            requests: { cpu: "500m", memory: "1024Mi" }
-                        },
-                        destination: "s3://backup/jenkins",
-                        onlyJobs: false
+                        ingressClassName: "nginx",
+                        path: "/jenkins",
+                        hostName: "norther.example.com"
+                    },
+                    prometheus: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
                     }
+                },
+                agent: {
+                    enabled: true,
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    }
+                },
+                persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
+                backup: {
+                    enabled: true,
+                    schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
+                    activeDeadlineSeconds: "3600",
+                    env: [
+                        { name: "AWS_ACCESS_KEY_ID", value: config.require("AWS_ACCESS_KEY_ID"), },
+                        { name: "AWS_SECRET_ACCESS_KEY", value: config.require("AWS_SECRET_ACCESS_KEY"), },
+                        { name: "AWS_REGION", value: "us-east-1" },
+                        { name: "AWS_S3_NO_SSL", value: "true" },
+                        { name: "AWS_S3_FORCE_PATH_STYLE", value: "true" },
+                        { name: "AWS_S3_ENDPOINT", value: "http://minio.minio.svc.cluster.local:9000" }
+                    ],
+                    resources: {
+                        limits: { cpu: "500m", memory: "1024Mi" },
+                        requests: { cpu: "500m", memory: "1024Mi" }
+                    },
+                    destination: "s3://backup/jenkins",
+                    onlyJobs: true
                 }
             }
-        ]
+        }
     }
 ]
 
@@ -138,17 +155,15 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        values: deploy_spec[i].helm.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].helm.repository,
+        },
+    }, { dependsOn: [namespace] });
 }

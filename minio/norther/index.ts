@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "minio",
             chart: "minio",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "12.1.3",
+            version: "12.1.13",
             values: {
                 mode: "distributed",
                 auth: {
@@ -78,6 +78,21 @@ const deploy_spec = [
                                     actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
                                 }
                             ]
+                        },
+                        {
+                            name: "backup-bucket-specific-policy",
+                            statements: [
+                                {
+                                    resources: ["arn:aws:s3:::backup"],
+                                    effect: "Allow",
+                                    actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                },
+                                {
+                                    resources: ["arn:aws:s3:::backup/*"],
+                                    effect: "Allow",
+                                    actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                }
+                            ]
                         }
                     ],
                     users: [
@@ -108,6 +123,13 @@ const deploy_spec = [
                             disabled: false,
                             policies: ["tempo-bucket-specific-policy"],
                             setPolicies: true
+                        },
+                        {
+                            username: "backup",
+                            password: config.require("backupPassword"),
+                            disabled: false,
+                            policies: ["backup-bucket-specific-policy"],
+                            setPolicies: true
                         }
                     ],
                     buckets: [
@@ -137,14 +159,33 @@ const deploy_spec = [
                             lifecycle: [],
                             quota: { type: "hard", size: "50GiB", },
                             tags: {}
+                        },
+                        {
+                            name: "backup",
+                            region: "us-east-1",
+                            versioning: false,
+                            withLock: true,
+                            lifecycle: [
+                                {
+                                    id: "BackupPrefix7dRetention",
+                                    prefix: "backup-prefix",
+                                    disabled: false,
+                                    expiry: {
+                                        days: "3",
+                                        nonconcurrentDays: "3"
+                                    }
+                                }
+                            ],
+                            quota: { type: "hard", size: "10GiB", },
+                            tags: {}
                         }
                     ]
                 },
                 // nodeSelector: { "minio/node": "true" },
-                podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                podLabels: { customer: "demo", environment: "dev", project: "Storage", group: "Minio", datacenter: "dc01", domain: "local" },
                 resources: {
-                    limits: { cpu: "200m", memory: "1024Mi" },
-                    requests: { cpu: "200m", memory: "1024Mi" }
+                    limits: { cpu: "1000m", memory: "2048Mi" },
+                    requests: { cpu: "1000m", memory: "2048Mi" }
                 },
                 ingress: {
                     enabled: true,

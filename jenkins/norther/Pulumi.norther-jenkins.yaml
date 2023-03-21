@@ -1,9 +1,11 @@
 encryptionsalt: v1:E2Pql9udPhs=:v1:usiWlNdBNAgm5UZd:DtYZlUs5XWHThADkzbh5Ku+i2ZkImQ==
 config:
   demo:AWS_ACCESS_KEY_ID:
-    secure: v1:piIrvcnkYQ9kH9Br:h/Lt0+hkbjsJwvyvTxJX7r/L2pkbxw==
+    secure: v1:W03Qq/DDZMX+BUE5:z2uq2KX7Tt3+c4QZn4ggPg4Xm0Qsaw==
   demo:AWS_SECRET_ACCESS_KEY:
     secure: v1:TgY3UcyGZkwrSkqI:l8hn2Igi+IvjjkSPpQlXPehSa8TSHeUW
+  demo:adminPassAWS_SECRET_ACCESS_KEYword:
+    secure: v1:pMrTtUp/xWYeVNM4:Fm2js3R7J0fBPYtqhoau0MxVcrkClRvV
   demo:adminPassword:
-    secure: v1:XQTEC2L3SBs/BTF8:UY/Za0rhLmkqE0VgWYQOMlWLO5wJTGkN
+    secure: v1:gwdzJ42GR6y702RI:0PfjrcR4cvazS8e7JSpaZ+NwsKYuSSgs
   kubernetes:context: kubernetes-admin@norther
