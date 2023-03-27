@@ -34,27 +34,47 @@ const deploy_spec = [
                 name: "postgresql",
                 chart: "postgresql",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "11.9.8",
+                version: "12.2.5",
                 values: {
-                    auth: {
-                        postgresPassword: config.require("postgresPassword"),
-                        username: "gitlab",
-                        password: config.require("userPassword"),
-                        database: "gitlab",
+                    global: {
+                        storageClass: "longhorn",
+                        postgresql: {
+                            auth: {
+                                postgresPassword: config.require("postgresPassword"),
+                                username: "gitlab",
+                                password: config.require("userPassword"),
+                                database: "gitlab"
+                            }
+                        }
                     },
+                    image: {
+                        debug: false
+                    },
+                    architecture: "standalone",
                     primary: {
+                        pgHbaConfiguration: `
+local all all trust
+host all all localhost trust
+host gitlab gitlab 10.244.0.0/16 md5
+`,
+                        initdb: {
+                            user: "gitlab",
+                            password: config.require("userPassword"),
+                        },
                         resources: {
                             limits: { cpu: "500m", memory: "512Mi" },
                             requests: { cpu: "500m", memory: "512Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        persistence: { storageClass: "longhorn", size: "8Gi" }
+                        podLabels: { customer: "demo", environment: "dev", project: "DevOps", group: "GitLab", datacenter: "dc01", domain: "local" },
+                        persistence: {
+                            size: "8Gi"
+                        }
                     },
                     volumePermissions: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     },
                     metrics: {
@@ -64,8 +84,9 @@ const deploy_spec = [
                             requests: { cpu: "100m", memory: "128Mi" }
                         },
                         serviceMonitor: {
-                            enabled: false,
-                            relabellings: [
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -86,12 +107,16 @@ const deploy_spec = [
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.3.5",
+                version: "17.7.1",
                 values: {
                     architecture: "standalone",
-                    auth: { enabled: false, sentinel: false },
+                    auth: {
+                        enabled: true,
+                        sentinel: false,
+                        password: config.require("redisPassword")
+                    },
                     commonConfiguration: `appendonly no
-maxmemory 512mb
+maxmemory 256mb
 tcp-keepalive 60
 tcp-backlog 8192
 maxclients 1000
@@ -100,10 +125,10 @@ databases 4
 save ""`,
                     master: {
                         resources: {
-                            limits: { cpu: "300m", memory: "576Mi" },
-                            requests: { cpu: "300m", memory: "576Mi" }
+                            limits: { cpu: "200m", memory: "320Mi" },
+                            requests: { cpu: "200m", memory: "320Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "DevOps", group: "GitLab", datacenter: "dc01", domain: "local" },
                         podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
                         persistence: { enabled: false }
                     },
@@ -113,10 +138,12 @@ save ""`,
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "DevOps", group: "GitLab", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
                             enabled: true,
+                            interval: "60s",
                             relabellings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -129,8 +156,8 @@ save ""`,
                     sysctl: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     }
                 }
@@ -140,11 +167,11 @@ save ""`,
                 name: "gitlab",
                 chart: "gitlab",
                 repository: "https://charts.gitlab.io",
-                version: "6.4.2",
+                version: "6.10.0",
                 values: {
                     global: {
                         pod: {
-                            labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                            labels: { customer: "demo", environment: "dev", project: "DevOps", group: "GitLab", datacenter: "dc01", domain: "local" },
                         },
                         edition: "ce",
                         hosts: {
@@ -156,12 +183,13 @@ save ""`,
                             class: "nginx",
                         },
                         minio: { enabled: false },
+                        grafana: { enabled: false },
                         registry: {
                             bucket: "gitlab-registry-storage"
                         },
                         appConfig: {
                             lfs: {
-                                bucket: "gitlab-lfs",
+                                bucket: "git-lfs",
                                 connection: {
                                     secret: "objectstore-lfs",
                                     key: "connection"
@@ -231,6 +259,7 @@ save ""`,
                                 credentials: {}
                             }
                         },
+                        upgradeCheck: { enabled: false },
                         "nginx-ingress": { enabled: false },
                         prometheus: { install: false },
                         redis: { install: false },

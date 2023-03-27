@@ -1,9 +1,9 @@
 encryptionsalt: v1:uvhgIhuAAX0=:v1:wU99IAU5MiB7rYn2:y+s4TysqOpYdakZ+IjcQ40OwxkqMNA==
 config:
   demo:postgresPassword:
-    secure: v1:/0momwjRaIgwdLZg:EW4enQhSsYvPfUYiRalpQy7QR7NyYwio
+    secure: v1:b1Rfz5NUUu7wym8o:W0ApPKDmLaf23+XejmV/E84xDUd4djlY
   demo:sonarqubePassword:
-    secure: v1:AFesy+dCXc2j96pB:hO15oiAaZNNLvY0idTV1eQiQ2NpCGc7H
+    secure: v1:z9VN3H9q8XoFmw5t:c3RzHN8Ju+rg7aaW8t7g3DV1eOXrLxku72g=
   demo:userPassword:
-    secure: v1:bsGrDqDAlyrxkleX:YxEf3VKmmS317JPhWbclBOI/OtSWckUn
+    secure: v1:C3K5IaNwQOBcDUR4:ZdTgvKhp5FLqGiCWIZYVHjFIXGQsf3ES
   kubernetes:context: kubernetes-admin@norther

@@ -345,6 +345,11 @@ server.basePath: "/opensearch"
           oap: {
             storageType: "elasticsearch",
             replicas: 1,
+            ports: {
+              zipkin: 9411,
+              grpc: 11800,
+              rest: 12800
+            },
             image: { tag: "9.3.0" },
             javaOpts: "-Xmx3g -Xms3g",
             resources: {
@@ -365,8 +370,17 @@ server.basePath: "/opensearch"
               SW_STORAGE_ES_FLUSH_INTERVAL: "30",
               SW_STORAGE_ES_QUERY_MAX_WINDOW_SIZE: "10000",
               SW_STORAGE_ES_QUERY_MAX_SIZE: "10000",
-              SW_CORE_RECORD_DATA_TTL: "30",
-              SW_CORE_METRICS_DATA_TTL: "90"
+              SW_CORE_RECORD_DATA_TTL: "3",
+              SW_CORE_METRICS_DATA_TTL: "7",
+              SW_RECEIVER_ZIPKIN: "default",
+              SW_RECEIVER_ZIPKIN_REST_HOST: "0.0.0.0",
+              SW_RECEIVER_ZIPKIN_REST_PORT: "9411",
+              SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH: "/",
+              SW_RECEIVER_ZIPKIN_REST_MAX_THREADS: "200",
+              SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT: "30000",
+              SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE: "0",
+              SW_ZIPKIN_SEARCHABLE_TAG_KEYS: "http.method",
+              SW_ZIPKIN_SAMPLE_RATE: "10000"
             },
             service: {
               type: "LoadBalancer",

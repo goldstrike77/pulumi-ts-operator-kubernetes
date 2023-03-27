@@ -1,5 +1,7 @@
 encryptionsalt: v1:P0vIdKGp98s=:v1:Hia7vLX4H19FzqlW:I57iCu9Yy9l9cLP7kPF31n7Kqy2EyQ==
 config:
+  demo:artifactoryPassword:
+    secure: v1:K1nbbhxRBcG5jWsK:pgsWVqJzVR31ROku1krPx19PgppYZDLb
   demo:backupPassword:
     secure: v1:TL0GHmrfWFnQNUNx:5e+r7IWp7eVWzxyfgcLehLD9DgHOXg93
   demo:lokiPassword:

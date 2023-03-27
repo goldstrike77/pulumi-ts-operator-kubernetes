@@ -1,0 +1,9 @@
+encryptionsalt: v1:7/6HUqFUiWk=:v1:pi+QGEF13nrCc2N4:Gwx5Q1pXxS69Kv86B8v3MEnuDpTYxg==
+config:
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:V/d9YvKL+2bC64Nw:IKya4tuekNRRqxOaYWXg7TaBSwfiRHsy
+  demo:postgresPassword:
+    secure: v1:Q6IwzgnbrnnR/Cq6:KiHob9U1DULpg9y7c3BtgyUwkW7Qx5oR
+  demo:userPassword:
+    secure: v1:yMLjP1A8SjcXtgmY:19MCbfIWYTMj+2uUkl3fDzTqTYotGW/C
+  kubernetes:context: kubernetes-admin@norther

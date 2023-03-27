@@ -1,0 +1,36 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    meta.helm.sh/release-name: kube-prometheus-stack
+    meta.helm.sh/release-namespace: monitoring
+    prometheus-operator-validated: "true"
+  labels:
+    app: kube-prometheus-stack
+  name: jenkins
+  namespace: monitoring
+spec:
+  groups:
+  - name: jenkins
+    rules:
+    - alert: JenkinsOffline
+      expr: jenkins_node_offline_value > 0
+      for: 10m
+      labels:
+        severity: p1
+      annotations:
+        description: 'Jenkins instance has been offline.'
+    - alert: JenkinsHealthcheck
+      expr: jenkins_health_check_score < 1
+      for: 10m
+      labels:
+        severity: p1
+      annotations:
+        description: 'Jenkins instance healthcheck failure.'
+    - alert: JenkinsOutdatedPlugins
+      expr: jenkins_plugins_withUpdate > 0
+      for: 10m
+      labels:
+        severity: p4
+      annotations:
+        description: 'Jenkins plugins need update.'

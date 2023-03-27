@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "minio",
             chart: "minio",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "12.1.13",
+            version: "12.2.1",
             values: {
                 mode: "distributed",
                 auth: {
@@ -93,7 +93,22 @@ const deploy_spec = [
                                     actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
                                 }
                             ]
-                        }
+                        },
+                        {
+                            name: "artifactory-bucket-specific-policy",
+                            statements: [
+                                {
+                                    resources: ["arn:aws:s3:::artifactory"],
+                                    effect: "Allow",
+                                    actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                },
+                                {
+                                    resources: ["arn:aws:s3:::artifactory/*"],
+                                    effect: "Allow",
+                                    actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                }
+                            ]
+                        },
                     ],
                     users: [
                         {
@@ -129,6 +144,13 @@ const deploy_spec = [
                             password: config.require("backupPassword"),
                             disabled: false,
                             policies: ["backup-bucket-specific-policy"],
+                            setPolicies: true
+                        },
+                        {
+                            username: "artifactory",
+                            password: config.require("artifactoryPassword"),
+                            disabled: false,
+                            policies: ["artifactory-bucket-specific-policy"],
                             setPolicies: true
                         }
                     ],
@@ -176,6 +198,15 @@ const deploy_spec = [
                                     }
                                 }
                             ],
+                            quota: { type: "hard", size: "10GiB", },
+                            tags: {}
+                        },
+                        {
+                            name: "artifactory",
+                            region: "us-east-1",
+                            versioning: false,
+                            withLock: true,
+                            lifecycle: [],
                             quota: { type: "hard", size: "10GiB", },
                             tags: {}
                         }

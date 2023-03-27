@@ -13,6 +13,7 @@ pulumi config set lokiPassword [password] --secret
 pulumi config set tempoPassword [password] --secret
 pulumi config set backupPassword [password] --secret
 pulumi config set gitlabPassword [password] --secret
+pulumi config set artifactoryPassword [password] --secret
 ```
 
 #### Print minio accesskey and secretkey.

@@ -19,30 +19,47 @@ const deploy_spec = [
                 name: "postgresql",
                 chart: "postgresql",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "12.1.2",
+                version: "12.2.5",
                 values: {
+                    global: {
+                        storageClass: "longhorn",
+                        postgresql: {
+                            auth: {
+                                postgresPassword: config.require("postgresPassword"),
+                                username: "sonarqube",
+                                password: config.require("userPassword"),
+                                database: "sonarqube"
+                            }
+                        }
+                    },
                     image: {
-                        tag: "13.9.0-debian-11-r1"
+                        debug: false
                     },
-                    auth: {
-                        postgresPassword: config.require("postgresPassword"),
-                        username: "sonarqube",
-                        password: config.require("userPassword"),
-                        database: "sonarqube",
-                    },
+                    architecture: "standalone",
                     primary: {
+                        pgHbaConfiguration: `
+local all all trust
+host all all localhost trust
+host sonarqube sonarqube 10.244.0.0/16 md5
+`,
+                        initdb: {
+                            user: "sonarqube",
+                            password: config.require("userPassword"),
+                        },
                         resources: {
                             limits: { cpu: "500m", memory: "512Mi" },
                             requests: { cpu: "500m", memory: "512Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        persistence: { storageClass: "longhorn", size: "8Gi" }
+                        podLabels: { customer: "demo", environment: "dev", project: "SelfManaged", group: "Sonarqube", datacenter: "dc01", domain: "local" },
+                        persistence: {
+                            size: "8Gi"
+                        }
                     },
                     volumePermissions: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     },
                     metrics: {
@@ -53,7 +70,8 @@ const deploy_spec = [
                         },
                         serviceMonitor: {
                             enabled: true,
-                            relabellings: [
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -74,54 +92,85 @@ const deploy_spec = [
                 name: "sonarqube",
                 chart: "sonarqube",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "2.0.1",
+                version: "2.1.4",
                 values: {
-                    image: { tag: "8.9.10-debian-11-r10" },
-                    sonarqubeUsername: "user",
+                    sonarqubeUsername: "admin",
                     sonarqubePassword: config.require("sonarqubePassword"),
-                    sonarqubeEmail: "user@example.com",
                     minHeapSize: "4096m",
                     maxHeapSize: "4096m",
-                    extraProperties: [
-                        "sonar.web.context=/sonarqube"
+                    extraEnvVars: [
+                        { name: "SONAR_WEB_CONTEXT", value: "/sonarqube" }
                     ],
                     replicaCount: 1,
+                    customLivenessProbe: {
+                        failureThreshold: 6,
+                        httpGet: {
+                            path: "/sonarqube",
+                            port: "http",
+                            scheme: "HTTP"
+                        },
+                        initialDelaySeconds: 100,
+                        periodSeconds: 10,
+                        successThreshold: 1,
+                        timeoutSeconds: 5
+                    },
+                    customReadinessProbe: {
+                        failureThreshold: 6,
+                        httpGet: {
+                            path: "/sonarqube",
+                            port: "http",
+                            scheme: "HTTP"
+                        },
+                        initialDelaySeconds: 100,
+                        periodSeconds: 10,
+                        successThreshold: 1,
+                        timeoutSeconds: 5
+                    },
                     resources: {
                         limits: { cpu: "2000m", memory: "6144Mi" },
                         requests: { cpu: "2000m", memory: "6144Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "SelfManaged", group: "Sonarqube", datacenter: "dc01", domain: "local" },
+                    service: {
+                        type: "LoadBalancer",
+                        annotations: {}
+                    },
                     ingress: {
                         enabled: true,
                         ingressClassName: "nginx",
-                        annotations: {
-                            "nginx.ingress.kubernetes.io/rewrite-target": "/$1"
-                        },
+                        annotations: {},
                         hostname: "norther.example.com",
-                        path: "/sonarqube/?(.*)"
+                        path: "/sonarqube"
                     },
                     persistence: {
-                        enabled: true,
-                        storageClass: "longhorn",
+                        enabled: false,
+                        storageClass: "",
                         size: "10Gi"
+                    },
+                    volumePermissions: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        }
                     },
                     sysctl: {
                         enabled: true,
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     },
                     metrics: {
                         jmx: {
-                            enabled: false,
+                            enabled: true,
                             resources: {
                                 limits: { cpu: "100m", memory: "128Mi" },
                                 requests: { cpu: "100m", memory: "128Mi" }
                             }
                         },
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
                             relabellings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },

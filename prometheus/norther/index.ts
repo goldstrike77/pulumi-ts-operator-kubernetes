@@ -967,7 +967,8 @@ save ""`,
             { name: "../_rules/priority/kube-prometheus-stack-node" },
             { name: "../_rules/priority/kube-prometheus-stack-prometheus" },
             { name: "../_rules/priority/kube-prometheus-stack-prometheus-operator" },
-            { name: "../_rules/priority/blackbox" }
+            { name: "../_rules/priority/blackbox" },
+            { name: "../_rules/priority/jenkins" }
         ]
     }
 ]
