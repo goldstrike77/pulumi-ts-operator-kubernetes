@@ -1,0 +1,142 @@
+import * as k8s from "@pulumi/kubernetes";
+import * as pulumi from "@pulumi/pulumi";
+
+let config = new pulumi.Config();
+
+const deploy_spec = [
+  {
+    namespace: {
+      metadata: {
+        name: "ingress-kong",
+        annotations: {},
+        labels: {}
+      },
+      spec: {}
+    },
+    helm: {
+      namespace: "ingress-kong",
+      name: "kong",
+      chart: "kong",
+      repository: "https://charts.bitnami.com/bitnami",
+      version: "9.1.7",
+      values: {
+        database: "off",
+        replicaCount: 1,
+        podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Kong", datacenter: "dc01", domain: "local" },
+        kong: {
+          resources: {
+            limits: { cpu: "500m", memory: "256Mi" },
+            requests: { cpu: "500m", memory: "256Mi" }
+          },
+        },
+        service: {
+          type: "LoadBalancer",
+          externalTrafficPolicy: "Local"
+        },
+        ingressController: {
+          enabled: true,
+          ingressClass: "kong",
+          resources: {
+            limits: { cpu: "200m", memory: "256Mi" },
+            requests: { cpu: "200m", memory: "256Mi" }
+          }
+        },
+        postgresql: {
+          enabled: true,
+          auth: {
+            username: "kong",
+            password: config.require("userPassword"),
+            database: "kong",
+            postgresPassword: config.require("postgresPassword"),
+            architecture: "standalone",
+            primary: {
+              pgHbaConfiguration: `
+local all all trust
+host all all localhost trust
+host kong kong 10.244.0.0/16 md5
+`,
+              initdb: {
+                user: "kong",
+                password: config.require("userPassword"),
+              },
+              resources: {
+                limits: { cpu: "500m", memory: "512Mi" },
+                requests: { cpu: "500m", memory: "512Mi" }
+              },
+              podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Kong", datacenter: "dc01", domain: "local" },
+              persistence: {
+                size: "8Gi"
+              }
+            },
+            volumePermissions: {
+              enabled: true,
+              resources: {
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
+              }
+            },
+            metrics: {
+              enabled: true,
+              resources: {
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
+              },
+              serviceMonitor: {
+                enabled: true,
+                relabelings: [
+                  { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                  { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                  { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                  { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                  { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                  { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                  { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                ]
+              },
+              prometheusRule: {
+                enabled: false,
+                rules: []
+              }
+            }
+          }
+        },
+        metrics: {
+          enabled: true,
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s",
+            relabelings: [
+              { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+            ]
+          }
+        }
+      }
+    }
+  }
+]
+
+for (var i in deploy_spec) {
+  // Create Kubernetes Namespace.
+  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
+    metadata: deploy_spec[i].namespace.metadata,
+    spec: deploy_spec[i].namespace.spec
+  });
+  // Create Release Resource.
+  const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+    namespace: deploy_spec[i].helm.namespace,
+    name: deploy_spec[i].helm.name,
+    chart: deploy_spec[i].helm.chart,
+    version: deploy_spec[i].helm.version,
+    values: deploy_spec[i].helm.values,
+    skipAwait: true,
+    repositoryOpts: {
+      repo: deploy_spec[i].helm.repository,
+    },
+  }, { dependsOn: [namespace] });
+}

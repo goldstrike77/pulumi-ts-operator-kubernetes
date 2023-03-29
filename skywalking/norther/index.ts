@@ -348,7 +348,8 @@ server.basePath: "/opensearch"
             ports: {
               zipkin: 9411,
               grpc: 11800,
-              rest: 12800
+              rest: 12800,
+              "prometheus-port": 1234
             },
             image: { tag: "9.3.0" },
             javaOpts: "-Xmx3g -Xms3g",
@@ -380,7 +381,10 @@ server.basePath: "/opensearch"
               SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT: "30000",
               SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE: "0",
               SW_ZIPKIN_SEARCHABLE_TAG_KEYS: "http.method",
-              SW_ZIPKIN_SAMPLE_RATE: "10000"
+              SW_ZIPKIN_SAMPLE_RATE: "10000",
+              SW_TELEMETRY: "prometheus",
+              SW_OTEL_RECEIVER: "default",
+              SW_OTEL_RECEIVER_ENABLED_OTEL_RULES: "oap"
             },
             service: {
               type: "LoadBalancer",
@@ -490,7 +494,10 @@ webhooks:
           }
         }
       }
-    ]
+    ],
+    yaml: {
+      name: "./servicemonitor.yaml"
+    }
   }
 ]
 
@@ -533,4 +540,9 @@ for (var i in deploy_spec) {
       }, { dependsOn: [namespace] });
     }
   }
+  // Create service monitor.
+  const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml.name, {
+    file: deploy_spec[i].yaml.name,
+    skipAwait: true,
+  }, { dependsOn: [namespace] });
 }
