@@ -9,7 +9,7 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "panel",
@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -58,7 +58,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -77,7 +80,6 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1676201997083,
   "links": [
     {
       "asDropdown": true,
@@ -196,7 +198,7 @@
           "valueSize": 50
         }
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -270,7 +272,7 @@
           "valueSize": 50
         }
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -299,6 +301,8 @@
             "mode": "fixed"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisGridShow": false,
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -356,11 +360,13 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -441,7 +447,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -475,7 +481,8 @@
           "custom": {
             "align": "auto",
             "displayMode": "color-text",
-            "filterable": false
+            "filterable": false,
+            "inspect": false
           },
           "decimals": 1,
           "mappings": [],
@@ -550,7 +557,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -751,8 +758,9 @@
           "value"
         ],
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -763,7 +771,8 @@
           "values": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -865,7 +874,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -942,7 +951,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -962,6 +971,10 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -969,6 +982,15 @@
         "y": 10
       },
       "id": 37,
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Hypervisor",
       "type": "row"
     },
@@ -985,7 +1007,8 @@
           },
           "custom": {
             "align": "center",
-            "displayMode": "color-text"
+            "displayMode": "color-text",
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -1271,7 +1294,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -1861,6 +1884,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "left",
@@ -1925,10 +1950,12 @@
             "last"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "targets": [
@@ -1958,6 +1985,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -2025,10 +2054,12 @@
             "last"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "multi"
+          "mode": "multi",
+          "sort": "none"
         }
       },
       "targets": [
@@ -2095,8 +2126,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -2120,7 +2150,8 @@
             "last"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single"
@@ -2200,8 +2231,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -2225,7 +2255,8 @@
             "last"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "multi"
@@ -2262,7 +2293,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "Platform"
@@ -2421,6 +2452,6 @@
   "timezone": "browser",
   "title": "VMware vSphere Overview",
   "uid": "8LdfoUEmz",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

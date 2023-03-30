@@ -99,8 +99,20 @@ const deploy_spec = [
                     "Linux_System_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_System_Overview.json', 'utf8'),
                     "Linux_Disk_Performance.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Performance.json', 'utf8'),
                     "Linux_Network_Overview.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Network_Overview.json', 'utf8'),
-                    "Linux_Disk_Space.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Space.json', 'utf8'),
-                    "Cross_Server_Graphs.json": fs.readFileSync('./dashboards/operatingsystem/Cross_Server_Graphs.json', 'utf8')
+                    "Linux_Disk_Space.json": fs.readFileSync('./dashboards/operatingsystem/Linux_Disk_Space.json', 'utf8')
+                }
+            },
+            {
+                metadata: {
+                    name: "grafana-dashboards-others",
+                    namespace: "visualization",
+                    annotations: {},
+                    labels: {
+                        grafana_dashboard: ""
+                    }
+                },
+                data: {
+                    "Cross_Server_Graphs.json": fs.readFileSync('./dashboards/others/Cross_Server_Graphs.json', 'utf8')
                 }
             }
         ],
@@ -109,7 +121,7 @@ const deploy_spec = [
             name: "grafana",
             chart: "grafana",
             repository: "https://grafana.github.io/helm-charts",
-            version: "6.30.3", /** do not upgrade */
+            version: "6.44.10",
             values: {
                 replicas: 1,
                 deploymentStrategy: {
@@ -151,10 +163,14 @@ const deploy_spec = [
                     storageClassName: "longhorn",
                     size: "8Gi"
                 },
-                initChownData: { enabled: false },
+                initChownData: { enabled: true },
                 adminUser: "admin",
                 adminPassword: config.require("adminPassword"),
-                plugins: ["grafana-piechart-panel", "camptocamp-prometheus-alertmanager-datasource", "grafana-oncall-app"],
+                plugins: [
+                    "grafana-piechart-panel",
+                    "camptocamp-prometheus-alertmanager-datasource",
+                    "grafana-oncall-app"
+                ],
                 datasources: {
                     "datasources.yaml": {
                         apiVersion: 1,

@@ -9,7 +9,7 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "panel",
@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -47,7 +47,10 @@
       {
         "$$hashKey": "object:411",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -68,7 +71,6 @@
   "gnetId": 763,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1676378792493,
   "links": [
     {
       "asDropdown": true,
@@ -196,7 +198,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -275,7 +277,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -344,7 +346,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -451,7 +453,7 @@
         "alertThreshold": true
       },
       "percentage": true,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -597,7 +599,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -678,7 +680,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -759,7 +761,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -845,7 +847,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -926,7 +928,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -999,7 +1001,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1122,7 +1124,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1243,7 +1245,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1348,7 +1350,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1473,7 +1475,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1598,7 +1600,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1658,7 +1660,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "Insight"
@@ -1670,7 +1672,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },

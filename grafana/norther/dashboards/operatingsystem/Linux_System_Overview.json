@@ -9,13 +9,13 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -41,7 +41,10 @@
       {
         "$$hashKey": "object:21878",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -61,7 +64,6 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1665466286593,
   "links": [
     {
       "$$hashKey": "object:22075",
@@ -184,7 +186,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "calculatedInterval": "10m",
@@ -268,7 +270,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -349,7 +351,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -429,9 +431,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "(count(node_cpu_seconds_total{instance=\"$host\",mode=\"user\"}) or (1-absent(node_cpu_seconds_total{instance=\"$host\",mode=\"user\"}))) + sum(rdsosmetrics_General_numVCPUs{instance=\"$host\"} or up * 0)",
           "format": "time_series",
           "interval": "1m",
@@ -504,9 +510,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "node_memory_MemTotal_bytes{instance=\"$host\"}",
           "format": "time_series",
           "interval": "1m",
@@ -580,9 +590,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "node_memory_MemTotal_bytes{instance=\"$host\"}+node_memory_SwapTotal_bytes{instance=\"$host\"}",
           "format": "time_series",
           "interval": "1m",
@@ -662,9 +676,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(node_filesystem_size_bytes{instance=\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) + sum(node_memory_SwapTotal_bytes{instance=\"$host\"})",
           "format": "time_series",
           "interval": "1m",
@@ -679,6 +697,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -687,6 +709,15 @@
       },
       "id": 49,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "CPU",
       "type": "row"
     },
@@ -751,7 +782,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -769,6 +800,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "clamp_max(((avg by (mode) ( (clamp_max(rate(node_cpu_seconds_total{instance=\"$host\",mode!=\"idle\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{instance=\"$host\",mode!=\"idle\"}[5m]),1)) ))*100 or (avg_over_time(node_cpu_average{instance=\"$host\", mode!=\"total\", mode!=\"idle\"}[$interval]) or avg_over_time(node_cpu_average{instance=\"$host\", mode!=\"total\", mode!=\"idle\"}[5m]))),100)",
           "format": "time_series",
           "interval": "$interval",
@@ -777,6 +812,10 @@
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{instance=\"$host\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{instance=\"$host\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) )),1)",
           "format": "time_series",
           "hide": true,
@@ -880,7 +919,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -899,6 +938,10 @@
       "targets": [
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(avg_over_time(node_procs_running{instance=\"$host\"}[$interval])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", instance=\"$host\"})) or (avg_over_time(node_procs_running{instance=\"$host\"}[5m])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", instance=\"$host\"}))",
@@ -914,6 +957,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{instance=\"$host\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{instance=\"$host\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) )),1)",
@@ -1013,7 +1060,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1029,6 +1076,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_context_switches_total{instance=\"$host\"}[$interval]) or irate(node_context_switches_total{instance=\"$host\"}[5m])",
@@ -1042,6 +1093,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "(rate(node_context_switches_total{instance=\"$host\"}[$interval]) or irate(node_context_switches_total{instance=\"$host\"}[5m])) / scalar(count(node_cpu_guest_seconds_total{mode=\"user\", instance=\"$host\"}))",
           "format": "time_series",
           "interval": "$interval",
@@ -1051,6 +1106,10 @@
           "step": 60
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_intr_total{instance=\"$host\"}[$interval]) or irate(node_intr_total{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1150,7 +1209,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1170,6 +1229,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(avg_over_time(node_procs_running{instance=\"$host\"}[$interval]) - 1) or (avg_over_time(node_procs_running{instance=\"$host\"}[5m]) -1)",
@@ -1183,6 +1246,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "avg_over_time(node_procs_blocked{instance=\"$host\"}[$interval]) or avg_over_time(node_procs_blocked{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1191,6 +1258,10 @@
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_forks_total{instance=\"$host\"}[$interval]) or irate(node_forks_total{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1235,6 +1306,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1243,6 +1318,15 @@
       },
       "id": 47,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Memory",
       "type": "row"
     },
@@ -1303,7 +1387,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1319,6 +1403,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "node_memory_MemTotal_bytes{instance=\"$host\"}",
           "format": "time_series",
           "interval": "$interval",
@@ -1328,6 +1416,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_MemFree_bytes{instance=\"$host\"}",
@@ -1342,6 +1434,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_Buffers_bytes{instance=\"$host\"}",
@@ -1356,6 +1452,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_Cached_bytes{instance=\"$host\"}",
@@ -1370,6 +1470,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_MemTotal_bytes{instance=\"$host\"} - (node_memory_MemFree_bytes{instance=\"$host\"} + node_memory_Buffers_bytes{instance=\"$host\"} + node_memory_Cached_bytes{instance=\"$host\"})",
@@ -1479,7 +1583,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1496,6 +1600,10 @@
       "targets": [
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_MemTotal_bytes{instance=\"$host\"}+node_memory_SwapTotal_bytes{instance=\"$host\"}",
@@ -1511,6 +1619,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(node_memory_MemAvailable_bytes{instance=\"$host\"} or (node_memory_MemFree_bytes{instance=\"$host\"}) + node_memory_Buffers_bytes{instance=\"$host\"} + node_memory_Cached_bytes{instance=\"$host\"}) + node_memory_SwapFree_bytes{instance=\"$host\"}",
@@ -1524,6 +1636,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "node_memory_MemTotal_bytes{instance=\"$host\"}+node_memory_SwapTotal_bytes{instance=\"$host\"} - ((node_memory_MemAvailable_bytes{instance=\"$host\"} or (node_memory_MemFree_bytes{instance=\"$host\"}) + node_memory_Buffers_bytes{instance=\"$host\"} + node_memory_Cached_bytes{instance=\"$host\"}) + node_memory_SwapFree_bytes{instance=\"$host\"})",
           "format": "time_series",
           "interval": "$interval",
@@ -1638,6 +1754,10 @@
       "targets": [
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_SwapTotal_bytes{instance=\"$host\"} - node_memory_SwapFree_bytes{instance=\"$host\"}",
@@ -1652,6 +1772,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_memory_SwapFree_bytes{instance=\"$host\"}",
@@ -1665,6 +1789,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "node_memory_SwapTotal_bytes{instance=\"$host\"}",
           "format": "time_series",
           "interval": "$interval",
@@ -1782,6 +1910,10 @@
       "targets": [
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_vmstat_pswpin{instance=\"$host\"}[$interval]) * 4096 or irate(node_vmstat_pswpin{instance=\"$host\"}[5m]) * 4096",
@@ -1796,6 +1928,10 @@
         },
         {
           "calculatedInterval": "2s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_vmstat_pswpout{instance=\"$host\"}[$interval]) * 4096 or irate(node_vmstat_pswpout{instance=\"$host\"}[5m]) * 4096",
@@ -1809,6 +1945,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "(rate(node_vmstat_pswpin{instance=\"$host\"}[$interval]) * 4096 or irate(node_vmstat_pswpin{instance=\"$host\"}[5m]) * 4096) + (rate(node_vmstat_pswpout{instance=\"$host\"}[$interval]) * 4096 or irate(node_vmstat_pswpout{instance=\"$host\"}[5m]) * 4096)",
           "format": "time_series",
           "interval": "$interval",
@@ -1852,6 +1992,10 @@
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1933,6 +2077,10 @@
           "targets": [
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(node_vmstat_pgpgin{instance=\"$host\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{instance=\"$host\"}[5m]) * 1024",
@@ -1947,6 +2095,10 @@
             },
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "(rate(node_vmstat_pgpgout{instance=\"$host\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{instance=\"$host\"}[5m]) * 1024)",
@@ -1960,6 +2112,10 @@
               "target": ""
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(rate(node_vmstat_pgpgin{instance=\"$host\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{instance=\"$host\"}[5m]) * 1024 ) + (rate(node_vmstat_pgpgout{instance=\"$host\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{instance=\"$host\"}[5m]) * 1024)",
               "format": "time_series",
               "interval": "$interval",
@@ -2063,6 +2219,10 @@
           "targets": [
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "node_filefd_maximum{instance=\"$host\"}",
@@ -2077,6 +2237,10 @@
             },
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "node_filefd_allocated{instance=\"$host\"}",
@@ -2194,6 +2358,10 @@
           "steppedLine": false,
           "targets": [
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(sum(rate(node_disk_read_time_ms{instance=\"$host\"}[$interval])) / sum(rate(node_disk_reads_completed{instance=\"$host\"}[$interval]))) or (sum(irate(node_disk_read_time_ms{instance=\"$host\"}[5m])) / sum(irate(node_disk_reads_completed{instance=\"$host\"}[5m])))\nor avg_over_time(aws_rds_read_latency_average{instance=\"$host\"}[$interval]) or avg_over_time(aws_rds_read_latency_average{instance=\"$host\"}[5m])",
               "format": "time_series",
               "interval": "$interval",
@@ -2202,6 +2370,10 @@
               "refId": "A"
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(sum(rate(node_disk_write_time_ms{instance=\"$host\"}[$interval])) / sum(rate(node_disk_writes_completed{instance=\"$host\"}[$interval]))) or (sum(irate(node_disk_write_time_ms{instance=\"$host\"}[5m])) / sum(irate(node_disk_writes_completed{instance=\"$host\"}[5m])))\nor (avg_over_time(aws_rds_write_latency_average{instance=\"$host\"}[$interval]) or avg_over_time(aws_rds_write_latency_average{instance=\"$host\"}[5m]))",
               "format": "time_series",
               "interval": "$interval",
@@ -2210,6 +2382,10 @@
               "refId": "B"
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(sum(rate(node_disk_read_time_seconds_total{instance=\"$host\"}[1h])) / sum(rate(node_disk_reads_completed_total{instance=\"$host\"}[1h])))\nor avg_over_time(aws_rds_read_latency_average{instance=\"$host\"}[1h]) or avg_over_time(aws_rds_read_latency_average{instance=\"$host\"}[1h]) ",
               "format": "time_series",
               "interval": "$interval",
@@ -2218,6 +2394,10 @@
               "refId": "C"
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(sum(rate(node_disk_write_time_seconds_total{instance=\"$host\"}[1h])) / sum(rate(node_disk_writes_completed_total{instance=\"$host\"}[1h]))) \nor (avg_over_time(aws_rds_write_latency_average{instance=\"$host\"}[$interval]) or avg_over_time(aws_rds_write_latency_average{instance=\"$host\"}[1h]))",
               "format": "time_series",
               "interval": "$interval",
@@ -2332,6 +2512,10 @@
           "targets": [
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(rate(node_disk_read_time_seconds_total{instance=\"$host\"}[$interval]))/1000 or sum(irate(node_disk_read_time_seconds_total{instance=\"$host\"}[5m]))/1000",
@@ -2346,6 +2530,10 @@
             },
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(rate(node_disk_write_time_seconds_total{instance=\"$host\"}[$interval]))/1000 or sum(irate(node_disk_write_time_seconds_total{instance=\"$host\"}[5m]))/1000",
@@ -2359,6 +2547,10 @@
               "target": ""
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(sum(rate(node_disk_read_time_seconds_total{instance=\"$host\"}[$interval]))/1000 or sum(irate(node_disk_read_time_seconds_total{instance=\"$host\"}[5m]))/1000) + (sum(rate(node_disk_write_time_seconds_total{instance=\"$host\"}[$interval]))/1000 or sum(irate(node_disk_write_time_seconds_total{instance=\"$host\"}[5m]))/1000)",
               "format": "time_series",
               "interval": "$interval",
@@ -2402,11 +2594,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Disk",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2475,6 +2680,10 @@
           "targets": [
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(rate(node_network_receive_bytes_total{instance=\"$host\", device=\"$interface\"}[$interval])) or sum(irate(node_network_receive_bytes_total{instance=\"$host\", device=\"$interface\"}[5m])) or sum(max_over_time(rdsosmetrics_network_rx{instance=\"$host\"}[$interval])) or sum(max_over_time(rdsosmetrics_network_rx{instance=\"$host\"}[5m])) ",
@@ -2489,6 +2698,10 @@
             },
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(rate(node_network_transmit_bytes_total{instance=\"$host\", device!=\"lo\"}[$interval])) or sum(irate(node_network_transmit_bytes_total{instance=\"$host\", device!=\"lo\"}[5m])) or\nsum(max_over_time(rdsosmetrics_network_tx{instance=\"$host\"}[$interval])) or sum(max_over_time(rdsosmetrics_network_tx{instance=\"$host\"}[5m]))",
@@ -2598,6 +2811,10 @@
           "targets": [
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(increase(node_network_receive_bytes_total{instance=\"$host\", device=\"$interface\"}[1h])) or sum(increase(rdsosmetrics_network_rx{instance=\"$host\", device=\"$interface\"}[1h]))",
@@ -2613,6 +2830,10 @@
             },
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(increase(node_network_transmit_bytes_total{instance=\"$host\", device=\"$interface\"}[1h])) or sum(increase(rdsosmetrics_network_tx{instance=\"$host\", device=\"$interface\"}[1h]))",
@@ -2627,6 +2848,10 @@
               "target": ""
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "(sum(increase(node_network_receive_bytes_total{instance=\"$host\", device=\"$interface\"}[1h]))+sum(increase(node_network_transmit_bytes_total{instance=\"$host\", device=\"$interface\"}[1h]))) or (sum(increase(rdsosmetrics_network_rx{instance=\"$host\", device=\"$interface\"}[1h]))+sum(increase(rdsosmetrics_network_tx{instance=\"$host\", device=\"$interface\"}[1h])))",
               "format": "time_series",
               "interval": "1h",
@@ -2731,6 +2956,10 @@
           "targets": [
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "sum(rate(node_network_receive_errs_total{instance=\"$host\", device=\"$interface\"}[$interval])) or \nsum(irate(node_network_receive_errs_total{instance=\"$host\", device=\"$interface\"}[5m]))",
@@ -2745,6 +2974,10 @@
               "target": ""
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "sum(rate(node_network_transmit_errs_total{instance=\"$host\", device=\"$interface\"}[$interval])) or\nsum(irate(node_network_transmit_errs_total{instance=\"$host\", device=\"$interface\"}[5m]))",
               "format": "time_series",
               "interval": "$interval",
@@ -2753,6 +2986,10 @@
               "refId": "B"
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "sum(rate(node_network_receive_drop_total{instance=\"$host\", device=\"$interface\"}[$interval])) or\nsum(irate(node_network_receive_drop_total{instance=\"$host\", device=\"$interface\"}[5m]))",
               "format": "time_series",
               "interval": "$interval",
@@ -2761,6 +2998,10 @@
               "refId": "C"
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "sum(rate(node_network_transmit_drop_total{instance=\"$host\", device=\"$interface\"}[$interval])) or \nsum(irate(node_network_transmit_drop_total{instance=\"$host\", device=\"$interface\"}[5m]))",
               "format": "time_series",
               "interval": "$interval",
@@ -2872,6 +3113,10 @@
           "targets": [
             {
               "calculatedInterval": "2s",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[5m])",
@@ -2886,6 +3131,10 @@
               "target": ""
             },
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "expr": "rate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[$interval])/rate(node_netstat_Tcp_OutSegs{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[5m])/irate(node_netstat_Tcp_OutSegs{instance=\"$host\"}[5m])",
               "format": "time_series",
               "hide": false,
@@ -2931,12 +3180,21 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Network",
       "type": "row"
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "OS",

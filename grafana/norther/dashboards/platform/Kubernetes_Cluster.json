@@ -9,7 +9,7 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "panel",
@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.5.3"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -82,7 +82,6 @@
   "gnetId": 9873,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1677035015989,
   "links": [
     {
       "$$hashKey": "object:247",
@@ -232,7 +231,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -316,7 +315,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -373,7 +372,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -451,6 +450,8 @@
             "seriesBy": "last"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisGridShow": false,
             "axisLabel": "",
             "axisPlacement": "right",
@@ -507,8 +508,9 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -597,7 +599,7 @@
         "text": {},
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -677,7 +679,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -757,7 +759,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -837,7 +839,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -1168,7 +1170,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -1758,7 +1760,7 @@
         },
         "showHeader": true
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -1880,7 +1882,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -1962,7 +1964,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2043,7 +2045,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2124,7 +2126,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2205,7 +2207,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2286,7 +2288,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2367,7 +2369,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2449,7 +2451,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2530,7 +2532,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2611,7 +2613,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2692,7 +2694,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2774,7 +2776,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -2814,8 +2816,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -3857,7 +3858,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "Platform",
@@ -3870,7 +3871,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },

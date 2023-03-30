@@ -9,17 +9,18 @@
       "pluginName": "Prometheus"
     }
   ],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "6.7.6"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
       "id": "graph",
-      "name": "Graph",
+      "name": "Graph (old)",
       "version": ""
     },
     {
@@ -34,21 +35,29 @@
       {
         "$$hashKey": "object:20457",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "description": "Linux Disk Performance",
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1618466336630,
   "links": [
     {
       "$$hashKey": "object:20543",
@@ -111,17 +120,27 @@
       "type": "dashboards"
     }
   ],
+  "liveNow": false,
   "panels": [
     {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows average latency for Reads and Writes IO Devices.  Higher than typical latency for highly loaded storage indicates saturation (overload) and is frequent cause of performance problems.  Higher than normal latency also can indicate internal storage problems.",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 2,
       "fillGradient": 0,
       "grid": {},
@@ -143,8 +162,6 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sort": null,
-        "sortDesc": null,
         "total": false,
         "values": true
       },
@@ -153,9 +170,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.2.15",
       "pointradius": 1,
       "points": true,
       "renderer": "flot",
@@ -166,6 +184,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(rate(node_disk_read_time_seconds_total{device=~\"$device\", instance=\"$host\"}[$interval]) / \nrate(node_disk_reads_completed_total{device=~\"$device\", instance=\"$host\"}[$interval])*1000 ) or \n(irate(node_disk_read_time_seconds_total{device=~\"$device\", instance=\"$host\"}[5m]) / \nirate(node_disk_reads_completed_total{device=~\"$device\", instance=\"$host\"}[5m])*1000) or\navg_over_time(aws_rds_read_latency_average{instance=\"$host\"}[$interval]) or \navg_over_time(aws_rds_read_latency_average{instance=\"$host\"}[5m]) or\navg_over_time(rdsosmetrics_diskIO_readLatency{instance=\"$host\"}[$interval]) or \navg_over_time(rdsosmetrics_diskIO_readLatency{instance=\"$host\"}[5m])",
@@ -180,6 +202,10 @@
         },
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(rate(node_disk_write_time_seconds_total{device=~\"$device\", instance=\"$host\"}[$interval]) / \nrate(node_disk_writes_completed_total{device=~\"$device\", instance=\"$host\"}[$interval])*1000) or \n(irate(node_disk_write_time_seconds_total{device=~\"$device\", instance=\"$host\"}[5m]) / \nirate(node_disk_writes_completed_total{device=~\"$device\", instance=\"$host\"}[5m])*1000) or \n(avg_over_time(aws_rds_write_latency_average{instance=\"$host\"}[$interval]) or \navg_over_time(aws_rds_write_latency_average{instance=\"$host\"}[5m])) or\n(avg_over_time(rdsosmetrics_diskIO_writeLatency{instance=\"$host\"}[$interval]) or \navg_over_time(rdsosmetrics_diskIO_writeLatency{instance=\"$host\"}[5m]))",
@@ -194,9 +220,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Disk Latency",
       "tooltip": {
         "msResolution": false,
@@ -206,9 +230,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -218,8 +240,6 @@
           "format": "ms",
           "label": "",
           "logBase": 2,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
@@ -227,14 +247,12 @@
           "format": "ms",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -242,11 +260,20 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows amount of physical IOs (reads and writes) different devices are serving. Spikes in number of IOs served often corresponds to performance problems due to IO subsystem overload.",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 2,
       "fillGradient": 0,
       "grid": {},
@@ -268,8 +295,6 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sort": null,
-        "sortDesc": null,
         "total": false,
         "values": true
       },
@@ -278,9 +303,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.2.15",
       "pointradius": 1,
       "points": false,
       "renderer": "flot",
@@ -291,6 +317,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(rate(node_disk_reads_completed_total{device=~\"$device\", instance=\"$host\"}[$interval]) or \nirate(node_disk_reads_completed_total{device=~\"$device\", instance=\"$host\"}[5m])) or\n(max_over_time(rdsosmetrics_diskIO_readIOsPS{instance=\"$host\"}[$interval]) or\nmax_over_time(rdsosmetrics_diskIO_readIOsPS{instance=\"$host\"}[5m])) ",
@@ -305,6 +335,10 @@
         },
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(rate(node_disk_writes_completed_total{device=~\"$device\", instance=\"$host\"}[$interval]) or \nirate(node_disk_writes_completed_total{device=~\"$device\", instance=\"$host\"}[5m])) or\n(max_over_time(rdsosmetrics_diskIO_writeIOsPS{instance=\"$host\"}[$interval]) or\nmax_over_time(rdsosmetrics_diskIO_writeIOsPS{instance=\"$host\"}[5m])) ",
@@ -319,9 +353,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Disk Operations",
       "tooltip": {
         "msResolution": false,
@@ -331,9 +363,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -342,7 +372,6 @@
           "format": "iops",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         },
@@ -350,14 +379,12 @@
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": false
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -365,11 +392,20 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows volume of reads and writes the storage is handling. This can be better measure of IO capacity usage for network attached and SSD storage as it is often bandwidth limited.  Amount of data being written to the disk can be used to estimate Flash storage life time.",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 2,
       "fillGradient": 0,
       "grid": {},
@@ -391,8 +427,6 @@
         "min": true,
         "rightSide": true,
         "show": true,
-        "sort": null,
-        "sortDesc": null,
         "total": false,
         "values": true
       },
@@ -401,9 +435,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.2.15",
       "pointradius": 1,
       "points": false,
       "renderer": "flot",
@@ -414,6 +449,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(rate(node_disk_read_bytes_total{device=~\"$device\", instance=\"$host\"}[$interval]) or \nirate(node_disk_read_bytes_total{device=~\"$device\", instance=\"$host\"}[5m])) or\n(rate(rdsosmetrics_diskIO_readThroughput{instance=\"$host\"}[$interval]) or\nirate(rdsosmetrics_diskIO_readThroughput{instance=\"$host\"}[5m]))",
@@ -428,6 +467,10 @@
         },
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_disk_written_bytes_total{device=~\"$device\", instance=\"$host\"}[$interval]) or \nirate(node_disk_written_bytes_total{device=~\"$device\", instance=\"$host\"}[5m]) or\n(rate(rdsosmetrics_diskIO_writeThroughput{instance=\"$host\"}[$interval]) or\nirate(rdsosmetrics_diskIO_writeThroughput{instance=\"$host\"}[5m]))",
@@ -442,9 +485,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Disk Bandwidth",
       "tooltip": {
         "msResolution": false,
@@ -454,9 +495,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -465,7 +504,6 @@
           "format": "Bps",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         },
@@ -473,14 +511,12 @@
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -488,11 +524,20 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows how much disk was loaded for reads or writes as average number of outstanding requests at different period of time.  High disk load is a good measure of actual storage utilization. Different storage types handle load differently - some will show latency increases on low loads others can handle higher load with no problems.",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 2,
       "fillGradient": 0,
       "grid": {},
@@ -522,9 +567,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.2.15",
       "pointradius": 1,
       "points": true,
       "renderer": "flot",
@@ -535,6 +581,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_disk_read_time_seconds_total{device=~\"$device\", instance=\"$host\"}[$interval]) or irate(node_disk_read_time_seconds_total{device=~\"$device\", instance=\"$host\"}[5m])",
@@ -549,6 +599,10 @@
         },
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_disk_write_time_seconds_total{device=~\"$device\", instance=\"$host\"}[$interval]) or irate(node_disk_write_time_seconds_total{device=~\"$device\", instance=\"$host\"}[5m])",
@@ -563,9 +617,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Disk Load",
       "tooltip": {
         "msResolution": false,
@@ -575,9 +627,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -586,7 +636,6 @@
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         },
@@ -594,14 +643,12 @@
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -609,7 +656,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows disk Utilization as percent of the time when there was at least one IO request in flight. It is designed to match utilization available in iostat tool. It is not very good measure of true IO Capacity Utilization. Consider looking at IO latency and Disk Load Graphs instead.",
       "editable": true,
@@ -658,6 +708,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "rate(node_disk_io_time_seconds_total{device=~\"$device\", instance=\"$host\"}[$interval]) or \nirate(node_disk_io_time_seconds_total{device=~\"$device\", instance=\"$host\"}[5m])",
@@ -673,9 +727,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Disk IO Utilization",
       "tooltip": {
         "msResolution": false,
@@ -685,9 +737,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -696,7 +746,6 @@
           "format": "percentunit",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         },
@@ -704,14 +753,12 @@
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -719,7 +766,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows how effectively Operating System is able to merge logical IO requests into physical requests.  This is a good measure of the IO locality which can be used for workload characterization.",
       "editable": true,
@@ -766,6 +816,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(1 + rate(node_disk_reads_merged_total{device=~\"$device\", instance=\"$host\"}[$interval]) / rate(node_disk_reads_completed_total{device=~\"$device\", instance=\"$host\"}[$interval])) or (1 + irate(node_disk_reads_merged_total{device=~\"$device\", instance=\"$host\"}[5m]) / irate(node_disk_reads_completed_total{device=~\"$device\", instance=\"$host\"}[5m]))",
@@ -780,6 +834,10 @@
         },
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(1 + rate(node_disk_writes_merged_total{device=~\"$device\", instance=\"$host\"}[$interval]) / rate(node_disk_writes_completed_total{device=~\"$device\", instance=\"$host\"}[$interval])) or (1 + irate(node_disk_writes_merged_total{device=~\"$device\", instance=\"$host\"}[5m]) / irate(node_disk_writes_completed_total{device=~\"$device\", instance=\"$host\"}[5m]))",
@@ -794,9 +852,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Disk Operations Merge Ratio",
       "tooltip": {
         "msResolution": false,
@@ -806,20 +862,16 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "$$hashKey": "object:3460",
-          "decimals": null,
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         },
@@ -828,19 +880,17 @@
           "format": "short",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 22,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "OS",
@@ -903,146 +953,160 @@
         "type": "interval"
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_disk_reads_completed_total, customer)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Customer",
         "multi": false,
         "name": "customer",
         "options": [],
-        "query": "label_values(node_disk_reads_completed_total, customer)",
+        "query": {
+          "query": "label_values(node_disk_reads_completed_total, customer)",
+          "refId": "DS_PROMETHEUS-customer-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_disk_reads_completed_total{customer=\"$customer\"}, environment)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Environment",
         "multi": false,
         "name": "environment",
         "options": [],
-        "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\"}, environment)",
+        "query": {
+          "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\"}, environment)",
+          "refId": "DS_PROMETHEUS-environment-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\"}, project)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Project",
         "multi": false,
         "name": "project",
         "options": [],
-        "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\"}, project)",
+        "query": {
+          "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\"}, project)",
+          "refId": "DS_PROMETHEUS-project-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\"}, group)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Group",
         "multi": false,
         "name": "group",
         "options": [],
-        "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\"}, group)",
+        "query": {
+          "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\"}, group)",
+          "refId": "DS_PROMETHEUS-group-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
         "allFormat": "glob",
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"}, instance)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Host",
         "multi": false,
         "multiFormat": "regex values",
         "name": "host",
         "options": [],
-        "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"}, instance)",
+        "query": {
+          "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"}, instance)",
+          "refId": "DS_PROMETHEUS-host-Variable-Query"
+        },
         "refresh": 1,
         "refresh_on_load": false,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "tagValuesQuery": "instance",
-        "tags": [],
-        "tagsQuery": "up",
         "type": "query",
         "useTags": false
       },
       {
         "allFormat": "glob",
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", device!~\"dm-.+\"}, device)",
         "hide": 0,
         "includeAll": true,
-        "index": -1,
         "label": "Device",
         "multi": true,
         "multiFormat": "regex values",
         "name": "device",
         "options": [],
-        "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", device!~\"dm-.+\"}, device)",
+        "query": {
+          "query": "label_values(node_disk_reads_completed_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", device!~\"dm-.+\"}, device)",
+          "refId": "DS_PROMETHEUS-device-Variable-Query"
+        },
         "refresh": 1,
         "refresh_on_load": false,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "tagValuesQuery": "instance",
-        "tags": [],
-        "tagsQuery": "up",
         "type": "query",
         "useTags": false
       }
@@ -1084,8 +1148,6 @@
   "timezone": "browser",
   "title": "Linux Disk Performance",
   "uid": "oxkrQMNmz",
-  "variables": {
-    "list": []
-  },
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }

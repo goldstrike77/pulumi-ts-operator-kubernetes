@@ -9,17 +9,18 @@
       "pluginName": "Prometheus"
     }
   ],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "6.7.6"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
       "id": "graph",
-      "name": "Graph",
+      "name": "Graph (old)",
       "version": ""
     },
     {
@@ -34,21 +35,29 @@
       {
         "$$hashKey": "object:21020",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "description": "Linux Disk Space",
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1618466091713,
   "links": [
     {
       "$$hashKey": "object:21185",
@@ -111,6 +120,7 @@
       "type": "dashboards"
     }
   ],
+  "liveNow": false,
   "panels": [
     {
       "aliasColors": {
@@ -120,11 +130,20 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 1,
       "description": "Shows the percentage of disk space utilization for every mountpoint defined on the system. Having some of the mountpoints close to 100% space utilization is not good because of the risk to have a “disk full” error that can block one of the services or even cause a crash of the entire system.\n\nIn case when the mountpoint is close to 100% consider to remove unused files or to expand the space allocated to the mountpoint.",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "grid": {},
@@ -157,9 +176,10 @@
       "maxPerRow": 2,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -170,6 +190,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(1 - node_filesystem_free_bytes{instance=\"$host\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"} / node_filesystem_size_bytes{instance=\"$host\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) * 100",
@@ -184,9 +208,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Mountpoint Usage",
       "tooltip": {
         "msResolution": false,
@@ -196,9 +218,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -218,14 +238,11 @@
           "format": "bytes",
           "label": "",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -236,11 +253,20 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "DS_PROMETHEUS",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "DS_PROMETHEUS"
+      },
       "decimals": 2,
       "description": "Shows information about the disk space usage of the specified mountpoint.\n\n**Used** is the amount of space used.\n\n**Free** is the amount of space not in use.\n\n**Used+Free** is the total disk space allocated to the mountpoint.\n\nHaving *Free* close to 0 B is not good because of the risk to have a “disk full” error that can block one of the services or even cause a crash of the entire system.\n\nIn case Free is close to 0 B consider to remove unused files or to expand the space allocated to the mountpoint.",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 6,
       "fillGradient": 0,
       "grid": {},
@@ -270,9 +296,10 @@
       "maxPerRow": 2,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -296,6 +323,10 @@
       "targets": [
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_filesystem_size_bytes{instance=\"$host\",mountpoint=\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"} - node_filesystem_free_bytes{instance=\"$host\",mountpoint=\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}",
@@ -310,6 +341,10 @@
         },
         {
           "calculatedInterval": "2m",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "node_filesystem_free_bytes{instance=\"$host\", mountpoint=\"$mountpoint\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}",
@@ -324,9 +359,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Mountpoint $mountpoint",
       "tooltip": {
         "msResolution": false,
@@ -336,9 +369,7 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
@@ -348,7 +379,6 @@
           "format": "bytes",
           "label": "",
           "logBase": 1,
-          "max": null,
           "min": 0,
           "show": true
         },
@@ -356,19 +386,16 @@
           "$$hashKey": "object:2963",
           "format": "bytes",
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 22,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "OS",
@@ -431,147 +458,161 @@
         "type": "interval"
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_filesystem_avail_bytes, customer)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Customer",
         "multi": false,
         "name": "customer",
         "options": [],
-        "query": "label_values(node_filesystem_avail_bytes, customer)",
+        "query": {
+          "query": "label_values(node_filesystem_avail_bytes, customer)",
+          "refId": "DS_PROMETHEUS-customer-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_filesystem_avail_bytes{customer=\"$customer\"}, environment)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Environment",
         "multi": false,
         "name": "environment",
         "options": [],
-        "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\"}, environment)",
+        "query": {
+          "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\"}, environment)",
+          "refId": "DS_PROMETHEUS-environment-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\"}, project)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Project",
         "multi": false,
         "name": "project",
         "options": [],
-        "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\"}, project)",
+        "query": {
+          "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\"}, project)",
+          "refId": "DS_PROMETHEUS-project-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\"}, group)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Group",
         "multi": false,
         "name": "group",
         "options": [],
-        "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\"}, group)",
+        "query": {
+          "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\"}, group)",
+          "refId": "DS_PROMETHEUS-group-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
         "allFormat": "glob",
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"},instance)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Host",
         "multi": false,
         "multiFormat": "regex values",
         "name": "host",
         "options": [],
-        "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"},instance)",
+        "query": {
+          "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\"},instance)",
+          "refId": "DS_PROMETHEUS-host-Variable-Query"
+        },
         "refresh": 1,
         "refresh_on_load": false,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "tagValuesQuery": "instance",
-        "tags": [],
-        "tagsQuery": "up",
         "type": "query",
         "useTags": false
       },
       {
         "allFormat": "wildcard",
-        "allValue": null,
         "current": {},
-        "datasource": "DS_PROMETHEUS",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "DS_PROMETHEUS"
+        },
         "definition": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}, mountpoint)",
         "hide": 2,
         "hideLabel": false,
         "includeAll": true,
-        "index": -1,
         "label": "Mountpoint",
         "multi": false,
         "multiFormat": "regex values",
         "name": "mountpoint",
         "options": [],
-        "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}, mountpoint)",
+        "query": {
+          "query": "label_values(node_filesystem_avail_bytes{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}, mountpoint)",
+          "refId": "DS_PROMETHEUS-mountpoint-Variable-Query"
+        },
         "refresh": 1,
         "refresh_on_load": false,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
-        "tagValuesQuery": "instance",
-        "tags": [],
-        "tagsQuery": "up",
         "type": "query",
         "useTags": false
       }
@@ -613,8 +654,6 @@
   "timezone": "browser",
   "title": "Linux Disk Space",
   "uid": "80k9wMHmk",
-  "variables": {
-    "list": []
-  },
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }

@@ -9,13 +9,13 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -41,7 +41,10 @@
       {
         "$$hashKey": "object:21468",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -62,7 +65,6 @@
   "gnetId": 1856,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1665496522279,
   "links": [
     {
       "$$hashKey": "object:21641",
@@ -129,6 +131,10 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -137,6 +143,15 @@
       },
       "id": 51,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Last Hour statistic",
       "type": "row"
     },
@@ -199,7 +214,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -278,9 +293,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_network_transmit_bytes_total{device=\"$device\",instance=\"$host\"}[1h]))",
           "format": "time_series",
           "interval": "$interval",
@@ -359,9 +378,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(increase(node_network_receive_errs_total{instance=\"$host\", device=\"$device\"}[1h])) +\nsum(increase(node_network_transmit_errs_total{instance=\"$host\", device=\"$device\"}[1h])) +\nsum(increase(node_network_receive_drop_total{instance=\"$host\", device=\"$device\"}[1h])) +\nsum(increase(node_network_transmit_drop_total{instance=\"$host\", device=\"$device\"}[1h]))",
           "format": "time_series",
           "interval": "$interval",
@@ -440,9 +463,13 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[1h]) * 100 / (rate(node_netstat_Tcp_OutSegs{instance=\"$host\"}[1h]) + rate(node_netstat_Tcp_InSegs{instance=\"$host\"}[1h]))",
           "format": "time_series",
           "hide": false,
@@ -458,6 +485,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -466,6 +497,15 @@
       },
       "id": 45,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Network Traffic",
       "type": "row"
     },
@@ -517,7 +557,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -532,6 +572,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_network_receive_bytes_total{instance=\"$host\", device=\"$device\"}[$interval])) or \nsum(irate(node_network_receive_bytes_total{instance=\"$host\", device=\"$device\"}[5m])) or \nsum(max_over_time(rdsosmetrics_network_rx{instance=\"$host\"}[$interval])) or \nsum(max_over_time(rdsosmetrics_network_rx{instance=\"$host\"}[5m])) ",
           "format": "time_series",
           "interval": "$interval",
@@ -540,6 +584,10 @@
           "refId": "C"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_network_transmit_bytes_total{instance=\"$host\", device=\"$device\"}[$interval])) or \nsum(irate(node_network_transmit_bytes_total{instance=\"$host\", device=\"$device\"}[5m])) or\nsum(max_over_time(rdsosmetrics_network_tx{instance=\"$host\"}[$interval])) or \nsum(max_over_time(rdsosmetrics_network_tx{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "hide": false,
@@ -629,7 +677,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -639,6 +687,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(increase(node_network_receive_bytes_total{instance=\"$host\", device=\"$device\"}[1h]))",
           "format": "time_series",
           "interval": "1h",
@@ -650,6 +702,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(increase(node_network_transmit_bytes_total{instance=\"$host\", device=\"$device\"}[1h]))",
           "format": "time_series",
           "interval": "1h",
@@ -694,6 +750,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -702,6 +762,15 @@
       },
       "id": 46,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Network traffic details",
       "type": "row"
     },
@@ -752,7 +821,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -869,7 +938,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -879,6 +948,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_network_receive_errs_total{instance=\"$host\", device!=\"lo\"}[$interval]) or \nirate(node_network_receive_errs_total{instance=\"$host\", device!=\"lo\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -887,6 +960,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_network_transmit_errs_total{instance=\"$host\", device!=\"lo\"}[$interval]) or\nirate(node_network_transmit_errs_total{instance=\"$host\", device!=\"lo\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -973,7 +1050,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -983,6 +1060,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_network_receive_drop_total{instance=\"$host\", device!=\"lo\"}[$interval]) or\nirate(node_network_receive_drop_total{instance=\"$host\", device!=\"lo\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -991,6 +1072,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_network_transmit_drop_total{instance=\"$host\", device!=\"lo\"}[$interval]) or \nirate(node_network_transmit_drop_total{instance=\"$host\", device!=\"lo\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1087,6 +1172,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_network_receive_multicast_total{instance=\"$host\", device!=\"lo\"}[$interval]) or\nirate(node_network_receive_multicast_total{instance=\"$host\", device!=\"lo\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1128,6 +1217,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1136,6 +1229,15 @@
       },
       "id": 47,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Network Netstat TCP",
       "type": "row"
     },
@@ -1199,6 +1301,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "max_over_time(node_netstat_Tcp_CurrEstab{instance=\"$host\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_CurrEstab{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1210,6 +1316,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "max_over_time(node_netstat_Tcp_ActiveOpens{instance=\"$host\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_ActiveOpens{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1220,6 +1330,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "max_over_time(node_netstat_Tcp_PassiveOpens{instance=\"$host\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_PassiveOpens{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1230,6 +1344,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "max_over_time(node_netstat_Tcp_EstabResets{instance=\"$host\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_EstabResets{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1240,6 +1358,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "max_over_time(node_netstat_Tcp_AttemptFails{instance=\"$host\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_AttemptFails{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1250,6 +1372,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "max_over_time(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[$interval]) or\nmax_over_time(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1353,6 +1479,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_InCsumErrors{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_InCsumErrors{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1361,6 +1491,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_InErrs{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_InErrs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1369,6 +1503,10 @@
           "refId": "B"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_InSegs{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_InSegs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1377,6 +1515,10 @@
           "refId": "C"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_OutRsts{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_OutRsts{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1385,6 +1527,10 @@
           "refId": "D"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_OutSegs{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_OutSegs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1393,6 +1539,10 @@
           "refId": "E"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[$interval]) or irate(node_netstat_Tcp_RetransSegs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1434,6 +1584,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1442,6 +1596,15 @@
       },
       "id": 48,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Network Netstat UDP",
       "type": "row"
     },
@@ -1514,6 +1677,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_InDatagrams{instance=\"$host\"}[$interval]) or irate(node_netstat_Udp_InDatagrams{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1525,6 +1692,10 @@
           "target": ""
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_InErrors{instance=\"$host\"}[$interval]) or irate(node_netstat_Udp_InErrors{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1535,6 +1706,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_OutDatagrams{instance=\"$host\"}[$interval]) or irate(node_netstat_Udp_OutDatagrams{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1545,6 +1720,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_NoPorts{instance=\"$host\"}[$interval]) or irate(node_netstat_Udp_NoPorts{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1555,6 +1734,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_InCsumErrors{instance=\"$host\"}[$interval]) or irate(node_netstat_Udp_InCsumErrors{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1565,6 +1748,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_RcvbufErrors{instance=\"$host\"}[$interval]) or irate(node_netstat_Udp_RcvbufErrors{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1575,6 +1762,10 @@
           "step": 40
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "sum(rate(node_netstat_Udp_SndbufErrors{instance=\"$node\"}[$interval]) or irate(node_netstat_Udp_SndbufErrors{instance=\"$host\"}[5m]))",
           "format": "time_series",
           "interval": "$interval",
@@ -1619,6 +1810,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1627,6 +1822,15 @@
       },
       "id": 49,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "ICMP",
       "type": "row"
     },
@@ -1694,6 +1898,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Icmp_InMsgs{instance=\"$host\"}[$interval]) or\nirate(node_netstat_Icmp_InMsgs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1702,6 +1910,10 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "expr": "rate(node_netstat_Icmp_OutMsgs{instance=\"$host\"}[$interval]) or\nirate(node_netstat_Icmp_OutMsgs{instance=\"$host\"}[5m])",
           "format": "time_series",
           "interval": "$interval",
@@ -1743,7 +1955,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "OS",
@@ -1756,7 +1968,7 @@
         "auto_count": 200,
         "auto_min": "1m",
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "auto",
           "value": "$__auto_interval_interval"
         },

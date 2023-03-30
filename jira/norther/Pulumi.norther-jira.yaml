@@ -1,3 +1,7 @@
 encryptionsalt: v1:MbS0ufnp8eQ=:v1:xJ1suqGt8Vw7jFM+:QD1pmZa7o+sLuLf5RVaPOALQf/zesA==
 config:
+  demo:postgresPassword:
+    secure: v1:yUINorSk4bGrB+Is:BT59jh4SUIANOQDKzxkWHWWsWRUqZI5Y
+  demo:userPassword:
+    secure: v1:7qwMZHst8/u/IeVf:1ktpgXSw6tmUt5JjBTc5VV2jr1CCct3E
   kubernetes:context: kubernetes-admin@norther

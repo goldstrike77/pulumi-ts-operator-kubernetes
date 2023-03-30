@@ -37,8 +37,8 @@ const deploy_spec = [
         values: {
           replicaCount: 1,
           database: {
-            type: "mysql",
-            url: "jdbc:mysql://mysql/confluence",
+            type: "postgresql",
+            url: "jdbc:postgresql://postgresql:5432/confluence",
             credentials: {
               secretName: "db-secret"
             }
@@ -65,91 +65,84 @@ const deploy_spec = [
             path: "/confluence"
           },
           confluence: {
+            service: {
+              contextPath: "/confluence"
+            },
             resources: {
               jvm: {
-                maxHeap: "4g",
-                minHeap: "4g",
+                maxHeap: "4096m",
+                minHeap: "4096m",
                 reservedCodeCache: "256m"
-              }
-            },
-            container: {
-              requests: {
-                cpu: "1",
-                memory: "6G"
               },
-              limits: {
-                cpu: "1",
-                memory: "6G"
+              container: {
+                requests: {
+                  cpu: "2000m",
+                  memory: "6144Mi"
+                }
               }
             }
           },
-          podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "confluence", datacenter: "dc01", domain: "local" }
+          podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "Confluence", datacenter: "dc01", domain: "local" }
         }
       },
       {
         namespace: "confluence",
-        name: "mysql",
-        chart: "mysql",
+        name: "postgresql",
+        chart: "postgresql",
         repository: "https://charts.bitnami.com/bitnami",
-        version: "9.7.0",
+        version: "12.2.6",
         values: {
-          image: { tag: "5.7.41-debian-11-r20" },
-          architecture: "standalone",
-          auth: {
-            rootPassword: config.require("rootPassword"),
-            createDatabase: true,
-            database: "confluence",
-            username: "confluence",
-            password: config.require("userPassword")
+          global: {
+            storageClass: "longhorn",
+            postgresql: {
+              auth: {
+                postgresPassword: config.require("postgresPassword"),
+                username: "confluence",
+                password: config.require("userPassword"),
+                database: "confluence"
+              }
+            }
           },
+          image: {
+            tag: "14.7.0-debian-11-r16"
+          },
+          architecture: "standalone",
           primary: {
+            pgHbaConfiguration: `
+local all all trust
+host all all localhost trust
+host confluence confluence 10.244.0.0/16 md5
+`,
+            initdb: {
+              user: "confluence",
+              password: config.require("userPassword"),
+            },
             resources: {
-              limits: { cpu: "250m", memory: "512Mi" },
-              requests: { cpu: "250m", memory: "512Mi" }
+              limits: { cpu: "500m", memory: "512Mi" },
+              requests: { cpu: "500m", memory: "512Mi" }
             },
+            podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "Confluence", datacenter: "dc01", domain: "local" },
             persistence: {
-              enabled: true,
-              storageClass: "longhorn",
               size: "8Gi"
-            },
-            podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "confluence", datacenter: "dc01", domain: "local" }
+            }
           },
           volumePermissions: {
-            enabled: false,
+            enabled: true,
             resources: {
-              limits: { cpu: "100m", memory: "128Mi" },
-              requests: { cpu: "100m", memory: "128Mi" }
+              limits: { cpu: "50m", memory: "64Mi" },
+              requests: { cpu: "50m", memory: "64Mi" }
             }
           },
           metrics: {
-            enabled: false,
-            extraArgs: {
-              primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.global_variables", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
-            },
+            enabled: true,
             resources: {
               limits: { cpu: "100m", memory: "128Mi" },
               requests: { cpu: "100m", memory: "128Mi" }
             },
-            livenessProbe: {
-              enabled: true,
-              initialDelaySeconds: 120,
-              periodSeconds: 10,
-              timeoutSeconds: 5,
-              successThreshold: 1,
-              failureThreshold: 3
-            },
-            readinessProbe: {
-              enabled: true,
-              initialDelaySeconds: 30,
-              periodSeconds: 10,
-              timeoutSeconds: 5,
-              successThreshold: 1,
-              failureThreshold: 3
-            },
             serviceMonitor: {
               enabled: true,
-              interval: "60s",
-              relabellings: [
+              relabelings: [
+                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -160,7 +153,6 @@ const deploy_spec = [
             },
             prometheusRule: {
               enabled: false,
-              namespace: "",
               rules: []
             }
           }

@@ -9,7 +9,7 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "panel",
@@ -21,7 +21,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -59,7 +59,10 @@
       {
         "$$hashKey": "object:2265",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -78,7 +81,6 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1676549090918,
   "links": [
     {
       "$$hashKey": "object:2587",
@@ -157,7 +159,8 @@
           "custom": {
             "align": "center",
             "displayMode": "color-text",
-            "filterable": false
+            "filterable": false,
+            "inspect": false
           },
           "decimals": 0,
           "displayName": "",
@@ -384,7 +387,7 @@
         "showHeader": true,
         "sortBy": []
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "repeatDirection": "h",
       "targets": [
         {
@@ -634,7 +637,7 @@
         },
         "textMode": "value_and_name"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -718,6 +721,8 @@
       "id": 23,
       "options": {
         "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -728,7 +733,7 @@
         },
         "showUnfilled": false
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -848,8 +853,9 @@
           "value"
         ],
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -860,7 +866,8 @@
           "values": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.4",
@@ -973,8 +980,9 @@
           "value"
         ],
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -985,7 +993,8 @@
           "values": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.4",
@@ -1097,8 +1106,9 @@
           "value"
         ],
         "legend": {
-          "displayMode": "hidden",
-          "placement": "right"
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": false
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -1109,7 +1119,8 @@
           "values": false
         },
         "tooltip": {
-          "mode": "none"
+          "mode": "none",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.4",
@@ -1195,7 +1206,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1206,6 +1217,10 @@
       "targets": [
         {
           "calculatedInterval": "10s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(100 - avg by(instance)(irate(node_cpu_seconds_total{instance=~\"$host\",mode='idle'}[5m])) * 100) or (100 - avg by(instance)(irate(windows_cpu_time_total{mode=\"idle\", instance=~\"$host\"}[5m])) * 100)",
@@ -1307,7 +1322,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1318,6 +1333,10 @@
       "targets": [
         {
           "calculatedInterval": "10s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "((node_memory_MemTotal_bytes{instance=~\"$host\"} - (node_memory_MemFree_bytes{instance=~\"$host\"} + node_memory_Buffers_bytes{instance=~\"$host\"} + node_memory_Cached_bytes{instance=~\"$host\"})) / node_memory_MemTotal_bytes{instance=~\"$host\"}) * 100 or ((windows_cs_physical_memory_bytes{instance=~\"$host\"} - windows_os_physical_memory_free_bytes{instance=~\"$host\"}) / windows_cs_physical_memory_bytes{instance=~\"$host\"}) * 100",
@@ -1430,6 +1449,10 @@
       "targets": [
         {
           "calculatedInterval": "10s",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          },
           "datasourceErrors": {},
           "errors": {},
           "expr": "(1- sum by(instance)(node_filesystem_free_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"}) / sum by(instance)(node_filesystem_size_bytes{instance=~\"$host\",fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs\"})) * 100 or (1- sum by(instance)(windows_logical_disk_free_bytes{instance=~\"$host\"}) / sum by(instance)(windows_logical_disk_size_bytes{instance=~\"$host\"})) * 100",
@@ -1482,7 +1505,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "OS"

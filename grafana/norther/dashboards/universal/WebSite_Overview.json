@@ -9,13 +9,13 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.5.3"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -65,7 +65,6 @@
   "gnetId": 9965,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1677813474705,
   "links": [
     {
       "$$hashKey": "object:1499",
@@ -196,7 +195,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "expr": "avg(probe_http_status_code{target=\"$target\"})",
@@ -204,7 +203,11 @@
           "interval": "",
           "intervalFactor": 1,
           "legendFormat": "",
-          "refId": "A"
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "DS_PROMETHEUS"
+          }
         }
       ],
       "timeFrom": "$interval",
@@ -258,7 +261,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -384,7 +387,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -461,7 +464,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "8.5.3",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -481,7 +484,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 36,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "Insight"
@@ -670,7 +673,7 @@
     ]
   },
   "time": {
-    "from": "now-2h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {

@@ -9,13 +9,13 @@
       "pluginName": "Prometheus"
     }
   ],
-  "__elements": [],
+  "__elements": {},
   "__requires": [
     {
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "8.3.10"
+      "version": "9.2.15"
     },
     {
       "type": "panel",
@@ -59,7 +59,10 @@
       {
         "$$hashKey": "object:18",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -78,7 +81,6 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "id": null,
-  "iteration": 1677054237959,
   "links": [
     {
       "$$hashKey": "object:990",
@@ -146,6 +148,10 @@
   "panels": [
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -154,6 +160,15 @@
       },
       "id": 382,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "type": "row"
     },
     {
@@ -215,7 +230,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "calculatedInterval": "10m",
@@ -294,7 +309,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -310,6 +325,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "datasourceErrors": {},
+          "editorMode": "code",
           "errors": {},
           "exemplar": true,
           "expr": "rate(mysql_global_status_queries{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[$interval]) or irate(mysql_global_status_queries{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\"}[5m])",
@@ -318,6 +334,7 @@
           "intervalFactor": 1,
           "legendFormat": "-",
           "metric": "",
+          "range": true,
           "refId": "A",
           "step": 20
         }
@@ -404,8 +421,9 @@
           "value"
         ],
         "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
         "pieType": "donut",
         "reduceOptions": {
@@ -416,7 +434,8 @@
           "values": false
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -508,7 +527,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -524,6 +543,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "datasourceErrors": {},
+          "editorMode": "code",
           "errors": {},
           "exemplar": true,
           "expr": "rate(mysql_global_status_handlers_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", handler!~\"commit|rollback|savepoint.*|prepare\"}[$interval]) or irate(mysql_global_status_handlers_total{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\", handler!~\"commit|rollback|savepoint.*|prepare\"}[5m])",
@@ -532,6 +552,7 @@
           "intervalFactor": 1,
           "legendFormat": "{{ handler }}",
           "metric": "",
+          "range": true,
           "refId": "J",
           "step": 20
         }
@@ -622,7 +643,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "calculatedInterval": "10m",
@@ -649,6 +670,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -657,6 +682,15 @@
       },
       "id": 383,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Connections",
       "type": "row"
     },
@@ -717,7 +751,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -876,7 +910,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -997,6 +1031,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1005,6 +1043,15 @@
       },
       "id": 384,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Database",
       "type": "row"
     },
@@ -1020,7 +1067,8 @@
           },
           "custom": {
             "align": "auto",
-            "displayMode": "auto"
+            "displayMode": "auto",
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -1075,7 +1123,7 @@
           }
         ]
       },
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "targets": [
         {
           "datasource": {
@@ -1200,7 +1248,7 @@
         "alertThreshold": false
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1269,6 +1317,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1277,6 +1329,15 @@
       },
       "id": 405,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Response",
       "type": "row"
     },
@@ -1292,6 +1353,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -1361,10 +1424,12 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -1404,6 +1469,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisGridShow": true,
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -1536,10 +1603,12 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -1549,13 +1618,15 @@
             "type": "prometheus",
             "uid": "DS_PROMETHEUS"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.0001'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.0001'}[5m]))",
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='0.1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='0.0001'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='0.1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='0.0001'}[5m]))",
           "hide": false,
           "interval": "$interval",
           "intervalFactor": 1,
           "legendFormat": "< 100ms",
           "metric": "",
+          "range": true,
           "refId": "A",
           "step": 300
         },
@@ -1564,11 +1635,13 @@
             "type": "prometheus",
             "uid": "DS_PROMETHEUS"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='0.1'}[5m]))",
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='1'}[$interval]) - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='0.1'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='1'}[5m]) - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='0.1'}[5m]))",
           "interval": "$interval",
           "intervalFactor": 1,
           "legendFormat": "100ms - 1s",
+          "range": true,
           "refId": "B",
           "step": 300
         },
@@ -1577,11 +1650,13 @@
             "type": "prometheus",
             "uid": "DS_PROMETHEUS"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='10'}[$interval])  - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='10'}[5m])  - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='1'}[5m]))",
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='10'}[$interval])  - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='1'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='10'}[5m])  - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='1'}[5m]))",
           "interval": "$interval",
           "intervalFactor": 1,
           "legendFormat": "1s - 10s",
+          "range": true,
           "refId": "C",
           "step": 300
         },
@@ -1590,11 +1665,13 @@
             "type": "prometheus",
             "uid": "DS_PROMETHEUS"
           },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='100000'}[$interval])  - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='10'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='100000'}[5m])  - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",instance=\"$host\",le='10'}[5m]))",
+          "expr": "(rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='100000'}[$interval])  - on (instance) rate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='10'}[$interval])) or (irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='100000'}[5m])  - on (instance) irate(mysql_info_schema_query_response_time_seconds_bucket{customer=\"$customer\",environment=\"$environment\",project=\"$project\",group=\"$group\",instance=\"$host\",le='10'}[5m]))",
           "hide": false,
           "interval": "$interval",
           "legendFormat": "> 10s",
+          "range": true,
           "refId": "D"
         }
       ],
@@ -1603,6 +1680,10 @@
     },
     {
       "collapsed": false,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1611,6 +1692,15 @@
       },
       "id": 403,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "InnoDB Engine",
       "type": "row"
     },
@@ -1659,7 +1749,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1782,7 +1872,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "8.3.10",
+      "pluginVersion": "9.2.15",
       "pointradius": 1,
       "points": true,
       "renderer": "flot",
@@ -1896,6 +1986,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "left",
             "barAlignment": 0,
@@ -1959,10 +2051,12 @@
             "lastNotNull"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2016,6 +2110,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -2080,10 +2176,12 @@
             "lastNotNull"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2121,6 +2219,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -2184,10 +2284,12 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "right"
+          "placement": "right",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2280,6 +2382,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -2348,10 +2452,12 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2389,6 +2495,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -2452,10 +2560,12 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2526,6 +2636,8 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -2588,10 +2700,12 @@
             "min"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "showLegend": true
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "8.3.10",
@@ -2653,6 +2767,10 @@
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2686,7 +2804,7 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 55
+            "y": 64
           },
           "hiddenSeries": false,
           "id": 22,
@@ -2711,7 +2829,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.3.10",
+          "pluginVersion": "9.2.15",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -2833,7 +2951,7 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 55
+            "y": 64
           },
           "height": "250px",
           "hiddenSeries": false,
@@ -2860,7 +2978,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.3.10",
+          "pluginVersion": "9.2.15",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -2996,11 +3114,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Temporary Objects",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3035,7 +3166,7 @@
             "h": 7,
             "w": 12,
             "x": 0,
-            "y": 56
+            "y": 65
           },
           "hiddenSeries": false,
           "id": 30,
@@ -3061,7 +3192,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.3.10",
+          "pluginVersion": "9.2.15",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -3204,7 +3335,7 @@
             "h": 7,
             "w": 12,
             "x": 12,
-            "y": 56
+            "y": 65
           },
           "hiddenSeries": false,
           "id": 48,
@@ -3226,7 +3357,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.3.10",
+          "pluginVersion": "9.2.15",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -3292,11 +3423,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Sorts",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3572,11 +3716,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Aborted",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3852,11 +4009,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Network",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4074,11 +4244,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Memory",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4604,11 +4787,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Command, Handlers, Processes",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4812,6 +5008,10 @@
           "targets": [
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(mysql_global_status_qcache_hits{instance=\"$host\"}[$interval]) or irate(mysql_global_status_qcache_hits{instance=\"$host\"}[5m])",
@@ -4825,6 +5025,10 @@
             },
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(mysql_global_status_qcache_inserts{instance=\"$host\"}[$interval]) or irate(mysql_global_status_qcache_inserts{instance=\"$host\"}[5m])",
@@ -4838,6 +5042,10 @@
             },
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(mysql_global_status_qcache_not_cached{instance=\"$host\"}[$interval]) or irate(mysql_global_status_qcache_not_cached{instance=\"$host\"}[5m])",
@@ -4851,6 +5059,10 @@
             },
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(mysql_global_status_qcache_lowmem_prunes{instance=\"$host\"}[$interval]) or irate(mysql_global_status_qcache_lowmem_prunes{instance=\"$host\"}[5m])",
@@ -4864,6 +5076,10 @@
             },
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "mysql_global_status_qcache_queries_in_cache{instance=\"$host\"}",
@@ -4910,11 +5126,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Query Cache",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4982,6 +5211,10 @@
           "targets": [
             {
               "calculatedInterval": "2m",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "DS_PROMETHEUS"
+              },
               "datasourceErrors": {},
               "errors": {},
               "expr": "rate(mysql_global_status_opened_files{instance=\"$host\"}[$interval]) or irate(mysql_global_status_opened_files{instance=\"$host\"}[5m])",
@@ -5168,11 +5401,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Files and Tables",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5500,11 +5746,24 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Table Openings",
       "type": "row"
     },
     {
       "collapsed": true,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5539,7 +5798,7 @@
             "h": 7,
             "w": 24,
             "x": 0,
-            "y": 141
+            "y": 73
           },
           "hiddenSeries": false,
           "id": 54,
@@ -5569,7 +5828,7 @@
             "alertThreshold": true
           },
           "percentage": false,
-          "pluginVersion": "8.3.10",
+          "pluginVersion": "9.2.15",
           "pointradius": 5,
           "points": false,
           "renderer": "flot",
@@ -5671,12 +5930,21 @@
           }
         }
       ],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "MySQL Table Definition Cache",
       "type": "row"
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 34,
+  "schemaVersion": 37,
   "style": "dark",
   "tags": [
     "Databases"
@@ -5906,6 +6174,6 @@
   "timezone": "browser",
   "title": "MySQL Overview",
   "uid": "MQWgroiiz",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
