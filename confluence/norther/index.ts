@@ -35,7 +35,7 @@ const deploy_spec = [
         repository: "",
         version: "1.11.0",
         values: {
-          replicaCount: 1,
+          replicaCount: 2,
           database: {
             type: "postgresql",
             url: "jdbc:postgresql://postgresql:5432/confluence",
@@ -54,6 +54,17 @@ const deploy_spec = [
                   }
                 }
               }
+            },
+            sharedHome: {
+              persistentVolumeClaim: {
+                create: true,
+                storageClassName: "nfs-client",
+                resources: {
+                  requests: {
+                    storage: "10Gi"
+                  }
+                }
+              }
             }
           },
           ingress: {
@@ -67,6 +78,9 @@ const deploy_spec = [
           confluence: {
             service: {
               contextPath: "/confluence"
+            },
+            clustering: {
+              enabled: true
             },
             resources: {
               jvm: {

@@ -109,6 +109,21 @@ const deploy_spec = [
                                 }
                             ]
                         },
+                        {
+                            name: "confluence-bucket-specific-policy",
+                            statements: [
+                                {
+                                    resources: ["arn:aws:s3:::confluence"],
+                                    effect: "Allow",
+                                    actions: ["s3:GetBucketLocation", "s3:ListBucket", "s3:ListBucketMultipartUploads"]
+                                },
+                                {
+                                    resources: ["arn:aws:s3:::confluence/*"],
+                                    effect: "Allow",
+                                    actions: ["s3:AbortMultipartUpload", "s3:DeleteObject", "s3:GetObject", "s3:ListMultipartUploadParts", "s3:PutObject"]
+                                }
+                            ]
+                        }
                     ],
                     users: [
                         {
@@ -151,6 +166,13 @@ const deploy_spec = [
                             password: config.require("artifactoryPassword"),
                             disabled: false,
                             policies: ["artifactory-bucket-specific-policy"],
+                            setPolicies: true
+                        },
+                        {
+                            username: "confluence",
+                            password: config.require("confluencePassword"),
+                            disabled: false,
+                            policies: ["confluence-bucket-specific-policy"],
                             setPolicies: true
                         }
                     ],
@@ -203,6 +225,15 @@ const deploy_spec = [
                         },
                         {
                             name: "artifactory",
+                            region: "us-east-1",
+                            versioning: false,
+                            withLock: true,
+                            lifecycle: [],
+                            quota: { type: "hard", size: "10GiB", },
+                            tags: {}
+                        },
+                        {
+                            name: "confluence",
                             region: "us-east-1",
                             versioning: false,
                             withLock: true,

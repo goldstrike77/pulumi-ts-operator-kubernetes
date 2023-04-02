@@ -14,6 +14,7 @@ pulumi config set tempoPassword [password] --secret
 pulumi config set backupPassword [password] --secret
 pulumi config set gitlabPassword [password] --secret
 pulumi config set artifactoryPassword [password] --secret
+pulumi config set confluencePassword [password] --secret
 ```
 
 #### Print minio accesskey and secretkey.

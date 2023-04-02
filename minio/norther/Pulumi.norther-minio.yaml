@@ -4,6 +4,8 @@ config:
     secure: v1:K1nbbhxRBcG5jWsK:pgsWVqJzVR31ROku1krPx19PgppYZDLb
   demo:backupPassword:
     secure: v1:TL0GHmrfWFnQNUNx:5e+r7IWp7eVWzxyfgcLehLD9DgHOXg93
+  demo:confluencePassword:
+    secure: v1:AHI833WqZNIf/wMW:kaVZiJETRiz7UzRmgrwkHINtWpTJ3k/p
   demo:lokiPassword:
     secure: v1:4y+cxNqSGHBtHbdw:KKoq4gzMkuCf1/TdCAKKpiYUjIVv43GC
   demo:rootPassword:
