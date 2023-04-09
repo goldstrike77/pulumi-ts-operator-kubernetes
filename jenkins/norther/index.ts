@@ -34,11 +34,11 @@ const deploy_spec = [
             name: "jenkins",
             chart: "jenkins",
             repository: "https://charts.jenkins.io",
-            version: "4.3.9",
+            version: "4.3.20",
             values: {
                 controller: {
                     image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jenkins",
-                    tag: "2.387.1-jdk11",
+                    tag: "2.387.2-jdk11",
                     numExecutors: 1,
                     adminUser: "admin",
                     adminPassword: config.require("adminPassword"),
@@ -62,20 +62,20 @@ const deploy_spec = [
                         "configuration-as-code:1569.vb_72405b_80249",
                         "git:5.0.0",
                         "github:1.37.0",
-                        "kubernetes:3896.v19b_160fd9589",
+                        "kubernetes:3909.v1f2c633e8590",
                         "ldap:671.v2a_9192a_7419d",
                         "prometheus:2.1.1",
                         "skip-certificate-check:1.1",
                         "workflow-aggregator:596.v8c21c963d92d",
-                        "pipeline-model-api:2.2118.v31fd5b_9944b_5",
-                        "workflow-job:1284.v2fe8ed4573d4"
+                        "pipeline-model-api:2.2125.vddb_a_44a_d605e",
+                        "workflow-job:1289.vd1c337fd5354"
                     ],
                     installLatestPlugins: false,
                     initializeOnce: true,
                     additionalPlugins: [
-                        "ansible:148.v6b_13c6de3a_47",
+                        "ansible:174.vfd5323d2b_9d8",
                         "nodejs:1.6.0",
-                        "azure-ad:336.vd05b_01358644"
+                        "azure-ad:340.vdef002cf6415"
                     ],
                     JCasC: {
                         defaultConfig: true,

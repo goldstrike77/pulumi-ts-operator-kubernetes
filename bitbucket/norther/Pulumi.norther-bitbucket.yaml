@@ -1,7 +1,11 @@
 encryptionsalt: v1:8r6D0+dWqFs=:v1:ol280DNWWPv+/lyc:iGV7kS01vkM2mWUHShicvEOwHiOZWQ==
 config:
+  demo:adminPassword:
+    secure: v1:YiM21JrgHL2zJfjh:5wWCn83yIYTEwV/xRtuP59SzAI9y8ogL
+  demo:dbuserPassword:
+    secure: v1:I33SoN+VefEKpLvY:YCSA0uqagtan2a+F2K8SYAJtWt3YohYT
+  demo:espassword:
+    secure: v1:TddwEpxf2VXuH7iu:0OYgiGLMQWO3e/kOTHqBHYF8nyYOd+X1
   demo:postgresPassword:
     secure: v1:llslDtgcbyiFUeSe:AMDVIS9ZICXvjKjqGQYmoS1Qjs6mkrTl
-  demo:userPassword:
-    secure: v1:Oy4Y6JtXc7cGBIWt:Ll2hi6vUmWLk7kCn58TMKatYacGlydra
   kubernetes:context: kubernetes-admin@norther

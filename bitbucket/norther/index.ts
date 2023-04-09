@@ -15,15 +15,21 @@ const deploy_spec = [
     },
     secret: {
       metadata: {
-        name: "db-secret",
+        name: "bitbucket-secret",
         namespace: "bitbucket",
         annotations: {},
         labels: {}
       },
       type: "Opaque",
       data: {
-        "username": Buffer.from("bitbucket").toString('base64'),
-        "password": Buffer.from(config.require("userPassword")).toString('base64')
+        "dbusername": Buffer.from("bitbucket").toString('base64'),
+        "dbpassword": Buffer.from(config.require("dbuserPassword")).toString('base64'),
+        "sysadminusername": Buffer.from("admin").toString('base64'),
+        "sysadminpassword": Buffer.from(config.require("adminPassword")).toString('base64'),
+        "sysadmindisplayName": Buffer.from("admin").toString('base64'),
+        "sysadminemailAddress": Buffer.from("admin@example.com").toString('base64'),
+        "esusername": Buffer.from("admin").toString('base64'),
+        "espassword": Buffer.from(config.require("espassword")).toString('base64'),
       },
       stringData: {}
     },
@@ -35,12 +41,14 @@ const deploy_spec = [
         repository: "",
         version: "1.11.0",
         values: {
-          replicaCount: 1,
+          replicaCount: 2,
           database: {
             url: "jdbc:postgresql://postgresql:5432/bitbucket",
             driver: "org.postgresql.Driver",
             credentials: {
-              secretName: "db-secret"
+              secretName: "bitbucket-secret",
+              usernameSecretKey: "dbusername",
+              passwordSecretKey: "dbpassword"
             }
           },
           volumes: {
@@ -49,9 +57,16 @@ const deploy_spec = [
                 create: true,
                 storageClassName: "longhorn",
                 resources: {
-                  requests: {
-                    storage: "5Gi"
-                  }
+                  requests: { storage: "5Gi" }
+                }
+              }
+            },
+            sharedHome: {
+              persistentVolumeClaim: {
+                create: true,
+                storageClassName: "nfs-client",
+                resources: {
+                  requests: { storage: "10Gi" }
                 }
               }
             }
@@ -65,8 +80,26 @@ const deploy_spec = [
             path: "/bitbucket"
           },
           bitbucket: {
-            service: {
-              contextPath: "/bitbucket"
+            service: { contextPath: "/bitbucket" },
+            sshService: {
+              enabled: true,
+              annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+            },
+            sysadminCredentials: {
+              secretName: "bitbucket-secret",
+              usernameSecretKey: "sysadminusername",
+              passwordSecretKey: "sysadminpassword",
+              displayNameSecretKey: "sysadmindisplayName",
+              emailAddressSecretKey: "sysadminemailAddress"
+            },
+            clustering: { enabled: true },
+            elasticSearch: {
+              baseUrl: "http://opensearch-master.skywalking:9200",
+              credentials: {
+                secretName: "bitbucket-secret",
+                usernameSecretKey: "esusername",
+                passwordSecretKey: "espassword"
+              }
             },
             resources: {
               jvm: {
@@ -74,10 +107,8 @@ const deploy_spec = [
                 minHeap: "4096m"
               },
               container: {
-                requests: {
-                  cpu: "2000m",
-                  memory: "6144Mi"
-                }
+                requests: { cpu: "2000m", memory: "6144Mi" },
+                limits: { cpu: "2000m", memory: "6144Mi" }
               }
             }
           },
@@ -97,7 +128,7 @@ const deploy_spec = [
               auth: {
                 postgresPassword: config.require("postgresPassword"),
                 username: "bitbucket",
-                password: config.require("userPassword"),
+                password: config.require("dbuserPassword"),
                 database: "bitbucket"
               }
             }
@@ -114,7 +145,7 @@ host bitbucket bitbucket 10.244.0.0/16 md5
 `,
             initdb: {
               user: "bitbucket",
-              password: config.require("userPassword"),
+              password: config.require("dbuserPassword"),
             },
             resources: {
               limits: { cpu: "500m", memory: "512Mi" },
