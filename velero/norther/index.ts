@@ -35,7 +35,7 @@ const deploy_spec = [
       repository: "https://vmware-tanzu.github.io/helm-charts",
       version: "3.1.5",
       values: {
-        podLabels: {},
+        podLabels: { customer: "demo", environment: "dev", project: "Backup", group: "Velero", datacenter: "dc01", domain: "local" },
         resources: {
           requests: { cpu: "500m", memory: "512Mi" },
           limits: { cpu: "500m", memory: "512Mi" }
@@ -56,7 +56,10 @@ const deploy_spec = [
         metrics: {
           enabled: true,
           scrapeInterval: "60s",
-          scrapeTimeout: "10s",
+          scrapeTimeout: "30s",
+          serviceMonitor: {
+            enabled: true,
+          },
           prometheusRule: {
             enabled: true,
             spec: [

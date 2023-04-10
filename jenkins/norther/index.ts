@@ -39,6 +39,7 @@ const deploy_spec = [
                 controller: {
                     image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jenkins",
                     tag: "2.387.2-jdk11",
+                    imagePullPolicy: "IfNotPresent",
                     numExecutors: 1,
                     adminUser: "admin",
                     adminPassword: config.require("adminPassword"),
@@ -75,7 +76,7 @@ const deploy_spec = [
                     additionalPlugins: [
                         "ansible:174.vfd5323d2b_9d8",
                         "nodejs:1.6.0",
-                        "azure-ad:340.vdef002cf6415"
+                        "saml:4.385.v4dea_91565e9d"
                     ],
                     JCasC: {
                         defaultConfig: true,
@@ -101,7 +102,10 @@ const deploy_spec = [
                         enabled: true,
                         ingressClassName: "nginx",
                         path: "/jenkins",
-                        hostName: "norther.example.com"
+                        hostName: "norther.example.com",
+                        annotations: {
+                            "nginx.ingress.kubernetes.io/proxy-body-size": "10m"
+                        }
                     },
                     prometheus: {
                         enabled: true,
