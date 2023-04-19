@@ -18,13 +18,18 @@ image:
   pullPolicy: IfNotPresent
   pullSecret: ""
 
-## Set enabled to false if you don't want securityContext
-## in your Deployment.
-## The below values are the default for kubernetes.
-## Openshift won't deploy with runAsUser: 1000 without additional permissions.
-securityContext:
-  enabled: true  # Should be set to false when running on OpenShift
+podSecurityContext:
+  runAsNonRoot: true
   runAsUser: 1000
+  seccompProfile:
+    type: "RuntimeDefault"
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
 
 # Custom DNS configuration to be added to prometheus-elasticsearch-exporter pods
 dnsConfig: {}
@@ -72,6 +77,7 @@ service:
 
 deployment:
   annotations: {}
+  labels: {}
 
 ## Extra environment variables that will be passed into the exporter pod
 ## example:
@@ -149,6 +155,10 @@ es:
   ##
   indices_mappings: true
 
+  ## If true, query stats for aliases.
+  ##
+  aliases: false
+
   ## If true, query stats for shards in the cluster.
   ##
   shards: true
@@ -160,6 +170,14 @@ es:
   ## If true, query stats for cluster settings.
   ##
   cluster_settings: false
+
+  ## If true, query stats for SLM snapshots.
+  ##
+  slm: false
+
+  ## If true, query stats for data streams.
+  ##
+  data_stream: false
 
   ## Timeout for trying to get stats from Elasticsearch. (ex: 20s)
   ##

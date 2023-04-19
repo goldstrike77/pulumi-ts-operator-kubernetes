@@ -76,7 +76,7 @@ const deploy_spec = [
                     additionalPlugins: [
                         "ansible:174.vfd5323d2b_9d8",
                         "nodejs:1.6.0",
-                        "saml:4.385.v4dea_91565e9d"
+                        "oic-auth:2.5"
                     ],
                     JCasC: {
                         defaultConfig: true,

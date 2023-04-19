@@ -33,12 +33,12 @@ const deploy_spec = [
                 name: "oncall",
                 chart: "oncall",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "1.1.26",
+                version: "1.2.10",
                 values: {
                     base_url: "norther.example.com",
                     image: {
                         repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/oncall",
-                        tag: "v1.1.26"
+                        tag: "v1.2.10"
                     },
                     engine: {
                         replicaCount: 1,
