@@ -9,6 +9,9 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 pulumi config set kibanaserverPassword [password] --secret
 pulumi config set adminPassword [password] --secret
 pulumi config set ladpPassword [password] --secret
+pulumi config set ssoClientSecret [secret] --secret
+pulumi config set AWS_ACCESS_KEY_ID [AWS_ACCESS_KEY_ID] --secret
+pulumi config set AWS_SECRET_ACCESS_KEY [AWS_SECRET_ACCESS_KEY] --secret
 ```
 
 

@@ -13,6 +13,35 @@ const deploy_spec = [
       },
       spec: {}
     },
+    secret:
+      [
+        {
+          metadata: {
+            name: "s3-client-access-key",
+            namespace: "opensearch",
+            annotations: {},
+            labels: {}
+          },
+          type: "Opaque",
+          data: {
+            "s3.client.default.access_key": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64')
+          },
+          stringData: {}
+        },
+        {
+          metadata: {
+            name: "s3-client-secret-key",
+            namespace: "opensearch",
+            annotations: {},
+            labels: {}
+          },
+          type: "Opaque",
+          data: {
+            "s3.client.default.secret_key": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64')
+          },
+          stringData: {}
+        }
+      ],
     helm: [
       {
         namespace: "opensearch",
@@ -27,7 +56,7 @@ const deploy_spec = [
           roles: ["master", "ingest", "remote_cluster_client"],
           replicas: 3,
           config: {
-            "opensearch.yml": `
+            "opensearch.yml": `---
 cluster:
   name: opensearch
   max_shards_per_node: 10000
@@ -39,6 +68,15 @@ http:
     allow-credentials: true
     allow-methods: HEAD, GET, POST, PUT, DELETE
     allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+s3:
+  client:
+    default:
+      endpoint: minio.minio:9000
+      protocol: http
+      region: us-east-1
+      path_style_access: true
+      read_timeout: 10s
+      max_retries: 5
 network.host: 0.0.0.0
 plugins:
   security:
@@ -81,10 +119,10 @@ plugins:
             requests: { cpu: "1000m", memory: "4096Mi" }
           },
           initResources: {
-            limits: { cpu: "25m", memory: "128Mi" },
-            requests: { cpu: "25m", memory: "128Mi" }
+            limits: { cpu: "200m", memory: "128Mi" },
+            requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "3Gi", },
+          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "3Gi", },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -180,16 +218,24 @@ config:
           type: openid
           challenge: false
           config:
-            subject_key: preferred_username
+            subject_key: name
             roles_key: roles
-            openid_connect_url: https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/v2.0/.well-known/openid-configuration
+            openid_connect_url: https://login.microsoftonline.com/1028c8b9-5db4-4ade-bd31-524340b7cc0d/v2.0/.well-known/openid-configuration
         authentication_backend:
           type: noop
 `
               }
             }
           },
-          terminationGracePeriod: "60"
+          terminationGracePeriod: "60",
+          plugins: {
+            enabled: true,
+            installList: ["repository-s3"]
+          },
+          keystore: [
+            { secretName: "s3-client-access-key" },
+            { secretName: "s3-client-secret-key" }
+          ]
         }
       },
       {
@@ -205,7 +251,7 @@ config:
           roles: ["data"],
           replicas: 2,
           config: {
-            "opensearch.yml": `
+            "opensearch.yml": `---
 cluster:
   name: opensearch
   max_shards_per_node: 10000
@@ -217,6 +263,15 @@ http:
     allow-credentials: true
     allow-methods: HEAD, GET, POST, PUT, DELETE
     allow-headers: "X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept"
+s3:
+  client:
+    default:
+      endpoint: minio.minio:9000
+      protocol: http
+      region: us-east-1
+      path_style_access: true
+      read_timeout: 10s
+      max_retries: 5
 network.host: 0.0.0.0
 plugins:
   security:
@@ -259,10 +314,10 @@ plugins:
             requests: { cpu: "2000m", memory: "10240Mi" }
           },
           initResources: {
-            limits: { cpu: "25m", memory: "128Mi" },
-            requests: { cpu: "25m", memory: "128Mi" }
+            limits: { cpu: "200m", memory: "128Mi" },
+            requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: false, storageClass: "longhorn", size: "30Gi" },
+          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "30Gi" },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -277,7 +332,15 @@ plugins:
               securityContext: { runAsUser: 0, privileged: true }
             }
           ],
-          terminationGracePeriod: "60"
+          terminationGracePeriod: "60",
+          plugins: {
+            enabled: true,
+            installList: ["repository-s3"]
+          },
+          keystore: [
+            { secretName: "s3-client-access-key" },
+            { secretName: "s3-client-secret-key" }
+          ]
         }
       },
       {
@@ -299,24 +362,25 @@ plugins:
 ---
 logging.quiet: true
 opensearch.hosts: [https://opensearch-master:9200]
-opensearch.ssl.verificationMode: none
-opensearch.username: kibanaserver
 opensearch.password: ${config.require("kibanaserverPassword")}
 opensearch.requestHeadersAllowlist: [authorization, securitytenant] 
-opensearch_security.multitenancy.enabled: true
-opensearch_security.multitenancy.tenants.preferred: [Private, Global]
-opensearch_security.readonly_mode.roles: [kibana_read_only]
-opensearch_security.cookie.secure: false
-server.ssl.enabled: false
-server.ssl.clientAuthentication: none
-server.host: '0.0.0.0'
+opensearch.ssl.verificationMode: none
+opensearch.username: kibanaserver
 opensearch_security.auth.multiple_auth_enabled: true
 opensearch_security.auth.type: ["openid", "basicauth"]
-opensearch_security.openid.connect_url: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/v2.0/.well-known/openid-configuration"
-opensearch_security.openid.client_id: "bbd1a787-5596-4ebb-a6df-dd27595c4aad"
-opensearch_security.openid.client_secret: "i-K7Lq_94xs~g~Hs.4yy89.S8z7W._WVr5"
+opensearch_security.cookie.secure: false
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.preferred: [Private, Global]
 opensearch_security.openid.base_redirect_url: "https://opensearch.example.com"
+opensearch_security.openid.client_id: "4573f7a0-e878-4d29-935f-ac4b57983daf"
+opensearch_security.openid.client_secret: "${config.require("ssoClientSecret")}"
+opensearch_security.openid.connect_url: "https://login.microsoftonline.com/1028c8b9-5db4-4ade-bd31-524340b7cc0d/v2.0/.well-known/openid-configuration"
+opensearch_security.openid.logout_url: "https://opensearch.example.com/app/login?"
+opensearch_security.readonly_mode.roles: [kibana_read_only]
 opensearch_security.ui.openid.login.buttonname: "Sign in with Microsoft"
+server.host: '0.0.0.0'
+server.ssl.clientAuthentication: none
+server.ssl.enabled: false
 `,
           },
           labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
@@ -397,6 +461,15 @@ for (var i in deploy_spec) {
     metadata: deploy_spec[i].namespace.metadata,
     spec: deploy_spec[i].namespace.spec
   });
+  // Create Kubernetes Secret.
+  for (var secret_index in deploy_spec[i].secret) {
+    const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
+      metadata: deploy_spec[i].secret[secret_index].metadata,
+      type: deploy_spec[i].secret[secret_index].type,
+      data: deploy_spec[i].secret[secret_index].data,
+      stringData: deploy_spec[i].secret[secret_index].stringData
+    }, { dependsOn: [namespace] });
+  }
   // Create Release Resource.
   for (var helm_index in deploy_spec[i].helm) {
     const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {

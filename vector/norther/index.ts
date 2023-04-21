@@ -11,13 +11,12 @@ const deploy_spec = [
             spec: {}
         },
         helm: [
-            /**
             {
                 namespace: "datadog",
                 name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.18.0",
+                version: "0.21.0",
                 values: {
                     role: "Agent",
                     podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
@@ -52,20 +51,26 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
 .container = kubernetes.container_name
 .node = kubernetes.pod_node_name
 .pod = kubernetes.pod_name
-.namespace = kubernetes.pod_namespace`
+.namespace = kubernetes.pod_namespace
+.timestamp = to_timestamp(.timestamp) ?? now()`
                             }
                         },
                         sinks: {
-                            kubernetes_logs_loki: {
-                                type: "loki",
+                            kubernetes_logs_elasticsearch: {
+                                type: "elasticsearch",
                                 inputs: ["kubernetes_remap"],
-                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "kube-pod", cluster: "norther" },
+                                bulk: { action: "index", index: "kube-pod-{{`{{ namespace }}`}}-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
-                                healthcheck: { enabled: false },
-                                encoding: { codec: "json", except_fields: ["source_type"] },
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 3 }
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
@@ -88,6 +93,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     podMonitor: {
                         enabled: false,
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -98,7 +104,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-             */
+            /**
             {
                 namespace: "datadog",
                 name: "syslog-gelf",
@@ -302,6 +308,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             }
+                         */
         ]
     }
 ]

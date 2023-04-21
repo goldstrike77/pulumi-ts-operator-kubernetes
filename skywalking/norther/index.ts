@@ -240,6 +240,7 @@ plugins:
           terminationGracePeriod: "60"
         }
       },
+      /**
       {
         namespace: "skywalking",
         name: "dashboards",
@@ -294,6 +295,7 @@ server.basePath: "/opensearch"
           },
         }
       },
+       */
       {
         namespace: "skywalking",
         name: "elasticsearch-exporter",

@@ -1,7 +1,13 @@
 encryptionsalt: v1:GyPtMbAdv4k=:v1:Cw6xKcXaPq43kX7F:RFnEZQKms2+q9e7yKMbY4dzuIVivhA==
 config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:n4j+0h+u/UrXI8g3:PZd0/gglgQolkDlcmHitW//tDaUIjg==
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:h0w6YHTJbw3HeYbj:Y6riimB/IC2AWVQtM+Y1oQsbtrRaCStq
   demo:adminPassword:
     secure: v1:ddOxkQ8O46AybLnh:0qAfhEqBn8ce9G+XxFrsq3n30GceCdjZ
   demo:kibanaserverPassword:
     secure: v1:2EzXboOBh5fG6V7s:3DZaZBBDAcp5aqtkRkqNvMIJboX2B6A8
+  demo:ssoClientSecret:
+    secure: v1:vcukMXaeNwb6VSXT:ceI/9LraGruwcHTJQAs+KPZBz52Av7hlzK9Ukyn0Snbibu/c+ABln3fwawdV4ZMZNHW0FSKlyvk=
   kubernetes:context: kubernetes-admin@norther
