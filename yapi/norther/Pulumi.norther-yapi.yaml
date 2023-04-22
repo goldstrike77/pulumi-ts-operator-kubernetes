@@ -2,10 +2,12 @@ encryptionsalt: v1:Fkw5mcL8wbQ=:v1:bASrFbGa2I+/6R/G:0mIz+/ZMVoTN15Gh8qL4Cmpw3VQA
 config:
   demo:YAPI_ADMIN_PASSWORD:
     secure: v1:v5Pep4huNI4fg1uf:/Rv3o+8tlhw5TfSX2ykyVYzd1bEVEScn
+  demo:appSecret:
+    secure: v1:5yJecgytBWnrMsF6:4t4CPBkUc8S/ViWNdjvFyTjBRQYYRKaZdcq1yozzLYPDxi1y7vxxOO8hm6m4zLuLmpE=
   demo:bindPassword:
     secure: v1:yka1E0x9xW3jgOBZ:3DgUPNGqBKPmSJbD4yisdrCu50ICefF2
   demo:rootPassword:
-    secure: v1:WK5N5SjMJZkgFuQl:LrjWqHY/U8pB7sYU/YJtmgE3E6HIvRNi
+    secure: v1:jg6kjh0bm7FqDoUp:7PqbJL9ByBVwJmAPyRrD+UIZCcXt21Fn
   demo:yapiPassword:
-    secure: v1:FCNB9ujdcdrKgw0v:9oTol7h+JIa8Z8NYeRKsUzFLl4klgfAS
+    secure: v1:ov8uym8rqs3KyFxr:modt7WFQnf8p6uYVFCkmWsCyoKcosWvl
   kubernetes:context: kubernetes-admin@norther

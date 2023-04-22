@@ -32,22 +32,16 @@ const deploy_spec = [
         "tokenPath": "/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token",
         "redirectUri": "https://yapi.example.com/api/plugin/oauth2/callback",
         "appId": "d4b1f920-ecf9-4386-adbc-e695565984ab",
-        "appSecret": "ffl3k8E~.s7VsXgXT-l3I5Xt_M5cX2xc3d"
+        "appSecret": "${config.require("appSecret")}"
       }
     }
   ],
   "adminAccount": "admin@admin.com",
   "adminPassword": "password",
-  "npmRegistry": "https://registry.npm.taobao.org",
   "closeRegister": true,
   "port": 3000,
   "db": {
-    "servername": "mongodb",
-    "port": 27017,
-    "DATABASE": "yapi",
-    "user": "yapi",
-    "pass": "password",
-    "authSource": "yapi"
+    "connectString": "mongodb://yapi:${config.require("yapiPassword")}@mongodb-headless/yapi?authSource=yapi&replicaSet=rsYapi"
   },
   "mail": {
     "enable": false,
@@ -57,30 +51,17 @@ const deploy_spec = [
 `
             }
         },
-        pvc: {
-            metadata: {
-                name: "yapi",
-                namespace: "yapi",
-                annotations: {},
-                labels: {}
-            },
-            spec: {
-                accessModes: ["ReadWriteOnce"],
-                storageClassName: "longhorn",
-                resources: {
-                    requests: { storage: "8Gi" }
-                }
-            }
-        },
         helm: {
             namespace: "yapi",
             name: "mongodb",
             chart: "mongodb",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "13.1.4",
+            version: "13.9.4",
             values: {
                 image: { tag: "4.4.15-debian-10-r8" },
-                architecture: "standalone",
+                architecture: "replicaset",
+                replicaSetName: "rsYapi",
+                replicaCount: 3,
                 auth: {
                     enabled: true,
                     rootUser: "root",
@@ -90,34 +71,28 @@ const deploy_spec = [
                     databases: ["yapi"]
                 },
                 disableSystemLog: true,
-                updateStrategy: {
-                    type: "RollingUpdate",
-                    rollingUpdate: {
-                        maxSurge: 0,
-                        maxUnavailable: 1
-                    }
-                },
-                podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                podLabels: { customer: "demo", environment: "dev", project: "API-Management", group: "Yapi", datacenter: "dc01", domain: "local" },
                 podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "10000" }] },
                 resources: {
-                    limits: { cpu: "500m", memory: "1024Mi" },
-                    requests: { cpu: "500m", memory: "1024Mi" }
+                    limits: { cpu: "1000m", memory: "512Mi" },
+                    requests: { cpu: "1000m", memory: "512Mi" }
                 },
                 livenessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
-                readinessProbe: { enabled: false },
+                readinessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                 persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
                 volumePermissions: {
-                    enabled: false,
+                    enabled: true,
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
                     },
                 },
+                arbiter: { enabled: false },
                 metrics: {
-                    enabled: false,
+                    enabled: true,
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
                     },
                     livenessProbe: { initialDelaySeconds: 90, timeoutSeconds: 30 },
                     readinessProbe: { initialDelaySeconds: 90, timeoutSeconds: 30 },
@@ -125,6 +100,7 @@ const deploy_spec = [
                         enabled: true,
                         interval: "60s",
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -169,14 +145,14 @@ const deploy_spec = [
                             datacenter: "dc01",
                             domain: "local",
                             environment: "dev",
-                            group: "norther",
-                            project: "cluster"
+                            group: "Yapi",
+                            project: "API-Management"
                         }
                     },
                     spec: {
                         containers: [
                             {
-                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.9.2@sha256:1416ee7a792be9cf6aeff26299303aa006b5dfb02e2d667a7c592fa57c4ea62f",
+                                image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/yapi:v1.12.0@sha256:1490923231dec85317e6b64fcaf797aebe627341fd514c47aa9ea24d2ef6576c",
                                 name: "yapi",
                                 livenessProbe: {
                                     failureThreshold: 10,
@@ -223,10 +199,6 @@ const deploy_spec = [
                                         mountPath: "/home/config.json",
                                         name: "yapi-conf",
                                         subPath: "config.json"
-                                    },
-                                    {
-                                        mountPath: "/home/.npm",
-                                        name: "data-storage"
                                     }
                                 ]
                             }
@@ -237,12 +209,6 @@ const deploy_spec = [
                                 configMap: {
                                     defaultMode: 420,
                                     name: "yapi-conf"
-                                }
-                            },
-                            {
-                                name: "data-storage",
-                                persistentVolumeClaim: {
-                                    claimName: "yapi"
                                 }
                             }
                         ]
@@ -333,16 +299,12 @@ for (var i in deploy_spec) {
     const configmap = new k8s.core.v1.ConfigMap(deploy_spec[i].configmap.metadata.name, {
         metadata: deploy_spec[i].configmap.metadata,
         data: deploy_spec[i].configmap.data,
-    }, { dependsOn: [release] });
-    const persistentvolumeclaim = new k8s.core.v1.PersistentVolumeClaim(deploy_spec[i].pvc.metadata.name, {
-        metadata: deploy_spec[i].pvc.metadata,
-        spec: deploy_spec[i].pvc.spec,
-    }, { dependsOn: [configmap] });
+    }, { dependsOn: [release], customTimeouts: { create: "20m" } });
     // Create Deployment Resource.
     const deployment = new k8s.apps.v1.Deployment(deploy_spec[i].deployment.metadata.name, {
         metadata: deploy_spec[i].deployment.metadata,
         spec: deploy_spec[i].deployment.spec
-    }, { dependsOn: [persistentvolumeclaim] });
+    }, { dependsOn: [configmap] });
     // Create Service Resource.
     const service = new k8s.core.v1.Service(deploy_spec[i].service.metadata.name, {
         metadata: deploy_spec[i].service.metadata,

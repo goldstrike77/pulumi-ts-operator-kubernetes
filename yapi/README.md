@@ -4,6 +4,7 @@ pulumi config set rootPassword [password] --secret
 pulumi config set yapiPassword [password] --secret
 pulumi config set bindPassword [password] --secret
 pulumi config set YAPI_ADMIN_PASSWORD [password] --secret
+pulumi config set appSecret [password] --secret
 ```
 
 #### Default access authorization.
