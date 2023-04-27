@@ -1,5 +1,9 @@
 encryptionsalt: v1:faUH7WqT+N4=:v1:SCJSsv7Yxkp6xa7Q:iO7IWEYFH9fsyyaVceFLs6UPQP+Wfw==
 config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:IxPC4Vj51CYjaFoF:PzYwY4mIxN2xtVgFmL7jo1LHcobl6BIpIfk=
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:qHB/EGs3Ez+pWTeO:yuZwvUaZMhqWi3C7c7xZNdvxMK84gbW5
   demo:postgresPassword:
     secure: v1:HHK+UaDLOwsKw7HS:DpgqRYroHgtvYLDdFTx8QoWDpTIiG8nT
   demo:userPassword:

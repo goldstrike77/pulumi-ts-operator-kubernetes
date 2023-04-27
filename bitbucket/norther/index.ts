@@ -22,8 +22,6 @@ const deploy_spec = [
       },
       type: "Opaque",
       data: {
-        "dbusername": Buffer.from("bitbucket").toString('base64'),
-        "dbpassword": Buffer.from(config.require("dbuserPassword")).toString('base64'),
         "sysadminusername": Buffer.from("admin").toString('base64'),
         "sysadminpassword": Buffer.from(config.require("adminPassword")).toString('base64'),
         "sysadmindisplayName": Buffer.from("admin").toString('base64'),
@@ -33,162 +31,122 @@ const deploy_spec = [
       },
       stringData: {}
     },
-    helm: [
-      {
+    postgresql: {
+      kind: "postgresql",
+      apiVersion: "acid.zalan.do/v1",
+      metadata: {
+        name: "postgresql",
         namespace: "bitbucket",
-        name: "bitbucket",
-        chart: "../../_chart/bitbucket-1.11.0.tgz",
-        repository: "",
-        version: "1.11.0",
-        values: {
-          replicaCount: 2,
-          database: {
-            url: "jdbc:postgresql://postgresql:5432/bitbucket",
-            driver: "org.postgresql.Driver",
-            credentials: {
-              secretName: "bitbucket-secret",
-              usernameSecretKey: "dbusername",
-              passwordSecretKey: "dbpassword"
-            }
-          },
-          volumes: {
-            localHome: {
-              persistentVolumeClaim: {
-                create: true,
-                storageClassName: "longhorn",
-                resources: {
-                  requests: { storage: "5Gi" }
-                }
-              }
-            },
-            sharedHome: {
-              persistentVolumeClaim: {
-                create: true,
-                storageClassName: "nfs-client",
-                resources: {
-                  requests: { storage: "10Gi" }
-                }
-              }
-            }
-          },
-          ingress: {
-            create: true,
-            className: "nginx",
-            nginx: true,
-            maxBodySize: "250m",
-            host: "norther.example.com",
-            path: "/bitbucket"
-          },
-          bitbucket: {
-            service: { contextPath: "/bitbucket" },
-            sshService: {
-              enabled: true,
-              annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
-            },
-            sysadminCredentials: {
-              secretName: "bitbucket-secret",
-              usernameSecretKey: "sysadminusername",
-              passwordSecretKey: "sysadminpassword",
-              displayNameSecretKey: "sysadmindisplayName",
-              emailAddressSecretKey: "sysadminemailAddress"
-            },
-            clustering: { enabled: true },
-            elasticSearch: {
-              baseUrl: "http://opensearch-master.skywalking:9200",
-              credentials: {
-                secretName: "bitbucket-secret",
-                usernameSecretKey: "esusername",
-                passwordSecretKey: "espassword"
-              }
-            },
-            resources: {
-              jvm: {
-                maxHeap: "4096m",
-                minHeap: "4096m"
-              },
-              container: {
-                requests: { cpu: "2000m", memory: "6144Mi" },
-                limits: { cpu: "2000m", memory: "6144Mi" }
-              }
-            }
-          },
-          podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" }
+        labels: {
+          team: "devops"
         }
       },
-      {
-        namespace: "bitbucket",
-        name: "postgresql",
-        chart: "postgresql",
-        repository: "https://charts.bitnami.com/bitnami",
-        version: "12.2.6",
-        values: {
-          global: {
-            storageClass: "longhorn",
-            postgresql: {
-              auth: {
-                postgresPassword: config.require("postgresPassword"),
-                username: "bitbucket",
-                password: config.require("dbuserPassword"),
-                database: "bitbucket"
+      spec: {
+        teamId: "devops",
+        postgresql: {
+          version: "14"
+        },
+        numberOfInstances: 1,
+        volume: {
+          size: "10Gi",
+          storageClass: "longhorn"
+        },
+        users: {
+          bitbucket: []
+        },
+        databases: {
+          bitbucket: "bitbucket"
+        },
+        allowedSourceRanges: ["10.244.0.0/16"],
+        resources: {
+          limits: { cpu: "500m", memory: "512Mi" },
+          requests: { cpu: "500m", memory: "512Mi" }
+        }
+      }
+    },
+    helm: {
+      namespace: "bitbucket",
+      name: "bitbucket",
+      chart: "../../_chart/bitbucket-1.12.0.tgz",
+      repository: "",
+      version: "1.12.0",
+      values: {
+        replicaCount: 1,
+        image: {
+          repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/bitbucket",
+          tag: "8.9.0"
+        },
+        database: {
+          url: "jdbc:postgresql://postgresql:5432/bitbucket",
+          driver: "org.postgresql.Driver",
+          credentials: {
+            secretName: "bitbucket.postgresql.credentials.postgresql.acid.zalan.do"
+          }
+        },
+        volumes: {
+          localHome: {
+            persistentVolumeClaim: {
+              create: true,
+              storageClassName: "longhorn",
+              resources: {
+                requests: { storage: "1Gi" }
               }
             }
           },
-          image: {
-            tag: "14.7.0-debian-11-r16"
-          },
-          architecture: "standalone",
-          primary: {
-            pgHbaConfiguration: `
-local all all trust
-host all all localhost trust
-host bitbucket bitbucket 10.244.0.0/16 md5
-`,
-            initdb: {
-              user: "bitbucket",
-              password: config.require("dbuserPassword"),
-            },
-            resources: {
-              limits: { cpu: "500m", memory: "512Mi" },
-              requests: { cpu: "500m", memory: "512Mi" }
-            },
-            podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" },
-            persistence: {
-              size: "8Gi"
-            }
-          },
-          volumePermissions: {
-            enabled: true,
-            resources: {
-              limits: { cpu: "50m", memory: "64Mi" },
-              requests: { cpu: "50m", memory: "64Mi" }
-            }
-          },
-          metrics: {
-            enabled: true,
-            resources: {
-              limits: { cpu: "100m", memory: "128Mi" },
-              requests: { cpu: "100m", memory: "128Mi" }
-            },
-            serviceMonitor: {
-              enabled: true,
-              relabelings: [
-                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-              ]
-            },
-            prometheusRule: {
-              enabled: false,
-              rules: []
+          sharedHome: {
+            persistentVolumeClaim: {
+              create: true,
+              storageClassName: "nfs-client",
+              resources: {
+                requests: { storage: "10Gi" }
+              }
             }
           }
-        }
+        },
+        ingress: {
+          create: true,
+          className: "nginx",
+          nginx: true,
+          maxBodySize: "250m",
+          host: "norther.example.com",
+          path: "/bitbucket"
+        },
+        bitbucket: {
+          service: { contextPath: "/bitbucket" },
+          sshService: {
+            enabled: true,
+            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+          },
+          sysadminCredentials: {
+            secretName: "bitbucket-secret",
+            usernameSecretKey: "sysadminusername",
+            passwordSecretKey: "sysadminpassword",
+            displayNameSecretKey: "sysadmindisplayName",
+            emailAddressSecretKey: "sysadminemailAddress"
+          },
+          clustering: { enabled: true },
+          elasticSearch: {
+            baseUrl: "http://opensearch-master.skywalking:9200",
+            credentials: {
+              secretName: "bitbucket-secret",
+              usernameSecretKey: "esusername",
+              passwordSecretKey: "espassword"
+            }
+          },
+          resources: {
+            jvm: {
+              maxHeap: "4096m",
+              minHeap: "4096m"
+            },
+            container: {
+              requests: { cpu: "2000m", memory: "6144Mi" },
+              limits: { cpu: "2000m", memory: "6144Mi" }
+            }
+          }
+        },
+        podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" }
       }
-    ]
+    }
   }
 ]
 
@@ -198,6 +156,14 @@ for (var i in deploy_spec) {
     metadata: deploy_spec[i].namespace.metadata,
     spec: deploy_spec[i].namespace.spec
   });
+  // Create postgresql CRD.
+  const postgresql = new k8s.apiextensions.CustomResource(deploy_spec[i].postgresql.metadata.name, {
+    name: deploy_spec[i].postgresql.metadata.name,
+    metadata: deploy_spec[i].postgresql.metadata,
+    apiVersion: deploy_spec[i].postgresql.apiVersion,
+    kind: deploy_spec[i].postgresql.kind,
+    spec: deploy_spec[i].postgresql.spec,
+  }, { dependsOn: [namespace] });
   // Create Kubernetes Secret.
   const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
     metadata: deploy_spec[i].secret.metadata,
@@ -206,29 +172,12 @@ for (var i in deploy_spec) {
     stringData: deploy_spec[i].secret.stringData
   }, { dependsOn: [namespace] });
   // Create Release Resource.
-  for (var helm_index in deploy_spec[i].helm) {
-    if (deploy_spec[i].helm[helm_index].repository === "") {
-      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-        namespace: deploy_spec[i].helm[helm_index].namespace,
-        name: deploy_spec[i].helm[helm_index].name,
-        chart: deploy_spec[i].helm[helm_index].chart,
-        version: deploy_spec[i].helm[helm_index].version,
-        values: deploy_spec[i].helm[helm_index].values,
-        skipAwait: true,
-      }, { dependsOn: [namespace] });
-    }
-    else {
-      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-        namespace: deploy_spec[i].helm[helm_index].namespace,
-        name: deploy_spec[i].helm[helm_index].name,
-        chart: deploy_spec[i].helm[helm_index].chart,
-        version: deploy_spec[i].helm[helm_index].version,
-        values: deploy_spec[i].helm[helm_index].values,
-        skipAwait: true,
-        repositoryOpts: {
-          repo: deploy_spec[i].helm[helm_index].repository,
-        },
-      }, { dependsOn: [namespace] });
-    }
-  }
+  const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+    namespace: deploy_spec[i].helm.namespace,
+    name: deploy_spec[i].helm.name,
+    chart: deploy_spec[i].helm.chart,
+    version: deploy_spec[i].helm.version,
+    values: deploy_spec[i].helm.values,
+    skipAwait: true,
+  }, { dependsOn: [namespace] });
 }

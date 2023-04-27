@@ -1,0 +1,64 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  annotations:
+    meta.helm.sh/release-name: kube-prometheus-stack
+    meta.helm.sh/release-namespace: monitoring
+    prometheus-operator-validated: "true"
+  labels:
+    app: kube-prometheus-stack
+  name: mongodb
+  namespace: monitoring
+spec:
+  groups:
+  - name: mongodb
+    rules:
+    - alert: MongoDBInstance
+      expr: "mongodb_up == 0"
+      for: 5m
+      labels:
+        severity: high
+      annotations:
+        description: "Instance has been stoped."
+    - alert: MongoDBMemMis
+      expr: '3 - mongodb_mongod_replset_number_of_members > 0'
+      for: 5m
+      labels:
+        severity: average
+      annotations:
+        description: 'Replication member does not match.'
+    - alert: MongoDBRepLag
+      expr: 'avg by (datacenter,customer,environment,project,group,instance,set)(mongodb_mongod_replset_member_replication_lag{state="SECONDARY"}) >= 60'
+      for: 5m
+      labels:
+        severity: average
+      annotations:
+        description: 'Replication lag is more than {{ $value | printf "%.1f"}} seconds.'
+    - alert: MongoDBRepPing
+      expr: 'avg by (datacenter,customer,environment,project,group,instance,set)(mongodb_mongod_replset_member_ping_ms) >= 20'
+      for: 5m
+      labels:
+        severity: average
+      annotations:
+        description: 'Replication member ping latency is more than {{ $value | printf "%.0f"}} millisecond.'
+    - alert: MongoDBCursorsNum
+      expr: 'mongodb_mongod_metrics_cursor_open{state="total"} > 10000'
+      for: 5m
+      labels:
+        severity: average
+      annotations:
+        description: "Too many cursors opened of {{ $value }}."
+    - alert: MongoDBCursorsTimeout
+      expr: 'increase(mongodb_mongod_metrics_cursor_timed_out_total[10m]) > 100'
+      for: 5m
+      labels:
+        severity: average
+      annotations:
+        description: "Too many cursors are timing out of {{ $value }}."
+    - alert: MongoDBConnections
+      expr: 'mongodb_ss_connections{conn_type="current"} > 1000'
+      for: 5m
+      labels:
+        severity: average
+      annotations:
+        description: "Too many connections of {{$value}}."

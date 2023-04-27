@@ -1,11 +1,12 @@
 #### Installing the Chart
 ```hcl
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add minio https://operator.min.io
 ```
 
 #### Configuration credential values.
 ```hcl
-pulumi config set superPassword [password] --secret
+pulumi config set adminPassword [password] --secret
 pulumi config set readonlyPassword [password] --secret
 pulumi config set rootPassword [password] --secret
 pulumi config set thanosPassword [password] --secret
@@ -17,8 +18,7 @@ pulumi config set artifactoryPassword [password] --secret
 pulumi config set confluencePassword [password] --secret
 ```
 
-#### Print minio accesskey and secretkey.
+#### Print minio operator JWT.
 ```hcl
-kubectl get secret --namespace minio minio -o jsonpath="{.data.root-user}" | base64 --decode
-kubectl get secret --namespace minio minio -o jsonpath="{.data.root-password}" | base64 --decode
+kubectl -n minio get secret $(kubectl -n minio get serviceaccount console-sa -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
 ```

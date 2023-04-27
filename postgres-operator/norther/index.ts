@@ -45,34 +45,39 @@ const deploy_spec = [
             {
                 namespace: "postgres-operator",
                 name: "postgres-operator",
-                chart: "../../_chart/postgres-operator-1.8.2.tgz",
-                repository: "",
-                version: "1.8.2",
+                version: "1.10.0",
+                chart: "postgres-operator",
+                repository: "https://opensource.zalando.com/postgres-operator/charts/postgres-operator",
                 values: {
                     image: {
                         registry: "registry.cn-hangzhou.aliyuncs.com",
                         repository: "goldstrike/postgres-operator",
-                        tag: "v1.8.2",
+                        tag: "v1.10.0",
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Operator", group: "Postgres", datacenter: "dc01", domain: "local" },
                     configGeneral: {
-                        docker_image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/spilo-14:2.1-p6"
+                        docker_image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/spilo-15:3.0-p1",
+                        workers: 2
+                    },
+                    configDebug: {
+                        debug_logging: false,
+                        enable_database_access: true
                     },
                     configLogicalBackup: {
-                        logical_backup_docker_image: "registry.opensource.zalan.do/acid/logical-backup:v1.8.0",
+                        logical_backup_docker_image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/logical-backup:v1.10.0",
                         logical_backup_job_prefix: "logical-backup-",
                         logical_backup_provider: "s3",
                         logical_backup_s3_access_key_id: config.require("AWS_ACCESS_KEY_ID"),
                         logical_backup_s3_bucket: "backup",
                         logical_backup_s3_region: "us-east-1",
-                        logical_backup_s3_endpoint: "http://minio.minio.svc.cluster.local:9000",
+                        logical_backup_s3_endpoint: "http://minio.minio:9000",
                         logical_backup_s3_secret_access_key: config.require("AWS_SECRET_ACCESS_KEY"),
                         logical_backup_s3_sse: "AES256",
                         logical_backup_s3_retention_time: "3 days",
                         logical_backup_schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
                     },
                     configConnectionPooler: {
-                        connection_pooler_image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/pgbouncer:master-22"
+                        connection_pooler_image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/pgbouncer:master-27"
                     },
                     resources: {
                         limits: { cpu: "500m", memory: "512Mi" },
@@ -83,49 +88,38 @@ const deploy_spec = [
             {
                 namespace: "postgres-operator",
                 name: "postgres-operator-ui",
-                chart: "../../_chart/postgres-operator-ui-1.8.2.tgz",
-                repository: "",
-                version: "1.8.2",
+                version: "1.10.0",
+                chart: "postgres-operator-ui",
+                repository: "https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui",
                 values: {
                     replicaCount: 1,
                     image: {
                         registry: "registry.cn-hangzhou.aliyuncs.com",
                         repository: "goldstrike/postgres-operator-ui",
-                        tag: "v1.8.2"
+                        tag: "v1.10.0"
                     },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
+                    envs: {
+                        appUrl: "https://postgres-operator.example.com",
+                        resourcesVisible: "True",
+                        targetNamespace: "postgres-operator",
+                        teams: ["toolchain","devops","infra"]
+                    },
                     extraEnvs: [
-                        {
-                            name: "WALE_S3_ENDPOINT",
-                            value: "http://minio.minio.svc.cluster.local:9000"
-                        },
-                        {
-                            name: "SPILO_S3_BACKUP_PREFIX",
-                            value: "spilo/"
-                        },
-                        {
-                            name: "AWS_ACCESS_KEY_ID",
-                            value: config.require("AWS_ACCESS_KEY_ID")
-                        },
-                        {
-                            name: "AWS_SECRET_ACCESS_KEY",
-                            value: config.require("AWS_SECRET_ACCESS_KEY")
-                        },
-                        {
-                            name: "AWS_DEFAULT_REGION",
-                            value: "us-east-1"
-                        },
-                        {
-                            name: "SPILO_S3_BACKUP_BUCKET",
-                            value: "backup"
-                        }
+                        { name: "WALE_S3_ENDPOINT", value: "https+path://minio-console.norther.example.com:443" },
+                        { name: "SPILO_S3_BACKUP_PREFIX", value: "spilo/" },
+                        { name: "AWS_ACCESS_KEY_ID", value: config.require("AWS_ACCESS_KEY_ID") },
+                        { name: "AWS_SECRET_ACCESS_KEY", value: config.require("AWS_SECRET_ACCESS_KEY") },
+                        { name: "AWS_DEFAULT_REGION", value: "us-east-1" },
+                        { name: "SPILO_S3_BACKUP_BUCKET", value: "backup" }
                     ],
                     ingress: {
                         enabled: true,
                         annotations: {
+                            "nginx.ingress.kubernetes.io/backend-protocol": "HTTP",
                             "nginx.ingress.kubernetes.io/auth-type": "basic",
                             "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
                             "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required "
@@ -168,6 +162,9 @@ for (var i in deploy_spec) {
             version: deploy_spec[i].helm[helm_index].version,
             values: deploy_spec[i].helm[helm_index].values,
             skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
         }, { dependsOn: [namespace] });
     }
 }

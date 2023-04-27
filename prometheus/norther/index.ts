@@ -24,7 +24,6 @@ const deploy_spec = [
                 type: "Opaque",
                 data: {
                     "objstore.yml": config.require("OBJSTORE.YML"),
-                    "alertmanager.tmpl": "e3sgZGVmaW5lICJfX3N1YmplY3QiIH19W3t7IC5TdGF0dXMgfCB0b1VwcGVyIH19e3sgaWYgZXEgLlN0YXR1cyAiZmlyaW5nIiB9fTp7eyAuQWxlcnRzLkZpcmluZyB8IGxlbiB9fXt7IGVuZCB9fV0ge3sgLkdyb3VwTGFiZWxzLlNvcnRlZFBhaXJzLlZhbHVlcyB8IGpvaW4gIiAiIH19IHt7IGlmIGd0IChsZW4gLkNvbW1vbkxhYmVscykgKGxlbiAuR3JvdXBMYWJlbHMpIH19KHt7IHdpdGggLkNvbW1vbkxhYmVscy5SZW1vdmUgLkdyb3VwTGFiZWxzLk5hbWVzIH19e3sgLlZhbHVlcyB8IGpvaW4gIiAiIH19e3sgZW5kIH19KXt7IGVuZCB9fXt7IGVuZCB9fQp7eyBkZWZpbmUgIl9fZGVzY3JpcHRpb24iIH19e3sgZW5kIH19ICAgICAgCnt7IGRlZmluZSAiX190ZXh0X2FsZXJ0X2ZpcmluZ19saXN0IiB9fXt7IHJhbmdlIC4gfX0KU3RhcnQ6IHt7IC5TdGFydHNBdC5Mb2NhbC5Gb3JtYXQgIk1vbiwgMDIgSmFuIDIwMDYgMTU6MDQ6MDUgTVNUIiB9fQp7eyByYW5nZSAuTGFiZWxzLlNvcnRlZFBhaXJzIH19e3sgLk5hbWUgfCB0aXRsZSB9fToge3sgLlZhbHVlIH19Cnt7IGVuZCB9fXt7IHJhbmdlIC5Bbm5vdGF0aW9ucy5Tb3J0ZWRQYWlycyB9fXt7IC5OYW1lIHwgdGl0bGUgfX06IHt7IC5WYWx1ZSB9fXt7IGVuZCB9fQp7eyBlbmQgfX17eyBlbmQgfX0gICAgICAKe3sgZGVmaW5lICJfX3RleHRfYWxlcnRfcmVzb2x2ZWRfbGlzdCIgfX17eyByYW5nZSAuIH19ClN0YXJ0OiB7eyAuU3RhcnRzQXQuTG9jYWwuRm9ybWF0ICJNb24sIDAyIEphbiAyMDA2IDE1OjA0OjA1IE1TVCIgfX0KRW5kOiAgIHt7IC5FbmRzQXQuTG9jYWwuRm9ybWF0ICJNb24sIDAyIEphbiAyMDA2IDE1OjA0OjA1IE1TVCIgfX0KRHVyYXRpb246IHt7ICguRW5kc0F0LlN1YiAuU3RhcnRzQXQpLlRydW5jYXRlIDEwMDAwMDAwMDAgfX0Ke3sgcmFuZ2UgLkxhYmVscy5Tb3J0ZWRQYWlycyB9fXt7IC5OYW1lIHwgdGl0bGUgfX06IHt7IC5WYWx1ZSB9fQp7eyBlbmQgfX17eyByYW5nZSAuQW5ub3RhdGlvbnMuU29ydGVkUGFpcnMgfX17eyAuTmFtZSB8IHRpdGxlIH19OiB7eyAuVmFsdWUgfX17eyBlbmQgfX0Ke3sgZW5kIH19e3sgZW5kIH19ICAgICAgCnt7IGRlZmluZSAid2VjaGF0LmRlZmF1bHQubWVzc2FnZSIgfX17eyBpZiBndCAobGVuIC5BbGVydHMuRmlyaW5nKSAwIC19fQpXQVJOSU5HIOKYogp7eyB0ZW1wbGF0ZSAiX190ZXh0X2FsZXJ0X2ZpcmluZ19saXN0IiAuQWxlcnRzLkZpcmluZyB9fQp7ey0gZW5kIH19e3sgaWYgZ3QgKGxlbiAuQWxlcnRzLlJlc29sdmVkKSAwIC19fQpSRVNPTFZFRCDinYAKe3sgdGVtcGxhdGUgIl9fdGV4dF9hbGVydF9yZXNvbHZlZF9saXN0IiAuQWxlcnRzLlJlc29sdmVkIH19Cnt7LSBlbmQgfX0Ke3stIGVuZCB9fQp7eyBkZWZpbmUgIndlY2hhdC5kZWZhdWx0LmFwaV9zZWNyZXQiIH19e3sgZW5kIH19Cnt7IGRlZmluZSAid2VjaGF0LmRlZmF1bHQudG9fdXNlciIgfX17eyBlbmQgfX0Ke3sgZGVmaW5lICJ3ZWNoYXQuZGVmYXVsdC50b19wYXJ0eSIgfX17eyBlbmQgfX0Ke3sgZGVmaW5lICJ3ZWNoYXQuZGVmYXVsdC50b190YWciIH19e3sgZW5kIH19Cnt7IGRlZmluZSAid2VjaGF0LmRlZmF1bHQuYWdlbnRfaWQiIH19e3sgZW5kIH19ICAgIAo=",
                     "additionalscrape.job": config.require("ADDITIONALSCRAPE.JOB")
                 },
                 stringData: {}
@@ -35,7 +34,7 @@ const deploy_spec = [
             name: "kube-prometheus-stack",
             chart: "kube-prometheus-stack",
             repository: "https://prometheus-community.github.io/helm-charts",
-            version: "44.3.1",
+            version: "45.20.0",
             values: {
                 fullnameOverride: "kubepromstack",
                 defaultRules: { create: false },
@@ -48,7 +47,12 @@ const deploy_spec = [
                                     insecure_skip_verify: true
                                 }
                             },
-                            resolve_timeout: "5m"
+                            resolve_timeout: "5m",
+                            smtp_smarthost: "127.0.0.1:25",
+                            smtp_from: "do-not-reply@example.com",
+                            smtp_require_tls: false,
+                            smtp_auth_username: "do-not-reply@example.com",
+                            smtp_auth_password: "password"
                         },
                         route: {
                             group_by: ["alertname", "cluster", "service"],
@@ -433,24 +437,26 @@ SOFTWARE.
                 "kube-state-metrics": {
                     fullnameOverride: "kube-state-metrics",
                     image: {
-                        repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/kube-state-metrics",
-                        tag: "v2.7.0"
+                        registry: "registry.cn-hangzhou.aliyuncs.com",
+                        repository: "goldstrike/kube-state-metrics",
+                        tag: "v2.8.2"
                     },
                     customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     metricLabelsAllowlist: ["nodes=[*]"],
                     resources: {
-                        limits: { cpu: "100m", memory: "64Mi" },
-                        requests: { cpu: "100m", memory: "64Mi" }
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
                     },
                     prometheus: {
                         monitor: {
                             enabled: true,
                             relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["___meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
                             ]
                         }
@@ -493,8 +499,7 @@ SOFTWARE.
                             image: {
                                 registry: "registry.cn-hangzhou.aliyuncs.com",
                                 repository: "google_containers/kube-webhook-certgen",
-                                tag: "v1.3.0",
-                                sha: "7bbcbd4232c692a36f8796e9602c14f2ec3b6c638d2974ea81b736ee2bd6e279"
+                                tag: "v20221220-controller-v1.5.1-58-g787ea74b6"
                             }
                         }
                     },
@@ -573,8 +578,8 @@ SOFTWARE.
                         logLevel: "warn",
                         routePrefix: "/prometheus",
                         resources: {
-                            limits: { cpu: "1000m", memory: "2048Mi" },
-                            requests: { cpu: "1000m", memory: "2048Mi" }
+                            limits: { cpu: "1000m", memory: "3072Mi" },
+                            requests: { cpu: "1000m", memory: "3072Mi" }
                         },
                         storageSpec: {
                             volumeClaimTemplate: {
@@ -609,7 +614,7 @@ SOFTWARE.
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "12.0.3",
+                version: "12.4.3",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -810,7 +815,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.7.1",
+                version: "17.9.5",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -866,7 +871,7 @@ save ""`,
                 name: "prometheus-blackbox-exporter",
                 chart: "prometheus-blackbox-exporter",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "7.5.0",
+                version: "7.7.0",
                 values: {
                     fullnameOverride: "blackbox-exporter",
                     config: {

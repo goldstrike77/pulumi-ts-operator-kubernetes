@@ -54,7 +54,7 @@ extraDeploy: []
 image:
   registry: docker.io
   repository: bitnami/thanos
-  tag: 0.30.2-scratch-r0
+  tag: 0.31.0-scratch-r1
   digest: ""
   ## Specify a imagePullPolicy. Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -376,6 +376,16 @@ query:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param query.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param query.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -500,6 +510,12 @@ query:
     ## @param query.service.additionalHeadless Additional Headless service
     ##
     additionalHeadless: false
+    ## Headless service properties
+    ##
+    headless:
+      ## @param query.service.headless.annotations Annotations for the headless service.
+      ##
+      annotations: {}
 
   ## Service GRPC parameters
   ##
@@ -549,6 +565,12 @@ query:
     ## @param query.serviceGrpc.additionalHeadless Additional Headless service
     ##
     additionalHeadless: false
+    ## Headless service properties
+    ##
+    headless:
+      ## @param query.serviceGrpc.headless.annotations Annotations for the headless service.
+      ##
+      annotations: {}
 
   ## Autoscaling parameters
   ## @param query.automountServiceAccountToken Enable/disable auto mounting of the service account token only for the deployment
@@ -1010,6 +1032,16 @@ queryFrontend:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param queryFrontend.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param queryFrontend.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -1437,6 +1469,16 @@ bucketweb:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param bucketweb.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param bucketweb.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -1677,6 +1719,32 @@ compactor:
   ## @param compactor.args Override default container args (useful when using custom images)
   ##
   args: []
+  ## K8s CronJob configuration
+  ## ref: https://kubernetes.io/docs/tasks/job/automated-tasks-with-cron-jobs/
+  ## @param compactor.cronJob.enabled Run compactor as a CronJob rather than a Deployment
+  ## @param compactor.cronJob.schedule The schedule in Cron format, see <https://en.wikipedia.org/wiki/Cron>
+  ## @param compactor.cronJob.timeZone The time zone name for the given schedule, see <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>
+  ## @param compactor.cronJob.concurrencyPolicy Specifies how to treat concurrent executions of a Job
+  ## @param compactor.cronJob.startingDeadlineSeconds Optional deadline in seconds for starting the job if it misses scheduled time for any reason
+  ## @param compactor.cronJob.suspend This flag tells the controller to suspend subsequent executions
+  ## @param compactor.cronJob.successfulJobsHistoryLimit The number of successful finished jobs to retain
+  ## @param compactor.cronJob.failedJobsHistoryLimit The number of failed finished jobs to retain
+  ## @param compactor.cronJob.backoffLimit Specifies the number of retries before marking this job failed
+  ##
+  cronJob:
+    enabled: false
+    schedule: "0 */6 * * *"
+    timeZone: ""
+    startingDeadlineSeconds: ""
+    concurrencyPolicy: Forbid
+    suspend: ""
+    successfulJobsHistoryLimit: ""
+    failedJobsHistoryLimit: ""
+    backoffLimit: ""
+  ## @param compactor.restartPolicy Compactor container restart policy.
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy
+  ##
+  restartPolicy: ""
   ## @param compactor.updateStrategy.type Update strategy type for Thanos Compactor replicas
   ##
   updateStrategy:
@@ -1839,6 +1907,16 @@ compactor:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param compactor.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param compactor.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -2279,6 +2357,16 @@ storegateway:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param storegateway.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param storegateway.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -2350,6 +2438,12 @@ storegateway:
     ## @param storegateway.service.additionalHeadless Additional Headless service
     ##
     additionalHeadless: false
+    ## Headless service properties
+    ##
+    headless:
+      ## @param storegateway.service.headless.annotations Annotations for the headless service.
+      ##
+      annotations: {}
   ## Persistence parameters
   ##
   persistence:
@@ -2894,6 +2988,16 @@ ruler:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param ruler.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param ruler.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -2965,6 +3069,12 @@ ruler:
     ## @param ruler.service.additionalHeadless Additional Headless service
     ##
     additionalHeadless: false
+    ## Headless service properties
+    ##
+    headless:
+      ## @param ruler.service.headless.annotations Annotations for the headless service.
+      ##
+      annotations: {}
   ## Persistence parameters
   ##
   persistence:
@@ -3374,6 +3484,16 @@ receive:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param receive.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param receive.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -3448,6 +3568,12 @@ receive:
     ## @param receive.service.additionalHeadless Additional Headless service
     ##
     additionalHeadless: false
+    ## Headless service properties
+    ##
+    headless:
+      ## @param receive.service.headless.annotations Annotations for the headless service.
+      ##
+      annotations: {}
   ## @param receive.automountServiceAccountToken Enable/disable auto mounting of the service account token only for the sts
   ##
   automountServiceAccountToken: true
@@ -3814,6 +3940,16 @@ receiveDistributor:
   ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
   ##
   podAnnotations: {}
+  ## @param receiveDistributor.dnsConfig Deployment pod DNS config
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/
+  ## E.g.
+  ## dnsConfig:
+  ##   options:
+  ##   - name: ndots
+  ##     value: "4"
+  ##   - name: single-request-reopen
+  ##
+  dnsConfig: {}
   ## @param receiveDistributor.hostAliases Deployment pod host aliases
   ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
   ##
@@ -3917,6 +4053,12 @@ metrics:
     ## ref: https://github.com/bitnami/charts/tree/main/bitnami/prometheus-operator#prometheus-configuration
     ##
     selector: {}
+    ## @param metrics.serviceMonitor.extraParameters Any extra parameter to be added to the endpoint configured in the ServiceMonitor
+    ## (e.g. tlsConfig for further customization of the HTTPS behavior)
+    ## Note that the 'scheme' is automatically set to 'https' when the 'https.enabled' flag is used in this chart.
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/api.md#monitoring.coreos.com/v1.Endpoint
+    ##
+    extraParameters: {}
 
   ## PrometheusRule CRD configuration
   ##
@@ -4029,7 +4171,7 @@ volumePermissions:
   image:
     registry: docker.io
     repository: bitnami/bitnami-shell
-    tag: 11-debian-11-r78
+    tag: 11-debian-11-r102
     digest: ""
     ## Specify a imagePullPolicy. Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
