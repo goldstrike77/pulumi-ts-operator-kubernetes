@@ -15,13 +15,13 @@ const deploy_spec = [
             name: "metallb",
             chart: "metallb",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "4.1.14",
+            version: "4.3.0",
             values: {
                 addresses: ["192.168.0.100-192.168.0.109"],
                 autoAssign: true,
                 prometheusRule: { enabled: false },
                 controller: {
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "100m", memory: "64Mi" },
                         requests: { cpu: "100m", memory: "64Mi" }
@@ -31,6 +31,7 @@ const deploy_spec = [
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -42,7 +43,7 @@ const deploy_spec = [
                     }
                 },
                 speaker: {
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "100m", memory: "64Mi" },
                         requests: { cpu: "100m", memory: "64Mi" }
@@ -52,6 +53,7 @@ const deploy_spec = [
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },

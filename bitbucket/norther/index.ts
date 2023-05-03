@@ -31,120 +31,232 @@ const deploy_spec = [
       },
       stringData: {}
     },
-    postgresql: {
-      kind: "postgresql",
-      apiVersion: "acid.zalan.do/v1",
-      metadata: {
-        name: "postgresql",
+    helm: [
+      {
         namespace: "bitbucket",
-        labels: {
-          team: "devops"
+        name: "postgres",
+        chart: "../../_chart/pgo-postgres-5.3.1.tgz",
+        repository: "",
+        version: "5.3.1",
+        values: {
+          postgresVersion: "14",
+          monitoring: true,
+          instanceSize: "10Gi",
+          instanceStorageClassName: "longhorn",
+          instanceMemory: "512Mi",
+          instanceCPU: "500m",
+          backupsSize: "10Gi",
+          backupsStorageClassName: "longhorn",
+          s3: {
+            bucket: "backup",
+            endpoint: "http://minio:9000",
+            region: "us-east-1",
+            key: config.require("AWS_ACCESS_KEY_ID"),
+            keySecret: config.require("AWS_SECRET_ACCESS_KEY")
+          },
+          service: {
+            type: "ClusterIP"
+          }
         }
       },
-      spec: {
-        teamId: "devops",
-        postgresql: {
-          version: "14"
-        },
-        numberOfInstances: 1,
-        volume: {
-          size: "10Gi",
-          storageClass: "longhorn"
-        },
-        users: {
-          bitbucket: []
-        },
-        databases: {
-          bitbucket: "bitbucket"
-        },
-        allowedSourceRanges: ["10.244.0.0/16"],
-        resources: {
-          limits: { cpu: "500m", memory: "512Mi" },
-          requests: { cpu: "500m", memory: "512Mi" }
+      {
+        namespace: "bitbucket",
+        name: "bitbucket",
+        chart: "../../_chart/bitbucket-1.12.0.tgz",
+        repository: "",
+        version: "1.12.0",
+        values: {
+          replicaCount: 1,
+          image: {
+            repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/bitbucket",
+            tag: "8.9.0"
+          },
+          database: {
+            url: "jdbc:postgresql://postgres-primary:5432/postgres",
+            driver: "org.postgresql.Driver",
+            credentials: {
+              secretName: "postgres-pguser-postgres",
+              usernameSecretKey: "user",
+              passwordSecretKey: "password"
+            }
+          },
+          volumes: {
+            localHome: {
+              persistentVolumeClaim: {
+                create: true,
+                storageClassName: "longhorn",
+                resources: {
+                  requests: { storage: "1Gi" }
+                }
+              }
+            },
+            sharedHome: {
+              persistentVolumeClaim: {
+                create: true,
+                storageClassName: "nfs-client",
+                resources: {
+                  requests: { storage: "10Gi" }
+                }
+              }
+            }
+          },
+          ingress: {
+            create: true,
+            className: "nginx",
+            nginx: true,
+            maxBodySize: "250m",
+            host: "norther.example.com",
+            path: "/bitbucket"
+          },
+          bitbucket: {
+            service: { contextPath: "/bitbucket" },
+            sshService: {
+              enabled: true,
+              annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+            },
+            sysadminCredentials: {
+              secretName: "bitbucket-secret",
+              usernameSecretKey: "sysadminusername",
+              passwordSecretKey: "sysadminpassword",
+              displayNameSecretKey: "sysadmindisplayName",
+              emailAddressSecretKey: "sysadminemailAddress"
+            },
+            clustering: { enabled: true },
+            elasticSearch: {
+              baseUrl: "http://opensearch-master.skywalking:9200",
+              credentials: {
+                secretName: "bitbucket-secret",
+                usernameSecretKey: "esusername",
+                passwordSecretKey: "espassword"
+              }
+            },
+            resources: {
+              jvm: {
+                maxHeap: "4096m",
+                minHeap: "4096m"
+              },
+              container: {
+                requests: { cpu: "2000m", memory: "6144Mi" },
+                limits: { cpu: "2000m", memory: "6144Mi" }
+              }
+            }
+          },
+          podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" }
         }
       }
-    },
-    helm: {
-      namespace: "bitbucket",
-      name: "bitbucket",
-      chart: "../../_chart/bitbucket-1.12.0.tgz",
-      repository: "",
-      version: "1.12.0",
-      values: {
-        replicaCount: 1,
-        image: {
-          repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/bitbucket",
-          tag: "8.9.0"
+    ],
+    servicemonitors: {
+      apiVersion: "monitoring.coreos.com/v1",
+      kind: "PodMonitor",
+      metadata: {
+        name: "postgres-exporter",
+        labels: {
+          release: "prometheus-operator"
         },
-        database: {
-          url: "jdbc:postgresql://postgresql:5432/bitbucket",
-          driver: "org.postgresql.Driver",
-          credentials: {
-            secretName: "bitbucket.postgresql.credentials.postgresql.acid.zalan.do"
+        namespace: "monitoring"
+      },
+      spec: {
+        namespaceSelector: {
+          matchNames: ["bitbucket"]
+        },
+        selector: {
+          matchLabels: {
+            "postgres-operator.crunchydata.com/crunchy-postgres-exporter": "true"
           }
         },
-        volumes: {
-          localHome: {
-            persistentVolumeClaim: {
-              create: true,
-              storageClassName: "longhorn",
-              resources: {
-                requests: { storage: "1Gi" }
+        podMetricsEndpoints: [
+          {
+            interval: "60s",
+            path: "/metrics",
+            port: "exporter",
+            relabelings: [
+              {
+                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_crunchy_postgres_exporter", "__meta_kubernetes_pod_label_crunchy_postgres_exporter"],
+                action: "keep",
+                regex: "true",
+                separator: ""
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_container_port_number"],
+                action: "drop",
+                regex: "5432"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_container_port_number"],
+                action: "drop",
+                regex: "10000"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_container_port_number"],
+                action: "drop",
+                regex: "8009"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_container_port_number"],
+                action: "drop",
+                regex: "2022"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_container_port_number"],
+                action: "drop",
+                regex: "^$"
+              },
+              {
+                source_labels: ["__meta_kubernetes_namespace"],
+                action: "replace",
+                target_label: "kubernetes_namespace"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_name"],
+                target_label: "pod"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_cluster", "__meta_kubernetes_pod_label_pg_cluster"],
+                target_label: "cluster",
+                separator: "",
+                replacement: "$1"
+              },
+              {
+                source_labels: ["__meta_kubernetes_namespace", "cluster"],
+                target_label: "pg_cluster",
+                separator: ":",
+                replacement: "$1$2"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_ip"],
+                target_label: "ip",
+                replacement: "$1"
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_instance", "__meta_kubernetes_pod_label_deployment_name"],
+                target_label: "deployment",
+                replacement: "$1",
+                separator: ""
+              },
+              {
+                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_role", "__meta_kubernetes_pod_label_role"],
+                target_label: "role",
+                replacement: "$1",
+                separator: ""
+              },
+              {
+                source_labels: ["dbname"],
+                target_label: "dbname",
+                replacement: "$1"
+              },
+              {
+                source_labels: ["relname"],
+                target_label: "elname",
+                replacement: "$1"
+              },
+              {
+                source_labels: ["schemaname"],
+                target_label: "schemaname",
+                replacement: "$1"
               }
-            }
-          },
-          sharedHome: {
-            persistentVolumeClaim: {
-              create: true,
-              storageClassName: "nfs-client",
-              resources: {
-                requests: { storage: "10Gi" }
-              }
-            }
+            ]
           }
-        },
-        ingress: {
-          create: true,
-          className: "nginx",
-          nginx: true,
-          maxBodySize: "250m",
-          host: "norther.example.com",
-          path: "/bitbucket"
-        },
-        bitbucket: {
-          service: { contextPath: "/bitbucket" },
-          sshService: {
-            enabled: true,
-            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
-          },
-          sysadminCredentials: {
-            secretName: "bitbucket-secret",
-            usernameSecretKey: "sysadminusername",
-            passwordSecretKey: "sysadminpassword",
-            displayNameSecretKey: "sysadmindisplayName",
-            emailAddressSecretKey: "sysadminemailAddress"
-          },
-          clustering: { enabled: true },
-          elasticSearch: {
-            baseUrl: "http://opensearch-master.skywalking:9200",
-            credentials: {
-              secretName: "bitbucket-secret",
-              usernameSecretKey: "esusername",
-              passwordSecretKey: "espassword"
-            }
-          },
-          resources: {
-            jvm: {
-              maxHeap: "4096m",
-              minHeap: "4096m"
-            },
-            container: {
-              requests: { cpu: "2000m", memory: "6144Mi" },
-              limits: { cpu: "2000m", memory: "6144Mi" }
-            }
-          }
-        },
-        podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" }
+        ]
       }
     }
   }
@@ -156,14 +268,6 @@ for (var i in deploy_spec) {
     metadata: deploy_spec[i].namespace.metadata,
     spec: deploy_spec[i].namespace.spec
   });
-  // Create postgresql CRD.
-  const postgresql = new k8s.apiextensions.CustomResource(deploy_spec[i].postgresql.metadata.name, {
-    name: deploy_spec[i].postgresql.metadata.name,
-    metadata: deploy_spec[i].postgresql.metadata,
-    apiVersion: deploy_spec[i].postgresql.apiVersion,
-    kind: deploy_spec[i].postgresql.kind,
-    spec: deploy_spec[i].postgresql.spec,
-  }, { dependsOn: [namespace] });
   // Create Kubernetes Secret.
   const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
     metadata: deploy_spec[i].secret.metadata,
@@ -171,13 +275,23 @@ for (var i in deploy_spec) {
     data: deploy_spec[i].secret.data,
     stringData: deploy_spec[i].secret.stringData
   }, { dependsOn: [namespace] });
-  // Create Release Resource.
-  const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-    namespace: deploy_spec[i].helm.namespace,
-    name: deploy_spec[i].helm.name,
-    chart: deploy_spec[i].helm.chart,
-    version: deploy_spec[i].helm.version,
-    values: deploy_spec[i].helm.values,
-    skipAwait: true,
+  // Create service monitors.
+  const monitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors.metadata.name, {
+    name: deploy_spec[i].servicemonitors.metadata.name,
+    metadata: deploy_spec[i].servicemonitors.metadata,
+    apiVersion: deploy_spec[i].servicemonitors.apiVersion,
+    kind: deploy_spec[i].servicemonitors.kind,
+    spec: deploy_spec[i].servicemonitors.spec,
   }, { dependsOn: [namespace] });
+  // Create Release Resource.
+  for (var helm_index in deploy_spec[i].helm) {
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+      namespace: deploy_spec[i].helm[helm_index].namespace,
+      name: deploy_spec[i].helm[helm_index].name,
+      chart: deploy_spec[i].helm[helm_index].chart,
+      version: deploy_spec[i].helm[helm_index].version,
+      values: deploy_spec[i].helm[helm_index].values,
+      skipAwait: true,
+    }, { dependsOn: [namespace] });
+  }
 }

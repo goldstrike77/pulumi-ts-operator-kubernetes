@@ -857,6 +857,9 @@ grafana:
       ##
       annotations: {}
 
+      ## Set method for HTTP to send query to datasource
+      httpMethod: POST
+
       ## Create datasource for each Pod of Prometheus StatefulSet;
       ## this uses headless service `prometheus-operated` which is
       ## created by Prometheus Operator
@@ -1960,6 +1963,15 @@ prometheusOperator:
     ##
     enabled: false
 
+    ## Flavor of the network policy to use.
+    #  Can be:
+    #  * kubernetes for networking.k8s.io/v1/NetworkPolicy
+    #  * cilium     for cilium.io/v2/CiliumNetworkPolicy
+    flavor: kubernetes
+
+    # cilium:
+    #   egress:
+
   ## Service account for Alertmanager to use.
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
   ##
@@ -2257,6 +2269,18 @@ prometheus:
   ## Configure network policy for the prometheus
   networkPolicy:
     enabled: false
+
+    ## Flavor of the network policy to use.
+    #  Can be:
+    #  * kubernetes for networking.k8s.io/v1/NetworkPolicy
+    #  * cilium     for cilium.io/v2/CiliumNetworkPolicy
+    flavor: kubernetes
+
+    # cilium:
+    #   endpointSelector:
+    #   egress:
+    #   ingress:
+
     # egress:
     # - {}
     # ingress:

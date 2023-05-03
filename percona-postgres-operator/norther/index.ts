@@ -13,28 +13,27 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
-            {
-                namespace: "postgres-operator",
-                name: "pg-operator",
-                chart: "pg-operator",
-                repository: "https://percona.github.io/percona-helm-charts",
-                version: "1.3.0",
-                values: {
-                    archive_mode: "true",
-                    archive_timeout: "60",
-                    backrest_aws_s3_bucket: "backup",
-                    backrest_aws_s3_endpoint: "http://minio.minio.svc.cluster.local:9000",
-                    backrest_aws_s3_key: config.require("AWS_ACCESS_KEY_ID"),
-                    backrest_aws_s3_region: "us-east-1",
-                    backrest_aws_s3_secret: config.require("AWS_SECRET_ACCESS_KEY"),
-                    backrest_aws_s3_verify_tls: "false",
-                    metrics: "true",
-                    pgo_admin_password: config.require("adminPassword"),
-                    disable_telemetry: "true"
-                }
+        helm: {
+            namespace: "postgres-operator",
+            name: "pg-operator",
+            chart: "pg-operator",
+            repository: "https://percona.github.io/percona-helm-charts",
+            version: "1.4.0",
+            values: {
+                fullnameOverride: "",
+                archive_mode: "true",
+                backrest_aws_s3_bucket: "backup",
+                backrest_aws_s3_endpoint: "http://minio:9000",
+                backrest_aws_s3_key: config.require("AWS_ACCESS_KEY_ID"),
+                backrest_aws_s3_region: "us-east-1",
+                backrest_aws_s3_secret: config.require("AWS_SECRET_ACCESS_KEY"),
+                backrest_aws_s3_uri_style: "true",
+                backrest_aws_s3_verify_tls: "false",
+                metrics: "true",
+                pgo_admin_password: config.require("adminPassword"),
+                disable_telemetry: "true"
             }
-        ]
+        }
     }
 ]
 
@@ -45,17 +44,15 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        values: deploy_spec[i].helm.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].helm.repository,
+        },
+    }, { dependsOn: [namespace] });
 }

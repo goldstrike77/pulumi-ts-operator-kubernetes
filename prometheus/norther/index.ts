@@ -34,7 +34,7 @@ const deploy_spec = [
             name: "kube-prometheus-stack",
             chart: "kube-prometheus-stack",
             repository: "https://prometheus-community.github.io/helm-charts",
-            version: "45.20.0",
+            version: "45.23.0",
             values: {
                 fullnameOverride: "kubepromstack",
                 defaultRules: { create: false },
@@ -815,7 +815,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.9.5",
+                version: "17.10.1",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },

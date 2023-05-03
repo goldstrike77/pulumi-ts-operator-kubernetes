@@ -23,13 +23,13 @@ const deploy_spec = [
                 },
                 nfs: {
                     server: "node30.node.home.local",
-                    path: "/data/nfsshare"
+                    path: "/data/nfs"
                 },
                 resources: {
                     limits: { cpu: "100m", memory: "128Mi" },
                     requests: { cpu: "100m", memory: "128Mi" }
                 },
-                labels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
+                labels: { customer: "demo", environment: "dev", project: "Storage", group: "NFS", datacenter: "dc01", domain: "local" }
             }
         }
     }

@@ -7,18 +7,36 @@ const deploy_spec = [
   {
     namespace: {
       metadata: {
-        name: "confluence",
+        name: "bitbucket",
         annotations: {},
         labels: {}
       },
       spec: {}
+    },
+    secret: {
+      metadata: {
+        name: "bitbucket-secret",
+        namespace: "bitbucket",
+        annotations: {},
+        labels: {}
+      },
+      type: "Opaque",
+      data: {
+        "sysadminusername": Buffer.from("admin").toString('base64'),
+        "sysadminpassword": Buffer.from(config.require("adminPassword")).toString('base64'),
+        "sysadmindisplayName": Buffer.from("admin").toString('base64'),
+        "sysadminemailAddress": Buffer.from("admin@example.com").toString('base64'),
+        "esusername": Buffer.from("admin").toString('base64'),
+        "espassword": Buffer.from(config.require("espassword")).toString('base64'),
+      },
+      stringData: {}
     },
     postgresql: {
       kind: "postgresql",
       apiVersion: "acid.zalan.do/v1",
       metadata: {
         name: "postgresql",
-        namespace: "confluence",
+        namespace: "bitbucket",
         labels: {
           team: "devops"
         }
@@ -34,10 +52,10 @@ const deploy_spec = [
           storageClass: "longhorn"
         },
         users: {
-          confluence: []
+          bitbucket: []
         },
         databases: {
-          confluence: "confluence"
+          bitbucket: "bitbucket"
         },
         allowedSourceRanges: ["10.244.0.0/16"],
         resources: {
@@ -47,22 +65,22 @@ const deploy_spec = [
       }
     },
     helm: {
-      namespace: "confluence",
-      name: "confluence",
-      chart: "../../_chart/confluence-1.12.0.tgz",
+      namespace: "bitbucket",
+      name: "bitbucket",
+      chart: "../../_chart/bitbucket-1.12.0.tgz",
       repository: "",
       version: "1.12.0",
       values: {
-        replicaCount: 2,
+        replicaCount: 1,
         image: {
-          repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/confluence",
-          tag: "7.19.7"
+          repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/bitbucket",
+          tag: "8.9.0"
         },
         database: {
-          type: "postgresql",
-          url: "jdbc:postgresql://postgresql:5432/confluence",
+          url: "jdbc:postgresql://postgresql:5432/bitbucket",
+          driver: "org.postgresql.Driver",
           credentials: {
-            secretName: "confluence.postgresql.credentials.postgresql.acid.zalan.do"
+            secretName: "bitbucket.postgresql.credentials.postgresql.acid.zalan.do"
           }
         },
         volumes: {
@@ -71,9 +89,7 @@ const deploy_spec = [
               create: true,
               storageClassName: "longhorn",
               resources: {
-                requests: {
-                  storage: "1Gi"
-                }
+                requests: { storage: "1Gi" }
               }
             }
           },
@@ -82,9 +98,7 @@ const deploy_spec = [
               create: true,
               storageClassName: "nfs-client",
               resources: {
-                requests: {
-                  storage: "10Gi"
-                }
+                requests: { storage: "10Gi" }
               }
             }
           }
@@ -95,31 +109,42 @@ const deploy_spec = [
           nginx: true,
           maxBodySize: "250m",
           host: "norther.example.com",
-          path: "/confluence"
+          path: "/bitbucket"
         },
-        confluence: {
-          service: {
-            contextPath: "/confluence"
+        bitbucket: {
+          service: { contextPath: "/bitbucket" },
+          sshService: {
+            enabled: true,
+            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
           },
-          clustering: {
-            enabled: true
+          sysadminCredentials: {
+            secretName: "bitbucket-secret",
+            usernameSecretKey: "sysadminusername",
+            passwordSecretKey: "sysadminpassword",
+            displayNameSecretKey: "sysadmindisplayName",
+            emailAddressSecretKey: "sysadminemailAddress"
+          },
+          clustering: { enabled: true },
+          elasticSearch: {
+            baseUrl: "http://opensearch-master.skywalking:9200",
+            credentials: {
+              secretName: "bitbucket-secret",
+              usernameSecretKey: "esusername",
+              passwordSecretKey: "espassword"
+            }
           },
           resources: {
             jvm: {
               maxHeap: "4096m",
-              minHeap: "4096m",
-              reservedCodeCache: "256m"
+              minHeap: "4096m"
             },
             container: {
               requests: { cpu: "2000m", memory: "6144Mi" },
-              limits: { cpu: "4000m", memory: "6144Mi" }
+              limits: { cpu: "2000m", memory: "6144Mi" }
             }
-          },
-          additionalEnvironmentVariables: [
-            { name: "cluster.login.rememberme.enabled", value: "true" }
-          ]
+          }
         },
-        podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "Confluence", datacenter: "dc01", domain: "local" }
+        podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" }
       }
     }
   }
@@ -139,6 +164,13 @@ for (var i in deploy_spec) {
     kind: deploy_spec[i].postgresql.kind,
     spec: deploy_spec[i].postgresql.spec,
   }, { dependsOn: [namespace] });
+  // Create Kubernetes Secret.
+  const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
+    metadata: deploy_spec[i].secret.metadata,
+    type: deploy_spec[i].secret.type,
+    data: deploy_spec[i].secret.data,
+    stringData: deploy_spec[i].secret.stringData
+  }, { dependsOn: [namespace] });
   // Create Release Resource.
   const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
     namespace: deploy_spec[i].helm.namespace,
@@ -147,5 +179,5 @@ for (var i in deploy_spec) {
     version: deploy_spec[i].helm.version,
     values: deploy_spec[i].helm.values,
     skipAwait: true,
-  }, { dependsOn: [postgresql] });
+  }, { dependsOn: [namespace] });
 }

@@ -53,7 +53,7 @@ const deploy_spec = [
       repository: "",
       version: "1.12.0",
       values: {
-        replicaCount: 1,
+        replicaCount: 2,
         image: {
           repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jira-software",
           tag: "9.4.5"

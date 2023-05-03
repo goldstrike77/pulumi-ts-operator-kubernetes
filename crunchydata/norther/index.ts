@@ -21,7 +21,7 @@ const deploy_spec = [
       version: "5.3.1",
       values: {
         singleNamespace: false,
-        debug: true,
+        debug: false,
         resources: {
           controller: {
             limits: { cpu: "100m", memory: "128Mi" },

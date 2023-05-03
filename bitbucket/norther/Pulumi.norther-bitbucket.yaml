@@ -1,5 +1,9 @@
 encryptionsalt: v1:8r6D0+dWqFs=:v1:ol280DNWWPv+/lyc:iGV7kS01vkM2mWUHShicvEOwHiOZWQ==
 config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:F+TgWErA6Ck2DjEM:Egx2Im7HriPeuTi4Si9jILbPXAjTyw==
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:KsXsAZCuVFokW7U8:oD868KBqdzjOPR49v0E50lyngDiw4U7R
   demo:adminPassword:
     secure: v1:YiM21JrgHL2zJfjh:5wWCn83yIYTEwV/xRtuP59SzAI9y8ogL
   demo:dbuserPassword:

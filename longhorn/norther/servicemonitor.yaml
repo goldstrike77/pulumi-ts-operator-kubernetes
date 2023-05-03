@@ -26,12 +26,12 @@ spec:
           - __address__
         targetLabel: environment
       - action: replace
-        replacement: cluster
+        replacement: Storage
         sourceLabels:
           - __address__
         targetLabel: project
       - action: replace
-        replacement: norther
+        replacement: Longhorn
         sourceLabels:
           - __address__
         targetLabel: group
