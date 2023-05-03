@@ -90,6 +90,7 @@ const deploy_spec = [
           service: {
             contextPath: "/jira"
           },
+          clustering: { enabled: true },
           resources: {
             jvm: {
               maxHeap: "4096m",
