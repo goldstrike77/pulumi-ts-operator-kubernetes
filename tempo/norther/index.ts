@@ -18,14 +18,14 @@ const deploy_spec = [
             name: "tempo",
             chart: "tempo-distributed",
             repository: "https://grafana.github.io/helm-charts",
-            version: "1.2.2",
+            version: "1.3.0",
             values: {
                 tempo: {
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" }
                 },
                 ingester: {
                     replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "200m", memory: "512Mi" },
                         requests: { cpu: "200m", memory: "512Mi" }
@@ -40,7 +40,7 @@ const deploy_spec = [
                 metricsGenerator: {
                     enabled: true,
                     replicas: 1,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
@@ -48,7 +48,7 @@ const deploy_spec = [
                 },
                 distributor: {
                     replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "200m", memory: "128Mi" },
                         requests: { cpu: "200m", memory: "128Mi" }
@@ -56,7 +56,7 @@ const deploy_spec = [
                 },
                 compactor: {
                     replicas: 1,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "200m", memory: "512Mi" },
                         requests: { cpu: "200m", memory: "512Mi" }
@@ -67,7 +67,7 @@ const deploy_spec = [
                 },
                 querier: {
                     replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "500m", memory: "1024Mi" },
                         requests: { cpu: "500m", memory: "1024Mi" }
@@ -82,7 +82,7 @@ const deploy_spec = [
                         }
                     },
                     replicas: 1,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" }
                 },
                 multitenancyEnabled: false,
                 traces: {
@@ -109,7 +109,7 @@ const deploy_spec = [
                         backend: "s3",
                         s3: {
                             bucket: "tempo",
-                            endpoint: "minio.minio.svc.cluster.local:9000",
+                            endpoint: "minio:9000",
                             region: "us-east-1",
                             access_key: config.require("AWS_ACCESS_KEY_ID"),
                             secret_key: config.require("AWS_SECRET_ACCESS_KEY"),
@@ -125,7 +125,7 @@ const deploy_spec = [
                     enabled: true,
                     replicas: 1,
                     extraArgs: ["-m 500", "-I 2m", "-v"],
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "1000m", memory: "512Mi" },
                         requests: { cpu: "1000m", memory: "512Mi" }
@@ -142,6 +142,7 @@ const deploy_spec = [
                     serviceMonitor: {
                         enabled: true,
                         relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },

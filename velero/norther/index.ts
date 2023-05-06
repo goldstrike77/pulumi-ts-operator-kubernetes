@@ -33,7 +33,7 @@ const deploy_spec = [
       name: "velero",
       chart: "velero",
       repository: "https://vmware-tanzu.github.io/helm-charts",
-      version: "3.1.5",
+      version: "4.0.1",
       values: {
         podLabels: { customer: "demo", environment: "dev", project: "Backup", group: "Velero", datacenter: "dc01", domain: "local" },
         resources: {
@@ -42,8 +42,19 @@ const deploy_spec = [
         },
         initContainers: [
           {
+            name: "velero-plugin-for-csi",
+            image: "velero/velero-plugin-for-csi:v0.5.0",
+            imagePullPolicy: "IfNotPresent",
+            volumeMounts: [
+              {
+                mountPath: "/target",
+                name: "plugins"
+              }
+            ]
+          },
+          {
             name: "velero-plugin-for-aws",
-            image: "velero/velero-plugin-for-aws:v1.6.1",
+            image: "velero/velero-plugin-for-aws:v1.7.0",
             imagePullPolicy: "IfNotPresent",
             volumeMounts: [
               {
@@ -57,9 +68,8 @@ const deploy_spec = [
           enabled: true,
           scrapeInterval: "60s",
           scrapeTimeout: "30s",
-          serviceMonitor: {
-            enabled: true,
-          },
+          serviceMonitor: { enabled: true },
+          nodeAgentPodMonitor: { enabled: true },
           prometheusRule: {
             enabled: true,
             spec: [
@@ -95,19 +105,32 @@ const deploy_spec = [
           },
         },
         configuration: {
-          provider: "aws",
-          backupStorageLocation: {
-            name: "default",
-            bucket: "backup",
-            prefix: "norther",
-            accessMode: "ReadWrite",
-            config: {
-              region: "us-east-1",
-              s3ForcePathStyle: true,
-              s3Url: "http://minio.minio.svc:9000",
-              insecureSkipTLSVerify: true
+          backupStorageLocation: [
+            {
+              name: "default",
+              provider: "aws",
+              bucket: "backup",
+              prefix: "norther",
+              accessMode: "ReadWrite",
+              config: {
+                region: "minio-default",
+                s3ForcePathStyle: true,
+                s3Url: "http://minio:9000",
+                insecureSkipTLSVerify: true
+              }
             }
-          }
+          ],
+          volumeSnapshotLocation: [
+            {
+              name: "default",
+              provider: "aws",
+              config: {
+                region: "minio-default"
+              }
+            }
+          ],
+          logLevel: "info",
+          defaultVolumesToFsBackup: true
         },
         credentials: {
           useSecret: true,
@@ -120,17 +143,19 @@ aws_secret_access_key = ${config.require("AWS_SECRET_ACCESS_KEY")}
           }
         },
         backupsEnabled: true,
-        snapshotsEnabled: false,
+        snapshotsEnabled: true,
+        deployNodeAgent: false,
         schedules: {
           backup: {
             disabled: false,
             labels: {
               cluster: "norther"
             },
-            schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
+            schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * * `,
             useOwnerReferencesInBackup: false,
             template: {
-              ttl: "48h"
+              ttl: "48h",
+              storageLocation: "default"
             }
           }
         }

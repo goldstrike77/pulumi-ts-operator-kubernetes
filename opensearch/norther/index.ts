@@ -17,28 +17,24 @@ const deploy_spec = [
       [
         {
           metadata: {
-            name: "s3-client-access-key",
+            name: "client-access-key",
             namespace: "opensearch",
             annotations: {},
             labels: {}
           },
           type: "Opaque",
-          data: {
-            "s3.client.default.access_key": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64')
-          },
+          data: { "s3.client.default.access_key": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64') },
           stringData: {}
         },
         {
           metadata: {
-            name: "s3-client-secret-key",
+            name: "client-secret-key",
             namespace: "opensearch",
             annotations: {},
             labels: {}
           },
           type: "Opaque",
-          data: {
-            "s3.client.default.secret_key": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64')
-          },
+          data: { "s3.client.default.secret_key": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64') },
           stringData: {}
         }
       ],
@@ -46,7 +42,7 @@ const deploy_spec = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.11.3",
+        version: "2.12.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -71,7 +67,7 @@ http:
 s3:
   client:
     default:
-      endpoint: minio.minio:9000
+      endpoint: minio:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -111,7 +107,7 @@ plugins:
           labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
           image: {
             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch",
-            tag: "2.6.0"
+            tag: "2.7.0"
           },
           opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
           resources: {
@@ -233,15 +229,15 @@ config:
             installList: ["repository-s3"]
           },
           keystore: [
-            { secretName: "s3-client-access-key" },
-            { secretName: "s3-client-secret-key" }
+            { secretName: "client-access-key" },
+            { secretName: "client-secret-key" }
           ]
         }
       },
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.11.3",
+        version: "2.12.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -266,7 +262,7 @@ http:
 s3:
   client:
     default:
-      endpoint: minio.minio:9000
+      endpoint: minio:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -306,7 +302,7 @@ plugins:
           labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
           image: {
             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch",
-            tag: "2.6.0"
+            tag: "2.7.0"
           },
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
           resources: {
@@ -317,7 +313,7 @@ plugins:
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "30Gi" },
+          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "10Gi" },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -338,15 +334,15 @@ plugins:
             installList: ["repository-s3"]
           },
           keystore: [
-            { secretName: "s3-client-access-key" },
-            { secretName: "s3-client-secret-key" }
+            { secretName: "client-access-key" },
+            { secretName: "client-secret-key" }
           ]
         }
       },
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.9.2",
+        version: "2.10.0",
         chart: "opensearch-dashboards",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -354,14 +350,13 @@ plugins:
           replicaCount: 1,
           image: {
             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch-dashboards",
-            tag: "2.6.0"
+            tag: "2.7.0"
           },
           fullnameOverride: "opensearch-dashboards",
           config: {
             "opensearch_dashboards.yml": `
 ---
 logging.quiet: true
-opensearch.hosts: [https://opensearch-master:9200]
 opensearch.password: ${config.require("kibanaserverPassword")}
 opensearch.requestHeadersAllowlist: [authorization, securitytenant] 
 opensearch.ssl.verificationMode: none

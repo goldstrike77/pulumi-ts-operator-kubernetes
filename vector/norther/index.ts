@@ -16,10 +16,10 @@ const deploy_spec = [
                 name: "kube-pod",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.21.0",
+                version: "0.21.1",
                 values: {
                     role: "Agent",
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
@@ -45,20 +45,25 @@ kubernetes_labels = encode_json(kubernetes.pod_labels)
 kubernetes_labels = replace(kubernetes_labels, "app.kubernetes.io", "app_kubernetes_io")
 kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
 . = parse_json!(kubernetes_labels)
-.file = file
 .message = message
 .ip = kubernetes.pod_ip
 .container = kubernetes.container_name
 .node = kubernetes.pod_node_name
 .pod = kubernetes.pod_name
 .namespace = kubernetes.pod_namespace
-.timestamp = to_timestamp(.timestamp) ?? now()`
+.timestamp = to_timestamp(.timestamp) ?? now()
+.cluster = "norther"`
+                            },
+                            kubernetes_filter: {
+                                type: "filter",
+                                inputs: ["kubernetes_remap"],
+                                condition: '.app != "longhorn-manager" && .container != "metallb-speaker"'
                             }
                         },
                         sinks: {
                             kubernetes_logs_elasticsearch: {
                                 type: "elasticsearch",
-                                inputs: ["kubernetes_remap"],
+                                inputs: ["kubernetes_filter"],
                                 bulk: { action: "index", index: "kube-pod-{{`{{ namespace }}`}}-%Y-%m-%d" },
                                 endpoint: "https://opensearch-master.opensearch:9200",
                                 mode: "bulk",
@@ -91,16 +96,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     ],
                     persistence: { hostPath: { path: "/var/lib/vector/kube-pod" } },
                     podMonitor: {
-                        enabled: false,
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+                        enabled: true,
                     }
                 }
             },
@@ -110,11 +106,11 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "syslog-gelf",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.18.0",
+                version: "0.21.1",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
@@ -180,11 +176,11 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "beats",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.18.0",
+                version: "0.21.1",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "300m", memory: "512Mi" },
                         requests: { cpu: "300m", memory: "512Mi" }
@@ -238,15 +234,16 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+                                     */
             {
                 namespace: "datadog",
                 name: "kube-audit",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.18.0",
+                version: "0.21.1",
                 values: {
                     role: "Agent",
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
@@ -269,7 +266,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             kubernetes_logs_loki: {
                                 type: "loki",
                                 inputs: ["kubernetes_audit_json"],
-                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
+                                endpoint: "http://loki-distributor.logging:3100",
                                 labels: { scrape_job: "kube-audit", cluster: "norther" },
                                 compression: "none",
                                 healthcheck: { enabled: false },
@@ -296,7 +293,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     ],
                     persistence: { hostPath: { path: "/var/lib/vector/kube-audit" } },
                     podMonitor: {
-                        enabled: false,
+                        enabled: true,
                         relabelings: [
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -308,7 +305,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             }
-                         */
         ]
     }
 ]

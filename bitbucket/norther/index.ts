@@ -22,6 +22,8 @@ const deploy_spec = [
       },
       type: "Opaque",
       data: {
+        "dbusername": Buffer.from("bitbucket").toString('base64'),
+        "dbpassword": Buffer.from(config.require("dbuserPassword")).toString('base64'),
         "sysadminusername": Buffer.from("admin").toString('base64'),
         "sysadminpassword": Buffer.from(config.require("adminPassword")).toString('base64'),
         "sysadmindisplayName": Buffer.from("admin").toString('base64'),
@@ -32,33 +34,6 @@ const deploy_spec = [
       stringData: {}
     },
     helm: [
-      {
-        namespace: "bitbucket",
-        name: "postgres",
-        chart: "../../_chart/pgo-postgres-5.3.1.tgz",
-        repository: "",
-        version: "5.3.1",
-        values: {
-          postgresVersion: "14",
-          monitoring: true,
-          instanceSize: "10Gi",
-          instanceStorageClassName: "longhorn",
-          instanceMemory: "512Mi",
-          instanceCPU: "500m",
-          backupsSize: "10Gi",
-          backupsStorageClassName: "longhorn",
-          s3: {
-            bucket: "backup",
-            endpoint: "http://minio:9000",
-            region: "us-east-1",
-            key: config.require("AWS_ACCESS_KEY_ID"),
-            keySecret: config.require("AWS_SECRET_ACCESS_KEY")
-          },
-          service: {
-            type: "ClusterIP"
-          }
-        }
-      },
       {
         namespace: "bitbucket",
         name: "bitbucket",
@@ -72,12 +47,12 @@ const deploy_spec = [
             tag: "8.9.0"
           },
           database: {
-            url: "jdbc:postgresql://postgres-primary:5432/postgres",
+            url: "jdbc:postgresql://postgresql:5432/bitbucket",
             driver: "org.postgresql.Driver",
             credentials: {
-              secretName: "postgres-pguser-postgres",
-              usernameSecretKey: "user",
-              passwordSecretKey: "password"
+              secretName: "bitbucket-secret",
+              usernameSecretKey: "dbusername",
+              passwordSecretKey: "dbpassword"
             }
           },
           volumes: {
@@ -123,7 +98,7 @@ const deploy_spec = [
             },
             clustering: { enabled: true },
             elasticSearch: {
-              baseUrl: "http://opensearch-master.skywalking:9200",
+              baseUrl: "http://opensearch-master.opensearch:9200",
               credentials: {
                 secretName: "bitbucket-secret",
                 usernameSecretKey: "esusername",
@@ -141,124 +116,83 @@ const deploy_spec = [
               }
             }
           },
-          podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" }
+          podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "Bitbucket", datacenter: "dc01", domain: "local" }
+        }
+      },
+      {
+        namespace: "bitbucket",
+        name: "postgresql",
+        chart: "postgresql",
+        repository: "https://charts.bitnami.com/bitnami",
+        version: "12.2.6",
+        values: {
+          global: {
+            storageClass: "longhorn",
+            postgresql: {
+              auth: {
+                postgresPassword: config.require("postgresPassword"),
+                username: "bitbucket",
+                password: config.require("dbuserPassword"),
+                database: "bitbucket"
+              }
+            }
+          },
+          image: {
+            tag: "14.7.0-debian-11-r16"
+          },
+          architecture: "standalone",
+          primary: {
+            pgHbaConfiguration: `
+local all all trust
+host all all localhost trust
+host bitbucket bitbucket 10.244.0.0/16 md5
+`,
+            initdb: {
+              user: "bitbucket",
+              password: config.require("dbuserPassword"),
+            },
+            resources: {
+              limits: { cpu: "500m", memory: "512Mi" },
+              requests: { cpu: "500m", memory: "512Mi" }
+            },
+            podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "bitbucket", datacenter: "dc01", domain: "local" },
+            persistence: {
+              size: "8Gi"
+            }
+          },
+          volumePermissions: {
+            enabled: true,
+            resources: {
+              limits: { cpu: "50m", memory: "64Mi" },
+              requests: { cpu: "50m", memory: "64Mi" }
+            }
+          },
+          metrics: {
+            enabled: true,
+            resources: {
+              limits: { cpu: "100m", memory: "128Mi" },
+              requests: { cpu: "100m", memory: "128Mi" }
+            },
+            serviceMonitor: {
+              enabled: true,
+              relabelings: [
+                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+              ]
+            },
+            prometheusRule: {
+              enabled: false,
+              rules: []
+            }
+          }
         }
       }
-    ],
-    servicemonitors: {
-      apiVersion: "monitoring.coreos.com/v1",
-      kind: "PodMonitor",
-      metadata: {
-        name: "postgres-exporter",
-        labels: {
-          release: "prometheus-operator"
-        },
-        namespace: "monitoring"
-      },
-      spec: {
-        namespaceSelector: {
-          matchNames: ["bitbucket"]
-        },
-        selector: {
-          matchLabels: {
-            "postgres-operator.crunchydata.com/crunchy-postgres-exporter": "true"
-          }
-        },
-        podMetricsEndpoints: [
-          {
-            interval: "60s",
-            path: "/metrics",
-            port: "exporter",
-            relabelings: [
-              {
-                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_crunchy_postgres_exporter", "__meta_kubernetes_pod_label_crunchy_postgres_exporter"],
-                action: "keep",
-                regex: "true",
-                separator: ""
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_container_port_number"],
-                action: "drop",
-                regex: "5432"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_container_port_number"],
-                action: "drop",
-                regex: "10000"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_container_port_number"],
-                action: "drop",
-                regex: "8009"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_container_port_number"],
-                action: "drop",
-                regex: "2022"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_container_port_number"],
-                action: "drop",
-                regex: "^$"
-              },
-              {
-                source_labels: ["__meta_kubernetes_namespace"],
-                action: "replace",
-                target_label: "kubernetes_namespace"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_name"],
-                target_label: "pod"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_cluster", "__meta_kubernetes_pod_label_pg_cluster"],
-                target_label: "cluster",
-                separator: "",
-                replacement: "$1"
-              },
-              {
-                source_labels: ["__meta_kubernetes_namespace", "cluster"],
-                target_label: "pg_cluster",
-                separator: ":",
-                replacement: "$1$2"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_ip"],
-                target_label: "ip",
-                replacement: "$1"
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_instance", "__meta_kubernetes_pod_label_deployment_name"],
-                target_label: "deployment",
-                replacement: "$1",
-                separator: ""
-              },
-              {
-                source_labels: ["__meta_kubernetes_pod_label_postgres_operator_crunchydata_com_role", "__meta_kubernetes_pod_label_role"],
-                target_label: "role",
-                replacement: "$1",
-                separator: ""
-              },
-              {
-                source_labels: ["dbname"],
-                target_label: "dbname",
-                replacement: "$1"
-              },
-              {
-                source_labels: ["relname"],
-                target_label: "elname",
-                replacement: "$1"
-              },
-              {
-                source_labels: ["schemaname"],
-                target_label: "schemaname",
-                replacement: "$1"
-              }
-            ]
-          }
-        ]
-      }
-    }
+    ]
   }
 ]
 
@@ -275,23 +209,30 @@ for (var i in deploy_spec) {
     data: deploy_spec[i].secret.data,
     stringData: deploy_spec[i].secret.stringData
   }, { dependsOn: [namespace] });
-  // Create service monitors.
-  const monitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors.metadata.name, {
-    name: deploy_spec[i].servicemonitors.metadata.name,
-    metadata: deploy_spec[i].servicemonitors.metadata,
-    apiVersion: deploy_spec[i].servicemonitors.apiVersion,
-    kind: deploy_spec[i].servicemonitors.kind,
-    spec: deploy_spec[i].servicemonitors.spec,
-  }, { dependsOn: [namespace] });
   // Create Release Resource.
   for (var helm_index in deploy_spec[i].helm) {
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-      namespace: deploy_spec[i].helm[helm_index].namespace,
-      name: deploy_spec[i].helm[helm_index].name,
-      chart: deploy_spec[i].helm[helm_index].chart,
-      version: deploy_spec[i].helm[helm_index].version,
-      values: deploy_spec[i].helm[helm_index].values,
-      skipAwait: true,
-    }, { dependsOn: [namespace] });
+    if (deploy_spec[i].helm[helm_index].repository === "") {
+      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+        namespace: deploy_spec[i].helm[helm_index].namespace,
+        name: deploy_spec[i].helm[helm_index].name,
+        chart: deploy_spec[i].helm[helm_index].chart,
+        version: deploy_spec[i].helm[helm_index].version,
+        values: deploy_spec[i].helm[helm_index].values,
+        skipAwait: true,
+      }, { dependsOn: [namespace] });
+    }
+    else {
+      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+        namespace: deploy_spec[i].helm[helm_index].namespace,
+        name: deploy_spec[i].helm[helm_index].name,
+        chart: deploy_spec[i].helm[helm_index].chart,
+        version: deploy_spec[i].helm[helm_index].version,
+        values: deploy_spec[i].helm[helm_index].values,
+        skipAwait: true,
+        repositoryOpts: {
+          repo: deploy_spec[i].helm[helm_index].repository,
+        },
+      }, { dependsOn: [namespace] });
+    }
   }
 }
