@@ -33,12 +33,12 @@ const deploy_spec = [
                 name: "oncall",
                 chart: "oncall",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "1.2.10",
+                version: "1.2.17",
                 values: {
                     base_url: "norther.example.com",
                     image: {
                         repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/oncall",
-                        tag: "v1.2.10"
+                        tag: "v1.2.17"
                     },
                     engine: {
                         replicaCount: 1,
@@ -130,7 +130,7 @@ const deploy_spec = [
 disk_free_limit.absolute = 1GB
 `,
                     replicaCount: 1,
-                    podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Monitoring", group: "Oncall", datacenter: "dc01", domain: "local" },
                     resources: {
                         limits: { cpu: "500m", memory: "1024Mi" },
                         requests: { cpu: "500m", memory: "1024Mi" }
@@ -173,7 +173,7 @@ disk_free_limit.absolute = 1GB
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.7.1",
+                version: "17.10.2",
                 values: {
                     architecture: "standalone",
                     auth: {
@@ -194,7 +194,7 @@ save ""`,
                             limits: { cpu: "200m", memory: "320Mi" },
                             requests: { cpu: "200m", memory: "320Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "Monitoring", group: "Oncall", datacenter: "dc01", domain: "local" },
                         podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
                         persistence: { enabled: false }
                     },
@@ -204,7 +204,7 @@ save ""`,
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" },
+                        podLabels: { customer: "demo", environment: "dev", project: "Monitoring", group: "Oncall", datacenter: "dc01", domain: "local" },
                         serviceMonitor: {
                             enabled: true,
                             interval: "60s",
@@ -235,7 +235,7 @@ save ""`,
                 repository: "https://charts.bitnami.com/bitnami",
                 version: "11.4.7",
                 values: {
-                    image: { tag: "10.6.12-debian-11-r3" },
+                    image: { tag: "10.6.12-debian-11-r26" },
                     architecture: "standalone",
                     auth: {
                         rootPassword: config.require("rootPassword"),
@@ -296,7 +296,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             storageClass: "longhorn",
                             size: "8Gi"
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "oncall", datacenter: "dc01", domain: "local" }
+                        podLabels: { customer: "demo", environment: "dev", project: "Monitoring", group: "Oncall", datacenter: "dc01", domain: "local" }
                     },
                     volumePermissions: {
                         enabled: true,

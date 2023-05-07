@@ -131,11 +131,12 @@ const deploy_spec = [
                         maxUnavailable: 1
                     }
                 },
-                image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "9.2.15" },
+                image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "9.2.17" },
                 podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                 serviceMonitor: {
                     enabled: true,
                     relabelings: [
+                        { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                         { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                         { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                         { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
