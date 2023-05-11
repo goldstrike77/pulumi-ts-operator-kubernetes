@@ -7,7 +7,7 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "ingress-apisix",
+                name: "apisix",
                 annotations: {},
                 labels: {}
             },
@@ -25,11 +25,10 @@ const deploy_spec = [
                 controller: "apisix.apache.org/ingress-controller"
             }
         },
-        secret:
-        {
+        secret: {
             metadata: {
                 name: "private-cert",
-                namespace: "ingress-apisix",
+                namespace: "apisix",
                 annotations: {},
                 labels: {}
             },
@@ -43,11 +42,11 @@ const deploy_spec = [
         },
         helm: [
             {
-                namespace: "ingress-apisix",
+                namespace: "apisix",
                 name: "apisix",
                 chart: "apisix",
                 repository: "https://charts.apiseven.com",
-                version: "1.1.1",
+                version: "1.3.1",
                 values: {
                     apisix: {
                         replicaCount: 1,
@@ -57,11 +56,63 @@ const deploy_spec = [
                         },
                         timezone: "Asia/Shanghai"
                     },
+                    serviceAccount: { create: true },
                     admin: {
                         allow: {
                             ipList: ["127.0.0.1/24", "192.168.0.0/24"]
                         }
                     },
+                    plugins: [
+                        "api-breaker",
+                        "authz-casbin",
+                        "authz-keycloak",
+                        "basic-auth",
+                        "batch-requests",
+                        "consumer-restriction",
+                        "cors",
+                        "echo",
+                        //"error-log-logger",
+                        "ext-plugin-post-req",
+                        "ext-plugin-pre-req",
+                        "fault-injection",
+                        "file-logger",
+                        "grpc-transcode",
+                        "grpc-web",
+                        "gzip",
+                        "hmac-auth",
+                        "http-logger",
+                        "ip-restriction",
+                        "jwt-auth",
+                        "kafka-logger",
+                        "key-auth",
+                        "limit-conn",
+                        "limit-count",
+                        "limit-req",
+                        "node-status",
+                        "openid-connect",
+                        "prometheus",
+                        "proxy-cache",
+                        "proxy-mirror",
+                        "proxy-rewrite",
+                        "real-ip",
+                        "redirect",
+                        "referer-restriction",
+                        "request-id",
+                        "request-validation",
+                        "response-rewrite",
+                        "serverless-post-function",
+                        "serverless-pre-function",
+                        //"skywalking",
+                        "sls-logger",
+                        "syslog",
+                        "tcp-logger",
+                        "traffic-split",
+                        "ua-restriction",
+                        "udp-logger",
+                        "uri-blocker",
+                        "wolf-rbac",
+                        "zipkin",
+                    ],
                     deployment: {
                         controlPlane: {
                             certsSecret: "private-cert",
@@ -77,6 +128,9 @@ const deploy_spec = [
                             certCAFilename: "cacert"
                         }
                     },
+                    logs: {
+                        enableAccessLog: false
+                    },
                     serviceMonitor: {
                         enabled: true,
                         interval: "60s",
@@ -91,7 +145,9 @@ const deploy_spec = [
                     },
                     etcd: {
                         enabled: false,
-                        host: ["http://etcd:2379"]
+                        host: ["http://etcd:2379"],
+                        user: "root",
+                        password: config.require("etcdPassword")
                     },
                     dashboard: {
                         enabled: true,
@@ -107,7 +163,17 @@ const deploy_spec = [
                         config: {
                             conf: {
                                 etcd: {
-                                    endpoints: ["http://etcd:2379"]
+                                    endpoints: ["http://etcd:2379"],
+                                    username: "root",
+                                    password: config.require("etcdPassword")
+                                },
+                                log: {
+                                    errorLog: {
+                                        level: "warn"
+                                    },
+                                    accessLog: {
+                                        level: "warn"
+                                    }
                                 }
                             },
                             authentication: {
@@ -139,8 +205,9 @@ const deploy_spec = [
                         enabled: true,
                         replicaCount: 1,
                         config: {
-                            logLevel: "info",
+                            logLevel: "error",
                             apisix: {
+                                serviceNamespace: "apisix",
                                 adminAPIVersion: "v3"
                             }
                         },
@@ -164,18 +231,20 @@ const deploy_spec = [
                 }
             },
             {
-                namespace: "ingress-apisix",
+                namespace: "apisix",
                 name: "etcd",
                 chart: "etcd",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "8.7.6",
+                version: "8.11.1",
                 values: {
                     auth: {
                         rbac: {
-                            create: false
+                            create: true,
+                            allowNoneAuthentication: false,
+                            rootPassword: config.require("etcdPassword")
                         }
                     },
-                    logLevel: "info",
+                    logLevel: "warn",
                     replicaCount: 3,
                     resources: {
                         limits: { cpu: "300m", memory: "512Mi" },

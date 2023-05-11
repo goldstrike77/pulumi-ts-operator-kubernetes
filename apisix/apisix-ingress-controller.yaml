@@ -23,6 +23,12 @@ nameOverride: ""
 
 fullnameOverride: ""
 
+# -- Override default labels assigned to Apache APISIX ingress controller resource
+labelsOverride: {}
+# labelsOverride:
+#   app.kubernetes.io/name: "{{ .Release.Name }}"
+#   app.kubernetes.io/instance: '{{ include "apisix-ingress-controller.name" . }}'
+
 rbac:
   # -- Specifies whether RBAC resources should be created
   create: true
@@ -42,7 +48,7 @@ replicaCount: 1
 image:
   repository: apache/apisix-ingress-controller
   pullPolicy: IfNotPresent
-  tag: "1.6.0"
+  tag: "1.6.1"
 
 podAnnotations: {}
 
@@ -80,7 +86,7 @@ config:
   # -- enable profiling via web interfaces host:port/debug/pprof, default is true.
   enableProfiling: true
   # -- Default interval for synchronizing Kubernetes resources to APISIX
-  apisixResourceSyncInterval: "300s"
+  apisixResourceSyncInterval: "1h"
   # -- Kubernetes related configurations.
   kubernetes:
     # -- the Kubernetes configuration file path, default is "", so the in-cluster

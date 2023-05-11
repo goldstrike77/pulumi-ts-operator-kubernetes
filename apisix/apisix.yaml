@@ -81,7 +81,7 @@ apisix:
     pullPolicy: IfNotPresent
     # -- Apache APISIX image tag
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 3.1.0-debian
+    tag: 3.2.0-debian
 
   # -- Use a `DaemonSet` or `Deployment`
   kind: Deployment
@@ -233,11 +233,23 @@ gateway:
     enabled: true
     servicePort: 80
     containerPort: 9080
+    # -- Support multiple http ports, See [Configuration](https://github.com/apache/apisix/blob/0bc65ea9acd726f79f80ae0abd8f50b7eb172e3d/conf/config-default.yaml#L24)
+    additionalContainerPorts: []
+      # - port: 9081
+      #   enable_http2: true          # If not set, the default value is `false`.
+      # - ip: 127.0.0.2               # Specific IP, If not set, the default value is `0.0.0.0`.
+      #   port: 9082
+      #   enable_http2: true
   # -- Apache APISIX service settings for tls
   tls:
     enabled: false
     servicePort: 443
     containerPort: 9443
+    # -- Support multiple https ports, See [Configuration](https://github.com/apache/apisix/blob/0bc65ea9acd726f79f80ae0abd8f50b7eb172e3d/conf/config-default.yaml#L99)
+    additionalContainerPorts: []
+      # - ip: 127.0.0.3           # Specific IP, If not set, the default value is `0.0.0.0`.
+      #   port: 9445
+      #   enable_http2: true
     # -- Specifies the name of Secret contains trusted CA certificates in the PEM format used to verify the certificate when APISIX needs to do SSL/TLS handshaking with external services (e.g. etcd)
     existingCASecret: ""
     # -- Filename be used in the gateway.tls.existingCASecret
@@ -281,6 +293,8 @@ admin:
   #   - "143.231.0.0/16"
   # -- IPs for which nodes in the cluster will also accept traffic for the servic
   externalIPs: []
+  # -- which ip to listen on for Apache APISIX admin API. Set to `"[::]"` when on IPv6 single stack
+  ip: 0.0.0.0
   # -- which port to use for Apache APISIX admin API
   port: 9180
   # -- Service port to use for Apache APISIX admin API
@@ -399,20 +413,18 @@ customPlugins:
   luaPath: "/opts/custom_plugins/?.lua"
   plugins:
     # -- plugin name.
-    - name: ""
+    - name: "plugin-name"
       # -- plugin attrs
       attrs: {}
       # -- plugin codes can be saved inside configmap object.
       configMap:
         # -- name of configmap.
-        name: ""
+        name: "configmap-name"
         # -- since keys in configmap is flat, mountPath allows to define the mount
         # path, so that plugin codes can be mounted hierarchically.
         mounts:
-          - key: ""
-            path: ""
-          - key: ""
-            path: ""
+          - key: "the-file-name"
+            path: "mount-path"
 
 updateStrategy: {}
   # type: RollingUpdate
@@ -563,6 +575,10 @@ etcd:
   host:
     # host or ip e.g. http://172.20.128.89:2379
     - http://etcd.host:2379
+  # -- if etcd.enabled is false, username for external etcd. If etcd.enabled is true, use etcd.auth.rbac.rootPassword instead.
+  user: ""
+  # -- if etcd.enabled is false, password for external etcd. If etcd.enabled is true, use etcd.auth.rbac.rootPassword instead.
+  password: ""
   # -- apisix configurations prefix
   prefix: "/apisix"
   # -- Set the timeout value in seconds for subsequent socket operations from apisix to etcd cluster
@@ -573,10 +589,8 @@ etcd:
     rbac:
       # -- No authentication by default. Switch to enable RBAC authentication
       create: false
-      # -- root username for etcd
-      user: ""
-      # -- root password for etcd
-      password: ""
+      # -- root password for etcd. Requires etcd.auth.rbac.create to be true.
+      rootPassword: ""
     tls:
       # -- enable etcd client certificate
       enabled: false
@@ -598,6 +612,18 @@ etcd:
 
 dashboard:
   enabled: false
+  config:
+    conf:
+      etcd:
+        # -- Supports defining multiple etcd host addresses for an etcd cluster
+        endpoints:
+          - apisix-etcd:2379
+        # -- apisix configurations prefix
+        prefix: "/apisix"
+        # -- Specifies etcd basic auth username if enable etcd auth
+        username: ~
+        # -- Specifies etcd basic auth password if enable etcd auth
+        password: ~
 
 # -- Ingress controller configuration
 ingress-controller:

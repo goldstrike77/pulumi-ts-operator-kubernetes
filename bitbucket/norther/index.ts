@@ -41,7 +41,7 @@ const deploy_spec = [
         repository: "",
         version: "1.12.0",
         values: {
-          replicaCount: 1,
+          replicaCount: 2,
           image: {
             repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/bitbucket",
             tag: "8.9.0"

@@ -3,5 +3,5 @@ config:
   demo:dashboardPassword:
     secure: v1:9H6BBOui7IxRsMmz:m5EhLDC91fq5wgzaaCK/EyeW2pP8O5A/
   demo:etcdPassword:
-    secure: v1:C/A6O5ucBAhHFqew:v44JX3lN5pmIjW7jAucNO0MKcMCcJlAA
+    secure: v1:UNL0htOQGOzo5tN8:mOQ+0YDu8cx8ncznpBECG/edGlIEB5bf
   kubernetes:context: kubernetes-admin@norther

@@ -38,7 +38,8 @@ const deploy_spec = [
                     base_url: "norther.example.com",
                     image: {
                         repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/oncall",
-                        tag: "v1.2.17"
+                        tag: "v1.2.17",
+                        pullPolicy: "IfNotPresent"
                     },
                     engine: {
                         replicaCount: 1,
