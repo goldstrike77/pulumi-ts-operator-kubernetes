@@ -8,4 +8,6 @@ helm repo add apisix https://charts.apiseven.com
 ```hcl
 pulumi config set etcdPassword [password] --secret
 pulumi config set dashboardPassword [password] --secret
+pulumi config set adminCredentials [password] --secret
+pulumi config set viewerCredentials [password] --secret
 ```

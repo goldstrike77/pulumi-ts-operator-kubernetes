@@ -221,6 +221,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 }
             }
         },
+        /**
         ingress: {
             metadata: {
                 annotations: {
@@ -257,6 +258,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 ]
             }
         }
+         */
     }
 ]
 
@@ -288,9 +290,11 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].service.metadata,
         spec: deploy_spec[i].service.spec
     }, { dependsOn: [namespace] });
-    // Create Ingress Resource.
-    const ingress = new k8s.networking.v1.Ingress(deploy_spec[i].ingress.metadata.name, {
-        metadata: deploy_spec[i].ingress.metadata,
-        spec: deploy_spec[i].ingress.spec
-    }, { dependsOn: [namespace] });
+    /**
+        // Create Ingress Resource.
+        const ingress = new k8s.networking.v1.Ingress(deploy_spec[i].ingress.metadata.name, {
+            metadata: deploy_spec[i].ingress.metadata,
+            spec: deploy_spec[i].ingress.spec
+        }, { dependsOn: [namespace] });
+    */
 }

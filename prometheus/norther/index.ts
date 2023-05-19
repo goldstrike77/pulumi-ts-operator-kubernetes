@@ -599,6 +599,10 @@ SOFTWARE.
                             key: "additionalscrape.job"
                         },
                         thanos: {
+                            resources: {
+                                limits: { cpu: "200m", memory: "256Mi" },
+                                requests: { cpu: "200m", memory: "256Mi" }
+                            },
                             objectStorageConfig: {
                                 name: "configuration-secret",
                                 key: "objstore.yml"

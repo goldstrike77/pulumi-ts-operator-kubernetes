@@ -1,7 +1,11 @@
 encryptionsalt: v1:RXZ1O0/9qJo=:v1:u8WqjFEyB32aCisS:x4FNDkUN1hxhfo/5AZMSISfqx7lm9w==
 config:
+  demo:adminCredentials:
+    secure: v1:AeUoxYKFbSwL5/SZ:TlfmIAzSUvdW57kElsK+cD4uDParLmF3
   demo:dashboardPassword:
     secure: v1:9H6BBOui7IxRsMmz:m5EhLDC91fq5wgzaaCK/EyeW2pP8O5A/
   demo:etcdPassword:
     secure: v1:UNL0htOQGOzo5tN8:mOQ+0YDu8cx8ncznpBECG/edGlIEB5bf
+  demo:viewerCredentials:
+    secure: v1:m8ZZ0iVnKM5dJO2n:w5YGvTXm4ei4JRzhYI56m+DWWjmOpaCI
   kubernetes:context: kubernetes-admin@norther

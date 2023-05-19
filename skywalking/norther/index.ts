@@ -355,7 +355,6 @@ webhooks:
           fullnameOverride: "skywalking"
         }
       },
-      /**
       {
         namespace: "skywalking",
         name: "swck-operator",
@@ -371,7 +370,6 @@ webhooks:
           }
         }
       }
-       */
     ],
     servicemonitor: {
       apiVersion: "monitoring.coreos.com/v1",

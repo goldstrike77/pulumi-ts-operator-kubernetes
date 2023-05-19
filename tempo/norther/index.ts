@@ -75,13 +75,13 @@ const deploy_spec = [
                 },
                 queryFrontend: {
                     query: {
-                        enabled: false,
-                        resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
-                        }
+                        enabled: false
                     },
                     replicas: 1,
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    },
                     podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Tempo", datacenter: "dc01", domain: "local" }
                 },
                 multitenancyEnabled: false,

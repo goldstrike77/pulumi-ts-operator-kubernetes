@@ -18,33 +18,33 @@ const deploy_spec = [
             name: "cert-manager",
             chart: "cert-manager",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "0.9.2",
+            version: "0.11.2",
             values: {
                 logLevel: 2,
                 installCRDs: true,
                 controller: {
-                    replicaCount: 2,
+                    replicaCount: 1,
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Certificate", group: "Cert-Manager", datacenter: "dc01", domain: "local" },
                 },
                 webhook: {
-                    replicaCount: 2,
+                    replicaCount: 1,
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Certificate", group: "Cert-Manager", datacenter: "dc01", domain: "local" },
                 },
                 cainjector: {
-                    replicaCount: 2,
+                    replicaCount: 1,
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "Certificate", group: "Cert-Manager", datacenter: "dc01", domain: "local" },
                 },
                 metrics: {
                     enabled: true,
