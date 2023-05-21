@@ -114,7 +114,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 namespace: "spring-boot"
             },
             spec: {
-                replicas: 2,
+                replicas: 1,
                 selector: {
                     matchLabels: {
                         app: "spring-boot"
@@ -204,7 +204,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 labels: {
                     app: "spring-boot"
                 },
-                name: "spring-boot",
+                name: "demo",
                 namespace: "spring-boot"
             },
             spec: {
@@ -221,6 +221,61 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 }
             }
         },
+        crds: [
+            {
+                apiVersion: "apisix.apache.org/v2",
+                kind: "ApisixRoute",
+                metadata: {
+                    name: "demo-spring-boot",
+                    namespace: "spring-boot"
+                },
+                spec: {
+                    http: [
+                        {
+                            name: "demo-spring-boot",
+                            match: {
+                                methods: ["GET", "HEAD"],
+                                hosts: ["spring-boot.example.com"],
+                                paths: ["/*"]
+                            },
+                            backends: [
+                                {
+                                    serviceName: "demo",
+                                    servicePort: 8080,
+                                    resolveGranularity: "service"
+                                }
+                            ],
+                            plugins: [
+                                {
+                                    name: "limit-conn",
+                                    enable: true,
+                                    config: {
+                                        _meta: {
+                                            disable: false
+                                        },
+                                        allow_degradation: false,
+                                        burst: 5,
+                                        conn: 20,
+                                        default_conn_delay: 2,
+                                        key: "remote_addr",
+                                        key_type: "var",
+                                        only_use_default_delay: false,
+                                        rejected_code: 503
+                                    }
+                                },
+                                {
+                                    name: "redirect",
+                                    enable: true,
+                                    config: {
+                                        http_to_https: true
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
         /**
         ingress: {
             metadata: {
@@ -297,4 +352,13 @@ for (var i in deploy_spec) {
             spec: deploy_spec[i].ingress.spec
         }, { dependsOn: [namespace] });
     */
+    // Create apisix Custom resource definition .
+    for (var crd_index in deploy_spec[i].crds) {
+        const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {
+            apiVersion: deploy_spec[i].crds[crd_index].apiVersion,
+            kind: deploy_spec[i].crds[crd_index].kind,
+            metadata: deploy_spec[i].crds[crd_index].metadata,
+            spec: deploy_spec[i].crds[crd_index].spec
+        }, { dependsOn: [service] });
+    }
 }
