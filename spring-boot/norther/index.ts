@@ -277,43 +277,43 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
             }
         ]
         /**
-        ingress: {
-            metadata: {
-                annotations: {
-                    "nginx.ingress.kubernetes.io/backend-protocol": "HTTP"
-                },
-                labels: {
-                    app: "spring-boot"
-                },
-                name: "spring-boot",
-                namespace: "spring-boot"
-            },
-            spec: {
-                ingressClassName: "nginx",
-                rules: [
-                    {
-                        host: "spring-boot.example.com",
-                        http: {
-                            paths: [
-                                {
-                                    backend: {
-                                        service: {
-                                            name: "spring-boot",
-                                            port: {
-                                                number: 8080,
-                                            }
+                ingress: {
+                    metadata: {
+                        annotations: {
+                            "k8s.apisix.apache.org/http-to-https": "true"
+                        },
+                        labels: {
+                            app: "spring-boot"
+                        },
+                        name: "spring-boot",
+                        namespace: "spring-boot"
+                    },
+                    spec: {
+                        ingressClassName: "ingress",
+                        rules: [
+                            {
+                                host: "spring-boot.example.com",
+                                http: {
+                                    paths: [
+                                        {
+                                            backend: {
+                                                service: {
+                                                    name: "spring-boot",
+                                                    port: {
+                                                        number: 8080,
+                                                    }
+                                                }
+                                            },
+                                            path: "/",
+                                            pathType: "Prefix",
                                         }
-                                    },
-                                    path: "/",
-                                    pathType: "Prefix",
+                                    ]
                                 }
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
-         */
+                            }
+                        ]
+                    }       
+                }
+                 */
     }
 ]
 
@@ -351,7 +351,7 @@ for (var i in deploy_spec) {
             metadata: deploy_spec[i].ingress.metadata,
             spec: deploy_spec[i].ingress.spec
         }, { dependsOn: [namespace] });
-    */
+     */
     // Create apisix Custom resource definition .
     for (var crd_index in deploy_spec[i].crds) {
         const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {

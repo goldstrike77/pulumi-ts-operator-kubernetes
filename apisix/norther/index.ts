@@ -46,8 +46,8 @@ const deploy_spec = [
         apisix: {
             namespace: "apisix",
             name: "apisix",
-            chart: "apisix",
-            repository: "https://charts.apiseven.com",
+            chart: "../../_chart/apisix-1.4.0.tgz",
+            repository: "",
             version: "1.4.0",
             values: {
                 apisix: {
@@ -169,6 +169,9 @@ const deploy_spec = [
                         service_instance_name: "$hostname",
                         "endpoint_addr": "http://skywalking-oap.skywalking:12800",
                         report_interval: 15
+                    },
+                    prometheus: {
+                        prefer_name: true
                     }
                 },
                 deployment: {
@@ -302,7 +305,7 @@ const deploy_spec = [
             name: "etcd",
             chart: "etcd",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "8.11.1",
+            version: "8.11.4",
             values: {
                 auth: {
                     rbac: {
@@ -437,9 +440,6 @@ for (var i in deploy_spec) {
         version: deploy_spec[i].apisix.version,
         values: deploy_spec[i].apisix.values,
         skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].apisix.repository,
-        },
     }, { dependsOn: [etcd], customTimeouts: { create: "20m" } });
     // Create Kubernetes Ingress Class.
     const ingressclass = new k8s.apiextensions.CustomResource(deploy_spec[i].class.metadata.name, {

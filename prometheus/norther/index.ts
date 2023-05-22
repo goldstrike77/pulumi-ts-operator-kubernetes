@@ -34,7 +34,7 @@ const deploy_spec = [
             name: "kube-prometheus-stack",
             chart: "kube-prometheus-stack",
             repository: "https://prometheus-community.github.io/helm-charts",
-            version: "45.25.0",
+            version: "45.29.0",
             values: {
                 fullnameOverride: "kubepromstack",
                 defaultRules: { create: false },
@@ -572,7 +572,7 @@ SOFTWARE.
                         ruleSelectorNilUsesHelmValues: false,
                         serviceMonitorSelectorNilUsesHelmValues: false,
                         podMonitorSelectorNilUsesHelmValues: false,
-                        retention: "6h",
+                        retention: "4h",
                         retentionSize: "4096MB",
                         replicas: 1,
                         logLevel: "warn",
@@ -618,7 +618,7 @@ SOFTWARE.
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "12.5.1",
+                version: "12.6.2",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -819,7 +819,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.10.2",
+                version: "17.11.3",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -875,7 +875,7 @@ save ""`,
                 name: "prometheus-blackbox-exporter",
                 chart: "prometheus-blackbox-exporter",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "7.7.0",
+                version: "7.8.0",
                 values: {
                     fullnameOverride: "blackbox-exporter",
                     config: {
