@@ -226,13 +226,13 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                 apiVersion: "apisix.apache.org/v2",
                 kind: "ApisixRoute",
                 metadata: {
-                    name: "demo-spring-boot",
+                    name: "demo",
                     namespace: "spring-boot"
                 },
                 spec: {
                     http: [
                         {
-                            name: "demo-spring-boot",
+                            name: "root",
                             match: {
                                 methods: ["GET", "HEAD"],
                                 hosts: ["spring-boot.example.com"],
@@ -246,6 +246,13 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                                 }
                             ],
                             plugins: [
+                                {
+                                    name: "prometheus",
+                                    enable: true,
+                                    config: {
+                                        prefer_name: true
+                                    }
+                                },
                                 {
                                     name: "limit-conn",
                                     enable: true,

@@ -169,6 +169,9 @@ const deploy_spec = [
                         service_instance_name: "$hostname",
                         "endpoint_addr": "http://skywalking-oap.skywalking:12800",
                         report_interval: 15
+                    },
+                    prometheus: {
+                        prefer_name: true
                     }
                 },
                 deployment: {
@@ -378,6 +381,10 @@ const deploy_spec = [
                 },
                 spec: {
                     monitoring: {
+                        prometheus: {
+                            enable: true,
+                            prefer_name: true
+                        },
                         skywalking: {
                             enable: true,
                             sampleRatio: 1
