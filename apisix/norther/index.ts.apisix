@@ -169,9 +169,6 @@ const deploy_spec = [
                         service_instance_name: "$hostname",
                         "endpoint_addr": "http://skywalking-oap.skywalking:12800",
                         report_interval: 15
-                    },
-                    prometheus: {
-                        prefer_name: true
                     }
                 },
                 deployment: {
@@ -202,15 +199,8 @@ const deploy_spec = [
                 },
                 serviceMonitor: {
                     enabled: true,
-                    interval: "60s",
-                    labels: {
-                        customer: "demo",
-                        environment: "dev",
-                        project: "API-Gateway",
-                        group: "apisix",
-                        datacenter: "dc01",
-                        domain: "local"
-                    }
+                    namespace: "apisix",
+                    interval: "60s"
                 },
                 etcd: {
                     enabled: false,
@@ -287,15 +277,8 @@ const deploy_spec = [
                     },
                     serviceMonitor: {
                         enabled: true,
-                        interval: "60s",
-                        labels: {
-                            customer: "demo",
-                            environment: "dev",
-                            project: "API-Gateway",
-                            group: "apisix-ingress-controller",
-                            datacenter: "dc01",
-                            domain: "local"
-                        }
+                        namespace: "apisix",
+                        interval: "60s"
                     }
                 }
             }
@@ -372,6 +355,79 @@ const deploy_spec = [
                 controller: "apisix.apache.org/ingress-controller"
             }
         },
+        servicemonitors: [
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "ServiceMonitor",
+                metadata: {
+                    name: "apisix",
+                    namespace: "apisix"
+                },
+                spec: {
+                    endpoints: [
+                        {
+                            interval: "60s",
+                            path: "/apisix/prometheus/metrics",
+                            scheme: "http",
+                            targetPort: "prometheus",
+                            relabelings: [
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "API-Gateway", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "apisix", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["apisix"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/instance": "apisix",
+                            "app.kubernetes.io/name": "apisix",
+                            "app.kubernetes.io/service": "apisix-gateway"
+                        }
+                    }
+                }
+            },
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "ServiceMonitor",
+                metadata: {
+                    name: "apisix-ingress-controller",
+                    namespace: "apisix"
+                },
+                spec: {
+                    endpoints: [
+                        {
+                            interval: "60s",
+                            path: "/metrics",
+                            scheme: "http",
+                            targetPort: "http",
+                            relabelings: [
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "API-Gateway", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "apisix", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["apisix"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/instance": "apisix",
+                            "app.kubernetes.io/name": "ingress-controller"
+                        }
+                    }
+                }
+            }
+        ],
         crds: [
             {
                 apiVersion: "apisix.apache.org/v2",
@@ -381,10 +437,6 @@ const deploy_spec = [
                 },
                 spec: {
                     monitoring: {
-                        prometheus: {
-                            enable: true,
-                            prefer_name: true
-                        },
                         skywalking: {
                             enable: true,
                             sampleRatio: 1
@@ -456,6 +508,17 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].class.metadata,
         spec: deploy_spec[i].class.spec
     }, { dependsOn: [apisix] });
+    // Create service monitor.
+/**
+    for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+        const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+            apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+            kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+            metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+            spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+        }, { dependsOn: [apisix] });
+    }
+     */
     // Create apisix Custom resource definition .
     for (var crd_index in deploy_spec[i].crds) {
         const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {

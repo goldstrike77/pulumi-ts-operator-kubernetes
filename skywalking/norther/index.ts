@@ -383,6 +383,7 @@ webhooks:
           {
             interval: "60s",
             path: "/metrics",
+            scheme: "http",
             port: "prometheus-port",
             relabelings: [
               { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },

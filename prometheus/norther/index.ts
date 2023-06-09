@@ -572,6 +572,7 @@ SOFTWARE.
                         ruleSelectorNilUsesHelmValues: false,
                         serviceMonitorSelectorNilUsesHelmValues: false,
                         podMonitorSelectorNilUsesHelmValues: false,
+                        probeSelectorNilUsesHelmValues: false,
                         retention: "4h",
                         retentionSize: "4096MB",
                         replicas: 1,

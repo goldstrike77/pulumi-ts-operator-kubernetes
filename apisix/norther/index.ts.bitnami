@@ -36,18 +36,24 @@ const deploy_spec = [
             repository: "https://charts.bitnami.com/bitnami",
             version: "1.0.1",
             values: {
+                image: {
+                    registry: "docker.io",
+                    repository: "bitnami/apisix",
+                    tag: "3.3.0-debian-11-r12"
+                },
                 dataPlane: {
+                    enabled: false,
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "300m", memory: "512Mi" },
-                        requests: { cpu: "300m", memory: "512Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Data-Plane", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Apisix-DataPlane", datacenter: "dc01", domain: "local" },
                     service: {
                         type: "LoadBalancer",
-                        loadBalancerIP: "",
+                        loadBalancerIP: "192.168.0.101",
                         externalTrafficPolicy: "Local",
-                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "apisix" }
                     },
                     metrics: {
                         enabled: true,
@@ -66,12 +72,30 @@ const deploy_spec = [
                     }
                 },
                 controlPlane: {
+                    enabled: true,
                     replicaCount: 1,
                     resources: {
                         limits: { cpu: "300m", memory: "512Mi" },
                         requests: { cpu: "300m", memory: "512Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Control-Plane", datacenter: "dc01", domain: "local" },
+                    extraConfig: {
+                        deployment: {
+                            role: "traditional",
+                            role_traditional: {
+                                config_provider: "etcd"
+                            }
+                        },
+                        plugins: ["skywalking"],
+                        plugin_attr: {
+                            skywalking: {
+                                service_name: "demo::APISIX",
+                                service_instance_name: "$hostname",
+                                "endpoint_addr": "http://skywalking-oap.skywalking:12800",
+                                report_interval: 15
+                            }
+                        }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Apisix-ControlPlane", datacenter: "dc01", domain: "local" },
                     metrics: {
                         enabled: true,
                         serviceMonitor: {
@@ -89,28 +113,40 @@ const deploy_spec = [
                     }
                 },
                 dashboard: {
+                    enabled: true,
                     replicaCount: 1,
+                    image: {
+                        registry: "docker.io",
+                        repository: "bitnami/apisix-dashboard",
+                        tag: "3.0.1-debian-11-r11"
+                    },
                     username: "admin",
                     password: config.require("dashboardPassword"),
-                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Dashboard", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Apisix-Dashboard", datacenter: "dc01", domain: "local" },
                     resources: {
-                        limits: { cpu: "200m", memory: "128Mi" },
-                        requests: { cpu: "200m", memory: "128Mi" }
+                        limits: { cpu: "300m", memory: "256Mi" },
+                        requests: { cpu: "300m", memory: "256Mi" }
                     },
-                    service: { type: "ClusterIP" },
-                    ingress: {
-                        enabled: true,
-                        hostname: "apisix.example.com",
-                        ingressClassName: "nginx"
+                    service: {
+                        type: "LoadBalancer",
+                        loadBalancerIP: "192.168.0.102",
+                        externalTrafficPolicy: "Local",
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" }
                     }
                 },
                 ingressController: {
+                    enabled: true,
+                    image: {
+                        registry: "docker.io",
+                        repository: "bitnami/apisix-ingress-controller",
+                        tag: "1.6.1-debian-11-r11"
+                    },
                     replicaCount: 1,
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Ingress-Controller", datacenter: "dc01", domain: "local" },
+                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Apisix-ingressController", datacenter: "dc01", domain: "local" },
                     metrics: {
                         enabled: true,
                         serviceMonitor: {
@@ -127,83 +163,71 @@ const deploy_spec = [
                         }
                     }
                 },
-                externalEtcd: {
-                    servers: ["etcd"],
-                    password: config.require("etcdPassword")
-                },
-                etcd: { enabled: false }
-            }
-        },
-        etcd: {
-            namespace: "apisix",
-            name: "etcd",
-            chart: "etcd",
-            repository: "https://charts.bitnami.com/bitnami",
-            version: "8.11.4",
-            values: {
-                auth: {
-                    rbac: {
-                        create: true,
-                        allowNoneAuthentication: true,
-                        rootPassword: config.require("etcdPassword")
+                waitContainer: {
+                    image: {
+                        registry: "docker.io",
+                        repository: "bitnami/bitnami-shell",
+                        tag: "11-debian-11-r124"
                     }
                 },
-                autoCompactionMode: "periodic",
-                autoCompactionRetention: "1h",
-                logLevel: "error",
-                extraEnvVars: [
-                    { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
-                ],
-                replicaCount: 3,
-                resources: {
-                    limits: { cpu: "500m", memory: "512Mi" },
-                    requests: { cpu: "500m", memory: "512Mi" }
-                },
-                podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "etcd", datacenter: "dc01", domain: "local" },
-                persistence: {
+                etcd: {
                     enabled: true,
-                    storageClass: "longhorn",
-                    size: "7Gi"
-                },
-                volumePermissions: {
-                    enabled: true,
-                    resources: {
-                        limits: { cpu: "50m", memory: "64Mi" },
-                        requests: { cpu: "50m", memory: "64Mi" }
-                    }
-                },
-                metrics: {
-                    enabled: true,
-                    podMonitor: {
-                        enabled: true,
-                        interval: "60s",
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+                    auth: {
+                        rbac: {
+                            create: true,
+                            rootPassword: config.require("etcdPassword")
+                        }
                     },
-                    prometheusRule: {
-                        enabled: false,
-                        rules: []
+                    autoCompactionMode: "periodic",
+                    autoCompactionRetention: "1h",
+                    logLevel: "error",
+                    extraEnvVars: [
+                        { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
+                    ],
+                    replicaCount: 3,
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "etcd", datacenter: "dc01", domain: "local" },
+                    persistence: {
+                        enabled: true,
+                        storageClass: "longhorn",
+                        size: "7Gi"
+                    },
+                    volumePermissions: {
+                        enabled: true,
+                        image: {
+                            registry: "docker.io",
+                            repository: "bitnami/bitnami-shell",
+                            tag: "11-debian-11-r124"
+                        },
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        }
+                    },
+                    metrics: {
+                        enabled: true,
+                        podMonitor: {
+                            enabled: true,
+                            interval: "60s",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        prometheusRule: {
+                            enabled: false,
+                            rules: []
+                        }
                     }
                 }
-            }
-        },
-        class: {
-            apiVersion: "networking.k8s.io/v1",
-            kind: "IngressClass",
-            metadata: {
-                name: "apisix",
-                annotations: {},
-                labels: {}
-            },
-            spec: {
-                controller: "apisix.apache.org/ingress-controller"
             }
         },
         crds: [
@@ -215,10 +239,6 @@ const deploy_spec = [
                 },
                 spec: {
                     monitoring: {
-                        prometheus: {
-                            enable: true,
-                            prefer_name: true
-                        },
                         skywalking: {
                             enable: true,
                             sampleRatio: 1
@@ -259,18 +279,6 @@ for (var i in deploy_spec) {
             stringData: deploy_spec[i].secrets[secret_index].stringData
         }, { dependsOn: [namespace] });
     }
-    // Create etcd Resource.
-    const etcd = new k8s.helm.v3.Release(deploy_spec[i].etcd.name, {
-        namespace: deploy_spec[i].etcd.namespace,
-        name: deploy_spec[i].etcd.name,
-        chart: deploy_spec[i].etcd.chart,
-        version: deploy_spec[i].etcd.version,
-        values: deploy_spec[i].etcd.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].etcd.repository,
-        },
-    }, { dependsOn: [namespace], customTimeouts: { create: "20m" } });
     // Create apisix Resource.
     const apisix = new k8s.helm.v3.Release(deploy_spec[i].apisix.name, {
         namespace: deploy_spec[i].apisix.namespace,
@@ -283,13 +291,6 @@ for (var i in deploy_spec) {
             repo: deploy_spec[i].apisix.repository,
         },
     }, { dependsOn: [namespace], customTimeouts: { create: "20m" } });
-    // Create Kubernetes Ingress Class.
-    const ingressclass = new k8s.apiextensions.CustomResource(deploy_spec[i].class.metadata.name, {
-        apiVersion: deploy_spec[i].class.apiVersion,
-        kind: deploy_spec[i].class.kind,
-        metadata: deploy_spec[i].class.metadata,
-        spec: deploy_spec[i].class.spec
-    }, { dependsOn: [apisix] });
     // Create apisix Custom resource definition .
     for (var crd_index in deploy_spec[i].crds) {
         const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {

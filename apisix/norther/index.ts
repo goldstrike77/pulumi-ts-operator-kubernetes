@@ -48,176 +48,95 @@ const deploy_spec = [
             name: "apisix",
             chart: "apisix",
             repository: "https://charts.apiseven.com",
-            version: "1.4.0",
+            version: "2.0.0",
             values: {
-                apisix: {
-                    replicaCount: 1,
-                    resources: {
-                        limits: { cpu: "300m", memory: "512Mi" },
-                        requests: { cpu: "300m", memory: "512Mi" }
-                    },
-                    timezone: "Asia/Shanghai"
+                labels: {
+                    customer: "demo",
+                    environment: "dev",
+                    project: "API-Gateway",
+                    group: "apisix",
+                    datacenter: "dc01",
+                    domain: "local"
                 },
-                rbac: { create: true },
+                image: {
+                    repository: "apache/apisix",
+                    tag: "3.3.0-debian"
+                },
+                replicaCount: 1,
+                resources: {
+                    limits: { cpu: "300m", memory: "512Mi" },
+                    requests: { cpu: "300m", memory: "512Mi" }
+                },
+                nodeSelector: {},
+                timezone: "Asia/Shanghai",
+                initContainer: {
+                    image: "busybox",
+                    tag: "1.28"
+                },
                 serviceAccount: { create: true },
-                admin: {
-                    credentials: {
-                        admin: config.require("adminCredentials"),
-                        viewer: config.require("viewerCredentials")
-                    },
-                    allow: {
-                        ipList: ["127.0.0.1/24", "192.168.0.0/24"]
-                    }
-                },
-                plugins: [
-                    "ai",
-                    "api-breaker",
-                    "authz-casbin",
-                    "authz-casdoor",
-                    "authz-keycloak",
-                    "aws-lambda",
-                    "azure-functions",
-                    "basic-auth",
-                    "batch-requests",
-                    "body-transformer",
-                    "cas-auth",
-                    "clickhouse-logger",
-                    "client-control",
-                    "consumer-restriction",
-                    "cors",
-                    "csrf",
-                    "datadog",
-                    "degraphql",
-                    "dubbo-proxy",
-                    "echo",
-                    "elasticsearch-logger",
-                    //"error-log-logger",
-                    "example-plugin",
-                    "ext-plugin-post-req",
-                    "ext-plugin-post-resp",
-                    "ext-plugin-pre-req",
-                    "fault-injection",
-                    "file-logger",
-                    "forward-auth",
-                    //"gm",
-                    "google-cloud-logging",
-                    "grpc-transcode",
-                    "grpc-web",
-                    "gzip",
-                    "hmac-auth",
-                    "http-logger",
-                    "inspect",
-                    "ip-restriction",
-                    "jwt-auth",
-                    "kafka-logger",
-                    "kafka-proxy",
-                    "key-auth",
-                    "ldap-auth",
-                    "limit-conn",
-                    "limit-count",
-                    "limit-req",
-                    "loggly",
-                    "log-rotate",
-                    "mocking",
-                    "node-status",
-                    "opa",
-                    "openfunction",
-                    "openid-connect",
-                    "opentelemetry",
-                    "openwhisk",
-                    "prometheus",
-                    "proxy-cache",
-                    "proxy-control",
-                    "proxy-mirror",
-                    "proxy-rewrite",
-                    "public-api",
-                    "real-ip",
-                    "redirect",
-                    "referer-restriction",
-                    "request-id",
-                    "request-validation",
-                    "response-rewrite",
-                    "rocketmq-logger",
-                    "server-info",
-                    "serverless-post-function",
-                    "serverless-pre-function",
-                    "skywalking",
-                    "skywalking-logger",
-                    "sls-logger",
-                    "splunk-hec-logging",
-                    "syslog",
-                    "tcp-logger",
-                    "tencent-cloud-cls",
-                    "traffic-split",
-                    "ua-restriction",
-                    "udp-logger",
-                    "uri-blocker",
-                    "wolf-rbac",
-                    "workflow",
-                    "zipkin"
-                ],
-                stream_plugins: [
-                    "ip-restriction",
-                    "limit-conn",
-                    "mqtt-proxy",
-                    "prometheus",
-                    "syslog"
-                ],
-                pluginAttrs: {
-                    skywalking: {
-                        service_name: "demo::APISIX",
-                        service_instance_name: "$hostname",
-                        "endpoint_addr": "http://skywalking-oap.skywalking:12800",
-                        report_interval: 15
-                    }
-                },
-                deployment: {
-                    controlPlane: {
-                        certsSecret: "apisix-cert",
-                        cert: "cert",
-                        certKey: "key"
-                    }
-                },
-                gateway: {
-                    type: "LoadBalancer",
+                rbac: { create: true },
+                service: {
                     externalTrafficPolicy: "Local",
-                    tls: {
+                    type: "LoadBalancer",
+                    annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
+                    externalIPs: ["192.168.0.101"],
+                    stream: {
+                        enabled: true
+                    }
+                },
+                metrics: {
+                    serviceMonitor: {
                         enabled: true,
-                        existingCASecret: "apisix-cert",
-                        certCAFilename: "cert"
+                        interval: "60s",
                     }
                 },
-                discovery: {
-                    enabled: true,
-                    registry: {
-                        kubernetes: {},
-                        dns: { servers: ["10.96.0.10:53"] }
+                apisix: {
+                    admin: {
+                        credentials: {
+                            admin: config.require("adminCredentials"),
+                            viewer: config.require("viewerCredentials")
+                        },
+                        allow: {
+                            ipList: ["127.0.0.1/24", "192.168.0.0/24"]
+                        },
+                        logs: {
+                            enableAccessLog: true,
+                            accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\"',
+                            accessLogFormatEscape: "default"
+                        }
+                    },
+                    discovery: {
+                        enabled: true,
+                        registry: {
+                            kubernetes: {},
+                            dns: { servers: ["10.96.0.10:53"] }
+                        }
+                    },
+                    prometheus: { enabled: true },
+                    plugins: ["ai", "api-breaker", "authz-casbin", "authz-casdoor", "authz-keycloak", "aws-lambda", "azure-functions", "basic-auth", "batch-requests", "body-transformer", "cas-auth", "clickhouse-logger", "client-control", "consumer-restriction", "cors", "csrf", "datadog", "degraphql", "dubbo-proxy", "echo", "elasticsearch-logger", "example-plugin", "ext-plugin-post-req", "ext-plugin-post-resp", "ext-plugin-pre-req", "fault-injection", "file-logger", "forward-auth", "google-cloud-logging", "grpc-transcode", "grpc-web", "gzip", "hmac-auth", "http-logger", "inspect", "ip-restriction", "jwt-auth", "kafka-logger", "kafka-proxy", "key-auth", "ldap-auth", "limit-conn", "limit-count", "limit-req", "loggly", "log-rotate", "mocking", "node-status", "opa", "openfunction", "openid-connect", "opentelemetry", "openwhisk", "prometheus", "proxy-cache", "proxy-control", "proxy-mirror", "proxy-rewrite", "public-api", "real-ip", "redirect", "referer-restriction", "request-id", "request-validation", "response-rewrite", "rocketmq-logger", "server-info", "serverless-post-function", "serverless-pre-function", "skywalking", "skywalking-logger", "sls-logger", "splunk-hec-logging", "syslog", "tcp-logger", "tencent-cloud-cls", "traffic-split", "ua-restriction", "udp-logger", "uri-blocker", "wolf-rbac", "workflow", "zipkin"],
+                    stream_plugins: ["ip-restriction", "limit-conn", "mqtt-proxy", "prometheus", "syslog"],
+                    pluginAttrs: {
+                        skywalking: {
+                            service_name: "demo::APISIX",
+                            service_instance_name: "$hostname",
+                            "endpoint_addr": "http://skywalking-oap.skywalking:12800",
+                            report_interval: 15
+                        }
                     }
                 },
-                logs: {
-                    enableAccessLog: true
-                },
-                serviceMonitor: {
-                    enabled: true,
-                    interval: "60s",
-                    labels: {
-                        customer: "demo",
-                        environment: "dev",
-                        project: "API-Gateway",
-                        group: "apisix",
-                        datacenter: "dc01",
-                        domain: "local"
-                    }
-                },
-                etcd: {
-                    enabled: false,
+                externalEtcd: {
                     host: ["http://etcd:2379"],
                     user: "root",
                     password: config.require("etcdPassword")
                 },
+                etcd: { enabled: false },
                 dashboard: {
                     enabled: true,
                     replicaCount: 1,
+                    image: {
+                        repository: "apache/apisix-dashboard",
+                        tag: "3.0.1-alpine"
+                    },
                     labelsOverride: {
                         customer: "demo",
                         environment: "dev",
@@ -265,11 +184,16 @@ const deploy_spec = [
                     resources: {
                         limits: { cpu: "300m", memory: "128Mi" },
                         requests: { cpu: "300m", memory: "128Mi" }
-                    }
+                    },
+                    nodeSelector: {}
                 },
                 "ingress-controller": {
                     enabled: true,
                     replicaCount: 1,
+                    image: {
+                        repository: "apache/apisix-ingress-controller",
+                        tag: "1.6.0"
+                    },
                     config: {
                         logLevel: "error",
                         apisix: {
@@ -282,6 +206,11 @@ const deploy_spec = [
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
+                    nodeSelector: {},
+                    initContainer: {
+                        image: "busybox",
+                        tag: "1.28"
+                    },
                     serviceMonitor: {
                         enabled: true,
                         interval: "60s",
@@ -289,7 +218,7 @@ const deploy_spec = [
                             customer: "demo",
                             environment: "dev",
                             project: "API-Gateway",
-                            group: "apisix-ingress-controller",
+                            group: "apisix-dashboard",
                             datacenter: "dc01",
                             domain: "local"
                         }
@@ -369,6 +298,79 @@ const deploy_spec = [
                 controller: "apisix.apache.org/ingress-controller"
             }
         },
+        servicemonitors: [
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "ServiceMonitor",
+                metadata: {
+                    name: "apisix",
+                    namespace: "apisix"
+                },
+                spec: {
+                    endpoints: [
+                        {
+                            interval: "60s",
+                            path: "/apisix/prometheus/metrics",
+                            scheme: "http",
+                            targetPort: "prometheus",
+                            relabelings: [
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "API-Gateway", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "apisix", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["apisix"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/instance": "apisix",
+                            "app.kubernetes.io/name": "apisix",
+                            "app.kubernetes.io/service": "apisix-gateway"
+                        }
+                    }
+                }
+            },
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "ServiceMonitor",
+                metadata: {
+                    name: "apisix-ingress-controller",
+                    namespace: "apisix"
+                },
+                spec: {
+                    endpoints: [
+                        {
+                            interval: "60s",
+                            path: "/metrics",
+                            scheme: "http",
+                            targetPort: "http",
+                            relabelings: [
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "API-Gateway", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "apisix", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["apisix"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/instance": "apisix",
+                            "app.kubernetes.io/name": "ingress-controller"
+                        }
+                    }
+                }
+            }
+        ],
         crds: [
             {
                 apiVersion: "apisix.apache.org/v2",
@@ -425,7 +427,7 @@ for (var i in deploy_spec) {
         chart: deploy_spec[i].etcd.chart,
         version: deploy_spec[i].etcd.version,
         values: deploy_spec[i].etcd.values,
-        skipAwait: true,
+        skipAwait: false,
         repositoryOpts: {
             repo: deploy_spec[i].etcd.repository,
         },
@@ -449,6 +451,17 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].class.metadata,
         spec: deploy_spec[i].class.spec
     }, { dependsOn: [apisix] });
+    // Create service monitor.
+    /**
+        for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+            const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+                apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+                kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+                metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+                spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+            }, { dependsOn: [apisix] });
+        }
+         */
     // Create apisix Custom resource definition .
     for (var crd_index in deploy_spec[i].crds) {
         const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {
