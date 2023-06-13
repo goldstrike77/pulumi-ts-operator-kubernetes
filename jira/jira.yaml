@@ -393,6 +393,23 @@ jira:
     #
     type: ClusterIP
 
+    # -- Session affinity type. If you want to make sure that connections from a particular client
+    # are passed to the same pod each time, set sessionAffinity to ClientIP.
+    # See: https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity
+    #
+    sessionAffinity: None
+
+    # -- Session affinity configuration
+    #
+    sessionAffinityConfig:
+
+      clientIP:
+
+        # -- Specifies the seconds of ClientIP type session sticky time.
+        # The value must be > 0 && <= 86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800 (for 3 hours).
+        #
+        timeoutSeconds:
+
     # -- Use specific loadBalancerIP. Only applies to service type LoadBalancer.
     #
     loadBalancerIP:
@@ -665,6 +682,72 @@ jira:
   #   whenUnsatisfiable: ScheduleAnyway
   #   labelSelector:
   #     matchLabels:
+
+# Monitoring
+#
+monitoring:
+
+  # -- Expose JMX metrics with jmx_exporter https://github.com/prometheus/jmx_exporter
+  #
+  exposeJmxMetrics: false
+
+  # -- Fetch jmx_exporter jar from the image. If set to false make sure to manually copy the jar
+  # to shared home and provide an absolute path in jmxExporterCustomJarLocation
+  #
+  fetchJmxExporterJar: true
+
+  # -- Image repository with jmx_exporter jar
+  #
+  jmxExporterImageRepo: bitnami/jmx-exporter
+
+  # -- Image tag to be used to pull jmxExporterImageRepo
+  #
+  jmxExporterImageTag: 0.18.0
+
+  # -- Port number on which metrics will be available
+  #
+  jmxExporterPort: 9999
+
+  # -- JMX exporter port type
+  #
+  jmxExporterPortType: ClusterIP
+
+  # -- Location of jmx_exporter jar file if mounted from a secret or manually copied to shared home
+  #
+  jmxExporterCustomJarLocation:
+
+  # -- Custom jmx config with the rules. Make sure to keep jmx-config key
+  #
+  jmxExporterCustomConfig: {}
+  # jmx-config: |
+  #   rules:
+  #     - pattern: ".*"
+
+  serviceMonitor:
+
+    # -- Create ServiceMonitor to start scraping metrics. ServiceMonitor CRD needs to be created in advance.
+    #
+    create: false
+
+    # -- ServiceMonitorSelector of the prometheus instance.
+    #
+    prometheusLabelSelector: {}
+      # release: prometheus
+
+    # -- Scrape interval for the JMX service.
+    #
+    scrapeIntervalSeconds: 30
+
+  grafana:
+
+    # -- Create ConfigMaps with Grafana dashboards
+    #
+    createDashboards: false
+
+    # -- Label selector for Grafana dashboard importer sidecar
+    #
+    dashboardLabels: {}
+      # grafana_dashboard: dc_monitoring
 
 # Fluentd configuration
 #

@@ -49,14 +49,14 @@ const deploy_spec = [
     helm: {
       namespace: "jira",
       name: "jira",
-      chart: "../../_chart/jira-1.12.0.tgz",
+      chart: "../../_chart/jira-1.13.0.tgz",
       repository: "",
-      version: "1.12.0",
+      version: "1.13.0",
       values: {
         replicaCount: 2,
         image: {
           repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jira-software",
-          tag: "9.4.5"
+          tag: "9.4.7"
         },
         database: {
           type: "postgres72",
@@ -72,7 +72,18 @@ const deploy_spec = [
               storageClassName: "longhorn",
               resources: {
                 requests: {
-                  storage: "1Gi"
+                  storage: "10Gi"
+                }
+              }
+            }
+          },
+          sharedHome: {
+            persistentVolumeClaim: {
+              create: true,
+              storageClassName: "nfs-client",
+              resources: {
+                requests: {
+                  storage: "10Gi"
                 }
               }
             }
