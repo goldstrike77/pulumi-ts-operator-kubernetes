@@ -100,6 +100,81 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+            {
+                namespace: "datadog",
+                name: "apisix-udp",
+                chart: "vector",
+                repository: "https://helm.vector.dev",
+                version: "0.21.1",
+                values: {
+                    role: "Aggregator",
+                    replicas: 2,
+                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
+                    },
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: { partition: 0 }
+                    },
+                    service: {
+                        enabled: true,
+                        type: "LoadBalancer",
+                        annotations: {}
+                    },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: {
+                            syslog_socket_udp: {
+                                type: "socket",
+                                address: "0.0.0.0:1514",
+                                max_length: 32768,
+                                mode: "udp",
+                                receive_buffer_bytes: 65536
+                            }
+                        },
+                        transforms: {
+                            syslog_json_udp: {
+                                type: "remap",
+                                inputs: ["syslog_socket_udp"],
+                                source: `. = parse_json!(.message)`
+                            }
+                        },
+                        sinks: {
+                            syslog_json_elasticsearch: {
+                                type: "elasticsearch",
+                                inputs: ["syslog_json_udp"],
+                                bulk: { action: "index", index: "apisix-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
+                                compression: "none",
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
+                                batch: { max_events: 2048, timeout_secs: 20 }
+                            }
+                        }
+                    },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    podMonitor: {
+                        enabled: false,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    }
+                }
+            },
             /**
             {
                 namespace: "datadog",

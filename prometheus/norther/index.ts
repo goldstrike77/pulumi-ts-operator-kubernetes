@@ -103,7 +103,7 @@ const deploy_spec = [
                                 name: "grafana-oncall",
                                 webhook_configs: [
                                     {
-                                        url: "http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/4rCCnQQB7yAA2CbdIGzkgCPLc/",
+                                        url: "http://oncall-engine.oncall.svc.cluster.local:8080/integrations/v1/alertmanager/R6BlJsL6jf6xH5MSFHwJ2jNdN/",
                                         send_resolved: true
                                     }
                                 ]

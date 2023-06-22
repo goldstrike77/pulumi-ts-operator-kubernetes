@@ -33,12 +33,12 @@ const deploy_spec = [
                 name: "oncall",
                 chart: "oncall",
                 repository: "https://grafana.github.io/helm-charts",
-                version: "1.2.17",
+                version: "1.2.42",
                 values: {
                     base_url: "norther.example.com",
                     image: {
                         repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/oncall",
-                        tag: "v1.2.17",
+                        tag: "v1.2.42",
                         pullPolicy: "IfNotPresent"
                     },
                     engine: {
@@ -55,12 +55,7 @@ const deploy_spec = [
                             requests: { cpu: "500m", memory: "1024Mi" }
                         }
                     },
-                    env: [
-                        {
-                            name: "UWSGI_LISTEN",
-                            value: "128"
-                        }
-                    ],
+                    uwsgi: { listen: 128 },
                     ingress: {
                         enabled: true,
                         annotations: {
@@ -174,7 +169,7 @@ disk_free_limit.absolute = 1GB
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.10.2",
+                version: "17.10.3",
                 values: {
                     architecture: "standalone",
                     auth: {
@@ -248,6 +243,7 @@ save ""`,
                     primary: {
                         configuration: `
 [mysqld]
+skip-log-bin
 skip-name-resolve
 explicit_defaults_for_timestamp
 basedir=/opt/bitnami/mariadb
@@ -261,12 +257,11 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
 log-error=/opt/bitnami/mariadb/logs/mysqld.log
 character-set-server=UTF8
 collation-server=utf8_general_ci
-slow_query_log=0
 slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
 slow_query_log=0
 max_connections=100
 performance_schema_max_table_instances=256
-table_definition_cache=128
+table_definition_cache=400
 table_open_cache=128
 innodb_buffer_pool_size=512M
 innodb_flush_log_at_trx_commit=2
@@ -335,8 +330,8 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             ]
                         },
                         resources: {
-                            limits: { cpu: "100m", memory: "256Mi" },
-                            requests: { cpu: "100m", memory: "256Mi" }
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
                         },
                         livenessProbe: {
                             enabled: true,
