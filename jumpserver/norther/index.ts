@@ -142,6 +142,28 @@ exit 0
                     },
                     replicaCount: 1,
                     image: { repository: "goldenimage/core" },
+                    env: {
+                        SESSION_EXPIRE_AT_BROWSER_CLOSE: true,
+                        AUTH_OPENID: "True",
+                        BASE_SITE_URL: "https://jumpserver.example.com/",
+                        AUTH_OPENID_CLIENT_ID: "0a3f1935-adc5-4b37-be87-fc745514b985",
+                        AUTH_OPENID_CLIENT_SECRET: "V29Mj_3d_Q55z-_4UVQ2dwxFhcc_6WeW3R",
+                        AUTH_OPENID_PROVIDER_ENDPOINT: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0",
+                        AUTH_OPENID_PROVIDER_AUTHORIZATION_ENDPOINT: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/authorize",
+                        AUTH_OPENID_PROVIDER_TOKEN_ENDPOINT: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/token",
+                        AUTH_OPENID_PROVIDER_JWKS_ENDPOINT: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/discovery/v2.0/keys",
+                        AUTH_OPENID_PROVIDER_USERINFO_ENDPOINT: "https://microsoftgraph.chinacloudapi.cn/oidc/userinfo",
+                        AUTH_OPENID_PROVIDER_END_SESSION_ENDPOINT: "https://login.partner.microsoftonline.cn/8209af61-7dcc-42b8-8cdf-0745c5096e95/oauth2/v2.0/logout",
+                        AUTH_OPENID_PROVIDER_SIGNATURE_ALG: "HS256",
+                        AUTH_OPENID_PROVIDER_SIGNATURE_KEY: "null",
+                        AUTH_OPENID_SCOPES: "openid profile email",
+                        AUTH_OPENID_ID_TOKEN_MAX_AGE: "600",
+                        AUTH_OPENID_ID_TOKEN_INCLUDE_CLAIMS: "True",
+                        AUTH_OPENID_USE_STATE: "True",
+                        AUTH_OPENID_USE_NONCE: "True",
+                        AUTH_OPENID_SHARE_SESSION: "True",
+                        AUTH_OPENID_IGNORE_SSL_VERIFICATION: "True"
+                    },
                     resources: {
                         limits: { cpu: "2000m", memory: "4096Mi" },
                         requests: { cpu: "2000m", memory: "4096Mi" }
