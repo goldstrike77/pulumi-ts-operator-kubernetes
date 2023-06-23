@@ -1,5 +1,7 @@
 encryptionsalt: v1:TWMEYcu41yk=:v1:9xqtKumSk+jfxW5K:k+xYFiTHg5HjpidFx/KqdXU9rZSvew==
 config:
+  demo:adminPassword:
+    secure: v1:dbtxg+fLnPPzPs8t:myOxl0QQvJ5OU0Ijgaib0U6ocK1xHa4s
   demo:rootPassword:
     secure: v1:m4R4v1tkYnrVG/Hb:oISoLYD45fMK95Dz6WZ62BWBZqlyG0ip
   demo:userPassword:

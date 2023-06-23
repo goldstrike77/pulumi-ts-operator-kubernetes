@@ -8,4 +8,5 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 ```hcl
 pulumi config set rootPassword [string] --secret
 pulumi config set userPassword [string] --secret
+pulumi config set adminPassword [string] --secret
 ```
