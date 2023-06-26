@@ -125,11 +125,18 @@ exit 0
                 },
                 ingress: {
                     enabled: true,
+                    /**
                     annotations: {
                         "kubernetes.io/ingress.class": "nginx",
+                        "nginx.ingress.kubernetes.io/proxy-read-timeout": "3600",
+                        "nginx.ingress.kubernetes.io/proxy-send-timeout": "3600",
                         "nginx.ingress.kubernetes.io/proxy-body-size": "4096m",
-                        "nginx.ingress.kubernetes.io/configuration-snippet": 'proxy_set_header Upgrade "websocket"; proxy_set_header Connection "Upgrade"; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;'
+                        "nginx.ingress.kubernetes.io/configuration-snippet": `proxy_set_header Upgrade "websocket";
+proxy_set_header Connection "Upgrade";
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+`
                     },
+                     */
                     hosts: ["jumpserver.example.com"]
                 },
                 core: {
