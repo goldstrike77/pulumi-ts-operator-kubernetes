@@ -61,7 +61,7 @@ const deploy_spec = [
                 create: true,
                 storageClassName: "longhorn",
                 resources: {
-                  requests: { storage: "1Gi" }
+                  requests: { storage: "5Gi" }
                 }
               }
             },
