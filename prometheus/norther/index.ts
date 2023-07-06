@@ -599,6 +599,12 @@ SOFTWARE.
                             name: "configuration-secret",
                             key: "additionalscrape.job"
                         },
+                        additionalAlertRelabelConfigs: [
+                            {
+                                regex: "prometheus|cluster",
+                                action: "labeldrop"
+                            }
+                        ],
                         thanos: {
                             resources: {
                                 limits: { cpu: "200m", memory: "256Mi" },
