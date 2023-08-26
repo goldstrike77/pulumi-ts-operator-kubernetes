@@ -13,13 +13,16 @@
 # ref: https://github.com/kubernetes/dns/blob/master/docs/specification.md
 clusterZone: "cluster.local"
 
+# The URL of the Kubernetes API server
+kubernetesURL: "https://kubernetes.default"
+
 renderHelmLabels: true
 
 controller:
   # Used for label app.kubernetes.io/component
   componentName: "jenkins-controller"
   image: "jenkins/jenkins"
-  # tag: "2.387.2-jdk11"
+  # tag: "2.401.3-jdk11"
   tagLabel: jdk11
   imagePullPolicy: "Always"
   imagePullSecretName:
@@ -241,10 +244,10 @@ controller:
 
   # List of plugins to be install during Jenkins controller start
   installPlugins:
-    - kubernetes:3900.va_dce992317b_4
+    - kubernetes:3937.vd7b_82db_e347b_
     - workflow-aggregator:596.v8c21c963d92d
-    - git:5.0.0
-    - configuration-as-code:1625.v27444588cc3d
+    - git:5.1.0
+    - configuration-as-code:1647.ve39ca_b_829b_42
 
   # Set to false to download the minimum required version of all dependencies.
   installLatestPlugins: true
@@ -363,7 +366,7 @@ controller:
       # jcasc changes will cause a reboot and will only be applied at the subsequent start-up.  Auto-reload uses the
       # http://<jenkins_url>/reload-configuration-as-code endpoint to reapply config when changes to the configScripts are detected.
       enabled: true
-      image: kiwigrid/k8s-sidecar:1.23.1
+      image: kiwigrid/k8s-sidecar:1.24.4
       imagePullPolicy: IfNotPresent
       resources: {}
         #   limits:
@@ -625,8 +628,10 @@ agent:
   kubernetesReadTimeout: 15
   maxRequestsPerHostStr: "32"
   namespace:
+  # private registry for agent image
+  jnlpregistry:
   image: "jenkins/inbound-agent"
-  tag: "3107.v665000b_51092-5"
+  tag: "3107.v665000b_51092-15"
   workingDir: "/home/jenkins/agent"
   nodeUsageMode: "NORMAL"
   customJenkinsLabels: []
@@ -646,6 +651,13 @@ agent:
     limits:
       cpu: "512m"
       memory: "512Mi"
+  livenessProbe: {}
+#    execArgs: "cat /tmp/healthy"
+#    failureThreshold: 3
+#    initialDelaySeconds: 0
+#    periodSeconds: 10
+#    successThreshold: 1
+#    timeoutSeconds: 1
   # You may want to change this to true while testing a new image
   alwaysPullImage: false
   # Controls how agent pods are retained after the Jenkins build completes
@@ -838,6 +850,11 @@ persistence:
   labels: {}
   accessMode: "ReadWriteOnce"
   size: "8Gi"
+  # Existing data source to clone PVC from
+  # ref: https://kubernetes.io/docs/concepts/storage/volume-pvc-datasource/
+  dataSource:
+  #   name: PVC-NAME
+  #   kind: PersistentVolumeClaim
   volumes:
   #  - name: nothing
   #    emptyDir: {}

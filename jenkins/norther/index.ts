@@ -34,11 +34,11 @@ const deploy_spec = [
             name: "jenkins",
             chart: "jenkins",
             repository: "https://charts.jenkins.io",
-            version: "4.3.20",
+            version: "4.5.0",
             values: {
                 controller: {
-                    image: "registry.cn-hangzhou.aliyuncs.com/goldstrike/jenkins",
-                    tag: "2.387.2-jdk11",
+                    image: "registry.cn-shanghai.aliyuncs.com/goldenimage/jenkins",
+                    tag: "2.401.3-jdk11",
                     imagePullPolicy: "IfNotPresent",
                     numExecutors: 1,
                     adminUser: "admin",
@@ -63,8 +63,8 @@ const deploy_spec = [
                         "configuration-as-code:1569.vb_72405b_80249",
                         "git:5.0.0",
                         "github:1.37.0",
-                        "kubernetes:3909.v1f2c633e8590",
-                        "ldap:671.v2a_9192a_7419d",
+                        "kubernetes:3985.vd26d77b_2a_48a_",
+                        "ldap:694.vc02a_69c9787f",
                         "prometheus:2.1.1",
                         "skip-certificate-check:1.1",
                         "workflow-aggregator:596.v8c21c963d92d",
@@ -74,7 +74,7 @@ const deploy_spec = [
                     installLatestPlugins: false,
                     initializeOnce: true,
                     additionalPlugins: [
-                        "ansible:174.vfd5323d2b_9d8",
+                        "ansible:253.v4fe719ffdd8a_",
                         "nodejs:1.6.0",
                         "oic-auth:2.5"
                     ],
