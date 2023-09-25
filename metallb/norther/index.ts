@@ -15,7 +15,7 @@ const deploy_spec = [
             name: "metallb",
             chart: "metallb",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "4.3.0",
+            version: "4.7.3",
             values: {
                 addresses: ["192.168.0.100-192.168.0.109"],
                 autoAssign: true,
@@ -27,7 +27,7 @@ const deploy_spec = [
                         requests: { cpu: "100m", memory: "64Mi" }
                     },
                     metrics: {
-                        enabled: true,
+                        enabled: false,
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [
@@ -49,7 +49,7 @@ const deploy_spec = [
                         requests: { cpu: "100m", memory: "64Mi" }
                     },
                     metrics: {
-                        enabled: true,
+                        enabled: false,
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [

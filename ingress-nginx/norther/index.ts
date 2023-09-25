@@ -1,4 +1,7 @@
+import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
+
+const config = new pulumi.Config();
 
 const deploy_spec = [
     {
@@ -45,14 +48,13 @@ const deploy_spec = [
             name: "ingress-nginx",
             chart: "ingress-nginx",
             repository: "https://kubernetes.github.io/ingress-nginx",
-            version: "4.5.2",
+            version: "4.7.2",
             values: {
                 controller: {
                     image: {
-                        registry: "registry.cn-hangzhou.aliyuncs.com",
-                        image: "goldstrike/skywalking-ingress-nginx",
-                        tag: "v1.6.4",
-                        digest: "sha256:7f19f16f13f60408aac05fee2e38daaa79c085761a58d43e7dfea22a9f054eec"
+                        registry: "registry.cn-shanghai.aliyuncs.com",
+                        image: "goldenimage/controller",
+                        digest: "sha256:8dfee0a9fc170cca3e96c4a054ed228703eaf776e742fc2166d807874425941d"
                     },
                     config: {
                         "compute-full-forwarded-for": "true",
@@ -91,11 +93,11 @@ const deploy_spec = [
                         "net.core.somaxconn": "8192",
                         "net.ipv4.ip_local_port_range": "1024 65000"
                     },
-                    extraEnvs: [
-                        { name: "SW_SERVICE_NAME", value: "demo::ingress-nginx" },
-                        { name: "SW_BACKEND_SERVERS", value: "http://skywalking-oap.skywalking.svc.cluster.local:12800" },
-                        { name: "SW_SERVICE_INSTANCE_NAME", valueFrom: { fieldRef: { fieldPath: "metadata.name" } } }
-                    ],
+                    //                   extraEnvs: [
+                    //                       { name: "SW_SERVICE_NAME", value: "demo::ingress-nginx" },
+                    //                       { name: "SW_BACKEND_SERVERS", value: "http://skywalking-oap.skywalking.svc.cluster.local:12800" },
+                    //                       { name: "SW_SERVICE_INSTANCE_NAME", valueFrom: { fieldRef: { fieldPath: "metadata.name" } } }
+                    //                   ],
                     extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
                     replicaCount: 1,
                     resources: {
@@ -108,14 +110,14 @@ const deploy_spec = [
                     admissionWebhooks: {
                         patch: {
                             image: {
-                                registry: "registry.cn-hangzhou.aliyuncs.com",
-                                image: "google_containers/kube-webhook-certgen",
-                                digest: "sha256:cb080cc0a142137398ee9a55268bd36b2e4ca9941203191ec5846ee565b959e8"
+                                registry: "registry.cn-shanghai.aliyuncs.com",
+                                image: "goldenimage/kube-webhook-certgen",
+                                digest: "sha256:edf7dae46debcec54f0c33bfb3005f7a0e992800fdbfb5d0c644ae6cb37db7e9"
                             }
                         }
                     },
                     metrics: {
-                        enabled: true,
+                        enabled: false,
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [
@@ -136,9 +138,8 @@ const deploy_spec = [
                 defaultBackend: {
                     enabled: true,
                     image: {
-                        registry: "registry.cn-hangzhou.aliyuncs.com",
-                        image: "goldstrike/defaultbackend-amd64",
-                        digest: "sha256:4dc5e07c8ca4e23bddb3153737d7b8c556e5fb2f29c4558b7cd6e6df99c512c7"
+                        registry: "registry.cn-shanghai.aliyuncs.com",
+                        image: "goldenimage/defaultbackend-amd64"
                     },
                     podLabels: { customer: "demo", environment: "dev", project: "Ingress-controller", group: "Ingress", datacenter: "dc01", domain: "local" },
                     replicaCount: 1,

@@ -10,31 +10,29 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
-            {
-                namespace: "metrics-server",
-                name: "metrics-server",
-                chart: "metrics-server",
-                repository: "https://kubernetes-sigs.github.io/metrics-server",
-                version: "3.8.3",
-                values: {
-                    image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/metrics-server", tag: "v0.6.2" },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "souther", datacenter: "dc01", domain: "local" },
-                    defaultArgs: [
-                        "--cert-dir=/tmp",
-                        "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
-                        "--kubelet-use-node-status-port",
-                        "--metric-resolution=15s",
-                        "--kubelet-insecure-tls"
-                    ],
-                    metrics: { enabled: true },
-                    resources: {
-                        limits: { cpu: "200m", memory: "128Mi" },
-                        requests: { cpu: "200m", memory: "128Mi" }
-                    }
+        helm: {
+            namespace: "metrics-server",
+            name: "metrics-server",
+            chart: "metrics-server",
+            repository: "https://kubernetes-sigs.github.io/metrics-server",
+            version: "3.11.0",
+            values: {
+                image: { repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/metrics-server", tag: "v0.6.4" },
+                podLabels: { customer: "demo", environment: "dev", project: "Resource", group: "Metrics-server", datacenter: "dc01", domain: "local" },
+                defaultArgs: [
+                    "--cert-dir=/tmp",
+                    "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
+                    "--kubelet-use-node-status-port",
+                    "--metric-resolution=15s",
+                    "--kubelet-insecure-tls"
+                ],
+                metrics: { enabled: true },
+                resources: {
+                    limits: { cpu: "200m", memory: "128Mi" },
+                    requests: { cpu: "200m", memory: "128Mi" }
                 }
             }
-        ]
+        }
     }
 ]
 
@@ -45,17 +43,15 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        values: deploy_spec[i].helm.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].helm.repository,
+        },
+    }, { dependsOn: [namespace] });
 }

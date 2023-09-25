@@ -1,13 +1,11 @@
 {
     "name": "demo",
     "devDependencies": {
-        "@types/node": "^14",
-        "@types/sleep": "^0.0.8"
+        "@types/node": "^16"
     },
     "dependencies": {
-        "@pulumi/kubernetes": "^3.0.0",
-        "@pulumi/kubernetesx": "^0.1.5",
         "@pulumi/pulumi": "^3.0.0",
+        "@pulumi/kubernetes": "^4.0.0",
         "@pulumi/random": "^4.0.0",
         "js-yaml": "^4.1.0"
     }
