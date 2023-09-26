@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "cert-manager",
             chart: "cert-manager",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "0.11.2",
+            version: "0.12.4",
             values: {
                 logLevel: 2,
                 installCRDs: true,

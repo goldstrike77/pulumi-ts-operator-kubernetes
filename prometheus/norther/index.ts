@@ -34,7 +34,7 @@ const deploy_spec = [
             name: "kube-prometheus-stack",
             chart: "kube-prometheus-stack",
             repository: "https://prometheus-community.github.io/helm-charts",
-            version: "45.29.0",
+            version: "51.2.0",
             values: {
                 fullnameOverride: "kubepromstack",
                 defaultRules: { create: false },
@@ -78,8 +78,18 @@ const deploy_spec = [
                         },
                         inhibit_rules: [
                             {
-                                source_matchers: ["severity = p1"],
-                                target_matchers: ["severity =~ p2|p3|p4"],
+                                source_matchers: ["severity = P1"],
+                                target_matchers: ["severity =~ P2|P3|P4"],
+                                equal: ['alertname', 'cluster', 'service']
+                            },
+                            {
+                                source_matchers: ["severity = P2"],
+                                target_matchers: ["severity =~ P3|P4"],
+                                equal: ['alertname', 'cluster', 'service']
+                            },
+                            {
+                                source_matchers: ["severity = P3"],
+                                target_matchers: ["severity = P4"],
                                 equal: ['alertname', 'cluster', 'service']
                             }
                         ],
@@ -437,9 +447,9 @@ SOFTWARE.
                 "kube-state-metrics": {
                     fullnameOverride: "kube-state-metrics",
                     image: {
-                        registry: "registry.cn-hangzhou.aliyuncs.com",
-                        repository: "goldstrike/kube-state-metrics",
-                        tag: "v2.8.2"
+                        registry: "registry.cn-shanghai.aliyuncs.com",
+                        repository: "goldenimage/kube-state-metrics",
+                        tag: "v2.10.0"
                     },
                     customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
                     metricLabelsAllowlist: ["nodes=[*]"],
@@ -497,8 +507,8 @@ SOFTWARE.
                         patch: {
                             enabled: true,
                             image: {
-                                registry: "registry.cn-hangzhou.aliyuncs.com",
-                                repository: "google_containers/kube-webhook-certgen",
+                                registry: "registry.cn-shanghai.aliyuncs.com",
+                                repository: "goldenimage/kube-webhook-certgen",
                                 tag: "v20221220-controller-v1.5.1-58-g787ea74b6"
                             }
                         }
@@ -625,7 +635,7 @@ SOFTWARE.
                 name: "thanos",
                 chart: "thanos",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "12.6.2",
+                version: "12.13.5",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -638,7 +648,7 @@ SOFTWARE.
                             sidecarsNamespace: "monitoring"
                         },
                         stores: ["192.168.0.110:10901", "192.168.0.110:10903"],
-                        extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response"],
+                        extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response", "--query.auto-downsampling"],
                         replicaCount: 1,
                         resources: {
                             limits: { cpu: "200m", memory: "128Mi" },
@@ -675,8 +685,6 @@ config:
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
-  pool_size: 200
-  min_idle_conns: 20
   max_get_multi_concurrency: 200
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
@@ -691,8 +699,6 @@ config:
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
-  pool_size: 200
-  min_idle_conns: 20
   max_get_multi_concurrency: 200
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
@@ -761,8 +767,6 @@ config:
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
-  pool_size: 200
-  min_idle_conns: 20
   max_get_multi_concurrency: 200
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
@@ -777,8 +781,6 @@ config:
   dial_timeout: 10s
   read_timeout: 10s
   write_timeout: 10s
-  pool_size: 200
-  min_idle_conns: 20
   max_get_multi_concurrency: 200
   get_multi_batch_size: 1000
   max_set_multi_concurrency: 200
@@ -826,7 +828,7 @@ config:
                 name: "redis",
                 chart: "redis",
                 repository: "https://charts.bitnami.com/bitnami",
-                version: "17.11.3",
+                version: "18.1.0",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },
@@ -882,7 +884,7 @@ save ""`,
                 name: "prometheus-blackbox-exporter",
                 chart: "prometheus-blackbox-exporter",
                 repository: "https://prometheus-community.github.io/helm-charts",
-                version: "7.8.0",
+                version: "8.3.0",
                 values: {
                     fullnameOverride: "blackbox-exporter",
                     config: {

@@ -30,7 +30,7 @@ const deploy_spec = [
       {
         namespace: "skywalking",
         name: "opensearch",
-        version: "2.13.3",
+        version: "2.15.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -79,10 +79,6 @@ plugins:
 `
           },
           labels: { customer: "demo", environment: "dev", project: "APM", group: "Opensearch", datacenter: "dc01", domain: "local" },
-          image: {
-            repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch",
-            tag: "2.8.0"
-          },
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
           resources: {
             limits: { cpu: "1000m", memory: "8196Mi" },
@@ -165,7 +161,7 @@ snapshotrestore:
       {
         namespace: "skywalking",
         name: "elasticsearch-exporter",
-        version: "5.2.0",
+        version: "5.3.0",
         chart: "prometheus-elasticsearch-exporter",
         repository: "https://prometheus-community.github.io/helm-charts",
         values: {
@@ -207,9 +203,9 @@ snapshotrestore:
       {
         namespace: "skywalking",
         name: "skywalking",
-        chart: "../../_chart/skywalking-4.4.0.tgz",
+        chart: "../../_chart/skywalking-4.5.0.tgz",
         repository: "",
-        version: "4.4.0",
+        version: "4.5.0",
         values: {
           oap: {
             storageType: "elasticsearch",
@@ -221,7 +217,7 @@ snapshotrestore:
               "prometheus-port": 1234,
               promql: "9090"
             },
-            image: { tag: "9.5.0" },
+            image: { tag: "9.6.0" },
             javaOpts: "-Xmx3g -Xms3g",
             resources: {
               requests: { cpu: "1000m", memory: "4096Mi" },
@@ -328,7 +324,7 @@ webhooks:
           },
           ui: {
             replicas: 1,
-            image: { tag: "9.5.0" },
+            image: { tag: "9.6.0" },
             resources: {
               requests: { cpu: "500m", memory: "1024Mi" },
               limits: { cpu: "500m", memory: "1024Mi" },

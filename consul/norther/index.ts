@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "consul",
             chart: "consul",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "10.9.12",
+            version: "10.13.3",
             values: {
                 datacenterName: "dc1",
                 domain: "consul",

@@ -77,20 +77,20 @@ const deploy_spec = [
                     limits: { cpu: "100m", memory: "128Mi" },
                     requests: { cpu: "100m", memory: "128Mi" }
                 },
-                //                ingress: {
-                //                    enabled: true,
-                //                    ingressClassName: "nginx",
-                //                    host: "souther.example.com",
-                //                    path: "/longhorn(/|$)(.*)",
-                //                    annotations: {
-                //                        "nginx.ingress.kubernetes.io/auth-type": "basic",
-                //                        "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
-                //                        "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
-                //                        "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
-                //                        "nginx.ingress.kubernetes.io/proxy-body-size": "10000m",
-                //                        "nginx.ingress.kubernetes.io/configuration-snippet": "rewrite ^(/longhorn)$ $1/ redirect;"
-                //                    }
-                //               }
+                ingress: {
+                    enabled: true,
+                    ingressClassName: "nginx",
+                    host: "souther.example.com",
+                    path: "/longhorn(/|$)(.*)",
+                    annotations: {
+                        "nginx.ingress.kubernetes.io/auth-type": "basic",
+                        "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
+                        "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
+                        "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
+                        "nginx.ingress.kubernetes.io/proxy-body-size": "10000m",
+                        "nginx.ingress.kubernetes.io/configuration-snippet": "rewrite ^(/longhorn)$ $1/ redirect;"
+                    }
+                }
             }
         },
         yaml: {

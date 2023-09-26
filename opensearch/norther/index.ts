@@ -42,7 +42,7 @@ const deploy_spec = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.13.0",
+        version: "2.15.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -105,10 +105,6 @@ plugins:
 `
           },
           labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
-          image: {
-            repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch",
-            tag: "2.8.0"
-          },
           opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
           resources: {
             limits: { cpu: "1000m", memory: "4096Mi" },
@@ -237,7 +233,7 @@ config:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.13.0",
+        version: "2.15.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -300,10 +296,6 @@ plugins:
 `
           },
           labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
-          image: {
-            repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch",
-            tag: "2.8.0"
-          },
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
           resources: {
             limits: { cpu: "2000m", memory: "10240Mi" },
@@ -342,16 +334,12 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.11.0",
+        version: "2.13.0",
         chart: "opensearch-dashboards",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
           opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
-          image: {
-            repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/opensearch-dashboards",
-            tag: "2.8.0"
-          },
           fullnameOverride: "opensearch-dashboards",
           config: {
             "opensearch_dashboards.yml": `
@@ -407,7 +395,7 @@ server.ssl.enabled: false
       {
         namespace: "opensearch",
         name: "elasticsearch-exporter",
-        version: "5.2.0",
+        version: "5.3.0",
         chart: "prometheus-elasticsearch-exporter",
         repository: "https://prometheus-community.github.io/helm-charts",
         values: {
