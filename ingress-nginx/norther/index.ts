@@ -117,7 +117,7 @@ const deploy_spec = [
                         }
                     },
                     metrics: {
-                        enabled: false,
+                        enabled: true,
                         serviceMonitor: {
                             enabled: true,
                             relabelings: [

@@ -44,6 +44,14 @@ const deploy_spec = [
                     limits: { cpu: "200m", memory: "128Mi" },
                     requests: { cpu: "200m", memory: "128Mi" }
                 },
+                service: {
+                    ports: {
+                        http: "8500"
+                    },
+                    type: "LoadBalancer",
+                    loadBalancerSourceRanges: ["192.168.0.0/24"],
+                    annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                },
                 persistence: {
                     enabled: true,
                     storageClass: "longhorn",
