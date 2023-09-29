@@ -1,6 +1,8 @@
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 
+const provider = new k8s.Provider("k8s", {enableServerSideApply: true});
+
 let config = new pulumi.Config();
 
 const deploy_spec = [
@@ -48,7 +50,7 @@ const deploy_spec = [
             name: "apisix",
             chart: "apisix",
             repository: "https://charts.apiseven.com",
-            version: "2.0.0",
+            version: "2.2.0",
             values: {
                 labels: {
                     customer: "demo",
@@ -58,10 +60,6 @@ const deploy_spec = [
                     datacenter: "dc01",
                     domain: "local"
                 },
-                image: {
-                    repository: "apache/apisix",
-                    tag: "3.3.0-debian"
-                },
                 replicaCount: 1,
                 resources: {
                     limits: { cpu: "300m", memory: "512Mi" },
@@ -69,20 +67,13 @@ const deploy_spec = [
                 },
                 nodeSelector: {},
                 timezone: "Asia/Shanghai",
-                initContainer: {
-                    image: "busybox",
-                    tag: "1.28"
-                },
                 serviceAccount: { create: true },
                 rbac: { create: true },
                 service: {
                     externalTrafficPolicy: "Local",
                     type: "LoadBalancer",
                     annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
-                    //                    externalIPs: ["192.168.0.101"],
-                    stream: {
-                        enabled: true
-                    }
+                    externalIPs: ["192.168.0.102"],
                 },
                 metrics: {
                     serviceMonitor: {
@@ -138,10 +129,6 @@ const deploy_spec = [
                 dashboard: {
                     enabled: true,
                     replicaCount: 1,
-                    image: {
-                        repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/apisix-dashboard",
-                        tag: "3.0.1-alpine"
-                    },
                     labelsOverride: {
                         customer: "demo",
                         environment: "dev",
@@ -200,13 +187,9 @@ const deploy_spec = [
             name: "apisix-ingress-controller",
             chart: "apisix-ingress-controller",
             repository: "https://charts.apiseven.com",
-            version: "0.11.6",
+            version: "0.12.1",
             values: {
                 replicaCount: 1,
-                image: {
-                    repository: "apache/apisix-ingress-controller",
-                    tag: "1.6.1"
-                },
                 config: {
                     logLevel: "error",
                     apisix: {
@@ -220,10 +203,6 @@ const deploy_spec = [
                     requests: { cpu: "100m", memory: "128Mi" }
                 },
                 nodeSelector: {},
-                initContainer: {
-                    image: "busybox",
-                    tag: "1.28"
-                },
                 serviceMonitor: {
                     enabled: true,
                     interval: "60s",
@@ -525,16 +504,14 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].class.spec
     }, { dependsOn: [ingresscontroller] });
     // Create service monitor.
-    /**
-        for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
-            const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
-                apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
-                kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
-                metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
-                spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
-            }, { dependsOn: [apisix] });
-        }
-         */
+    for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+        const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+            apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+            kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+            metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+            spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+        }, { dependsOn: [apisix] });
+    }
     // Create apisix Custom resource definition .
     for (var crd_index in deploy_spec[i].crds) {
         const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {

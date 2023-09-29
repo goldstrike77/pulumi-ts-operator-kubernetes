@@ -122,8 +122,8 @@ for (var i in deploy_spec) {
         skipAwait: true,
     }, { dependsOn: [namespace] });
     // Create service monitor.
-    //    const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml.name, {
-    //        file: deploy_spec[i].yaml.name,
-    //        skipAwait: true,
-    //    }, { dependsOn: [namespace] });
+    const guestbook = new k8s.yaml.ConfigFile(deploy_spec[i].yaml.name, {
+        file: deploy_spec[i].yaml.name,
+        skipAwait: true,
+    }, { dependsOn: [namespace] });
 }

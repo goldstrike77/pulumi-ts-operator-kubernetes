@@ -23,8 +23,7 @@ const deploy_spec = [
                 },
                 type: "Opaque",
                 data: {
-                    "objstore.yml": config.require("OBJSTORE.YML"),
-                    "additionalscrape.job": config.require("ADDITIONALSCRAPE.JOB")
+                    "objstore.yml": config.require("OBJSTORE.YML")
                 },
                 stringData: {}
             }
@@ -604,11 +603,97 @@ SOFTWARE.
                                 }
                             }
                         },
-                        additionalScrapeConfigsSecret: {
-                            enabled: true,
-                            name: "configuration-secret",
-                            key: "additionalscrape.job"
-                        },
+                        additionalScrapeConfigs: `
+- job_name: 'unAuthenticate exporters'
+  tls_config:
+    insecure_skip_verify: true
+  consul_sd_configs:
+    - server: 'consul-headless.consul.svc.cluster.local:8500'
+      token: ${config.require("consulToken")}
+      refresh_interval: 60s
+      services: ['alertmanager_exporter', 'azure-metrics_exporter', 'auditbeat_exporter', 'blackbox_exporter', 'consul_exporter', 'dellhw_exporter', 'docker_exporter', 'elasticsearch_exporter', 'filebeat_exporter', 'gitlab_exporter', 'grafana_exporter', 'haproxy_exporter', 'ingress-nginx_exporter', 'jenkins_exporter', 'jmx_exporter', 'kafka_exporter', 'keepalived_exporter', 'kibana_exporter', 'kube-state-metrics_exporter', 'logstash_exporter', 'minio_exporter', 'mongodb_exporter', 'mysqld_exporter', 'netdata_exporter', 'nginx_exporter', 'node_exporter', 'openldap_exporter', 'ossec_exporter', 'packetbeat_exporter', 'php-fpm_exporter', 'postgres_exporter', 'pushgateway_exporter', 'prometheus_exporter', 'rabbitmq_exporter', 'redis-sentinel_exporter', 'redis-server_exporter', 'skywalking_exporter', 'smokeping_exporter', 'snmp_exporter', 'statsd_exporter', 'thanos-bucket_exporter', 'thanos-compact_exporter', 'thanos-query_exporter', 'thanos-query-frontend_exporter', 'thanos-sidecar_exporter', 'thanos-store_exporter', 'vault_exporter', 'vmware_exporter', 'wmi_exporter', 'zookeeper_exporter']
+      scheme: http
+      tls_config:
+        insecure_skip_verify: true
+  relabel_configs:
+    - regex: job
+      action: labeldrop
+    - source_labels: [__meta_consul_service_address]
+      target_label: 'ipaddress'
+    - regex: __meta_consul_service_metadata_(.+)
+      action: labelmap
+    - source_labels: [__meta_consul_service]
+      replacement: '\$\{1\}'
+      target_label: 'service'
+      regex: '([^=]+)_exporter'
+    - source_labels: [__meta_consul_service_metadata_metrics_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__meta_consul_service_metadata_scheme]
+      action: replace
+      target_label: __scheme__
+      regex: (.+)
+- job_name: 'Authenticate exporters'
+  basic_auth:
+    username: 'prometheus'
+    password: 'tj@VH9ECytRF'
+  tls_config:
+    insecure_skip_verify: true
+  consul_sd_configs:
+    - server: 'consul-headless.consul.svc.cluster.local:8500'
+      token: ${config.require("consulToken")}
+      refresh_interval: 60s
+      services: ['alerta_exporter', 'graylog_exporter']
+      scheme: http
+      tls_config:
+        insecure_skip_verify: true
+  relabel_configs:
+    - regex: job
+      action: labeldrop
+    - source_labels: [__meta_consul_service_address]
+      target_label: 'ipaddress'
+    - regex: __meta_consul_service_metadata_(.+)
+      action: labelmap
+    - source_labels: [__meta_consul_service]
+      replacement: '\$\{1\}'
+      target_label: 'service'
+      regex: '([^=]+)_exporter'
+    - source_labels: [__meta_consul_service_metadata_metrics_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+    - source_labels: [__meta_consul_service_metadata_scheme]
+      action: replace
+      target_label: __scheme__
+      regex: (.+)
+- job_name: 'Probers'
+  consul_sd_configs:
+    - server: 'consul-headless.consul.svc.cluster.local:8500'
+      token: ${config.require("consulToken")}
+      refresh_interval: 60s
+      services: ['blackbox_exporter_prober', 'smokeping_prober_prober', 'snmp_exporter_prober']
+      scheme: http
+      tls_config:
+        insecure_skip_verify: true
+  relabel_configs:
+    - regex: job
+      action: labeldrop
+    - regex: __meta_consul_service_metadata_(.+)
+      action: labelmap
+    - source_labels: [__meta_consul_service_metadata_target]
+      target_label: '__param_target'
+    - source_labels: [__meta_consul_service_metadata_module]
+      target_label: '__param_module'
+    - source_labels: [__meta_consul_service_metadata_address]
+      action: replace
+      target_label: __address__
+      regex: (.+)
+    - source_labels: [__meta_consul_service_metadata_metrics_path]
+      action: replace
+      target_label: __metrics_path__
+      regex: (.+)
+`,
                         additionalAlertRelabelConfigs: [
                             {
                                 regex: "prometheus|cluster",

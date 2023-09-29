@@ -9,3 +9,4 @@ config:
   demo:viewerCredentials:
     secure: v1:m8ZZ0iVnKM5dJO2n:w5YGvTXm4ei4JRzhYI56m+DWWjmOpaCI
   kubernetes:context: kubernetes-admin@norther
+  kubernetes:enableServerSideApply: "true"
