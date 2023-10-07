@@ -67,7 +67,7 @@ http:
 s3:
   client:
     default:
-      endpoint: minio:9000
+      endpoint: node30.node.home.local:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -258,7 +258,7 @@ http:
 s3:
   client:
     default:
-      endpoint: minio:9000
+      endpoint: node30.node.home.local:9000
       protocol: http
       region: us-east-1
       path_style_access: true

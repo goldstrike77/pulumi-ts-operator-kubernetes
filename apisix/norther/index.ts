@@ -1,7 +1,7 @@
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 
-const provider = new k8s.Provider("k8s", {enableServerSideApply: true});
+const provider = new k8s.Provider("k8s", { enableServerSideApply: true });
 
 let config = new pulumi.Config();
 
@@ -52,14 +52,6 @@ const deploy_spec = [
             repository: "https://charts.apiseven.com",
             version: "2.2.0",
             values: {
-                labels: {
-                    customer: "demo",
-                    environment: "dev",
-                    project: "API-Gateway",
-                    group: "apisix",
-                    datacenter: "dc01",
-                    domain: "local"
-                },
                 replicaCount: 1,
                 resources: {
                     limits: { cpu: "300m", memory: "512Mi" },
@@ -67,18 +59,27 @@ const deploy_spec = [
                 },
                 nodeSelector: {},
                 timezone: "Asia/Shanghai",
+                fullnameOverride: "apisix-gateway",
                 serviceAccount: { create: true },
                 rbac: { create: true },
                 service: {
-                    externalTrafficPolicy: "Local",
                     type: "LoadBalancer",
+                    externalTrafficPolicy: "Local",
                     annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
                     externalIPs: ["192.168.0.102"],
                 },
                 metrics: {
                     serviceMonitor: {
-                        enabled: true,
+                        enabled: false,
                         interval: "60s",
+                        labels: {
+                            customer: "demo",
+                            environment: "dev",
+                            project: "API-Gateway",
+                            group: "apisix-dashboard",
+                            datacenter: "dc01",
+                            domain: "local"
+                        }
                     }
                 },
                 apisix: {
@@ -89,9 +90,6 @@ const deploy_spec = [
                         credentials: {
                             admin: config.require("adminCredentials"),
                             viewer: config.require("viewerCredentials")
-                        },
-                        allow: {
-                            ipList: ["127.0.0.1/24", "192.168.0.0/24"]
                         }
                     },
                     nginx: {
@@ -110,7 +108,6 @@ const deploy_spec = [
                     },
                     prometheus: { enabled: true },
                     plugins: ["ai", "api-breaker", "authz-casbin", "authz-casdoor", "authz-keycloak", "aws-lambda", "azure-functions", "basic-auth", "batch-requests", "body-transformer", "cas-auth", "clickhouse-logger", "client-control", "consumer-restriction", "cors", "csrf", "datadog", "degraphql", "dubbo-proxy", "echo", "elasticsearch-logger", "example-plugin", "ext-plugin-post-req", "ext-plugin-post-resp", "ext-plugin-pre-req", "fault-injection", "file-logger", "forward-auth", "google-cloud-logging", "grpc-transcode", "grpc-web", "gzip", "hmac-auth", "http-logger", "inspect", "ip-restriction", "jwt-auth", "kafka-logger", "kafka-proxy", "key-auth", "ldap-auth", "limit-conn", "limit-count", "limit-req", "loggly", "log-rotate", "mocking", "node-status", "opa", "openfunction", "openid-connect", "opentelemetry", "openwhisk", "prometheus", "proxy-cache", "proxy-control", "proxy-mirror", "proxy-rewrite", "public-api", "real-ip", "redirect", "referer-restriction", "request-id", "request-validation", "response-rewrite", "rocketmq-logger", "server-info", "serverless-post-function", "serverless-pre-function", "skywalking", "skywalking-logger", "sls-logger", "splunk-hec-logging", "syslog", "tcp-logger", "tencent-cloud-cls", "traffic-split", "ua-restriction", "udp-logger", "uri-blocker", "wolf-rbac", "workflow", "zipkin"],
-                    stream_plugins: ["ip-restriction", "limit-conn", "mqtt-proxy", "prometheus", "syslog"],
                     pluginAttrs: {
                         skywalking: {
                             service_name: "demo::APISIX",
@@ -121,7 +118,7 @@ const deploy_spec = [
                     }
                 },
                 externalEtcd: {
-                    host: ["http://etcd:2379"],
+                    host: ["http://apisix-etcd-headless:2379"],
                     user: "root",
                     password: config.require("etcdPassword")
                 },
@@ -140,7 +137,7 @@ const deploy_spec = [
                     config: {
                         conf: {
                             etcd: {
-                                endpoints: ["http://etcd:2379"],
+                                endpoints: ["http://apisix-etcd-headless:2379"],
                                 username: "root",
                                 password: config.require("etcdPassword")
                             },
@@ -187,12 +184,13 @@ const deploy_spec = [
             name: "apisix-ingress-controller",
             chart: "apisix-ingress-controller",
             repository: "https://charts.apiseven.com",
-            version: "0.12.1",
+            version: "0.12.2",
             values: {
                 replicaCount: 1,
                 config: {
                     logLevel: "error",
                     apisix: {
+                        serviceName: "apisix-gateway-admin",
                         serviceNamespace: "apisix",
                         adminKey: config.require("adminCredentials"),
                         adminAPIVersion: "v3"
@@ -204,7 +202,7 @@ const deploy_spec = [
                 },
                 nodeSelector: {},
                 serviceMonitor: {
-                    enabled: true,
+                    enabled: false,
                     interval: "60s",
                     labels: {
                         customer: "demo",
@@ -223,8 +221,9 @@ const deploy_spec = [
             name: "etcd",
             chart: "etcd",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "8.11.4",
+            version: "9.5.1",
             values: {
+                fullnameOverride: "apisix-etcd",
                 auth: {
                     rbac: {
                         create: true,
@@ -234,6 +233,7 @@ const deploy_spec = [
                 },
                 autoCompactionMode: "periodic",
                 autoCompactionRetention: "1h",
+                initialClusterState: "new",
                 logLevel: "error",
                 extraEnvVars: [
                     { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
@@ -293,19 +293,21 @@ const deploy_spec = [
         servicemonitors: [
             {
                 apiVersion: "monitoring.coreos.com/v1",
-                kind: "ServiceMonitor",
+                kind: "PodMonitor",
                 metadata: {
-                    name: "apisix",
+                    name: "apisix-gateway",
                     namespace: "apisix"
                 },
                 spec: {
-                    endpoints: [
+                    podMetricsEndpoints: [
                         {
                             interval: "60s",
+                            scrapeTimeout: "30s",
                             path: "/apisix/prometheus/metrics",
                             scheme: "http",
                             targetPort: "prometheus",
                             relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
                                 { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
                                 { action: "replace", replacement: "API-Gateway", sourceLabels: ["__address__"], targetLabel: "project" },
@@ -321,27 +323,28 @@ const deploy_spec = [
                     selector: {
                         matchLabels: {
                             "app.kubernetes.io/instance": "apisix",
-                            "app.kubernetes.io/name": "apisix",
-                            "app.kubernetes.io/service": "apisix-gateway"
+                            "app.kubernetes.io/name": "apisix"
                         }
                     }
                 }
             },
             {
                 apiVersion: "monitoring.coreos.com/v1",
-                kind: "ServiceMonitor",
+                kind: "PodMonitor",
                 metadata: {
                     name: "apisix-ingress-controller",
                     namespace: "apisix"
                 },
                 spec: {
-                    endpoints: [
+                    podMetricsEndpoints: [
                         {
                             interval: "60s",
+                            scrapeTimeout: "30s",
                             path: "/metrics",
                             scheme: "http",
                             targetPort: "http",
                             relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
                                 { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
                                 { action: "replace", replacement: "API-Gateway", sourceLabels: ["__address__"], targetLabel: "project" },
@@ -356,8 +359,8 @@ const deploy_spec = [
                     },
                     selector: {
                         matchLabels: {
-                            "app.kubernetes.io/instance": "apisix",
-                            "app.kubernetes.io/name": "ingress-controller"
+                            "app.kubernetes.io/instance": "apisix-ingress-controller",
+                            "app.kubernetes.io/name": "apisix-ingress-controller"
                         }
                     }
                 }
@@ -375,6 +378,10 @@ const deploy_spec = [
                         skywalking: {
                             enable: true,
                             sampleRatio: 1
+                        },
+                        prometheus: {
+                            enable: true,
+                            prefer_name: true
                         }
                     }
                 }
@@ -383,7 +390,8 @@ const deploy_spec = [
                 apiVersion: "apisix.apache.org/v2",
                 kind: "ApisixTls",
                 metadata: {
-                    name: "default-cert"
+                    name: "default-cert",
+                    namespace: "apisix"
                 },
                 spec: {
                     hosts: ["*.example.com", "example.com"],
@@ -422,13 +430,6 @@ const deploy_spec = [
                                 max_retry_count: 0,
                                 batch_max_size: 1000,
                                 inactive_timeout: 10
-                            }
-                        },
-                        {
-                            name: "prometheus",
-                            enable: true,
-                            config: {
-                                prefer_name: true
                             }
                         },
                         {

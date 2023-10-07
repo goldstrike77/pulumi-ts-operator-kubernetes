@@ -1,6 +1,8 @@
 import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
 
+const provider = new k8s.Provider("k8s", { enableServerSideApply: true });
+
 let config = new pulumi.Config();
 
 const deploy_spec = [
@@ -48,7 +50,7 @@ const deploy_spec = [
             name: "apisix",
             chart: "apisix",
             repository: "https://charts.apiseven.com",
-            version: "2.0.0",
+            version: "2.2.0",
             values: {
                 labels: {
                     customer: "demo",
@@ -58,10 +60,6 @@ const deploy_spec = [
                     datacenter: "dc01",
                     domain: "local"
                 },
-                image: {
-                    repository: "apache/apisix",
-                    tag: "3.3.0-debian"
-                },
                 replicaCount: 1,
                 resources: {
                     limits: { cpu: "300m", memory: "512Mi" },
@@ -69,20 +67,13 @@ const deploy_spec = [
                 },
                 nodeSelector: {},
                 timezone: "Asia/Shanghai",
-                initContainer: {
-                    image: "busybox",
-                    tag: "1.28"
-                },
                 serviceAccount: { create: true },
                 rbac: { create: true },
                 service: {
                     externalTrafficPolicy: "Local",
                     type: "LoadBalancer",
                     annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
-                    externalIPs: ["192.168.0.101"],
-                    stream: {
-                        enabled: true
-                    }
+                    externalIPs: ["192.168.0.102"],
                 },
                 metrics: {
                     serviceMonitor: {
@@ -91,6 +82,9 @@ const deploy_spec = [
                     }
                 },
                 apisix: {
+                    ssl: {
+                        enabled: true
+                    },
                     admin: {
                         credentials: {
                             admin: config.require("adminCredentials"),
@@ -98,9 +92,11 @@ const deploy_spec = [
                         },
                         allow: {
                             ipList: ["127.0.0.1/24", "192.168.0.0/24"]
-                        },
+                        }
+                    },
+                    nginx: {
                         logs: {
-                            enableAccessLog: true,
+                            enableAccessLog: false,
                             accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\"',
                             accessLogFormatEscape: "default"
                         }
@@ -133,10 +129,6 @@ const deploy_spec = [
                 dashboard: {
                     enabled: true,
                     replicaCount: 1,
-                    image: {
-                        repository: "apache/apisix-dashboard",
-                        tag: "3.0.1-alpine"
-                    },
                     labelsOverride: {
                         customer: "demo",
                         environment: "dev",
@@ -187,43 +179,43 @@ const deploy_spec = [
                     },
                     nodeSelector: {}
                 },
-                "ingress-controller": {
+                "ingress-controller": { enabled: false }
+            }
+        },
+        "ingress_controller": {
+            namespace: "apisix",
+            name: "apisix-ingress-controller",
+            chart: "apisix-ingress-controller",
+            repository: "https://charts.apiseven.com",
+            version: "0.12.1",
+            values: {
+                replicaCount: 1,
+                config: {
+                    logLevel: "error",
+                    apisix: {
+                        serviceNamespace: "apisix",
+                        adminKey: config.require("adminCredentials"),
+                        adminAPIVersion: "v3"
+                    }
+                },
+                resources: {
+                    limits: { cpu: "100m", memory: "128Mi" },
+                    requests: { cpu: "100m", memory: "128Mi" }
+                },
+                nodeSelector: {},
+                serviceMonitor: {
                     enabled: true,
-                    replicaCount: 1,
-                    image: {
-                        repository: "apache/apisix-ingress-controller",
-                        tag: "1.6.0"
-                    },
-                    config: {
-                        logLevel: "error",
-                        apisix: {
-                            serviceNamespace: "apisix",
-                            adminKey: config.require("adminCredentials"),
-                            adminAPIVersion: "v3"
-                        }
-                    },
-                    resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
-                    },
-                    nodeSelector: {},
-                    initContainer: {
-                        image: "busybox",
-                        tag: "1.28"
-                    },
-                    serviceMonitor: {
-                        enabled: true,
-                        interval: "60s",
-                        labels: {
-                            customer: "demo",
-                            environment: "dev",
-                            project: "API-Gateway",
-                            group: "apisix-dashboard",
-                            datacenter: "dc01",
-                            domain: "local"
-                        }
+                    interval: "60s",
+                    labels: {
+                        customer: "demo",
+                        environment: "dev",
+                        project: "API-Gateway",
+                        group: "apisix-dashboard",
+                        datacenter: "dc01",
+                        domain: "local"
                     }
                 }
+
             }
         },
         etcd: {
@@ -231,7 +223,7 @@ const deploy_spec = [
             name: "etcd",
             chart: "etcd",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "8.11.4",
+            version: "9.5.1",
             values: {
                 auth: {
                     rbac: {
@@ -242,6 +234,7 @@ const deploy_spec = [
                 },
                 autoCompactionMode: "periodic",
                 autoCompactionRetention: "1h",
+                initialClusterState: "new",
                 logLevel: "error",
                 extraEnvVars: [
                     { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
@@ -383,6 +376,10 @@ const deploy_spec = [
                         skywalking: {
                             enable: true,
                             sampleRatio: 1
+                        },
+                        prometheus: {
+                            enable: true,
+                            prefer_name: true
                         }
                     }
                 }
@@ -391,19 +388,20 @@ const deploy_spec = [
                 apiVersion: "apisix.apache.org/v2",
                 kind: "ApisixTls",
                 metadata: {
-                    name: "default-cert"
+                    name: "default-cert",
+                    namespace: "apisix"
                 },
                 spec: {
                     hosts: ["*.example.com", "example.com"],
                     secret: {
                         name: "default-cert",
-                        namespace: "apisix"
+                        namespace: "default"
                     }
                 }
             },
             {
                 apiVersion: "apisix.apache.org/v2",
-                kind: "ApisixPluginConfig",
+                kind: "ApisixGlobalRule",
                 metadata: {
                     name: "default",
                     namespace: "apisix"
@@ -430,13 +428,6 @@ const deploy_spec = [
                                 max_retry_count: 0,
                                 batch_max_size: 1000,
                                 inactive_timeout: 10
-                            }
-                        },
-                        {
-                            name: "prometheus",
-                            enable: true,
-                            config: {
-                                prefer_name: true
                             }
                         },
                         {
@@ -492,24 +483,34 @@ for (var i in deploy_spec) {
             repo: deploy_spec[i].apisix.repository,
         },
     }, { dependsOn: [namespace], customTimeouts: { create: "20m" } });
+    // Create apisix ingress-controller Resource.
+    const ingresscontroller = new k8s.helm.v3.Release(deploy_spec[i].ingress_controller.name, {
+        namespace: deploy_spec[i].ingress_controller.namespace,
+        name: deploy_spec[i].ingress_controller.name,
+        chart: deploy_spec[i].ingress_controller.chart,
+        version: deploy_spec[i].ingress_controller.version,
+        values: deploy_spec[i].ingress_controller.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].ingress_controller.repository,
+        },
+    }, { dependsOn: [apisix], customTimeouts: { create: "20m" } });
     // Create Kubernetes Ingress Class.
     const ingressclass = new k8s.apiextensions.CustomResource(deploy_spec[i].class.metadata.name, {
         apiVersion: deploy_spec[i].class.apiVersion,
         kind: deploy_spec[i].class.kind,
         metadata: deploy_spec[i].class.metadata,
         spec: deploy_spec[i].class.spec
-    }, { dependsOn: [apisix] });
+    }, { dependsOn: [ingresscontroller] });
     // Create service monitor.
-    /**
-        for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
-            const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
-                apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
-                kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
-                metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
-                spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
-            }, { dependsOn: [apisix] });
-        }
-         */
+    for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+        const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+            apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+            kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+            metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+            spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+        }, { dependsOn: [apisix] });
+    }
     // Create apisix Custom resource definition .
     for (var crd_index in deploy_spec[i].crds) {
         const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {
@@ -517,6 +518,6 @@ for (var i in deploy_spec) {
             kind: deploy_spec[i].crds[crd_index].kind,
             metadata: deploy_spec[i].crds[crd_index].metadata,
             spec: deploy_spec[i].crds[crd_index].spec
-        }, { dependsOn: [apisix] });
+        }, { dependsOn: [ingresscontroller] });
     }
 }

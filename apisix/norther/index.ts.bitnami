@@ -34,15 +34,16 @@ const deploy_spec = [
             name: "apisix",
             chart: "apisix",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "1.0.1",
+            version: "2.1.3",
             values: {
                 image: {
                     registry: "docker.io",
                     repository: "bitnami/apisix",
-                    tag: "3.3.0-debian-11-r12"
+                    tag: "3.5.0-debian-11-r29"
                 },
                 dataPlane: {
-                    enabled: false,
+                    enabled: true,
+                    useDaemonSet: true,
                     replicaCount: 1,
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
@@ -51,7 +52,7 @@ const deploy_spec = [
                     podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "Apisix-DataPlane", datacenter: "dc01", domain: "local" },
                     service: {
                         type: "LoadBalancer",
-                        loadBalancerIP: "192.168.0.101",
+                        loadBalancerIP: "192.168.0.102",
                         externalTrafficPolicy: "Local",
                         annotations: { "metallb.universe.tf/allow-shared-ip": "apisix" }
                     },
@@ -118,7 +119,7 @@ const deploy_spec = [
                     image: {
                         registry: "docker.io",
                         repository: "bitnami/apisix-dashboard",
-                        tag: "3.0.1-debian-11-r11"
+                        tag: "3.0.1-debian-11-r133"
                     },
                     username: "admin",
                     password: config.require("dashboardPassword"),
@@ -128,18 +129,20 @@ const deploy_spec = [
                         requests: { cpu: "300m", memory: "256Mi" }
                     },
                     service: {
-                        type: "LoadBalancer",
-                        loadBalancerIP: "192.168.0.102",
-                        externalTrafficPolicy: "Local",
-                        annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" }
-                    }
+                        type: "ClusterIP"
+                    },
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "nginx",
+                        hostname: "apisix.example.com"
+                    },
                 },
                 ingressController: {
                     enabled: true,
                     image: {
                         registry: "docker.io",
                         repository: "bitnami/apisix-ingress-controller",
-                        tag: "1.6.1-debian-11-r11"
+                        tag: "1.7.0-debian-11-r13"
                     },
                     replicaCount: 1,
                     resources: {
@@ -163,13 +166,6 @@ const deploy_spec = [
                         }
                     }
                 },
-                waitContainer: {
-                    image: {
-                        registry: "docker.io",
-                        repository: "bitnami/bitnami-shell",
-                        tag: "11-debian-11-r124"
-                    }
-                },
                 etcd: {
                     enabled: true,
                     auth: {
@@ -180,6 +176,7 @@ const deploy_spec = [
                     },
                     autoCompactionMode: "periodic",
                     autoCompactionRetention: "1h",
+                    initialClusterState: "new",
                     logLevel: "error",
                     extraEnvVars: [
                         { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
@@ -197,11 +194,6 @@ const deploy_spec = [
                     },
                     volumePermissions: {
                         enabled: true,
-                        image: {
-                            registry: "docker.io",
-                            repository: "bitnami/bitnami-shell",
-                            tag: "11-debian-11-r124"
-                        },
                         resources: {
                             limits: { cpu: "50m", memory: "64Mi" },
                             requests: { cpu: "50m", memory: "64Mi" }
@@ -242,6 +234,10 @@ const deploy_spec = [
                         skywalking: {
                             enable: true,
                             sampleRatio: 1
+                        },
+                        prometheus: {
+                            enable: true,
+                            prefer_name: true
                         }
                     }
                 }
@@ -250,14 +246,56 @@ const deploy_spec = [
                 apiVersion: "apisix.apache.org/v2",
                 kind: "ApisixTls",
                 metadata: {
-                    name: "default-cert"
+                    name: "default-cert",
+                    namespace: "apisix"
                 },
                 spec: {
                     hosts: ["*.example.com", "example.com"],
                     secret: {
                         name: "default-cert",
-                        namespace: "apisix"
+                        namespace: "default"
                     }
+                }
+            },
+            {
+                apiVersion: "apisix.apache.org/v2",
+                kind: "ApisixGlobalRule",
+                metadata: {
+                    name: "default",
+                    namespace: "apisix"
+                },
+                spec: {
+                    plugins: [
+                        {
+                            name: "elasticsearch-logger",
+                            enable: true,
+                            config: {
+                                endpoint_addrs: ["https://opensearch-master.opensearch:9200"],
+                                field: {
+                                    index: "apisix-%Y-%m-%d",
+                                    type: "collector"
+                                },
+                                auth: {
+                                    "username": "admin",
+                                    "password": "password"
+                                },
+                                ssl_verify: false,
+                                timeout: 30,
+                                retry_delay: 1,
+                                buffer_duration: 60,
+                                max_retry_count: 0,
+                                batch_max_size: 1000,
+                                inactive_timeout: 10
+                            }
+                        },
+                        {
+                            name: "redirect",
+                            enable: true,
+                            config: {
+                                http_to_https: true
+                            }
+                        }
+                    ]
                 }
             }
         ]
