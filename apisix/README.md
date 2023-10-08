@@ -11,3 +11,7 @@ pulumi config set dashboardPassword [password] --secret
 pulumi config set adminCredentials [password] --secret
 pulumi config set viewerCredentials [password] --secret
 ```
+
+##### @param initialClusterState Initial cluster state. Allowed values: 'new' or 'existing'
+#####   - 'new': when installing the chart ('helm install ...')
+#####   - 'existing': when upgrading the chart ('helm upgrade ...')

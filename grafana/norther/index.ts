@@ -121,7 +121,7 @@ const deploy_spec = [
             name: "grafana",
             chart: "grafana",
             repository: "https://grafana.github.io/helm-charts",
-            version: "6.44.10",
+            version: "6.57.4",
             values: {
                 replicas: 1,
                 deploymentStrategy: {
@@ -131,8 +131,7 @@ const deploy_spec = [
                         maxUnavailable: 1
                     }
                 },
-                image: { repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/grafana", tag: "9.2.17" },
-                podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                podLabels: { customer: "demo", environment: "dev", project: "Visualization", group: "grafana", datacenter: "dc01", domain: "local" },
                 serviceMonitor: {
                     enabled: true,
                     relabelings: [
@@ -162,9 +161,15 @@ const deploy_spec = [
                 persistence: {
                     enabled: true,
                     storageClassName: "longhorn",
-                    size: "8Gi"
+                    size: "7Gi"
                 },
-                initChownData: { enabled: true },
+                initChownData: {
+                    enabled: true,
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    }
+                },
                 adminUser: "admin",
                 adminPassword: config.require("adminPassword"),
                 plugins: [
@@ -256,11 +261,11 @@ const deploy_spec = [
                         default_theme: "dark",
                         home_page: ""
                     },
-                    tracing: { type: "jaeger" },
-                    "tracing.jaeger": {
-                        address: "tempo-distributor.tracing.svc.cluster.local:6831",
-                        zipkin_propagation: true
-                    }
+                    // tracing: { type: "jaeger" },
+                    // "tracing.jaeger": {
+                    //     address: "tempo-distributor.tracing.svc.cluster.local:6831",
+                    //     zipkin_propagation: true
+                    // }
                 },
                 sidecar: {
                     resources: {

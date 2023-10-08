@@ -21,6 +21,7 @@ const deploy_spec = [
             repository: "https://charts.bitnami.com/bitnami",
             version: "9.5.2",
             values: {
+                fullnameOverride: "spring-boot-mysql",
                 image: {
                     registry: "registry.cn-hangzhou.aliyuncs.com",
                     repository: "goldstrike/mysql",
@@ -61,7 +62,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                     }
                 },
                 metrics: {
-                    enabled: false,
+                    enabled: true,
                     extraArgs: {
                         primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.global_variables", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
                     },
@@ -187,7 +188,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                                     }
                                 ],
                                 env: [
-                                    { name: "SPRING_DATASOURCE_URL", value: "jdbc:mysql://mysql/spring-boot" },
+                                    { name: "SPRING_DATASOURCE_URL", value: "jdbc:mysql://spring-boot-mysql/spring-boot" },
                                     { name: "SPRING_DATASOURCE_USERNAME", value: "spring-boot" },
                                     { name: "SPRING_DATASOURCE_PASSWORD", value: config.require("userPassword") },
                                     { name: "KUBERNETES_NAMESPACE", value: "spring-boot" },
@@ -247,13 +248,6 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                             ],
                             plugins: [
                                 {
-                                    name: "prometheus",
-                                    enable: true,
-                                    config: {
-                                        prefer_name: true
-                                    }
-                                },
-                                {
                                     name: "limit-conn",
                                     enable: true,
                                     config: {
@@ -268,13 +262,6 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                                         key_type: "var",
                                         only_use_default_delay: false,
                                         rejected_code: 503
-                                    }
-                                },
-                                {
-                                    name: "redirect",
-                                    enable: true,
-                                    config: {
-                                        http_to_https: true
                                     }
                                 }
                             ]

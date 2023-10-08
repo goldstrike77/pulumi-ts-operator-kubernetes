@@ -238,7 +238,7 @@ const deploy_spec = [
                 extraEnvVars: [
                     { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
                 ],
-                replicaCount: 3,
+                replicaCount: 1,
                 resources: {
                     limits: { cpu: "500m", memory: "512Mi" },
                     requests: { cpu: "500m", memory: "512Mi" }

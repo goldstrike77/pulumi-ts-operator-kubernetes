@@ -155,7 +155,8 @@ snapshotrestore:
               }
             }
           },
-          terminationGracePeriod: "60"
+          terminationGracePeriod: "60",
+          fullnameOverride: "skywalking-opensearch-master"
         }
       },
       {
@@ -165,7 +166,7 @@ snapshotrestore:
         chart: "prometheus-elasticsearch-exporter",
         repository: "https://prometheus-community.github.io/helm-charts",
         values: {
-          fullnameOverride: "opensearch-exporter",
+          fullnameOverride: "skywalking-opensearch-exporter",
           log: { level: "wran" },
           resources: {
             limits: { cpu: "100m", memory: "64Mi" },
