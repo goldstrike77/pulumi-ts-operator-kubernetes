@@ -17,15 +17,14 @@ const deploy_spec = [
         },
         helm: {
             namespace: "spring-boot",
-            chart: "mysql",
+            name: "mariadb",
+            chart: "mariadb",
             repository: "https://charts.bitnami.com/bitnami",
-            version: "9.5.2",
+            version: "13.1.3",
             values: {
                 fullnameOverride: "spring-boot-mysql",
                 image: {
-                    registry: "registry.cn-hangzhou.aliyuncs.com",
-                    repository: "goldstrike/mysql",
-                    tag: "5.7.41-debian-11-r15"
+                    tag: "10.11.5-debian-11-r47"
                 },
                 architecture: "standalone",
                 auth: {
@@ -43,6 +42,48 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
 `
                 },
                 primary: {
+                    configuration: `
+[mysqld]
+skip-log-bin
+skip-name-resolve
+explicit_defaults_for_timestamp
+basedir=/opt/bitnami/mariadb
+plugin_dir=/opt/bitnami/mariadb/plugin
+port=3306
+socket=/opt/bitnami/mariadb/tmp/mysql.sock
+tmpdir=/opt/bitnami/mariadb/tmp
+max_allowed_packet=16M
+bind-address=0.0.0.0
+pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+log-error=/opt/bitnami/mariadb/logs/mysqld.log
+character-set-server=UTF8
+collation-server=utf8_general_ci
+slow_query_log_file=/opt/bitnami/mariadb/logs/mysqld.log
+slow_query_log=0
+max_connections=100
+performance_schema_max_table_instances=256
+table_definition_cache=400
+table_open_cache=128
+innodb_buffer_pool_size=256M
+innodb_flush_log_at_trx_commit=2
+query_response_time_stats=1
+plugin_load_add=query_response_time
+
+[client]
+port=3306
+socket=/opt/bitnami/mariadb/tmp/mysql.sock
+default-character-set=UTF8
+plugin_dir=/opt/bitnami/mariadb/plugin
+
+[manager]
+port=3306
+socket=/opt/bitnami/mariadb/tmp/mysql.sock
+pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
+`,
+                    extraEnvVars: [
+                        { name: "MARIADB_COLLATE", value: "utf8mb4_unicode_ci" },
+                        { name: "MARIADB_CHARACTER_SET", value: "utf8mb4" }
+                    ],
                     resources: {
                         limits: { cpu: "250m", memory: "512Mi" },
                         requests: { cpu: "250m", memory: "512Mi" }
@@ -50,21 +91,44 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                     persistence: {
                         enabled: true,
                         storageClass: "longhorn",
-                        size: "8Gi"
+                        size: "7Gi"
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
+                    podLabels: { customer: "demo", environment: "dev", project: "spring-boot", group: "database", datacenter: "dc01", domain: "local" }
                 },
                 volumePermissions: {
-                    enabled: false,
+                    enabled: true,
                     resources: {
-                        limits: { cpu: "50m", memory: "32Mi" },
-                        requests: { cpu: "50m", memory: "32Mi" }
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
                     }
                 },
                 metrics: {
                     enabled: true,
                     extraArgs: {
-                        primary: ["--tls.insecure-skip-verify", "--collect.auto_increment.columns", "--collect.binlog_size", "--collect.engine_innodb_status", "--collect.global_status", "--collect.global_variables", "--collect.info_schema.clientstats", "--collect.info_schema.innodb_metrics", "--collect.info_schema.innodb_tablespaces", "--collect.info_schema.innodb_cmpmem", "--collect.info_schema.processlist", "--collect.info_schema.query_response_time", "--collect.info_schema.tables", "--collect.info_schema.tablestats", "--collect.info_schema.userstats", "--collect.perf_schema.eventsstatements", "--collect.perf_schema.eventswaits", "--collect.perf_schema.file_events", "--collect.perf_schema.file_instances", "--collect.perf_schema.indexiowaits", "--collect.perf_schema.tableiowaits", "--collect.perf_schema.tablelocks"]
+                        primary: [
+                            "--collect.auto_increment.columns",
+                            "--collect.binlog_size",
+                            "--collect.engine_innodb_status",
+                            "--collect.global_status",
+                            "--collect.global_variables",
+                            "--collect.info_schema.clientstats",
+                            "--collect.info_schema.innodb_metrics",
+                            "--collect.info_schema.innodb_cmp",
+                            "--collect.info_schema.innodb_cmpmem",
+                            "--collect.info_schema.processlist",
+                            "--collect.info_schema.query_response_time",
+                            "--collect.info_schema.tables",
+                            "--collect.info_schema.tablestats",
+                            "--collect.info_schema.schemastats",
+                            "--collect.info_schema.userstats",
+                            "--collect.perf_schema.eventsstatements",
+                            "--collect.perf_schema.eventswaits",
+                            "--collect.perf_schema.file_events",
+                            "--collect.perf_schema.file_instances",
+                            "--collect.perf_schema.indexiowaits",
+                            "--collect.perf_schema.tableiowaits",
+                            "--collect.perf_schema.tablelocks"
+                        ]
                     },
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
@@ -74,7 +138,7 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                         enabled: true,
                         initialDelaySeconds: 120,
                         periodSeconds: 10,
-                        timeoutSeconds: 5,
+                        timeoutSeconds: 10,
                         successThreshold: 1,
                         failureThreshold: 3
                     },
@@ -82,14 +146,15 @@ mysql -uroot -p${config.require("rootPassword")} -e "use spring-boot;INSERT INTO
                         enabled: true,
                         initialDelaySeconds: 30,
                         periodSeconds: 10,
-                        timeoutSeconds: 5,
+                        timeoutSeconds: 10,
                         successThreshold: 1,
                         failureThreshold: 3
                     },
                     serviceMonitor: {
                         enabled: true,
                         interval: "60s",
-                        relabellings: [
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
@@ -328,7 +393,7 @@ for (var i in deploy_spec) {
         repositoryOpts: {
             repo: deploy_spec[i].helm.repository,
         },
-    }, { dependsOn: [namespace], customTimeouts: { create: "10m" } });
+    }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
     // Create Deployment Resource.
     const deployment = new k8s.apps.v1.Deployment(deploy_spec[i].deployment.metadata.name, {
         metadata: deploy_spec[i].deployment.metadata,
