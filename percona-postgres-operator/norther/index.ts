@@ -18,20 +18,15 @@ const deploy_spec = [
             name: "pg-operator",
             chart: "pg-operator",
             repository: "https://percona.github.io/percona-helm-charts",
-            version: "1.4.0",
+            version: "2.2.2",
             values: {
-                fullnameOverride: "",
-                archive_mode: "true",
-                backrest_aws_s3_bucket: "backup",
-                backrest_aws_s3_endpoint: "http://minio:9000",
-                backrest_aws_s3_key: config.require("AWS_ACCESS_KEY_ID"),
-                backrest_aws_s3_region: "us-east-1",
-                backrest_aws_s3_secret: config.require("AWS_SECRET_ACCESS_KEY"),
-                backrest_aws_s3_uri_style: "true",
-                backrest_aws_s3_verify_tls: "false",
-                metrics: "true",
-                pgo_admin_password: config.require("adminPassword"),
-                disable_telemetry: "true"
+                replicaCount: 1,
+                watchAllNamespaces: true,
+                fullnameOverride: "postgresql-operator",
+                resources: {
+                    limits: { cpu: "200m", memory: "128Mi" },
+                    requests: { cpu: "200m", memory: "128Mi" }
+                },
             }
         }
     }

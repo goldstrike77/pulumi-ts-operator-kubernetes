@@ -1,9 +1,12 @@
-encryptionsalt: v1:7/6HUqFUiWk=:v1:pi+QGEF13nrCc2N4:Gwx5Q1pXxS69Kv86B8v3MEnuDpTYxg==
+encryptionsalt: v1:Yy7kIwtLirw=:v1:8VGBIDM6pLz4PJN4:C3kWYoJ10aSBEzqcY1BLr/WYxPA8mw==
 config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:bLoAVyeOIE7zqj77:uk3KQoSuy7o94hVpaxEKU8g/nP0b
   demo:AWS_SECRET_ACCESS_KEY:
-    secure: v1:V/d9YvKL+2bC64Nw:IKya4tuekNRRqxOaYWXg7TaBSwfiRHsy
-  demo:postgresPassword:
-    secure: v1:Q6IwzgnbrnnR/Cq6:KiHob9U1DULpg9y7c3BtgyUwkW7Qx5oR
-  demo:userPassword:
-    secure: v1:yMLjP1A8SjcXtgmY:19MCbfIWYTMj+2uUkl3fDzTqTYotGW/C
-  kubernetes:context: kubernetes-admin@norther
+    secure: v1:oh4oojxpb5g0vJi9:4d/xDq7J43+yOiFT1epvw9z+nWnmQf4q
+  demo:S3.CONF:
+    secure: v1:MCbzlTGdG5iAg99w:cXmihylhW5Eqnl3FsnQdduMTcRsKBW9svlLCRicAoQfeMca0UV2kEYBN9vgQhOKpp+/+4BOQaIU3Q4JR7m5e67ilbMJ+wfdJR05ljFqL9z7B4Gqo998VWwj7RQk=
+  demo:pqsqlSuperPassword:
+    secure: v1:NVIj9ZPgJcuUML7t:JM1IqIWu9raaSg2vUbyYBxMYe5uAup+w
+  demo:pqsqlUserPassword:
+    secure: v1:hqPQk7nWX1AUehTI:kyfSNb8Yg81sUg8atUKYhQ6EJjASadMp

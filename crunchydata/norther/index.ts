@@ -16,21 +16,27 @@ const deploy_spec = [
     helm: {
       namespace: "crunchydata",
       name: "postgres-operator",
-      chart: "../../_chart/pgo-install-5.3.1.tgz",
+      chart: "../../_chart/pgo-operator-5.4.2.tgz",
       repository: "",
-      version: "5.3.1",
+      version: "5.4.2",
       values: {
         singleNamespace: false,
         debug: false,
+        disable_check_for_upgrades: true,
         resources: {
           controller: {
             limits: { cpu: "100m", memory: "128Mi" },
             requests: { cpu: "100m", memory: "128Mi" }
-          },
-          upgrade: {
-            limits: { cpu: "100m", memory: "128Mi" },
-            requests: { cpu: "100m", memory: "128Mi" }
           }
+        },
+        customPodLabels: {
+          app: "postgres-operator",
+          customer: "demo",
+          datacenter: "dc01",
+          domain: "local",
+          environment: "dev",
+          group: "postgres-operator",
+          project: "crunchydata"
         }
       }
     }

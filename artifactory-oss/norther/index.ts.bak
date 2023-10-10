@@ -1,0 +1,278 @@
+import * as k8s from "@pulumi/kubernetes";
+import * as pulumi from "@pulumi/pulumi";
+import * as random from "@pulumi/random";
+
+let config = new pulumi.Config();
+
+// Generate random minutes from 10 to 59.
+const minutes = new random.RandomInteger("minutes", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 59,
+    min: 10,
+});
+
+// Generate random hours from UTC 17 to 21.
+const hours = new random.RandomInteger("hours", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 21,
+    min: 17,
+});
+
+const deploy_spec = [
+    {
+        namespace: {
+            metadata: {
+                name: "artifactory",
+                annotations: {},
+                labels: {}
+            },
+            spec: {}
+        },
+        secret: [
+            {
+                metadata: {
+                    name: "artifactory-postgres-s3-creds",
+                    namespace: "artifactory",
+                    annotations: {},
+                    labels: {}
+                },
+                type: "Opaque",
+                data: {
+                    "s3.conf": Buffer.from(config.require("S3.CONF")).toString('base64')
+                },
+                stringData: {}
+            }
+        ],
+        postgres: [
+            {
+                apiVersion: "postgres-operator.crunchydata.com/v1beta1",
+                kind: "PostgresCluster",
+                metadata: {
+                    name: "artifactory",
+                    namespace: "artifactory",
+                },
+                spec: {
+                    image: "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-postgres:ubi8-13.10-0",
+                    postgresVersion: 13,
+                    instances: [
+                        {
+                            name: "instance",
+                            replicas: 2,
+                            dataVolumeClaimSpec: {
+                                storageClassName: "longhorn",
+                                accessModes: [
+                                    "ReadWriteOnce"
+                                ],
+                                resources: {
+                                    requests: {
+                                        storage: "7Gi"
+                                    }
+                                }
+                            },
+                            resources: {
+                                limits: { cpu: 1, memory: "1Gi" }
+                            }
+                        }
+                    ],
+                    patroni: {
+                        dynamicConfiguration: {
+                            postgresql: {
+                                parameters: {
+                                    max_parallel_workers: 1,
+                                    max_worker_processes: 1,
+                                    shared_buffers: "256MB",
+                                    work_mem: "2MB"
+                                }
+                            }
+                        }
+                    },
+                    backups: {
+                        pgbackrest: {
+                            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-pgbackrest:ubi8-2.47-0",
+                            configuration: [
+                                {
+                                    secret: {
+                                        name: "artifactory-postgres-s3-creds"
+                                    }
+                                }
+                            ],
+                            global: {
+                                "repo1-path": "/pgbackrest/artifactory/repo1",
+                                "repo1-retention-full": "2",
+                                "repo1-retention-full-type": "time"
+                            },
+                            manual: {
+                                repoName: "repo1",
+                                options: ["--type=full"]
+                            },
+                            repos: [
+                                {
+                                    name: "repo1",
+                                    schedules: {
+                                        full: pulumi.interpolate`${minutes.result} ${hours.result} * * 0`,
+                                        differential: pulumi.interpolate`${minutes.result} ${hours.result} * * 1-6`,
+                                    },
+                                    s3: {
+                                        bucket: "backup",
+                                        endpoint: "http://node30.node.home.local:9000",
+                                        region: "us-east-1"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    proxy: {
+                        pgBouncer: {
+                            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-pgbouncer:ubi8-1.19-4",
+                            replicas: 1,
+                            resources: {
+                                limits: { cpu: "100m", memory: "128Mi" },
+                                requests: { cpu: "100m", memory: "128Mi" }
+                            }
+                        }
+                    },
+                    monitoring: {
+                        pgmonitor: {
+                            exporter: {
+                                image: "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-postgres-exporter:ubi8-5.4.2-0",
+                                resources: {
+                                    limits: { cpu: "100m", memory: "128Mi" },
+                                    requests: { cpu: "100m", memory: "128Mi" }
+                                }
+                            }
+                        }
+                    },
+                }
+            }
+        ],
+        servicemonitors: [
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "artifactory-postgres",
+                    namespace: "artifactory"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "exporter",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "Container-Registry", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "artifactory", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["artifactory"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "postgres-operator.crunchydata.com/cluster": "artifactory",
+                            "postgres-operator.crunchydata.com/instance-set": "instance"
+                        }
+                    }
+                }
+            }
+        ],
+        helm: {
+            namespace: "artifactory",
+            name: "artifactory-oss",
+            chart: "artifactory-oss",
+            repository: "https://charts.jfrog.io",
+            version: "107.55.8",
+            values: {
+                artifactory: {
+                    fullnameOverride: "artifactory",
+                    artifactory: {
+                        resources: {
+                            limits: { cpu: "1000m", memory: "6144Mi" },
+                            requests: { cpu: "1000m", memory: "6144Mi" }
+                        },
+                        javaOpts: {
+                            xms: "4g",
+                            xmx: "4g"
+                        },
+                        persistence: {
+                            type: "aws-s3-v3",
+                            awsS3V3: {
+                                identity: "artifactory",
+                                credential: config.require("AWS_SECRET_ACCESS_KEY"),
+                                region: "us-east-1",
+                                bucketName: "artifactory",
+                                path: "artifactory/filestore",
+                                endpoint: "minio.minio:9000",
+                                useHttp: true
+                            }
+                        }
+                    },
+                    ingress: {
+                        enabled: true,
+                        hosts: ["norther.example.com"],
+                        routerPath: "/jfrog",
+                        artifactoryPath: "/artifactory/",
+                        className: "nginx"
+                    },
+                    postgresql: { enabled: true },
+                    jfconnect: { enabled: false }
+                },
+                postgresql: { enabled: true }
+            }
+        }
+    }
+]
+
+for (var i in deploy_spec) {
+    // Create Kubernetes Namespace.
+    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
+        metadata: deploy_spec[i].namespace.metadata,
+        spec: deploy_spec[i].namespace.spec
+    });
+    // Create Kubernetes Secret.
+    for (var secret_index in deploy_spec[i].secret) {
+        const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
+            metadata: deploy_spec[i].secret[secret_index].metadata,
+            type: deploy_spec[i].secret[secret_index].type,
+            data: deploy_spec[i].secret[secret_index].data,
+            stringData: deploy_spec[i].secret[secret_index].stringData
+        }, { dependsOn: [namespace] });
+    }
+    // Create postgresql CRD.
+    for (var crd_index in deploy_spec[i].postgres) {
+        const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].postgres[crd_index].metadata.name, {
+            apiVersion: deploy_spec[i].postgres[crd_index].apiVersion,
+            kind: deploy_spec[i].postgres[crd_index].kind,
+            metadata: deploy_spec[i].postgres[crd_index].metadata,
+            spec: deploy_spec[i].postgres[crd_index].spec
+        }, { dependsOn: [namespace] });
+    }
+    // Create service monitor.
+    for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+        const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+            apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+            kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+            metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+            spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+        }, { dependsOn: [namespace] });
+    }
+    // Create Release Resource.
+    //const helm = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+    //    namespace: deploy_spec[i].helm.namespace,
+    //    name: deploy_spec[i].helm.name,
+    //    chart: deploy_spec[i].helm.chart,
+    //    version: deploy_spec[i].helm.version,
+    //    values: deploy_spec[i].helm.values,
+    //    skipAwait: true,
+    //    repositoryOpts: {
+    //        repo: deploy_spec[i].helm.repository,
+    //    },
+    //}, { dependsOn: [postgres] });
+}

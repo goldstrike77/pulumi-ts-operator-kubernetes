@@ -4,14 +4,14 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "nfs-subdir-external-provisioner",
+                name: "nfs-subdir",
                 annotations: {},
                 labels: {}
             },
             spec: {}
         },
         helm: {
-            namespace: "nfs-subdir-external-provisioner",
+            namespace: "nfs-subdir",
             name: "nfs-subdir-external-provisioner",
             chart: "nfs-subdir-external-provisioner",
             repository: "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner",
@@ -19,7 +19,7 @@ const deploy_spec = [
             values: {
                 replicaCount: 1,
                 image: {
-                    repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/nfs-subdir-external-provisioner"
+                    repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/nfs-subdir-external-provisioner"
                 },
                 nfs: {
                     server: "node30.node.home.local",
