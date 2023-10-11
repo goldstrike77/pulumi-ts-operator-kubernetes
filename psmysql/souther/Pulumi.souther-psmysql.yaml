@@ -1,5 +1,0 @@
-encryptionsalt: v1:6pgJtKeBVbI=:v1:Ksw2vP0CuKXAOxCH:GpIzANrcO5pS96L62xzai450idrNhA==
-config:
-  demo:secretaccesskey:
-    secure: v1:TRPsxp8SxE6a6y9y:PfQkxT1RK7Dh3wKGneGeOtIEtZqEutQh
-  kubernetes:context: kubernetes-admin@souther

@@ -7,26 +7,27 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "postgres-operator",
+                name: "xtradb-operator",
                 annotations: {},
                 labels: {}
             },
             spec: {}
         },
         helm: {
-            namespace: "postgres-operator",
-            name: "pg-operator",
-            chart: "pg-operator",
+            namespace: "xtradb-operator",
+            name: "pxc-operator",
+            chart: "pxc-operator",
             repository: "https://percona.github.io/percona-helm-charts",
-            version: "2.2.2",
+            version: "1.13.3",
             values: {
                 replicaCount: 1,
                 watchAllNamespaces: true,
-                fullnameOverride: "postgresql-operator",
+                fullnameOverride: "xtradb-operator",
                 resources: {
-                    limits: { cpu: "200m", memory: "128Mi" },
-                    requests: { cpu: "200m", memory: "128Mi" }
+                    limits: { cpu: "100m", memory: "128Mi" },
+                    requests: { cpu: "100m", memory: "128Mi" }
                 },
+                logLevel: "INFO",
                 disableTelemetry: true
             }
         }

@@ -7,25 +7,24 @@ const deploy_spec = [
     {
         namespace: {
             metadata: {
-                name: "postgres-operator",
+                name: "mysql-operator",
                 annotations: {},
                 labels: {}
             },
             spec: {}
         },
         helm: {
-            namespace: "postgres-operator",
-            name: "pg-operator",
-            chart: "pg-operator",
+            namespace: "mysql-operator",
+            name: "ps-operator",
+            chart: "ps-operator",
             repository: "https://percona.github.io/percona-helm-charts",
-            version: "2.2.2",
+            version: "0.6.1",
             values: {
                 replicaCount: 1,
-                watchAllNamespaces: true,
-                fullnameOverride: "postgresql-operator",
+                fullnameOverride: "mysql-operator",
                 resources: {
-                    limits: { cpu: "200m", memory: "128Mi" },
-                    requests: { cpu: "200m", memory: "128Mi" }
+                    limits: { cpu: "100m", memory: "128Mi" },
+                    requests: { cpu: "100m", memory: "128Mi" }
                 },
                 disableTelemetry: true
             }

@@ -194,9 +194,21 @@ const deploy_spec = [
             repository: "https://charts.jfrog.io",
             version: "107.68.14",
             values: {
+                initContainerImage: "registry.cn-shanghai.aliyuncs.com/goldenimage/ubi-minimal:9.2.691",
+                initContainers: {
+                    resources: {
+                        limits: { cpu: "100m", memory: "64Mi" },
+                        requests: { cpu: "100m", memory: "64Mi" }
+                    }
+                },
                 artifactory: {
                     fullnameOverride: "artifactory",
                     artifactory: {
+                        image: {
+                            registry: "registry.cn-shanghai.aliyuncs.com",
+                            repository: "goldenimage/artifactory-oss",
+                            tag: "7.68.14"
+                        },
                         resources: {
                             limits: { cpu: "1000m", memory: "6144Mi" },
                             requests: { cpu: "1000m", memory: "6144Mi" }
@@ -231,6 +243,13 @@ const deploy_spec = [
                     jfconnect: { enabled: false }
                 },
                 postgresql: { enabled: false },
+                router: {
+                    image: {
+                        registry: "registry.cn-shanghai.aliyuncs.com",
+                        repository: "goldenimage/router",
+                        tag: "7.61.1"
+                    }
+                },
                 database: {
                     type: "postgresql",
                     driver: "org.postgresql.Driver",
