@@ -1,0 +1,301 @@
+import * as k8s from "@pulumi/kubernetes";
+import * as pulumi from "@pulumi/pulumi";
+import * as random from "@pulumi/random";
+
+let config = new pulumi.Config();
+
+// Generate random minutes from 10 to 59.
+const minutes = new random.RandomInteger("minutes", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 59,
+    min: 10,
+});
+
+// Generate random hours from UTC 17 to 21.
+const hours = new random.RandomInteger("hours", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 21,
+    min: 17,
+});
+
+const deploy_spec = [
+    {
+        namespace: {
+            metadata: {
+                name: "archery",
+                annotations: {},
+                labels: {}
+            },
+            spec: {}
+        },
+        secret: [
+            {
+                metadata: {
+                    name: "archery-s3-credentials",
+                    namespace: "archery",
+                    annotations: {},
+                    labels: {}
+                },
+                type: "Opaque",
+                data: {
+                    "AWS_ACCESS_KEY_ID": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64'),
+                    "AWS_SECRET_ACCESS_KEY": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64')
+                },
+                stringData: {}
+            },
+            {
+                metadata: {
+                    name: "archery-mariadb-credentials",
+                    namespace: "archery",
+                    annotations: {},
+                    labels: {}
+                },
+                type: "Opaque",
+                data: {
+                    "root-password": Buffer.from("password").toString('base64'),
+                    "password": Buffer.from("password").toString('base64')
+                },
+                stringData: {}
+            }
+        ],
+        crds: [
+            {
+                "apiVersion": "mariadb.mmontes.io/v1alpha1",
+                "kind": "MariaDB",
+                "metadata": {
+                    "name": "mariadb-galera",
+                    namespace: "archery",
+                },
+                "spec": {
+                    "rootPasswordSecretKeyRef": {
+                        "name": "archery-mariadb-credentials",
+                        "key": "root-password"
+                    },
+                    "database": "archery",
+                    "username": "archery",
+                    "passwordSecretKeyRef": {
+                        "name": "archery-mariadb-credentials",
+                        "key": "password"
+                    },
+                    image: "mariadb:11.0.3",
+                    imagePullPolicy: "IfNotPresent",
+                    "port": 3306,
+                    "replicas": 3,
+                    "galera": {
+                        "enabled": true,
+                        "primary": {
+                            "podIndex": 0,
+                            "automaticFailover": true
+                        },
+                        "sst": "mariabackup",
+                        "replicaThreads": 1,
+                        "agent": {
+                            image: "ghcr.io/mariadb-operator/agent:v0.0.3",
+                            imagePullPolicy: "IfNotPresent",
+                            "port": 5555,
+                            "kubernetesAuth": {
+                                "enabled": true
+                            },
+                            "gracefulShutdownTimeout": "5s"
+                        },
+                        "recovery": {
+                            "enabled": true,
+                            "clusterHealthyTimeout": "3m",
+                            "clusterBootstrapTimeout": "10m",
+                            "podRecoveryTimeout": "5m",
+                            "podSyncTimeout": "5m"
+                        },
+                        "initContainer": {
+                            image: "ghcr.io/mariadb-operator/init:v0.0.6",
+                            imagePullPolicy: "IfNotPresent",
+                        },
+                        "volumeClaimTemplate": {
+                            storageClassName: "longhorn",
+                            "resources": {
+                                "requests": {
+                                    "storage": "300Mi"
+                                }
+                            },
+                            "accessModes": [
+                                "ReadWriteOnce"
+                            ]
+                        }
+                    },
+                    "service": {
+                        "type": "ClusterIP",
+                    },
+                    "connection": {
+                        "secretName": "mariadb-galera-conn",
+                        "secretTemplate": {
+                            "key": "dsn"
+                        }
+                    },
+                    "affinity": {
+                        "podAntiAffinity": {
+                            "requiredDuringSchedulingIgnoredDuringExecution": [
+                                {
+                                    "topologyKey": "kubernetes.io/hostname"
+                                }
+                            ]
+                        }
+                    },
+                    "podDisruptionBudget": {
+                        "maxUnavailable": "66%"
+                    },
+                    "updateStrategy": {
+                        "type": "RollingUpdate"
+                    },
+                    "myCnf": `[mariadb]
+bind-address=*
+default_storage_engine=InnoDB
+binlog_format=row
+innodb_autoinc_lock_mode=2
+max_allowed_packet=256M
+`,
+                    "resources": {
+                        "requests": {
+                            "cpu": "500m",
+                            "memory": "512Mi"
+                        },
+                        "limits": {
+                            "cpu": "500m",
+                            "memory": "512Mi"
+                        }
+                    },
+                    "podSecurityContext": {
+                        "runAsUser": 0
+                    },
+                    "securityContext": {
+                        "allowPrivilegeEscalation": false
+                    },
+                    "volumeClaimTemplate": {
+                        storageClassName: "longhorn",
+                        "resources": {
+                            "requests": {
+                                "storage": "7Gi"
+                            }
+                        },
+                        "accessModes": [
+                            "ReadWriteOnce"
+                        ]
+                    },
+                    //"metrics": {
+                    //    "exporter": {
+                    //        "image": "prom/mysqld-exporter:v0.15.0",
+                    //        imagePullPolicy: "IfNotPresent",
+                    //        "resources": {
+                    //            "requests": {
+                    //                "cpu": "50m",
+                    //                "memory": "64Mi"
+                    //            },
+                    //            "limits": {
+                    //                "cpu": "50m",
+                    //                "memory": "64Mi"
+                    //            }
+                    //        },
+                    //        "port": 9104
+                    //    },
+                    //    "serviceMonitor": {
+                    //        "prometheusRelease": "kube-prometheus-stack",
+                    //        "interval": "60s",
+                    //        "scrapeTimeout": "30s"
+                    //    }
+                    //}
+                }
+            }
+        ],
+        servicemonitors: [
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "artifactory-postgres",
+                    namespace: "archery"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "exporter",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "Container-Registry", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "artifactory", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["artifactory"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "postgres-operator.crunchydata.com/cluster": "artifactory",
+                            "postgres-operator.crunchydata.com/instance-set": "instance"
+                        }
+                    }
+                }
+            }
+        ],
+        helm: {
+            namespace: "artifactory",
+            name: "artifactory-oss",
+            chart: "artifactory-oss",
+            repository: "https://charts.jfrog.io",
+            version: "107.55.8",
+            values: {}
+        }
+    }
+]
+
+for (var i in deploy_spec) {
+    // Create Kubernetes Namespace.
+    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
+        metadata: deploy_spec[i].namespace.metadata,
+        spec: deploy_spec[i].namespace.spec
+    });
+    // Create Kubernetes Secret.
+    for (var secret_index in deploy_spec[i].secret) {
+        const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
+            metadata: deploy_spec[i].secret[secret_index].metadata,
+            type: deploy_spec[i].secret[secret_index].type,
+            data: deploy_spec[i].secret[secret_index].data,
+            stringData: deploy_spec[i].secret[secret_index].stringData
+        }, { dependsOn: [namespace] });
+    }
+    // Create MySQL CRD.
+    for (var crd_index in deploy_spec[i].crds) {
+        const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {
+            apiVersion: deploy_spec[i].crds[crd_index].apiVersion,
+            kind: deploy_spec[i].crds[crd_index].kind,
+            metadata: deploy_spec[i].crds[crd_index].metadata,
+            spec: deploy_spec[i].crds[crd_index].spec
+        }, { dependsOn: [namespace] });
+    }
+    // Create service monitor.
+    //for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+    //    const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+    //        apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+    //        kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+    //        metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+    //        spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+    //    }, { dependsOn: [namespace] });
+    //}
+    // Create Release Resource.
+    //const helm = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+    //    namespace: deploy_spec[i].helm.namespace,
+    //    name: deploy_spec[i].helm.name,
+    //    chart: deploy_spec[i].helm.chart,
+    //    version: deploy_spec[i].helm.version,
+    //    values: deploy_spec[i].helm.values,
+    //    skipAwait: true,
+    //    repositoryOpts: {
+    //        repo: deploy_spec[i].helm.repository,
+    //    },
+    //}, { dependsOn: [postgres] });
+}

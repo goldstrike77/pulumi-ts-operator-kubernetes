@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "mariadb-operator",
             chart: "mariadb-operator",
             repository: "https://mariadb-operator.github.io/mariadb-operator",
-            version: "0.20.0",
+            version: "0.21.0",
             values: {
                 fullnameOverride: "mariadb-operator",
                 logLevel: "INFO",
@@ -45,6 +45,15 @@ const deploy_spec = [
                 resources: {
                     limits: { cpu: "100m", memory: "128Mi" },
                     requests: { cpu: "100m", memory: "128Mi" }
+                },
+                affinity: {
+                    podAntiAffinity: {
+                        requiredDuringSchedulingIgnoredDuringExecution: [
+                            {
+                                topologyKey: "kubernetes.io/hostname"
+                            }
+                        ]
+                    }
                 },
                 webhook: {
                     serviceMonitor: {

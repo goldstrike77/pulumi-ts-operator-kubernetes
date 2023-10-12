@@ -38,8 +38,8 @@ const deploy_spec = [
                 },
                 type: "Opaque",
                 data: {
-                    "AWS_ACCESS_KEY_ID": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64'),
-                    "AWS_SECRET_ACCESS_KEY": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64')
+                    "AWS_ACCESS_KEY_ID": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString("base64"),
+                    "AWS_SECRET_ACCESS_KEY": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString("base64")
                 },
                 stringData: {}
             }
@@ -62,6 +62,24 @@ const deploy_spec = [
                         imagePullPolicy: "IfNotPresent",
                         autoRecovery: true,
                         expose: { "enabled": false },
+                        configuration: `[mysqld]
+skip-name-resolve
+explicit_defaults_for_timestamp
+max_allowed_packet=16M
+character-set-server=utf8mb4
+collation-server=utf8mb4_0900_ai_ci
+slow_query_log=0
+max_connections=100
+performance_schema_max_table_instances=256
+table_definition_cache=400
+table_open_cache=128
+innodb_buffer_pool_size=256M
+innodb_flush_log_at_trx_commit=2
+[sst]
+xbstream-opts=--decompress
+[xtrabackup]
+compress=lz4
+`,
                         resources: {
                             limits: { cpu: "500m", memory: "512Mi" },
                             requests: { cpu: "500m", memory: "512Mi" }
@@ -87,13 +105,9 @@ const deploy_spec = [
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
                             requests: { cpu: "100m", memory: "128Mi" }
-                        },
+                        }
                     },
-                    pmm: {
-                        enabled: true,
-                        image: "percona/pmm-client:2.38.0",
-                        imagePullPolicy: "IfNotPresent"
-                    },
+                    pmm: { enabled: false },
                     backup: {
                         allowParallel: false,
                         image: "percona/percona-xtradb-cluster-operator:1.13.0-pxc8.0-backup-pxb8.0.32",
@@ -113,13 +127,17 @@ const deploy_spec = [
                         pitr: {
                             enabled: true,
                             storageName: "minio",
-                            timeBetweenUploads: 60
+                            timeBetweenUploads: 300,
+                            resources: {
+                                limits: { cpu: "200m", memory: "256Mi" },
+                                requests: { cpu: "200m", memory: "256Mi" }
+                            }
                         },
                         schedule: [
                             {
                                 name: "daily-backup",
                                 schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
-                                keep: 15,
+                                keep: 2,
                                 storageName: "minio"
                             }
                         ]
@@ -127,52 +145,133 @@ const deploy_spec = [
                 }
             }
         ],
-        servicemonitors: [
+        helm: [
+            //{
+            //    namespace: "artifactory",
+            //    name: "artifactory-oss",
+            //    chart: "artifactory-oss",
+            //    repository: "https://charts.jfrog.io",
+            //    version: "107.55.8",
+            //    values: {}
+            //},
             {
-                apiVersion: "monitoring.coreos.com/v1",
-                kind: "PodMonitor",
-                metadata: {
-                    name: "artifactory-postgres",
-                    namespace: "archery"
-                },
-                spec: {
-                    podMetricsEndpoints: [
-                        {
-                            interval: "60s",
-                            scrapeTimeout: "30s",
-                            scheme: "http",
-                            targetPort: "exporter",
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
-                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
-                                { action: "replace", replacement: "Container-Registry", sourceLabels: ["__address__"], targetLabel: "project" },
-                                { action: "replace", replacement: "artifactory", sourceLabels: ["__address__"], targetLabel: "group" },
-                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
-                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
-                            ]
-                        }
-                    ],
-                    namespaceSelector: {
-                        matchNames: ["artifactory"]
+                namespace: "archery",
+                name: "archery-pxc-0",
+                chart: "prometheus-mysql-exporter",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "2.0.0",
+                values: {
+                    fullnameOverride: "archery-pxc-0",
+                    serviceMonitor: {
+                        enabled: true,
+                        interval: "60s",
+                        scrapeTimeout: "30s",
+                        namespace: "archery",
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
                     },
-                    selector: {
-                        matchLabels: {
-                            "postgres-operator.crunchydata.com/cluster": "artifactory",
-                            "postgres-operator.crunchydata.com/instance-set": "instance"
+                    resources: {
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "SQL-Audit", group: "archery", datacenter: "dc01", domain: "local" },
+                    mysql: {
+                        host: "archery-pxc-0.archery-pxc",
+                        additionalConfig: ["connect-timeout=10"],
+                        user: "monitor",
+                        existingPasswordSecret: {
+                            name: "archery-secrets",
+                            key: "monitor"
+                        }
+                    }
+                }
+            },
+            {
+                namespace: "archery",
+                name: "archery-pxc-1",
+                chart: "prometheus-mysql-exporter",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "2.0.0",
+                values: {
+                    fullnameOverride: "archery-pxc-1",
+                    serviceMonitor: {
+                        enabled: true,
+                        interval: "60s",
+                        scrapeTimeout: "30s",
+                        namespace: "archery",
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    },
+                    resources: {
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "SQL-Audit", group: "archery", datacenter: "dc01", domain: "local" },
+                    mysql: {
+                        host: "archery-pxc-1.archery-pxc",
+                        additionalConfig: ["connect-timeout=10"],
+                        user: "monitor",
+                        existingPasswordSecret: {
+                            name: "archery-secrets",
+                            key: "monitor"
+                        }
+                    }
+                }
+            },
+            {
+                namespace: "archery",
+                name: "archery-pxc-2",
+                chart: "prometheus-mysql-exporter",
+                repository: "https://prometheus-community.github.io/helm-charts",
+                version: "2.0.0",
+                values: {
+                    fullnameOverride: "archery-pxc-2",
+                    serviceMonitor: {
+                        enabled: true,
+                        interval: "60s",
+                        scrapeTimeout: "30s",
+                        namespace: "archery",
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    },
+                    resources: {
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
+                    },
+                    podLabels: { customer: "demo", environment: "dev", project: "SQL-Audit", group: "archery", datacenter: "dc01", domain: "local" },
+                    mysql: {
+                        host: "archery-pxc-2.archery-pxc",
+                        additionalConfig: ["connect-timeout=10"],
+                        user: "monitor",
+                        existingPasswordSecret: {
+                            name: "archery-secrets",
+                            key: "monitor"
                         }
                     }
                 }
             }
-        ],
-        helm: {
-            namespace: "artifactory",
-            name: "artifactory-oss",
-            chart: "artifactory-oss",
-            repository: "https://charts.jfrog.io",
-            version: "107.55.8",
-            values: {}
-        }
+        ]
     }
 ]
 
@@ -200,25 +299,18 @@ for (var i in deploy_spec) {
             spec: deploy_spec[i].crds[crd_index].spec
         }, { dependsOn: [namespace] });
     }
-    // Create service monitor.
-    //for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
-    //    const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
-    //        apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
-    //        kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
-    //        metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
-    //        spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
-    //    }, { dependsOn: [namespace] });
-    //}
     // Create Release Resource.
-    //const helm = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-    //    namespace: deploy_spec[i].helm.namespace,
-    //    name: deploy_spec[i].helm.name,
-    //    chart: deploy_spec[i].helm.chart,
-    //    version: deploy_spec[i].helm.version,
-    //    values: deploy_spec[i].helm.values,
-    //    skipAwait: true,
-    //    repositoryOpts: {
-    //        repo: deploy_spec[i].helm.repository,
-    //    },
-    //}, { dependsOn: [postgres] });
+    for (var helm_index in deploy_spec[i].helm) {
+        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
+            namespace: deploy_spec[i].helm[helm_index].namespace,
+            name: deploy_spec[i].helm[helm_index].name,
+            chart: deploy_spec[i].helm[helm_index].chart,
+            version: deploy_spec[i].helm[helm_index].version,
+            values: deploy_spec[i].helm[helm_index].values,
+            skipAwait: true,
+            repositoryOpts: {
+                repo: deploy_spec[i].helm[helm_index].repository,
+            },
+        }, { dependsOn: [namespace] });
+    }
 }
