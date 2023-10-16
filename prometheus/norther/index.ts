@@ -828,8 +828,8 @@ config:
                             "--compact.concurrency=2"
                         ],
                         resources: {
-                            limits: { cpu: "500m", memory: "1024Mi" },
-                            requests: { cpu: "500m", memory: "1024Mi" }
+                            limits: { cpu: "500m", memory: "2048Mi" },
+                            requests: { cpu: "500m", memory: "2048Mi" }
                         },
                         podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
                         persistence: {

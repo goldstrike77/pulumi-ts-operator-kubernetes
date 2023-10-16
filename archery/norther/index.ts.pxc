@@ -28,18 +28,83 @@ const deploy_spec = [
             },
             spec: {}
         },
-        secret: [
+        configmap: [
             {
                 metadata: {
-                    name: "archery-s3-credentials",
+                    name: "archery-redis-config",
                     namespace: "archery",
                     annotations: {},
                     labels: {}
+                },
+                data: {
+                    "redis-additional.conf": `appendonly no
+maxmemory 200mb
+tcp-keepalive 300
+tcp-backlog 8192
+maxclients 1000
+databases 1
+save ""
+`
+                }
+            },
+            {
+                metadata: {
+                    name: "archery-mysql-initdb",
+                    namespace: "archery",
+                    annotations: {},
+                    labels: {}
+                },
+                data: {
+                    "mysql-initdb.sql": `CREATE DATABASE IF NOT EXISTS archery;
+CREATE USER 'archery'@'%' IDENTIFIED BY '${config.require("ARCHERY")}';
+GRANT ALL PRIVILEGES ON archery.* TO 'archery'@'%';
+flush privileges;`
+                }
+            }
+        ],
+        secret: [
+            {
+                metadata: {
+                    annotations: {},
+                    labels: {},
+                    name: "archery-s3-credentials",
+                    namespace: "archery"
                 },
                 type: "Opaque",
                 data: {
                     "AWS_ACCESS_KEY_ID": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString("base64"),
                     "AWS_SECRET_ACCESS_KEY": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString("base64")
+                },
+                stringData: {}
+            },
+            {
+                metadata: {
+                    annotations: {},
+                    labels: {},
+                    name: "archery-mysql-credentials",
+                    namespace: "archery"
+                },
+                type: "Opaque",
+                data: {
+                    clustercheck: Buffer.from(config.require("CLUSTERCHECK")).toString("base64"),
+                    monitor: Buffer.from(config.require("MONITOR")).toString("base64"),
+                    operator: Buffer.from(config.require("OPERATOR")).toString("base64"),
+                    replication: Buffer.from(config.require("REPLICATION")).toString("base64"),
+                    root: Buffer.from(config.require("ROOT")).toString("base64"),
+                    xtrabackup: Buffer.from(config.require("XTRABACKUP")).toString("base64")
+                },
+                stringData: {}
+            },
+            {
+                metadata: {
+                    annotations: {},
+                    labels: {},
+                    name: "archery-redis-credentials",
+                    namespace: "archery"
+                },
+                type: "Opaque",
+                data: {
+                    redis: Buffer.from(config.require("REDIS")).toString("base64")
                 },
                 stringData: {}
             }
@@ -55,6 +120,7 @@ const deploy_spec = [
                 },
                 spec: {
                     crVersion: "1.13.0",
+                    secretsName: "archery-mysql-credentials",
                     pause: false,
                     pxc: {
                         size: 3,
@@ -143,17 +209,126 @@ compress=lz4
                         ]
                     }
                 }
+            },
+            {
+                apiVersion: "redis.redis.opstreelabs.in/v1beta2",
+                kind: "Redis",
+                metadata: {
+                    name: "archery-redis",
+                    namespace: "archery",
+                },
+                spec: {
+                    redisConfig: {
+                        additionalRedisConfig: "archery-redis-config"
+                    },
+                    kubernetesConfig: {
+                        image: "quay.io/opstree/redis:v7.0.12",
+                        imagePullPolicy: "IfNotPresent",
+                        redisSecret: {
+                            name: "archery-redis-credentials",
+                            key: "redis"
+                        },
+                        resources: {
+                            limits: { cpu: "100m", memory: "256Mi" },
+                            requests: { cpu: "100m", memory: "256Mi" }
+                        }
+                    },
+                    redisExporter: {
+                        enabled: true,
+                        image: "quay.io/opstree/redis-exporter:v1.44.0",
+                        imagePullPolicy: "IfNotPresent",
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        }
+                    }
+                }
+            },
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "archery-redis",
+                    namespace: "archery"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "redis-exporter",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "SQL-Audit", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "archery", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["archery"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app": "archery-redis"
+                        }
+                    }
+                }
             }
         ],
         helm: [
-            //{
-            //    namespace: "artifactory",
-            //    name: "artifactory-oss",
-            //    chart: "artifactory-oss",
-            //    repository: "https://charts.jfrog.io",
-            //    version: "107.55.8",
-            //    values: {}
-            //},
+            {
+                namespace: "archery",
+                name: "archery",
+                chart: "archery",
+                repository: "https://douban.github.io/charts/",
+                version: "0.3.2",
+                values: {
+                    replicaCount: 1,
+                    image: {
+                        repository: "hhyo/archery",
+                        tag: "v1.10.0",
+                        pullPolicy: "IfNotPresent"
+                    },
+                    fullnameOverride: "",
+                    ingress: {
+                        enabled: true,
+                        className: "nginx",
+                        hosts: ["archery.example.com"]
+                    },
+                    redis: {
+                        embedded: false,
+                        url: "redis://archery-redis:6379/0",
+                        auth: {
+                            password: config.require("REDIS")
+                        }
+                    },
+                    mysql: {
+                        embedded: false,
+                        url: "mysql://root:@archery-pxc:3306/archery",
+                        auth: {
+                            database: "archery",
+                            rootPassword: config.require("ROOT")
+                        },
+                    },
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    },
+                    configMap: {
+                        enabled: true,
+                        superuser: {
+                            username: "admin",
+                            password: "archery",
+                            email: "archery@example.com"
+                        }
+                    }
+                }
+            },
             {
                 namespace: "archery",
                 name: "archery-pxc-0",
@@ -187,7 +362,7 @@ compress=lz4
                         additionalConfig: ["connect-timeout=10"],
                         user: "monitor",
                         existingPasswordSecret: {
-                            name: "archery-secrets",
+                            name: "archery-mysql-credentials",
                             key: "monitor"
                         }
                     }
@@ -226,7 +401,7 @@ compress=lz4
                         additionalConfig: ["connect-timeout=10"],
                         user: "monitor",
                         existingPasswordSecret: {
-                            name: "archery-secrets",
+                            name: "archery-mysql-credentials",
                             key: "monitor"
                         }
                     }
@@ -265,13 +440,60 @@ compress=lz4
                         additionalConfig: ["connect-timeout=10"],
                         user: "monitor",
                         existingPasswordSecret: {
-                            name: "archery-secrets",
+                            name: "archery-mysql-credentials",
                             key: "monitor"
                         }
                     }
                 }
             }
-        ]
+        ],
+        job: {
+            metadata: {
+                name: "archery-mysql-init",
+                namespace: "archery"
+            },
+            spec: {
+                ttlSecondsAfterFinished: 60,
+                template: {
+                    "spec": {
+                        "containers": [
+                            {
+                                "image": "percona/percona-xtradb-cluster:8.0.31-23.2",
+                                "name": "archery-mysql-init",
+                                "env": [
+                                    {
+                                        "name": "MYSQL_ROOT_PASSWORD",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "archery-mysql-credentials",
+                                                "key": "root"
+                                            }
+                                        }
+                                    }
+                                ],
+                                command: ["sh", "-c"],
+                                args: ["mysql -uroot -p${MYSQL_ROOT_PASSWORD} -h archery-pxc < /tmp/mysql-initdb.sql"],
+                                "volumeMounts": [
+                                    {
+                                        "name": "mysql-initdb",
+                                        "mountPath": "/tmp"
+                                    }
+                                ]
+                            }
+                        ],
+                        "volumes": [
+                            {
+                                "name": "mysql-initdb",
+                                "configMap": {
+                                    "name": "archery-mysql-initdb"
+                                }
+                            }
+                        ],
+                        "restartPolicy": "OnFailure"
+                    }
+                }
+            }
+        }
     }
 ]
 
@@ -281,6 +503,13 @@ for (var i in deploy_spec) {
         metadata: deploy_spec[i].namespace.metadata,
         spec: deploy_spec[i].namespace.spec
     });
+    // Create Kubernetes ConfigMap.
+    for (var configmap_index in deploy_spec[i].configmap) {
+        const configmap = new k8s.core.v1.ConfigMap(deploy_spec[i].configmap[configmap_index].metadata.name, {
+            metadata: deploy_spec[i].configmap[configmap_index].metadata,
+            data: deploy_spec[i].configmap[configmap_index].data,
+        }, { dependsOn: [namespace] });
+    }
     // Create Kubernetes Secret.
     for (var secret_index in deploy_spec[i].secret) {
         const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
@@ -313,4 +542,9 @@ for (var i in deploy_spec) {
             },
         }, { dependsOn: [namespace] });
     }
+    // Create single job.
+    //const job = new k8s.batch.v1.Job(deploy_spec[i].job.metadata.name, {
+    //    metadata: deploy_spec[i].job.metadata,
+    //    spec: deploy_spec[i].job.spec
+    //}, { dependsOn: [namespace] });
 }

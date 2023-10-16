@@ -356,7 +356,7 @@ opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: [Private, Global]
 opensearch_security.openid.base_redirect_url: "https://opensearch.example.com"
 opensearch_security.openid.client_id: "4573f7a0-e878-4d29-935f-ac4b57983daf"
-opensearch_security.openid.client_secret: "${config.require("ssoClientSecret")}"
+opensearch_security.openid.client_secret: ${config.require("ssoClientSecret")}
 opensearch_security.openid.connect_url: "https://login.microsoftonline.com/1028c8b9-5db4-4ade-bd31-524340b7cc0d/v2.0/.well-known/openid-configuration"
 opensearch_security.openid.logout_url: "https://opensearch.example.com/app/login?"
 opensearch_security.readonly_mode.roles: [kibana_read_only]

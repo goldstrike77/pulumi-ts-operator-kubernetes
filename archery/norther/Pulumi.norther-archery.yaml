@@ -1,7 +1,33 @@
 encryptionsalt: v1:H9K1IJzrm1Y=:v1:wpOdUmt+4FVpx40v:xBuSF9vqT4svH6keKbGUgcj9sLEz3g==
 config:
+  demo:ARCHERY:
+    secure: v1:ROsVMDEw5MqKQSKc:WdG5gowv608kZK9Sl+v9QeV9Ha1iUFnV
+  demo:ARCHERY_PASSWORD:
+    secure: v1:bLd8DM0ggURuMIJ5:n9eBNDB2TEvJjmFTBkAkHYBw44p6PFUU
   demo:AWS_ACCESS_KEY_ID:
     secure: v1:Zgl3Z0R+S6cCkpT6:eBgarsV8YCPDqB4YijwDtH0E4Djt
   demo:AWS_SECRET_ACCESS_KEY:
     secure: v1:DWZas7g69B6whRLA:zvIg0ZqHOy5NrtDCv4/0Dmq4HNUNIFXG
+  demo:CLUSTERCHECK:
+    secure: v1:Jb62Mb6uJuNRgkHc:y56l3FmYonJSj72hhF+yMJ8g4vklFLab
+  demo:MONITOR:
+    secure: v1:JPq5FsamkoDAVUQU:pddNJwKegKQ6ms0AMfWAanoyZxeZijye
+  demo:MYSQL_ROOT_PASSWORD:
+    secure: v1:J2K3wnlS0sMEE3KX:6kyRVYvq1PoCyhgaocwybuF4LxU52gGg
+  demo:MYSQL_USER_PASSWORD:
+    secure: v1:ACmuYQXXkT12R5xu:SMgL7o79YdCx54kVH5XXgJzJRyNeZpCB
+  demo:OPERATOR:
+    secure: v1:B9GrNJzGWIb9WFzS:OTUOSwsD8cMYeXSDXFeXGTS7dsT4v0EC
+  demo:PROXYADMIN:
+    secure: v1:Y8qfLkAZo4/r+9uC:kcT1AVxaqiG5h9eVWOrRDrXt3YUFCDs0
+  demo:REDIS:
+    secure: v1:J5lq/PAMz/zwHN0f:r0rfO+owtTgwbmBbYMZ0oEJZaTrP5/Ce
+  demo:REDIS_PASSWORD:
+    secure: v1:QXEQ9ce5kWrRJ8hj:zPymhnKOYlzsX3y7aLR72a1P/L+JlxV4
+  demo:REPLICATION:
+    secure: v1:RSsLEF385xS0mlPq:tjFBQR3Wojvr1dOoAv7rch4edbtecJ9f
+  demo:ROOT:
+    secure: v1:eIKaa8OslNVKB2b6:Sqmcx9mXcMvjHmDYboCjNaIEWWY6nLwb
+  demo:XTRABACKUP:
+    secure: v1:K5wBLp0q0AgEZIMX:KrX3rnizbzs2rRddjYJetjxMOdrY5PjE
   kubernetes:context: kubernetes-admin@norther

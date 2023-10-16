@@ -13,13 +13,32 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: {
+        operator: {
             namespace: "mysql-operator",
             name: "mysql-operator",
             chart: "mysql-operator",
             repository: "https://mysql.github.io/mysql-operator",
-            version: "2.1.0",
+            version: "2.0.11",
             values: {}
+        },
+        innodbcluster: {
+            namespace: "mysql-operator",
+            name: "mysql-innodbcluster",
+            chart: "mysql-innodbcluster",
+            repository: "https://mysql.github.io/mysql-operator",
+            version: "2.0.11",
+            values: {
+                credentials: {
+                    root: {
+                        user: "root",
+                        password: "password",
+                        host: "%"
+                    }
+                },
+                tls: {
+                    useSelfSigned: true
+                }
+            }
         }
     }
 ]
@@ -31,15 +50,26 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
+    const operator = new k8s.helm.v3.Release(deploy_spec[i].operator.name, {
+        namespace: deploy_spec[i].operator.namespace,
+        name: deploy_spec[i].operator.name,
+        chart: deploy_spec[i].operator.chart,
+        version: deploy_spec[i].operator.version,
+        values: deploy_spec[i].operator.values,
         skipAwait: true,
         repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
+            repo: deploy_spec[i].operator.repository,
         },
     }, { dependsOn: [namespace] });
+    const mysql = new k8s.helm.v3.Release(deploy_spec[i].innodbcluster.name, {
+        namespace: deploy_spec[i].innodbcluster.namespace,
+        name: deploy_spec[i].innodbcluster.name,
+        chart: deploy_spec[i].innodbcluster.chart,
+        version: deploy_spec[i].innodbcluster.version,
+        values: deploy_spec[i].innodbcluster.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].innodbcluster.repository,
+        },
+    }, { dependsOn: [operator] });
 }

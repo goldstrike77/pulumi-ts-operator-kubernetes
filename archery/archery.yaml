@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: hhyo/archery
-  tag: v1.9.1
+  tag: v1.10.0
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -16,6 +16,10 @@ service:
   type: ClusterIP
   port: 9123
   targetPort: 9123
+
+deployment:
+  labels: {}
+  annotations: {}
 
 ingress:
   enabled: true
@@ -33,7 +37,7 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-  
+
 
 # subcharts redis
 redis:
@@ -57,14 +61,14 @@ redis:
 # subcharts mysql
 mysql:
   embedded: true
-  url: "mysql://root:@127.0.0.1:3306/archery"
-  urlSecret: ""
-  urlSecretKey: "DATABASE_URL"
+  # url: "mysql://root:@127.0.0.1:3306/archery"
+  # urlSecret: ""
+  # urlSecretKey: "DATABASE_URL"
   # embedded 为 false时, 会使用外部的 mysql, 下方的 mysql 配置不会生效
   architecture: standalone
   auth:
     database: archery
-    rootPassword: "MYSQL_ROOT_PASSWORD"	
+    rootPassword: "MYSQL_ROOT_PASSWORD"
   primary:
     configuration: |-
       [mysqld]
@@ -121,7 +125,28 @@ mysql:
       # storageClass: "-"
 
       # storageClass: ""
-    
+
+goinception:
+  embedded: true
+  image:
+    repository: hanchuanchuan/goinception
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  nameOverride: ""
+  fullnameOverride: ""
+
+  service:
+    type: ClusterIP
+    port: 4000
+    targetPort: 4000
+
+  initEnv:
+    - name: BACKUP_PASSWORD
+      value: "my-password"
+  # you can override more options , please see goinception chart readme and values
+  # https://github.com/douban/charts/blob/master/charts/goinception/values.yaml
+
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -138,6 +163,8 @@ envs: []
   #  value: xxx
 
 volumeMounts:
+  # 请慎重更改以下值, 如需更改建议复制粘贴然后按需求增加键值对
+  # 更改后可能会造成部分其他配置失效
   - name: archery-settings
     subPath: local_settings.py
     mountPath: /opt/archery/local_settings.py
@@ -163,6 +190,8 @@ tolerations: []
 affinity: {}
 
 volumes:
+  # 请慎重更改以下值, 如需更改建议复制粘贴然后按需求增加键值对
+  # 更改后可能会造成部分其他配置失效
   - name: archery-settings
     configMap:
       name: archery-config
@@ -179,7 +208,7 @@ configMap:
   # admin password
   superuser:
     username: admin
-    password: archery # 请尽快修改
+    password: archery  # 请尽快修改
     email: "archery@example.com"
   data:
     local_settings.py: |-
@@ -236,28 +265,23 @@ configMap:
         #!/bin/bash
         DIR="$( cd "$( dirname "$0"  )" && pwd  )"
         cd $DIR
-        
         #配置archery数据库的连接地址
         monitor_db_host="archery-mysql"
         monitor_db_port=3306
         monitor_db_user="root"
         monitor_db_password="MYSQL_ROOT_PASSWORD"
         monitor_db_database="archery"
-        
         #实例慢日志位置
         slowquery_file="/home/mysql/log_slow.log"
         pt_query_digest="/usr/bin/pt-query-digest"
-        
         #实例连接信息
         hostname="mysql_host:mysql_port" # 和archery实例配置内容保持一致，用于archery做筛选
-        
         #获取上次分析时间，初始化时请删除last_analysis_time_$hostname文件，可分析全部日志数据
         if [ -s last_analysis_time_$hostname ]; then
             last_analysis_time=`cat last_analysis_time_$hostname`
         else
             last_analysis_time='1000-01-01 00:00:00'
         fi
-        
         #收集日志
         #RDS需要增加--no-version-check选项
         $pt_query_digest \
@@ -268,5 +292,4 @@ configMap:
         --since "$last_analysis_time" \
         --filter="\$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$hostname\"  and \$event->{client}=\$event->{ip} " \
         $slowquery_file > /tmp/analysis_slow_query.log
-        
         echo `date +"%Y-%m-%d %H:%M:%S"`>last_analysis_time_$hostname

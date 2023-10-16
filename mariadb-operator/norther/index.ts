@@ -18,7 +18,7 @@ const deploy_spec = [
             name: "mariadb-operator",
             chart: "mariadb-operator",
             repository: "https://mariadb-operator.github.io/mariadb-operator",
-            version: "0.21.0",
+            version: "0.22.0",
             values: {
                 fullnameOverride: "mariadb-operator",
                 logLevel: "INFO",
@@ -28,19 +28,7 @@ const deploy_spec = [
                 },
                 metrics: {
                     enabled: true,
-                    serviceMonitor: {
-                        enabled: true,
-                        additionalLabels: {
-                            customer: "demo",
-                            datacenter: "dc01",
-                            domain: "local",
-                            environment: "dev",
-                            group: "mariadb",
-                            project: "operator"
-                        },
-                        interval: "60s",
-                        scrapeTimeout: "30s"
-                    }
+                    serviceMonitor: { enabled: false }
                 },
                 resources: {
                     limits: { cpu: "100m", memory: "128Mi" },
@@ -56,26 +44,86 @@ const deploy_spec = [
                     }
                 },
                 webhook: {
-                    serviceMonitor: {
-                        enabled: true,
-                        additionalLabels: {
-                            customer: "demo",
-                            datacenter: "dc01",
-                            domain: "local",
-                            environment: "dev",
-                            group: "mariadb",
-                            project: "operator"
-                        },
-                        interval: "60s",
-                        scrapeTimeout: "30s"
-                    },
+                    serviceMonitor: { enabled: false },
                     resources: {
                         limits: { cpu: "50m", memory: "64Mi" },
                         requests: { cpu: "50m", memory: "64Mi" }
                     }
                 }
             }
-        }
+        },
+        servicemonitors: [
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "mariadb-operator",
+                    namespace: "mariadb-operator"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "metrics",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "Operator", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "mariadb", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["mariadb-operator"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/name": "mariadb-operator"
+                        }
+                    }
+                }
+            },
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "mariadb-operator-webhook",
+                    namespace: "mariadb-operator"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "metrics",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "Operator", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "mariadb", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["mariadb-operator"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/name": "mariadb-operator-webhook"
+                        }
+                    }
+                }
+            }
+        ]
     }
 ]
 
@@ -97,4 +145,13 @@ for (var i in deploy_spec) {
             repo: deploy_spec[i].helm.repository,
         },
     }, { dependsOn: [namespace] });
+    // Create service monitor.
+    for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
+        const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
+            apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
+            kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
+            metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
+            spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
+        }, { dependsOn: [release] });
+    }
 }

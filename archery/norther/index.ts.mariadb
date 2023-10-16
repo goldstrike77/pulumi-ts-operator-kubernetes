@@ -53,154 +53,185 @@ const deploy_spec = [
                 type: "Opaque",
                 data: {
                     "root-password": Buffer.from("password").toString('base64'),
-                    "password": Buffer.from("password").toString('base64')
+                    "user-password": Buffer.from("password").toString('base64')
                 },
                 stringData: {}
             }
         ],
         crds: [
             {
-                "apiVersion": "mariadb.mmontes.io/v1alpha1",
-                "kind": "MariaDB",
-                "metadata": {
-                    "name": "mariadb-galera",
+                apiVersion: "mariadb.mmontes.io/v1alpha1",
+                kind: "Backup",
+                metadata: {
+                    name: "mariadb-backup",
                     namespace: "archery",
                 },
-                "spec": {
-                    "rootPasswordSecretKeyRef": {
-                        "name": "archery-mariadb-credentials",
-                        "key": "root-password"
+                spec: {
+                    mariaDbRef: {
+                        name: "mariadb"
                     },
-                    "database": "archery",
-                    "username": "archery",
-                    "passwordSecretKeyRef": {
-                        "name": "archery-mariadb-credentials",
-                        "key": "password"
+                    schedule: {
+                        cron: "*/10 * * * *",
+                        suspend: false
                     },
-                    image: "mariadb:11.0.3",
+                    "maxRetentionDays": 3,
+                    storage: {
+                        volume: {
+                            nfs: {
+                                server: "node30.node.home.local",
+                                path: "/data/nfs/archery"
+                            }
+                        }
+                    },
+                    resources: {
+                        limits: { cpu: "200m", memory: "128Mi" },
+                        requests: { cpu: "200m", memory: "128Mi" }
+                    }
+                }
+            },
+            {
+                apiVersion: "mariadb.mmontes.io/v1alpha1",
+                kind: "MariaDB",
+                metadata: {
+                    name: "mariadb-galera",
+                    namespace: "archery"
+                },
+                spec: {
+                    rootPasswordSecretKeyRef: {
+                        name: "archery-mariadb-credentials",
+                        key: "root-password"
+                    },
+                    database: "archery",
+                    username: "archery",
+                    passwordSecretKeyRef: {
+                        name: "archery-mariadb-credentials",
+                        key: "user-password"
+                    },
+                    image: "mariadb:10.11.5",
                     imagePullPolicy: "IfNotPresent",
-                    "port": 3306,
-                    "replicas": 3,
-                    "galera": {
-                        "enabled": true,
-                        "primary": {
-                            "podIndex": 0,
-                            "automaticFailover": true
+                    port: 3306,
+                    replicas: 1,
+                    galera: {
+                        enabled: false,
+                        primary: {
+                            podIndex: 0,
+                            automaticFailover: true
                         },
-                        "sst": "mariabackup",
-                        "replicaThreads": 1,
-                        "agent": {
+                        sst: "mariabackup",
+                        replicaThreads: 1,
+                        agent: {
                             image: "ghcr.io/mariadb-operator/agent:v0.0.3",
                             imagePullPolicy: "IfNotPresent",
-                            "port": 5555,
-                            "kubernetesAuth": {
-                                "enabled": true
+                            port: 5555,
+                            kubernetesAuth: {
+                                enabled: true
                             },
-                            "gracefulShutdownTimeout": "5s"
+                            resources: {
+                                limits: { cpu: "50m", memory: "64Mi" },
+                                requests: { cpu: "50m", memory: "64Mi" }
+                            },
+                            gracefulShutdownTimeout: "5s"
                         },
-                        "recovery": {
-                            "enabled": true,
-                            "clusterHealthyTimeout": "3m",
-                            "clusterBootstrapTimeout": "10m",
-                            "podRecoveryTimeout": "5m",
-                            "podSyncTimeout": "5m"
+                        recovery: {
+                            enabled: true,
+                            clusterHealthyTimeout: "3m",
+                            clusterBootstrapTimeout: "10m",
+                            podRecoveryTimeout: "5m",
+                            podSyncTimeout: "5m"
                         },
-                        "initContainer": {
+                        initContainer: {
                             image: "ghcr.io/mariadb-operator/init:v0.0.6",
                             imagePullPolicy: "IfNotPresent",
+                            resources: {
+                                limits: { cpu: "50m", memory: "64Mi" },
+                                requests: { cpu: "50m", memory: "64Mi" }
+                            }
                         },
-                        "volumeClaimTemplate": {
+                        volumeClaimTemplate: {
                             storageClassName: "longhorn",
-                            "resources": {
-                                "requests": {
-                                    "storage": "300Mi"
+                            resources: {
+                                requests: {
+                                    storage: "10Mi"
                                 }
                             },
-                            "accessModes": [
+                            accessModes: [
                                 "ReadWriteOnce"
                             ]
                         }
                     },
-                    "service": {
-                        "type": "ClusterIP",
+                    service: {
+                        type: "ClusterIP",
                     },
-                    "connection": {
-                        "secretName": "mariadb-galera-conn",
-                        "secretTemplate": {
-                            "key": "dsn"
-                        }
-                    },
-                    "affinity": {
-                        "podAntiAffinity": {
-                            "requiredDuringSchedulingIgnoredDuringExecution": [
+                    //connection: {
+                    //    secretName: "mariadb-galera-conn",
+                    //    secretTemplate: {
+                    //        key: "dsn"
+                    //    }
+                    //},
+                    affinity: {
+                        podAntiAffinity: {
+                            requiredDuringSchedulingIgnoredDuringExecution: [
                                 {
-                                    "topologyKey": "kubernetes.io/hostname"
+                                    topologyKey: "kubernetes.io/hostname"
                                 }
                             ]
                         }
                     },
-                    "podDisruptionBudget": {
-                        "maxUnavailable": "66%"
+                    podDisruptionBudget: {
+                        maxUnavailable: "66%"
                     },
-                    "updateStrategy": {
-                        "type": "RollingUpdate"
+                    updateStrategy: {
+                        type: "RollingUpdate"
                     },
-                    "myCnf": `[mariadb]
+                    myCnf: `[mariadb]
 bind-address=*
-default_storage_engine=InnoDB
 binlog_format=row
+default_storage_engine=InnoDB
+expire_logs_days=5
 innodb_autoinc_lock_mode=2
+innodb_buffer_pool_size=256M
+innodb_flush_log_at_trx_commit=1
 max_allowed_packet=256M
+max_connections=100
+performance_schema_max_table_instances=256
+plugin_load_add=query_response_time
+query_response_time_stats=1
+skip-name-resolve
+slow_query_log=0
+table_definition_cache=400
+table_open_cache=128
 `,
-                    "resources": {
-                        "requests": {
-                            "cpu": "500m",
-                            "memory": "512Mi"
-                        },
-                        "limits": {
-                            "cpu": "500m",
-                            "memory": "512Mi"
-                        }
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
                     },
-                    "podSecurityContext": {
-                        "runAsUser": 0
+                    podSecurityContext: {
+                        runAsUser: 0
                     },
-                    "securityContext": {
-                        "allowPrivilegeEscalation": false
+                    securityContext: {
+                        allowPrivilegeEscalation: false
                     },
-                    "volumeClaimTemplate": {
+                    volumeClaimTemplate: {
                         storageClassName: "longhorn",
-                        "resources": {
-                            "requests": {
-                                "storage": "7Gi"
+                        resources: {
+                            requests: {
+                                storage: "7Gi"
                             }
                         },
-                        "accessModes": [
+                        accessModes: [
                             "ReadWriteOnce"
                         ]
                     },
-                    //"metrics": {
-                    //    "exporter": {
-                    //        "image": "prom/mysqld-exporter:v0.15.0",
-                    //        imagePullPolicy: "IfNotPresent",
-                    //        "resources": {
-                    //            "requests": {
-                    //                "cpu": "50m",
-                    //                "memory": "64Mi"
-                    //            },
-                    //            "limits": {
-                    //                "cpu": "50m",
-                    //                "memory": "64Mi"
-                    //            }
-                    //        },
-                    //        "port": 9104
-                    //    },
-                    //    "serviceMonitor": {
-                    //        "prometheusRelease": "kube-prometheus-stack",
-                    //        "interval": "60s",
-                    //        "scrapeTimeout": "30s"
-                    //    }
-                    //}
+                    metrics: {
+                        exporter: {
+                            image: "prom/mysqld-exporter:v0.14.0",
+                            resources: {
+                                limits: { cpu: "50m", memory: "64Mi" },
+                                requests: { cpu: "50m", memory: "64Mi" }
+                            },
+                            port: 9104
+                        }
+                    }
                 }
             }
         ],
