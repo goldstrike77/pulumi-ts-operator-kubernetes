@@ -39,9 +39,9 @@ const deploy_spec = [
                 "redis-additional.conf": `appendonly no
 maxmemory 200mb
 tcp-keepalive 300
-tcp-backlog 8192
+tcp-backlog 128
 maxclients 1000
-databases 1
+databases 2
 save ""
 `
             }
@@ -64,6 +64,48 @@ save ""
         crds: [
             {
                 apiVersion: "mariadb.mmontes.io/v1alpha1",
+                kind: "Connection",
+                metadata: {
+                    name: "mariadb-connection",
+                    namespace: "archery"
+                },
+                spec: {
+                    mariaDbRef: {
+                        name: "archery-mysql"
+                    },
+                    username: "archery",
+                    passwordSecretKeyRef: {
+                        name: "archery-credentials",
+                        key: "mysql-user-password"
+                    },
+                    database: "archery",
+                    params: {
+                        parseTime: "true"
+                    },
+                    secretName: "connection-mariadb",
+                    secretTemplate: {
+                        labels: {
+                            "mariadb.mmontes.io/connection": "archery-mysql"
+                        },
+                        annotations: {
+                            "mariadb.mmontes.io/connection": "archery-mysql"
+                        },
+                        key: "dsn",
+                        usernameKey: "username",
+                        passwordKey: "password",
+                        hostKey: "host",
+                        portKey: "port",
+                        databaseKey: "database"
+                    },
+                    healthCheck: {
+                        interval: "10s",
+                        retryInterval: "3s"
+                    },
+                    serviceName: "mariadb"
+                }
+            },
+            {
+                apiVersion: "mariadb.mmontes.io/v1alpha1",
                 kind: "User",
                 metadata: {
                     name: "mariadb-user",
@@ -72,7 +114,7 @@ save ""
                 spec: {
                     name: "archery",
                     mariaDbRef: {
-                        name: "mariadb"
+                        name: "archery-mysql"
                     },
                     passwordSecretKeyRef: {
                         name: "archery-credentials",
@@ -92,7 +134,7 @@ save ""
                 },
                 spec: {
                     mariaDbRef: {
-                        name: "mariadb"
+                        name: "archery-mysql"
                     },
                     privileges: ["ALL PRIVILEGES"],
                     database: "archery",
@@ -113,7 +155,7 @@ save ""
                 spec: {
                     name: "archery",
                     mariaDbRef: {
-                        name: "mariadb"
+                        name: "archery-mysql"
                     },
                     characterSet: "utf8",
                     collate: "utf8_general_ci",
@@ -129,7 +171,7 @@ save ""
                 },
                 spec: {
                     mariaDbRef: {
-                        name: "mariadb"
+                        name: "archery-mysql"
                     },
                     schedule: {
                         cron: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
@@ -172,15 +214,19 @@ save ""
                     imagePullPolicy: "IfNotPresent",
                     port: 3306,
                     replicas: 1,
-                    galera: { enabled: false },
                     service: {
                         type: "ClusterIP",
                     },
+                    connection: {
+                        secretName: "connection-mariadb",
+                        secretTemplate: {
+                            key: "dsn"
+                        }
+                    },
+                    galera: { enabled: false },
                     myCnf: `[mariadb]
 bind-address=*
-binlog_format=row
 default_storage_engine=InnoDB
-expire_logs_days=5
 innodb_autoinc_lock_mode=2
 innodb_buffer_pool_size=256M
 innodb_flush_log_at_trx_commit=1
@@ -197,6 +243,12 @@ table_open_cache=128
                     resources: {
                         limits: { cpu: "500m", memory: "512Mi" },
                         requests: { cpu: "500m", memory: "512Mi" }
+                    },
+                    podSecurityContext: {
+                        runAsUser: 0
+                    },
+                    securityContext: {
+                        allowPrivilegeEscalation: false
                     },
                     volumeClaimTemplate: {
                         storageClassName: "longhorn",
@@ -312,10 +364,8 @@ table_open_cache=128
                 },
                 redis: {
                     embedded: false,
-                    url: "redis://archery-redis:6379/0",
-                    auth: {
-                        password: config.require("REDIS_PASSWORD")
-                    }
+                    url: pulumi.interpolate`redis://root:${config.require("REDIS_PASSWORD")}@archery-redis:6379/0`,
+                    dingdingUrl: pulumi.interpolate`redis://root:${config.require("REDIS_PASSWORD")}@archery-redis:6379/1`
                 },
                 mysql: {
                     embedded: false,
