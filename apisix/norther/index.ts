@@ -411,25 +411,45 @@ const deploy_spec = [
                 spec: {
                     plugins: [
                         {
-                            name: "elasticsearch-logger",
+                            name: "udp-logger",
                             enable: true,
                             config: {
-                                endpoint_addrs: ["https://opensearch-master.opensearch:9200"],
-                                field: {
-                                    index: "apisix-%Y-%m-%d",
-                                    type: "collector"
-                                },
-                                auth: {
-                                    "username": "admin",
-                                    "password": "password"
-                                },
-                                ssl_verify: false,
-                                timeout: 30,
-                                retry_delay: 1,
-                                buffer_duration: 60,
-                                max_retry_count: 0,
-                                batch_max_size: 1000,
-                                inactive_timeout: 10
+                                host: "192.168.0.103",
+                                port: 1514,
+                                batch_max_size: 1,
+                                name: "udp logger",
+                                log_format: {
+                                    "@timestamp": "$time_iso8601",
+                                    "upstream_response_time": "$upstream_response_time",
+                                    "upstream_header_time": "$upstream_header_time",
+                                    "upstream_connect_time": "$upstream_connect_time",
+                                    "route_name": "$route_name",
+                                    "remote_addr": "$remote_addr",
+                                    "body_bytes_sent": "$body_bytes_sent",
+                                    "host": "$host",
+                                    "http_referer": "$http_referer",
+                                    "http_user_agent": "$http_user_agent",
+                                    "request_uri": "$request_uri",
+                                    "request_length": "$request_length",
+                                    "request_method": "$request_method",
+                                    "request_time": "$request_time",
+                                    "status": "$status",
+                                    "scheme": "$scheme",
+                                    "server_port": "$server_port",
+                                    "server_protocol": "$server_protocol",
+                                    "ssl_cipher": "$ssl_cipher",
+                                    "ssl_protocol": "$ssl_protocol",
+                                    "upstream_addr": "$upstream_addr"
+                                }
+                            }
+                        },
+                        {
+                            name: "real-ip",
+                            enable: true,
+                            config: {
+                                source: "http_x_forwarded_for",
+                                trusted_addresses: ["127.0.0.0/24", "10.0.0.0/8"],
+                                recursive: true
                             }
                         },
                         {

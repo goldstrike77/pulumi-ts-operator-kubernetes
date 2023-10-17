@@ -103,6 +103,106 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+            {
+                namespace: "datadog",
+                name: "apisix-udp",
+                chart: "vector",
+                repository: "https://helm.vector.dev",
+                version: "0.26.0",
+                values: {
+                    role: "Aggregator",
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        tag: "0.33.0-distroless-libc"
+                    },
+                    replicas: 1,
+                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: { partition: 0 }
+                    },
+                    service: {
+                        enabled: true,
+                        type: "LoadBalancer",
+                        loadBalancerIP: "192.168.0.103"
+                    },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        enrichment_tables: {
+                            geoip_table: {
+                                path: "/GeoLite2-City.mmdb",
+                                type: "geoip"
+                            }
+                        },
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: {
+                            syslog_socket_udp: {
+                                type: "socket",
+                                address: "0.0.0.0:1514",
+                                max_length: 32768,
+                                mode: "udp",
+                                receive_buffer_bytes: 65536
+                            }
+                        },
+                        transforms: {
+                            syslog_json_udp: {
+                                type: "remap",
+                                inputs: ["syslog_socket_udp"],
+                                source: `. = parse_json!(.message)`
+                            },
+                            syslog_json_udp_geoip: {
+                                type: "remap",
+                                inputs: ["syslog_json_udp"],
+                                source: `""
+        if exists(."remote_addr") {
+          .geoip = get_enrichment_table_record!("geoip_table", { "ip": .remote_addr })
+        }
+        ""`
+                            },
+                            syslog_json_udp_filter: {
+                                type: "filter",
+                                inputs: ["syslog_json_udp_geoip"],
+                                condition: '!(ip_cidr_contains!("10.221.0.64/28", .remote_addr))'
+                            }
+                        },
+                        sinks: {
+                            syslog_json_elasticsearch: {
+                                type: "elasticsearch",
+                                inputs: ["syslog_json_udp_filter"],
+                                bulk: { action: "index", index: "apisix-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
+                                compression: "none",
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 2048, timeout_secs: 20 }
+                            }
+                        }
+                    },
+                    persistence: { enabled: true, storageClassName: "longhorn", size: "7Gi" },
+                    podMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_region"], targetLabel: "region" }
+                        ]
+                    }
+                }
+            },
             /**
             {
                 namespace: "datadog",

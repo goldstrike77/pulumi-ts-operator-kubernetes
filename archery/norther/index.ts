@@ -269,6 +269,12 @@ table_open_cache=128
                                 requests: { cpu: "50m", memory: "64Mi" }
                             },
                             port: 9104
+                        },
+                        // 无relabelings功能无法使用。
+                        serviceMonitor: {
+                            prometheusRelease: null,
+                            interval: "31536000s",
+                            scrapeTimeout: "10s"
                         }
                     }
                 }
@@ -338,6 +344,41 @@ table_open_cache=128
                     selector: {
                         matchLabels: {
                             "app": "archery-redis"
+                        }
+                    }
+                }
+            },
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "archery-mysql",
+                    namespace: "archery"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "metrics",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "SQL-Audit", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "archery", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["archery"]
+                    },
+                    selector: {
+                        matchLabels: {
+                            "app.kubernetes.io/instance": "archery-mysql"
                         }
                     }
                 }

@@ -42,7 +42,7 @@ const deploy_spec = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.15.0",
+        version: "2.16.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -233,7 +233,7 @@ config:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.15.0",
+        version: "2.16.0",
         chart: "opensearch",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -334,7 +334,7 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.13.0",
+        version: "2.14.0",
         chart: "opensearch-dashboards",
         repository: "https://opensearch-project.github.io/helm-charts",
         values: {
@@ -395,7 +395,7 @@ server.ssl.enabled: false
       {
         namespace: "opensearch",
         name: "elasticsearch-exporter",
-        version: "5.3.0",
+        version: "5.3.1",
         chart: "prometheus-elasticsearch-exporter",
         repository: "https://prometheus-community.github.io/helm-charts",
         values: {
