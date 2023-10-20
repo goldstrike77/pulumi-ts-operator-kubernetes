@@ -10,71 +10,60 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
-            {
-                namespace: "purelb",
-                name: "purelb",
-                chart: "purelb",
-                repository: "https://gitlab.com/api/v4/projects/20400619/packages/helm/stable",
-                version: "v0.6.4",
-                values: {
-                    Prometheus: {
-                        allocator: {
-                            Metrics: {
-                                enabled: false
-                            },
-                            serviceMonitor: {
-                                enabled: false,
-                                extraLabels: {}
-                            },
-                            prometheusRules: {
-                                enabled: false,
-                                namespace: "",
-                                extraLabels: {},
-                                rules: []
-                            }
+        helm: {
+            namespace: "purelb",
+            name: "purelb",
+            chart: "purelb",
+            repository: "https://gitlab.com/api/v4/projects/20400619/packages/helm/stable",
+            version: "v0.7.1",
+            values: {
+                image: {
+                    repository: "registry.cn-shanghai.aliyuncs.com/goldenimage",
+                    pullPolicy: "IfNotPresent"
+                },
+                Prometheus: {
+                    allocator: {
+                        Metrics: { enabled: false },
+                        serviceMonitor: {
+                            enabled: false,
+                            extraLabels: {}
                         },
-                        lbnodeagent: {
-                            Metrics: {
-                                enabled: false
-                            },
-                            serviceMonitor: {
-                                enabled: false,
-                                extraLabels: {}
-                            },
-                            prometheusRules: {
-                                enabled: false,
-                                extraLabels: {},
-                                rules: []
-                            }
-                        }
-                    },
-                    serviceGroup: {
-                        name: "default",
-                        create: true,
-                        spec: {
-                            local: {
-                                subnet: "192.168.0.0/24",
-                                pool: "192.168.0.100-192.168.0.109",
-                                aggregation: "default"
-                            }
-                        }
+                        prometheusRules: { enabled: false }
                     },
                     lbnodeagent: {
-                        resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
+                        Metrics: { enabled: false },
+                        serviceMonitor: {
+                            enabled: false,
+                            extraLabels: {}
+                        },
+                        prometheusRules: { enabled: false }
+                    }
+                },
+                serviceGroup: {
+                    name: "default",
+                    create: true,
+                    spec: {
+                        local: {
+                            subnet: "192.168.0.0/24",
+                            pool: "192.168.0.100-192.168.0.109",
+                            aggregation: "default"
                         }
-                    },
-                    allocator: {
-                        resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
-                        }
+                    }
+                },
+                lbnodeagent: {
+                    resources: {
+                        limits: { cpu: "100m", memory: "64Mi" },
+                        requests: { cpu: "100m", memory: "64Mi" }
+                    }
+                },
+                allocator: {
+                    resources: {
+                        limits: { cpu: "100m", memory: "64Mi" },
+                        requests: { cpu: "100m", memory: "64Mi" }
                     }
                 }
             }
-        ]
+        }
     }
 ]
 
@@ -85,17 +74,15 @@ for (var i in deploy_spec) {
         spec: deploy_spec[i].namespace.spec
     });
     // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
+    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
+        namespace: deploy_spec[i].helm.namespace,
+        name: deploy_spec[i].helm.name,
+        chart: deploy_spec[i].helm.chart,
+        version: deploy_spec[i].helm.version,
+        values: deploy_spec[i].helm.values,
+        skipAwait: true,
+        repositoryOpts: {
+            repo: deploy_spec[i].helm.repository,
+        },
+    }, { dependsOn: [namespace] });
 }

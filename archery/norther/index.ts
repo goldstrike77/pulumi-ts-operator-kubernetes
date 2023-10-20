@@ -230,15 +230,19 @@ default_storage_engine=InnoDB
 innodb_autoinc_lock_mode=2
 innodb_buffer_pool_size=256M
 innodb_flush_log_at_trx_commit=1
+innodb_print_all_deadlocks=1
 max_allowed_packet=256M
 max_connections=100
 performance_schema_max_table_instances=256
-plugin_load_add=query_response_time
+plugin_load_add=query_response_time;server_audit
 query_response_time_stats=1
+server_audit_events=QUERY_DDL,QUERY_DCL
+server_audit_logging=1
+server_audit_output_type=null
 skip-name-resolve
 slow_query_log=0
 table_definition_cache=400
-table_open_cache=128
+table_open_cache=128                    
 `,
                     resources: {
                         limits: { cpu: "500m", memory: "512Mi" },
@@ -261,22 +265,22 @@ table_open_cache=128
                             "ReadWriteOnce"
                         ]
                     },
-                    metrics: {
-                        exporter: {
-                            image: "prom/mysqld-exporter:v0.14.0",
-                            resources: {
-                                limits: { cpu: "50m", memory: "64Mi" },
-                                requests: { cpu: "50m", memory: "64Mi" }
-                            },
-                            port: 9104
-                        },
-                        // 无relabelings功能无法使用。
-                        serviceMonitor: {
-                            prometheusRelease: null,
-                            interval: "31536000s",
-                            scrapeTimeout: "10s"
-                        }
-                    }
+                    //metrics: {
+                    //    exporter: {
+                    //        image: "prom/mysqld-exporter:v0.14.0",
+                    //        resources: {
+                    //            limits: { cpu: "50m", memory: "64Mi" },
+                    //            requests: { cpu: "50m", memory: "64Mi" }
+                    //        },
+                    //        port: 9104
+                    //    },
+                    //    // 无relabelings功能无法使用。
+                    //    serviceMonitor: {
+                    //        prometheusRelease: null,
+                    //        interval: "31536000s",
+                    //        scrapeTimeout: "10s"
+                    //    }
+                    //}
                 }
             },
             {

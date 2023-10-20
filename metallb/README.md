@@ -4,4 +4,6 @@ Popular applications, provided by [Bitnami](https://bitnami.com), ready to launc
 #### Installing the Chart
 ```hcl
 helm repo add bitnami https://charts.bitnami.com/bitnami
+or
+helm repo add metallb https://metallb.github.io/metallb
 ```

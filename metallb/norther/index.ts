@@ -14,55 +14,61 @@ const deploy_spec = [
             namespace: "metallb-system",
             name: "metallb",
             chart: "metallb",
-            repository: "https://charts.bitnami.com/bitnami",
-            version: "4.7.3",
+            repository: "https://metallb.github.io/metallb",
+            version: "0.13.11",
             values: {
+                interfaces: "eth0",
                 addresses: ["192.168.0.100-192.168.0.109"],
                 autoAssign: true,
-                prometheusRule: { enabled: false },
-                controller: {
-                    podLabels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" },
-                    resources: {
-                        limits: { cpu: "100m", memory: "64Mi" },
-                        requests: { cpu: "100m", memory: "64Mi" }
+                prometheus: {
+                    serviceAccount: "kubepromstack-prometheus",
+                    namespace: "monitoring",
+                    podMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
                     },
-                    metrics: {
-                        enabled: false,
-                        serviceMonitor: {
-                            enabled: true,
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                            ]
-                        }
+                    serviceMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    },
+                    prometheusRule: {
+                        enabled: false
                     }
                 },
-                speaker: {
-                    podLabels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" },
+                controller: {
+                    enabled: true,
+                    logLevel: "warn",
                     resources: {
                         limits: { cpu: "100m", memory: "64Mi" },
                         requests: { cpu: "100m", memory: "64Mi" }
                     },
-                    metrics: {
-                        enabled: false,
-                        serviceMonitor: {
-                            enabled: true,
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                            ]
-                        }
-                    }
+                    labels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" }
+                },
+                speaker: {
+                    enabled: true,
+                    logLevel: "warn",
+                    resources: {
+                        limits: { cpu: "100m", memory: "64Mi" },
+                        requests: { cpu: "100m", memory: "64Mi" }
+                    },
+                    labels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" },
+                    frr: { "enabled": false }
                 }
             }
         }
@@ -95,6 +101,7 @@ for (var i in deploy_spec) {
             namespace: deploy_spec[i].namespace.metadata.name
         },
         spec: {
+            interfaces: deploy_spec[i].helm.values.interfaces,
             addresses: deploy_spec[i].helm.values.addresses,
             autoAssign: deploy_spec[i].helm.values.autoAssign,
         }

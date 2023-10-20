@@ -105,7 +105,9 @@ const deploy_spec = [
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
                     service: {
-                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                        //annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
+                        //loadBalancerIP: "192.168.0.100",
+                        externalTrafficPolicy: "Local"
                     },
                     admissionWebhooks: {
                         patch: {
