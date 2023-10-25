@@ -1,0 +1,5 @@
+encryptionsalt: v1:/Q4xJoIOKVk=:v1:03E4kp1CfPQab061:lcZ+Sw3uymIpimEaA6V50Ut0nkX37A==
+config:
+  demo:VSPHERE_PASSWORD:
+    secure: v1:mOy/oNJN+mVCXsHf:Ry4klZPvxzmbQbzXutX3qa1cabBm+9oduUBvYg==
+  kubernetes:context: kubernetes-admin@souther

@@ -238,7 +238,7 @@ analytics:
           service: {
             port: 8080,
             type: "LoadBalancer",
-            loadBalancerIP: "192.168.0.100",
+            loadBalancerIP: "192.168.0.104",
             annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
           }
         },

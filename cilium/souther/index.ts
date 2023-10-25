@@ -9,7 +9,7 @@ const deploy_spec = [
             repository: "https://helm.cilium.io",
             version: "1.14.3",
             values: {
-                k8sServiceHost: "192.168.0.84",
+                k8sServiceHost: "192.168.0.150",
                 k8sServicePort: "6443",
                 "image": {
                     "repository": "registry.cn-shanghai.aliyuncs.com/goldenimage/cilium",
