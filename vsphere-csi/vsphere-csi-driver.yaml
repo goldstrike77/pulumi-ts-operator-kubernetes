@@ -454,7 +454,7 @@ spec:
             - name: ADDRESS
               value: /csi/csi.sock
             - name: DRIVER_REG_SOCK_PATH
-              value: /var/lib/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
+              value: /data/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
@@ -464,7 +464,7 @@ spec:
             exec:
               command:
               - /csi-node-driver-registrar
-              - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
+              - --kubelet-registration-path=/data/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
               - --mode=kubelet-registration-probe
             initialDelaySeconds: 3
         - name: vsphere-csi-node
@@ -507,7 +507,7 @@ spec:
             - name: plugin-dir
               mountPath: /csi
             - name: pods-mount-dir
-              mountPath: /var/lib/kubelet
+              mountPath: /data/kubelet
               # needed so that any mounts setup inside this container are
               # propagated back to the host machine.
               mountPropagation: "Bidirectional"
@@ -544,11 +544,11 @@ spec:
             type: Directory
         - name: plugin-dir
           hostPath:
-            path: /var/lib/kubelet/plugins/csi.vsphere.vmware.com
+            path: /data/kubelet/plugins/csi.vsphere.vmware.com
             type: DirectoryOrCreate
         - name: pods-mount-dir
           hostPath:
-            path: /var/lib/kubelet
+            path: /data/kubelet
             type: Directory
         - name: device-dir
           hostPath:

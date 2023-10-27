@@ -67,7 +67,7 @@ create table if not exists t_table
                     }
                 },
                 volumePermissions: {
-                    enabled: false,
+                    enabled: true,
                     resources: {
                         limits: { cpu: "50m", memory: "64Mi" },
                         requests: { cpu: "50m", memory: "64Mi" }
