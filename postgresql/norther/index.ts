@@ -21,7 +21,7 @@ const deploy_spec = [
             version: "12.2.1",
             values: {
                 global: {
-                    storageClass: "longhorn",
+                    storageClass: "vsphere-san-sc",
                     postgresql: {
                         auth: {
                             postgresPassword: config.require("postgresPassword"),
@@ -67,14 +67,14 @@ create table if not exists t_table
                     }
                 },
                 volumePermissions: {
-                    enabled: true,
+                    enabled: false,
                     resources: {
                         limits: { cpu: "50m", memory: "64Mi" },
                         requests: { cpu: "50m", memory: "64Mi" }
                     }
                 },
                 metrics: {
-                    enabled: true,
+                    enabled: false,
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }

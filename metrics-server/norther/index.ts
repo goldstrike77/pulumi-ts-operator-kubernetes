@@ -1,5 +1,14 @@
 import * as k8s from "@pulumi/kubernetes";
 
+const deploy_label = {
+    customer: "demo",
+    environment: "dev",
+    project: "Container-resource",
+    group: "Metrics-server",
+    datacenter: "dc01",
+    domain: "local"
+}
+
 const deploy_spec = [
     {
         namespace: {
@@ -18,7 +27,7 @@ const deploy_spec = [
             version: "3.11.0",
             values: {
                 image: { repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/metrics-server", tag: "v0.6.4" },
-                podLabels: { customer: "demo", environment: "dev", project: "Resource", group: "Metrics-server", datacenter: "dc01", domain: "local" },
+                podLabels: deploy_label,
                 defaultArgs: [
                     "--cert-dir=/tmp",
                     "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
