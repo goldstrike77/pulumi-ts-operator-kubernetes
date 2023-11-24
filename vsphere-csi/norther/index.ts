@@ -3,6 +3,7 @@ import { Namespace } from '../../packages/kubernetes/core/v1/Namespace';
 import { Secret } from '../../packages/kubernetes/core/v1/Secret';
 import { Release } from '../../packages/kubernetes/helm/v3/Release';
 import { ConfigFile } from '../../packages/kubernetes/yaml/ConfigFile';
+import { StorageClass } from '../../packages/kubernetes/storage/v1/StorageClass';
 
 let config = new pulumi.Config();
 
@@ -73,9 +74,28 @@ const resources = [
         }
       }
     ],
+    storageclass: [
+      {
+        metadata: {
+          name: "vsphere-san-sc",
+          annotations: {
+            "storageclass.kubernetes.io/is-default-class": "true"
+          }
+        },
+        provisioner: "csi.vsphere.vmware.com",
+        allowVolumeExpansion: true,
+        parameters: {
+          datastoreurl: "ds:///vmfs/volumes/655eacb9-92cac5ab-d5ea-002590f4baa4/",
+          "csi.storage.k8s.io/fstype": "ext4",
+          diskformat: "thin"
+        },
+        reclaimPolicy: "Delete",
+        volumeBindingMode: "Immediate"
+
+      }
+    ],
     configfile: [
-      { file: "../vsphere-csi-driver.yaml" },
-      { file: "../vsphere-san-sc.yaml" }
+      { file: "../vsphere-csi-driver.yaml" }
     ]
   }
 ]
@@ -87,3 +107,5 @@ const secret = new Secret('Secret', { resources: resources }, { dependsOn: [name
 const release = new Release('Release', { resources: resources });
 
 const configfile = new ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [secret] });
+
+const storageclass = new StorageClass('StorageClass', { resources: resources }, { dependsOn: [configfile] });
