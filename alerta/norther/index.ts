@@ -2,6 +2,12 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s from "@pulumi/kubernetes";
 import * as random from "@pulumi/random";
 
+const random = new random.RandomString("random", {
+    length: 16,
+    overrideSpecial: "/@£$",
+    special: true,
+});
+
 const randomsecretkey = new random.RandomString("randomsecretkey", {
     keepers: { project: `${pulumi.getStack()}-${pulumi.getProject()}` },
     length: 32,
