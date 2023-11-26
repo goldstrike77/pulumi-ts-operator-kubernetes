@@ -86,8 +86,7 @@ const resources = [
         allowVolumeExpansion: true,
         parameters: {
           datastoreurl: "ds:///vmfs/volumes/655eacb9-92cac5ab-d5ea-002590f4baa4/",
-          "csi.storage.k8s.io/fstype": "ext4",
-          diskformat: "thin"
+          "csi.storage.k8s.io/fstype": "ext4"
         },
         reclaimPolicy: "Delete",
         volumeBindingMode: "Immediate"
@@ -101,11 +100,7 @@ const resources = [
 ]
 
 const namespace = new Namespace('Namespace', { resources: resources })
-
 const secret = new Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
-
 const release = new Release('Release', { resources: resources });
-
 const configfile = new ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [secret] });
-
 const storageclass = new StorageClass('StorageClass', { resources: resources }, { dependsOn: [configfile] });
