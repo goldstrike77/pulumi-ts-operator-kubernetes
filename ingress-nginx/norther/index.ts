@@ -1,9 +1,18 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 const config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+    customer: "demo",
+    environment: "dev",
+    project: "Ingress-controller",
+    group: "Ingress",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -43,143 +52,122 @@ const deploy_spec = [
                 stringData: {}
             }
         ],
-        helm: {
-            namespace: "ingress-nginx",
-            name: "ingress-nginx",
-            chart: "ingress-nginx",
-            repository: "https://kubernetes.github.io/ingress-nginx",
-            version: "4.7.2",
-            values: {
-                controller: {
-                    image: {
-                        registry: "registry.cn-shanghai.aliyuncs.com",
-                        image: "goldenimage/controller",
-                        digest: "sha256:8dfee0a9fc170cca3e96c4a054ed228703eaf776e742fc2166d807874425941d"
-                    },
-                    config: {
-                        "compute-full-forwarded-for": "true",
-                        "enable-brotli": "true",
-                        "enable-modsecurity": "false",
-                        //"enable-opentracing": "true",
-                        "enable-owasp-modsecurity-crs": "false",
-                        "force-ssl-redirect": "true",
-                        "forwarded-for-header": "X-Forwarded-For",
-                        "keep-alive": "60",
-                        "keep-alive-requests": "2048",
-                        "max-worker-connections": "20480",
-                        "real_ip_header": "X-Forwarded-For",
-                        "ssl_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
-                        "ssl_protocols": "TLSv1.2 TLSv1.3",
-                        "upstream-keepalive-connections": "8192",
-                        "upstream-keepalive-requests": "256",
-                        "upstream-keepalive-timeout": "60",
-                        "use-geoip": "false",
-                        "use-gzip": "false",
-                        "use-http2": "true",
-                        "worker-cpu-affinity": "auto",
-                        //"zipkin-collector-host": "tempo-distributor.tracing.svc.cluster.local",
-                        //"zipkin-service-name": "ingress-nginx"
-                    },
-                    configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
-                    addHeaders: {
-                        "Access-Control-Allow-Origin": "$http_origin",
-                        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
-                        "X-Frame-Options": "DENY",
-                        "X-Content-Type-Options": "nosniff",
-                        "X-XSS-Protection": "1; mode=block"
-                    },
-                    podLabels: { customer: "demo", environment: "dev", project: "Ingress-controller", group: "Ingress", datacenter: "dc01", domain: "local" },
-                    sysctls: {
-                        "net.core.somaxconn": "8192",
-                        "net.ipv4.ip_local_port_range": "1024 65000"
-                    },
-                    //                   extraEnvs: [
-                    //                       { name: "SW_SERVICE_NAME", value: "demo::ingress-nginx" },
-                    //                       { name: "SW_BACKEND_SERVERS", value: "http://skywalking-oap.skywalking.svc.cluster.local:12800" },
-                    //                       { name: "SW_SERVICE_INSTANCE_NAME", valueFrom: { fieldRef: { fieldPath: "metadata.name" } } }
-                    //                   ],
-                    extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
-                    replicaCount: 1,
-                    resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
-                    },
-                    service: {
-                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
-                        loadBalancerIP: "192.168.0.100",
-                        externalTrafficPolicy: "Local"
-                    },
-                    admissionWebhooks: {
-                        patch: {
-                            image: {
-                                registry: "registry.cn-shanghai.aliyuncs.com",
-                                image: "goldenimage/kube-webhook-certgen",
-                                digest: "sha256:edf7dae46debcec54f0c33bfb3005f7a0e992800fdbfb5d0c644ae6cb37db7e9"
+        release: [
+            {
+                namespace: "ingress-nginx",
+                name: "ingress-nginx",
+                chart: "ingress-nginx",
+                repositoryOpts: {
+                    repo: "https://kubernetes.github.io/ingress-nginx"
+                },
+                version: "4.8.3",
+                values: {
+                    controller: {
+                        image: {
+                            registry: "registry.cn-shanghai.aliyuncs.com",
+                            image: "goldenimage/controller",
+                            digest: "sha256:51a9e554fc24999f8eb3acfdc60bb1be68b3ad389433bd1fa75be754e4c2669b"
+                        },
+                        config: {
+                            "compute-full-forwarded-for": "true",
+                            "enable-brotli": "true",
+                            "enable-modsecurity": "false",
+                            //"enable-opentracing": "true",
+                            "enable-owasp-modsecurity-crs": "false",
+                            "force-ssl-redirect": "true",
+                            "forwarded-for-header": "X-Forwarded-For",
+                            "keep-alive": "60",
+                            "keep-alive-requests": "2048",
+                            "max-worker-connections": "20480",
+                            "real_ip_header": "X-Forwarded-For",
+                            "ssl_ciphers": "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384",
+                            "ssl_protocols": "TLSv1.2 TLSv1.3",
+                            "upstream-keepalive-connections": "8192",
+                            "upstream-keepalive-requests": "256",
+                            "upstream-keepalive-timeout": "60",
+                            "use-geoip": "false",
+                            "use-gzip": "false",
+                            "use-http2": "true",
+                            "worker-cpu-affinity": "auto",
+                            //"zipkin-collector-host": "tempo-distributor.tracing.svc.cluster.local",
+                            //"zipkin-service-name": "ingress-nginx"
+                        },
+                        configAnnotations: { "nginx.ingress.kubernetes.io/auth-tls-secret": "ingress-nginx/internal-ca" },
+                        addHeaders: {
+                            "Access-Control-Allow-Origin": "$http_origin",
+                            "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+                            "X-Frame-Options": "DENY",
+                            "X-Content-Type-Options": "nosniff",
+                            "X-XSS-Protection": "1; mode=block"
+                        },
+                        podLabels: podlabels,
+                        sysctls: {
+                            "net.core.somaxconn": "8192",
+                            "net.ipv4.ip_local_port_range": "1024 65000"
+                        },
+                        //                   extraEnvs: [
+                        //                       { name: "SW_SERVICE_NAME", value: "demo::ingress-nginx" },
+                        //                       { name: "SW_BACKEND_SERVERS", value: "http://skywalking-oap.skywalking.svc.cluster.local:12800" },
+                        //                       { name: "SW_SERVICE_INSTANCE_NAME", valueFrom: { fieldRef: { fieldPath: "metadata.name" } } }
+                        //                   ],
+                        extraArgs: { "default-ssl-certificate": "ingress-nginx/default-tls-secret" },
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        service: {
+                            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
+                            loadBalancerIP: "192.168.0.100",
+                            externalTrafficPolicy: "Local"
+                        },
+                        admissionWebhooks: {
+                            patch: {
+                                image: {
+                                    registry: "registry.cn-shanghai.aliyuncs.com",
+                                    image: "goldenimage/kube-webhook-certgen",
+                                    digest: "sha256:0c0afdea307db019addb774407407c6d6cae9ae310ec9e762dc0f2b3c2321926"
+                                }
+                            }
+                        },
+                        metrics: {
+                            enabled: true,
+                            serviceMonitor: {
+                                enabled: true,
+                                relabelings: [
+                                    { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                                ]
+                            },
+                            prometheusRule: {
+                                enabled: false
                             }
                         }
                     },
-                    metrics: {
+                    defaultBackend: {
                         enabled: true,
-                        serviceMonitor: {
-                            enabled: true,
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                            ]
+                        image: {
+                            registry: "registry.cn-shanghai.aliyuncs.com",
+                            image: "goldenimage/defaultbackend-amd64"
                         },
-                        prometheusRule: {
-                            enabled: false
+                        podLabels: { customer: "demo", environment: "dev", project: "Ingress-controller", group: "Ingress", datacenter: "dc01", domain: "local" },
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
-                    }
-                },
-                defaultBackend: {
-                    enabled: true,
-                    image: {
-                        registry: "registry.cn-shanghai.aliyuncs.com",
-                        image: "goldenimage/defaultbackend-amd64"
-                    },
-                    podLabels: { customer: "demo", environment: "dev", project: "Ingress-controller", group: "Ingress", datacenter: "dc01", domain: "local" },
-                    replicaCount: 1,
-                    resources: {
-                        limits: { cpu: "50m", memory: "64Mi" },
-                        requests: { cpu: "50m", memory: "64Mi" }
                     }
                 }
             }
-        }
+        ]
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Kubernetes Secret.
-    for (var secret_index in deploy_spec[i].secret) {
-        const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
-            metadata: deploy_spec[i].secret[secret_index].metadata,
-            type: deploy_spec[i].secret[secret_index].type,
-            data: deploy_spec[i].secret[secret_index].data,
-            stringData: deploy_spec[i].secret[secret_index].stringData
-        }, { dependsOn: [namespace] });
-    }
-    // Create Release Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
-        },
-    }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources });

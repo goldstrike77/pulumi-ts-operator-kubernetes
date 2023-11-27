@@ -1,6 +1,6 @@
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
-const deploy_label = {
+const podlabels = {
     customer: "demo",
     environment: "dev",
     project: "Container-resource",
@@ -9,7 +9,7 @@ const deploy_label = {
     domain: "local"
 }
 
-const deploy_spec = [
+const resources = [
     {
         namespace: {
             metadata: {
@@ -19,48 +19,35 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: {
-            namespace: "metrics-server",
-            name: "metrics-server",
-            chart: "metrics-server",
-            repository: "https://kubernetes-sigs.github.io/metrics-server",
-            version: "3.11.0",
-            values: {
-                image: { repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/metrics-server", tag: "v0.6.4" },
-                podLabels: deploy_label,
-                defaultArgs: [
-                    "--cert-dir=/tmp",
-                    "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
-                    "--kubelet-use-node-status-port",
-                    "--metric-resolution=15s",
-                    "--kubelet-insecure-tls"
-                ],
-                metrics: { enabled: true },
-                resources: {
-                    limits: { cpu: "200m", memory: "128Mi" },
-                    requests: { cpu: "200m", memory: "128Mi" }
+        release: [
+            {
+                namespace: "metrics-server",
+                name: "metrics-server",
+                chart: "metrics-server",
+                repositoryOpts: {
+                    repo: "https://kubernetes-sigs.github.io/metrics-server"
+                },
+                version: "3.11.0",
+                values: {
+                    image: { repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/metrics-server", tag: "v0.6.4" },
+                    podLabels: podlabels,
+                    defaultArgs: [
+                        "--cert-dir=/tmp",
+                        "--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname",
+                        "--kubelet-use-node-status-port",
+                        "--metric-resolution=15s",
+                        "--kubelet-insecure-tls"
+                    ],
+                    metrics: { enabled: true },
+                    resources: {
+                        limits: { cpu: "200m", memory: "128Mi" },
+                        requests: { cpu: "200m", memory: "128Mi" }
+                    }
                 }
             }
-        }
+        ]
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Release Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
-        },
-    }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources });

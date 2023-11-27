@@ -1,6 +1,15 @@
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
-const deploy_spec = [
+const podlabels = {
+    customer: "demo",
+    environment: "dev",
+    project: "Load-Balancer",
+    group: "MetalLB",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -10,111 +19,99 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: {
-            namespace: "metallb-system",
-            name: "metallb",
-            chart: "metallb",
-            repository: "https://metallb.github.io/metallb",
-            version: "0.13.11",
-            values: {
-                interfaces: "eth0",
-                addresses: ["192.168.0.100-192.168.0.109"],
-                autoAssign: true,
-                prometheus: {
-                    serviceAccount: "kubepromstack-prometheus",
-                    namespace: "monitoring",
-                    podMonitor: {
-                        enabled: true,
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+        release: [
+            {
+                namespace: "metallb-system",
+                name: "metallb",
+                chart: "metallb",
+                repositoryOpts: {
+                    repo: "https://metallb.github.io/metallb"
+                },
+                version: "0.13.11",
+                values: {
+                    prometheus: {
+                        serviceAccount: "kubepromstack-prometheus",
+                        namespace: "monitoring",
+                        podMonitor: {
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        serviceMonitor: {
+                            enabled: false,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        prometheusRule: {
+                            enabled: false
+                        }
                     },
-                    serviceMonitor: {
+                    controller: {
                         enabled: true,
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+                        logLevel: "warn",
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        },
+                        labels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" }
                     },
-                    prometheusRule: {
-                        enabled: false
+                    speaker: {
+                        enabled: true,
+                        logLevel: "warn",
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        },
+                        labels: podlabels,
+                        frr: { "enabled": false }
                     }
                 },
-                controller: {
-                    enabled: true,
-                    logLevel: "warn",
-                    resources: {
-                        limits: { cpu: "100m", memory: "64Mi" },
-                        requests: { cpu: "100m", memory: "64Mi" }
-                    },
-                    labels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" }
+                skipAwait: false
+            }
+        ],
+        customresource: [
+            {
+                apiVersion: "metallb.io/v1beta1",
+                kind: "IPAddressPool",
+                metadata: {
+                    name: "generic-cluster-pool",
+                    namespace: "metallb-system"
                 },
-                speaker: {
-                    enabled: true,
-                    logLevel: "warn",
-                    resources: {
-                        limits: { cpu: "100m", memory: "64Mi" },
-                        requests: { cpu: "100m", memory: "64Mi" }
-                    },
-                    labels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" },
-                    frr: { "enabled": false }
+                spec: {
+                    interfaces: "eth0",
+                    addresses: ["192.168.0.100-192.168.0.109"],
+                    autoAssign: true
+                }
+            },
+            {
+                apiVersion: "metallb.io/v1beta1",
+                kind: "L2Advertisement",
+                metadata: {
+                    name: "generic-cluster-pool",
+                    namespace: "metallb-system"
+                },
+                spec: {
+                    ipAddressPools: ["generic-cluster-pool"]
                 }
             }
-        }
+        ]
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Release Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
-        skipAwait: false,
-        repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
-        },
-    }, { dependsOn: [namespace] });
-    const ipaddresspool = new k8s.apiextensions.CustomResource(deploy_spec[i].helm.name, {
-        apiVersion: "metallb.io/v1beta1",
-        kind: "IPAddressPool",
-        metadata: {
-            name: "generic-cluster-pool",
-            namespace: deploy_spec[i].namespace.metadata.name
-        },
-        spec: {
-            interfaces: deploy_spec[i].helm.values.interfaces,
-            addresses: deploy_spec[i].helm.values.addresses,
-            autoAssign: deploy_spec[i].helm.values.autoAssign,
-        }
-    }, { dependsOn: [release] });
-    const l2advertisement = new k8s.apiextensions.CustomResource(deploy_spec[i].helm.name, {
-        apiVersion: "metallb.io/v1beta1",
-        kind: "L2Advertisement",
-        metadata: {
-            name: "generic-cluster-pool",
-            namespace: deploy_spec[i].namespace.metadata.name
-        },
-        spec: {
-            ipAddressPools: ["generic-cluster-pool"]
-        }
-    }, { dependsOn: [ipaddresspool] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

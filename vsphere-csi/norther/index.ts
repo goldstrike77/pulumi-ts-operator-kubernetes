@@ -1,9 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
-import { Namespace } from '../../packages/kubernetes/core/v1/Namespace';
-import { Secret } from '../../packages/kubernetes/core/v1/Secret';
-import { Release } from '../../packages/kubernetes/helm/v3/Release';
-import { ConfigFile } from '../../packages/kubernetes/yaml/ConfigFile';
-import { StorageClass } from '../../packages/kubernetes/storage/v1/StorageClass';
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
@@ -99,8 +95,8 @@ const resources = [
   }
 ]
 
-const namespace = new Namespace('Namespace', { resources: resources })
-const secret = new Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
-const release = new Release('Release', { resources: resources });
-const configfile = new ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [secret] });
-const storageclass = new StorageClass('StorageClass', { resources: resources }, { dependsOn: [configfile] });
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources });
+const configfile = new k8s_module.yaml.ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [secret] });
+const storageclass = new k8s_module.storage.v1.StorageClass('StorageClass', { resources: resources }, { dependsOn: [configfile] });

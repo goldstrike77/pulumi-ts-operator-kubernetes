@@ -1,6 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
-import { Namespace } from '../../packages/kubernetes/core/v1/Namespace';
-import { Release } from '../../packages/kubernetes/helm/v3/Release';
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
@@ -75,13 +74,13 @@ const resources = [
                         }
                     },
                     metrics: {
-                        enabled: false,
+                        enabled: true,
                         resources: {
                             limits: { cpu: "50m", memory: "64Mi" },
                             requests: { cpu: "50m", memory: "64Mi" }
                         },
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
                             interval: "60s",
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
@@ -100,5 +99,5 @@ const resources = [
     }
 ]
 
-const namespace = new Namespace('Namespace', { resources: resources })
-const release = new Release('Release', { resources: resources })
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });

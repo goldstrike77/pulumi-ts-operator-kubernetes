@@ -1,4 +1,4 @@
-import { Release } from '../../packages/kubernetes/helm/v3/Release';
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 const labels = {
     customer: "demo",
@@ -126,4 +126,4 @@ const resources = [
     }
 ]
 
-const release = new Release('Release', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources });
