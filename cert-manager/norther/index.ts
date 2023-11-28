@@ -1,9 +1,18 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+    customer: "demo",
+    environment: "dev",
+    project: "Certificate",
+    group: "Cert-Manager",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -13,75 +22,62 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: {
-            namespace: "cert-manager",
-            name: "cert-manager",
-            chart: "cert-manager",
-            repository: "https://charts.bitnami.com/bitnami",
-            version: "0.12.4",
-            values: {
-                logLevel: 2,
-                installCRDs: true,
-                controller: {
-                    replicaCount: 1,
-                    resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
-                    },
-                    podLabels: { customer: "demo", environment: "dev", project: "Certificate", group: "Cert-Manager", datacenter: "dc01", domain: "local" },
+        release: [
+            {
+                namespace: "cert-manager",
+                name: "cert-manager",
+                chart: "cert-manager",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
                 },
-                webhook: {
-                    replicaCount: 1,
-                    resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                version: "0.13.3",
+                values: {
+                    logLevel: 2,
+                    installCRDs: true,
+                    controller: {
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        podLabels: podlabels,
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "Certificate", group: "Cert-Manager", datacenter: "dc01", domain: "local" },
-                },
-                cainjector: {
-                    replicaCount: 1,
-                    resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                    webhook: {
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
+                        },
+                        podLabels: podlabels
                     },
-                    podLabels: { customer: "demo", environment: "dev", project: "Certificate", group: "Cert-Manager", datacenter: "dc01", domain: "local" },
-                },
-                metrics: {
-                    enabled: true,
-                    serviceMonitor: {
+                    cainjector: {
+                        replicaCount: 1,
+                        resources: {
+                            limits: { cpu: "200m", memory: "256Mi" },
+                            requests: { cpu: "200m", memory: "256Mi" }
+                        },
+                        podLabels: podlabels,
+                    },
+                    metrics: {
                         enabled: true,
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+                        serviceMonitor: {
+                            enabled: true,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        }
                     }
                 }
             }
-        }
+        ]
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create cert-manager Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
-        },
-    }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });

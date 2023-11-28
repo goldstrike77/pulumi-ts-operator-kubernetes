@@ -1,9 +1,18 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+  customer: "demo",
+  environment: "dev",
+  project: "SEIM",
+  group: "Opensearch",
+  datacenter: "dc01",
+  domain: "local"
+}
+
+const resources = [
   {
     namespace: {
       metadata: {
@@ -13,44 +22,45 @@ const deploy_spec = [
       },
       spec: {}
     },
-    secret:
-      [
-        {
-          metadata: {
-            name: "client-access-key",
-            namespace: "opensearch",
-            annotations: {},
-            labels: {}
-          },
-          type: "Opaque",
-          data: { "s3.client.default.access_key": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64') },
-          stringData: {}
+    secret: [
+      {
+        metadata: {
+          name: "client-access-key",
+          namespace: "opensearch",
+          annotations: {},
+          labels: {}
         },
-        {
-          metadata: {
-            name: "client-secret-key",
-            namespace: "opensearch",
-            annotations: {},
-            labels: {}
-          },
-          type: "Opaque",
-          data: { "s3.client.default.secret_key": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64') },
-          stringData: {}
-        }
-      ],
-    helm: [
+        type: "Opaque",
+        data: { "s3.client.default.access_key": Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64') },
+        stringData: {}
+      },
+      {
+        metadata: {
+          name: "client-secret-key",
+          namespace: "opensearch",
+          annotations: {},
+          labels: {}
+        },
+        type: "Opaque",
+        data: { "s3.client.default.secret_key": Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64') },
+        stringData: {}
+      }
+    ],
+    release: [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.16.0",
+        version: "2.16.1",
         chart: "opensearch",
-        repository: "https://opensearch-project.github.io/helm-charts",
+        repositoryOpts: {
+          repo: "https://opensearch-project.github.io/helm-charts"
+        },
         values: {
           clusterName: "opensearch",
           nodeGroup: "master",
           masterService: "opensearch-master",
           roles: ["master", "ingest", "remote_cluster_client"],
-          replicas: 3,
+          replicas: 1,
           config: {
             "opensearch.yml": `---
 cluster:
@@ -67,7 +77,7 @@ http:
 s3:
   client:
     default:
-      endpoint: node30.node.home.local:9000
+      endpoint: storage.node.home.local:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -104,7 +114,7 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
-          labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
+          labels: podlabels,
           opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
           resources: {
             limits: { cpu: "1000m", memory: "4096Mi" },
@@ -114,7 +124,7 @@ plugins:
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "3Gi", },
+          persistence: { enabled: true, enableInitChown: true, storageClass: "vsphere-san-sc", size: "3Gi", },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -233,9 +243,11 @@ config:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.16.0",
+        version: "2.16.1",
         chart: "opensearch",
-        repository: "https://opensearch-project.github.io/helm-charts",
+        repositoryOpts: {
+          repo: "https://opensearch-project.github.io/helm-charts"
+        },
         values: {
           clusterName: "opensearch",
           nodeGroup: "data",
@@ -258,7 +270,7 @@ http:
 s3:
   client:
     default:
-      endpoint: node30.node.home.local:9000
+      endpoint: storage.node.home.local:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -295,7 +307,7 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
-          labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
+          labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
           resources: {
             limits: { cpu: "2000m", memory: "10240Mi" },
@@ -305,7 +317,7 @@ plugins:
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "10Gi" },
+          persistence: { enabled: true, enableInitChown: true, storageClass: "vsphere-san-sc", size: "31Gi" },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -336,7 +348,9 @@ plugins:
         name: "dashboards",
         version: "2.14.0",
         chart: "opensearch-dashboards",
-        repository: "https://opensearch-project.github.io/helm-charts",
+        repositoryOpts: {
+          repo: "https://opensearch-project.github.io/helm-charts"
+        },
         values: {
           opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
@@ -366,7 +380,7 @@ server.ssl.clientAuthentication: none
 server.ssl.enabled: false
 `,
           },
-          labels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
+          labels: podlabels,
           ingress: {
             enabled: true,
             annotations: { "nginx.ingress.kubernetes.io/backend-protocol": "HTTP" },
@@ -397,7 +411,9 @@ server.ssl.enabled: false
         name: "elasticsearch-exporter",
         version: "5.3.1",
         chart: "prometheus-elasticsearch-exporter",
-        repository: "https://prometheus-community.github.io/helm-charts",
+        repositoryOpts: {
+          repo: "https://prometheus-community.github.io/helm-charts"
+        },
         values: {
           fullnameOverride: "opensearch-exporter",
           log: { level: "wran" },
@@ -405,7 +421,7 @@ server.ssl.enabled: false
             limits: { cpu: "100m", memory: "64Mi" },
             requests: { cpu: "100m", memory: "64Mi" }
           },
-          podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Opensearch", datacenter: "dc01", domain: "local" },
+          podLabels: podlabels,
           es: {
             uri: "https://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
             all: false,
@@ -438,33 +454,6 @@ server.ssl.enabled: false
   }
 ]
 
-for (var i in deploy_spec) {
-  // Create Kubernetes Namespace.
-  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-    metadata: deploy_spec[i].namespace.metadata,
-    spec: deploy_spec[i].namespace.spec
-  });
-  // Create Kubernetes Secret.
-  for (var secret_index in deploy_spec[i].secret) {
-    const secret = new k8s.core.v1.Secret(deploy_spec[i].secret[secret_index].metadata.name, {
-      metadata: deploy_spec[i].secret[secret_index].metadata,
-      type: deploy_spec[i].secret[secret_index].type,
-      data: deploy_spec[i].secret[secret_index].data,
-      stringData: deploy_spec[i].secret[secret_index].stringData
-    }, { dependsOn: [namespace] });
-  }
-  // Create Release Resource.
-  for (var helm_index in deploy_spec[i].helm) {
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-      namespace: deploy_spec[i].helm[helm_index].namespace,
-      name: deploy_spec[i].helm[helm_index].name,
-      chart: deploy_spec[i].helm[helm_index].chart,
-      version: deploy_spec[i].helm[helm_index].version,
-      values: deploy_spec[i].helm[helm_index].values,
-      skipAwait: true,
-      repositoryOpts: {
-        repo: deploy_spec[i].helm[helm_index].repository,
-      },
-    }, { dependsOn: [namespace] });
-  }
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources });

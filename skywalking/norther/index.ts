@@ -1,9 +1,18 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+  customer: "demo",
+  environment: "dev",
+  project: "APM",
+  group: "Opensearch",
+  datacenter: "dc01",
+  domain: "local"
+}
+
+const resources = [
   {
     namespace: {
       metadata: {
@@ -13,26 +22,30 @@ const deploy_spec = [
       },
       spec: {}
     },
-    secret: {
-      metadata: {
-        name: "opensearch-secret",
-        namespace: "skywalking",
-        annotations: {},
-        labels: {}
-      },
-      type: "Opaque",
-      data: {
-        auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64')
-      },
-      stringData: {}
-    },
-    helm: [
+    secret: [
+      {
+        metadata: {
+          name: "opensearch-secret",
+          namespace: "skywalking",
+          annotations: {},
+          labels: {}
+        },
+        type: "Opaque",
+        data: {
+          auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64')
+        },
+        stringData: {}
+      }
+    ],
+    release: [
       {
         namespace: "skywalking",
         name: "opensearch",
-        version: "2.15.0",
+        version: "2.16.1",
         chart: "opensearch",
-        repository: "https://opensearch-project.github.io/helm-charts",
+        repositoryOpts: {
+          repo: "https://opensearch-project.github.io/helm-charts"
+        },
         values: {
           clusterName: "opensearch",
           nodeGroup: "master",
@@ -78,7 +91,7 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
-          labels: { customer: "demo", environment: "dev", project: "APM", group: "Opensearch", datacenter: "dc01", domain: "local" },
+          labels: podlabels,
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
           resources: {
             limits: { cpu: "1000m", memory: "8196Mi" },
@@ -88,7 +101,7 @@ plugins:
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "longhorn", size: "30Gi", },
+          persistence: { enabled: true, enableInitChown: true, storageClass: "vsphere-san-sc", size: "31Gi", },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -162,9 +175,11 @@ snapshotrestore:
       {
         namespace: "skywalking",
         name: "elasticsearch-exporter",
-        version: "5.3.0",
+        version: "5.3.1",
         chart: "prometheus-elasticsearch-exporter",
-        repository: "https://prometheus-community.github.io/helm-charts",
+        repositoryOpts: {
+          repo: "https://prometheus-community.github.io/helm-charts"
+        },
         values: {
           fullnameOverride: "skywalking-opensearch-exporter",
           log: { level: "wran" },
@@ -172,7 +187,7 @@ snapshotrestore:
             limits: { cpu: "100m", memory: "64Mi" },
             requests: { cpu: "100m", memory: "64Mi" }
           },
-          podLabels: { customer: "demo", environment: "dev", project: "APM", group: "Opensearch", datacenter: "dc01", domain: "local" },
+          podLabels: podlabels,
           es: {
             uri: "http://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
             all: false,
@@ -205,7 +220,6 @@ snapshotrestore:
         namespace: "skywalking",
         name: "skywalking",
         chart: "../../_chart/skywalking-4.5.0.tgz",
-        repository: "",
         version: "4.5.0",
         values: {
           oap: {
@@ -356,7 +370,6 @@ webhooks:
         namespace: "skywalking",
         name: "swck-operator",
         chart: "../../_chart/swck-operator-0.7.0.tgz",
-        repository: "",
         version: "0.7.0",
         values: {
           fullnameOverride: "skywalking",
@@ -368,89 +381,48 @@ webhooks:
         }
       }
     ],
-    servicemonitor: {
-      apiVersion: "monitoring.coreos.com/v1",
-      kind: "ServiceMonitor",
-      metadata: {
-        name: "skywalking",
-        namespace: "skywalking"
-      },
-      spec: {
-        endpoints: [
-          {
-            interval: "60s",
-            path: "/metrics",
-            scheme: "http",
-            port: "prometheus-port",
-            relabelings: [
-              { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
-              { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
-              { action: "replace", replacement: "APM", sourceLabels: ["__address__"], targetLabel: "project" },
-              { action: "replace", replacement: "Skywalking", sourceLabels: ["__address__"], targetLabel: "group" },
-              { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
-              { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
-            ]
-          }
-        ],
-        jobLabel: "skywalking-oap",
-        namespaceSelector: {
-          matchNames: ["skywalking"]
+    customresource: [
+      {
+        apiVersion: "monitoring.coreos.com/v1",
+        kind: "ServiceMonitor",
+        metadata: {
+          name: "skywalking",
+          namespace: "skywalking"
         },
-        selector: {
-          matchLabels: {
-            app: "skywalking",
-            component: "oap"
+        spec: {
+          endpoints: [
+            {
+              interval: "60s",
+              path: "/metrics",
+              scheme: "http",
+              port: "prometheus-port",
+              relabelings: [
+                { action: "replace", replacement: "demo", sourceLabels: ["__address__"], targetLabel: "customer" },
+                { action: "replace", replacement: "dev", sourceLabels: ["__address__"], targetLabel: "environment" },
+                { action: "replace", replacement: "APM", sourceLabels: ["__address__"], targetLabel: "project" },
+                { action: "replace", replacement: "Skywalking", sourceLabels: ["__address__"], targetLabel: "group" },
+                { action: "replace", replacement: "dc01", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+              ]
+            }
+          ],
+          jobLabel: "skywalking-oap",
+          namespaceSelector: {
+            matchNames: ["skywalking"]
+          },
+          selector: {
+            matchLabels: {
+              app: "skywalking",
+              component: "oap"
+            }
           }
         }
       }
-    }
+    ]
   }
 ]
 
-for (var i in deploy_spec) {
-  // Create Kubernetes Namespace.
-  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-    metadata: deploy_spec[i].namespace.metadata,
-    spec: deploy_spec[i].namespace.spec
-  });
-  // Create Kubernetes Secret.
-  const secret = new k8s.core.v1.Secret(deploy_spec[i].secret.metadata.name, {
-    metadata: deploy_spec[i].secret.metadata,
-    type: deploy_spec[i].secret.type,
-    data: deploy_spec[i].secret.data,
-    stringData: deploy_spec[i].secret.stringData
-  }, { dependsOn: [namespace] });
-  // Create Release Resource.
-  for (var helm_index in deploy_spec[i].helm) {
-    if (deploy_spec[i].helm[helm_index].repository === "") {
-      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-        namespace: deploy_spec[i].helm[helm_index].namespace,
-        name: deploy_spec[i].helm[helm_index].name,
-        chart: deploy_spec[i].helm[helm_index].chart,
-        version: deploy_spec[i].helm[helm_index].version,
-        values: deploy_spec[i].helm[helm_index].values,
-        skipAwait: true,
-      }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
-    }
-    else {
-      const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-        namespace: deploy_spec[i].helm[helm_index].namespace,
-        name: deploy_spec[i].helm[helm_index].name,
-        chart: deploy_spec[i].helm[helm_index].chart,
-        version: deploy_spec[i].helm[helm_index].version,
-        values: deploy_spec[i].helm[helm_index].values,
-        skipAwait: true,
-        repositoryOpts: {
-          repo: deploy_spec[i].helm[helm_index].repository,
-        },
-      }, { dependsOn: [namespace] });
-    }
-  }
-  // Create service monitor.
-  const ingressclass = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitor.metadata.name, {
-    apiVersion: deploy_spec[i].servicemonitor.apiVersion,
-    kind: deploy_spec[i].servicemonitor.kind,
-    metadata: deploy_spec[i].servicemonitor.metadata,
-    spec: deploy_spec[i].servicemonitor.spec
-  }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

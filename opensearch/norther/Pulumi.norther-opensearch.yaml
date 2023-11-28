@@ -1,9 +1,9 @@
 encryptionsalt: v1:GyPtMbAdv4k=:v1:Cw6xKcXaPq43kX7F:RFnEZQKms2+q9e7yKMbY4dzuIVivhA==
 config:
   demo:AWS_ACCESS_KEY_ID:
-    secure: v1:n4j+0h+u/UrXI8g3:PZd0/gglgQolkDlcmHitW//tDaUIjg==
+    secure: v1:+E+PgrDNUhtNZ2Ak:NeH3rSTuIbu2MmLfr/U5lSQp2p/R
   demo:AWS_SECRET_ACCESS_KEY:
-    secure: v1:h0w6YHTJbw3HeYbj:Y6riimB/IC2AWVQtM+Y1oQsbtrRaCStq
+    secure: v1:jXOxXWoLZmYzvIN+:udFEfWd9nWHnY2Qls475qzZrDg0L9dg+
   demo:adminPassword:
     secure: v1:ddOxkQ8O46AybLnh:0qAfhEqBn8ce9G+XxFrsq3n30GceCdjZ
   demo:kibanaserverPassword:

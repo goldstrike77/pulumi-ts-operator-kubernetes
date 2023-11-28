@@ -30,7 +30,10 @@ const resources = [
                         useDigest: false
                     },
                     podLabels: labels,
-                    resources: {},
+                    resources: {
+                        limits: { cpu: "200m", memory: "512Mi" },
+                        requests: { cpu: "200m", memory: "512Mi" }
+                    },
                     bgp: {
                         masquerade: true
                     },
@@ -56,7 +59,10 @@ const resources = [
                                 useDigest: false,
                                 pullPolicy: "IfNotPresent"
                             },
-                            resources: {},
+                            resources: {
+                                limits: { cpu: "50m", memory: "64Mi" },
+                                requests: { cpu: "50m", memory: "64Mi" }
+                            },
                             replicas: 1,
                             podLabels: labels,
                             prometheus: {
@@ -110,7 +116,10 @@ const resources = [
                         },
                         replicas: 1,
                         podLabels: labels,
-                        resources: {},
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        },
                         prometheus: {
                             enabled: false,
                             serviceMonitor: {
