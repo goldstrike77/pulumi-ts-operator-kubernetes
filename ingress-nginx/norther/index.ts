@@ -131,7 +131,7 @@ const resources = [
                             }
                         },
                         metrics: {
-                            enabled: true,
+                            enabled: false,
                             serviceMonitor: {
                                 enabled: true,
                                 relabelings: [

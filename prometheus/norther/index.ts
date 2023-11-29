@@ -709,8 +709,10 @@ SOFTWARE.
                                     requests: { cpu: "200m", memory: "256Mi" }
                                 },
                                 objectStorageConfig: {
-                                    name: "configuration-secret",
-                                    key: "objstore.yml"
+                                    existingSecret: {
+                                        name: "configuration-secret",
+                                        key: "objstore.yml"
+                                    }
                                 }
                             }
                         }

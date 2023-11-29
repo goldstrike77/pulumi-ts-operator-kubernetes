@@ -29,7 +29,7 @@ image:
   pullPolicy: IfNotPresent
   # -- Apache APISIX image tag
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 3.5.0-debian
+  tag: 3.7.0-debian
 
 # -- set false to use `Deployment`, set true to use `DaemonSet`
 useDaemonSet: false
@@ -108,6 +108,9 @@ extraEnvVars: []
 updateStrategy: {}
   # type: RollingUpdate
 
+# -- Additional Kubernetes resources to deploy with the release.
+extraDeploy: []
+
 # -- Additional `volume`, See [Kubernetes Volumes](https://kubernetes.io/docs/concepts/storage/volumes/) for the detail.
 extraVolumes: []
 # - name: extras
@@ -124,6 +127,9 @@ extraInitContainers: []
 # - name: init-myservice
 #   image: busybox:1.28
 #   command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+
+# -- Additional `containers`, See [Kubernetes containers](https://kubernetes.io/docs/concepts/containers/) for the detail.
+extraContainers: []
 
 initContainer:
   # -- Init container image
@@ -197,6 +203,8 @@ service:
 # -- Using ingress access Apache APISIX service
 ingress:
   enabled: false
+  # -- (number) Service port to send traffic. Defaults to `service.http.servicePort`.
+  servicePort:
   # -- Ingress annotations
   annotations: {}
     # kubernetes.io/ingress.class: nginx
@@ -267,6 +275,8 @@ apisix:
       enabled: true
     # -- TLS protocols allowed to use.
     sslProtocols: "TLSv1.2 TLSv1.3"
+    # -- Define SNI to fallback if none is presented by client
+    fallbackSNI: ""
 
   router:
     # -- Defines how apisix handles routing:
@@ -294,41 +304,6 @@ apisix:
     #
     # ref: https://apisix.apache.org/docs/apisix/deployment-modes/
     role: "traditional"
-
-    # -- used for control_plane deployment mode
-    controlPlane:
-      # -- conf Server address
-      confServerPort: "9280"
-      # -- secret name used by conf Server
-      certsSecret: ""
-      # -- conf Server CA cert name in certsSecret
-      cert: ""
-      # -- conf Server cert key name in certsSecret
-      certKey: ""
-
-    # -- used for data_plane deployment mode
-    dataPlane:
-      controlPlane:
-        # -- The hosts of the control_plane used by the data_plane
-        host: []
-        # -- The prefix of the control_plane used by the data_plane
-        prefix: "/apisix"
-        # -- Timeout when the data plane connects to the control plane
-        timeout: 30
-
-    # -- certs used for certificates in decoupled mode
-    certs:
-      # -- secret name used for decoupled mode
-      certsSecret: ""
-      # -- cert name in certsSecret
-      cert: ""
-      # -- cert key in certsSecret
-      cert_key: ""
-
-      # -- trusted_ca_cert name in certsSecret
-      mTLSCACertSecret: ""
-      # -- mTLS CA cert filename in mTLSCACertSecret
-      mTLSCACert: ""
 
   admin:
     # -- Enable Admin API
@@ -385,6 +360,8 @@ apisix:
     workerConnections: "10620"
     workerProcesses: auto
     enableCPUAffinity: true
+    # -- Timeout during which a keep-alive client connection will stay open on the server side.
+    keepaliveTimeout: 60s
     envs: []
     # access log and error log configuration
     logs:

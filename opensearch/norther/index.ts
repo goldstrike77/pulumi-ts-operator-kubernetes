@@ -114,6 +114,10 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
+          image: {
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            tag: "2.11.0"
+          },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
           resources: {
@@ -307,6 +311,10 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
+          image: {
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            tag: "2.11.0"
+          },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
           resources: {
@@ -456,4 +464,4 @@ server.ssl.enabled: false
 
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
-const release = new k8s_module.helm.v3.Release('Release', { resources: resources });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });

@@ -1,3 +1,4 @@
+import { ClusterTrustBundleList } from '@pulumi/kubernetes/certificates/v1alpha1/clusterTrustBundleList';
 import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 const labels = {
@@ -19,7 +20,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://helm.cilium.io"
                 },
-                version: "1.14.4",
+                version: "1.14.1",
                 values: {
                     k8sServiceHost: "192.168.0.120",
                     k8sServicePort: "6443",
@@ -34,13 +35,20 @@ const resources = [
                         limits: { cpu: "200m", memory: "512Mi" },
                         requests: { cpu: "200m", memory: "512Mi" }
                     },
-                    bgp: {
+                    bpf: {
                         masquerade: true
                     },
-                    cni: {
-                        install: true
-                    },
                     devices: "eth0",
+                    hostFirewall: {
+                        enabled: true
+                    },
+                    hostPort: {
+                        enabled: true
+                    },
+                    nodePort: {
+                        enabled: true
+                    },
+                    localRedirectPolicy: true,
                     hubble: {
                         enabled: true,
                         metrics: {
@@ -110,7 +118,7 @@ const resources = [
                         image: {
                             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/operator",
                             tag: "v1.14.4",
-                            genericDigest: "sha256:2289296a8d2e0224e5ead49f6fe61a74d46dbfad64fbec28a3f5c8ae297e9481",
+                            genericDigest: "sha256:560adb01193625248d25b0dac0e424e66856f7067bcd889b2f11f4179a05caaa",
                             useDigest: true,
                             pullPolicy: "IfNotPresent"
                         },

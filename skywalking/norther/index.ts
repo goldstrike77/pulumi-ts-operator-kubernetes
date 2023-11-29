@@ -91,6 +91,10 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
+          image: {
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            tag: "2.11.0"
+          },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
           resources: {
@@ -232,7 +236,10 @@ snapshotrestore:
               "prometheus-port": 1234,
               promql: "9090"
             },
-            image: { tag: "9.6.0" },
+            image: {
+              repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking",
+              tag: "9.6.0"
+            },
             javaOpts: "-Xmx3g -Xms3g",
             resources: {
               requests: { cpu: "1000m", memory: "4096Mi" },

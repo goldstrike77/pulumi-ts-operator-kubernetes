@@ -1,11 +1,20 @@
-import * as k8s from "@pulumi/kubernetes";
 import * as pulumi from "@pulumi/pulumi";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
-const provider = new k8s.Provider("k8s", { enableServerSideApply: true });
+//const provider = new k8s.Provider("k8s", { enableServerSideApply: true });
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+    customer: "demo",
+    environment: "dev",
+    project: "API-Gateway",
+    group: "APISIX",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -45,252 +54,239 @@ const deploy_spec = [
                 stringData: {}
             }
         ],
-        apisix: {
-            namespace: "apisix",
-            name: "apisix",
-            chart: "apisix",
-            repository: "https://charts.apiseven.com",
-            version: "2.2.0",
-            values: {
-                replicaCount: 1,
-                resources: {
-                    limits: { cpu: "300m", memory: "512Mi" },
-                    requests: { cpu: "300m", memory: "512Mi" }
+        release: [
+            {
+                namespace: "apisix",
+                name: "apisix",
+                chart: "apisix",
+                repositoryOpts: {
+                    repo: "https://charts.apiseven.com"
                 },
-                nodeSelector: {},
-                timezone: "Asia/Shanghai",
-                fullnameOverride: "apisix-gateway",
-                serviceAccount: { create: true },
-                rbac: { create: true },
-                service: {
-                    type: "LoadBalancer",
-                    externalTrafficPolicy: "Local",
-                    annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
-                    externalIPs: ["192.168.0.102"],
+                version: "2.4.0",
+                values: {
+                    replicaCount: 1,
+                    resources: {
+                        limits: { cpu: "300m", memory: "512Mi" },
+                        requests: { cpu: "300m", memory: "512Mi" }
+                    },
+                    nodeSelector: {},
+                    timezone: "Asia/Shanghai",
+                    fullnameOverride: "apisix-gateway",
+                    serviceAccount: { create: true },
+                    rbac: { create: true },
+                    service: {
+                        type: "LoadBalancer",
+                        externalTrafficPolicy: "Local",
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
+                        externalIPs: ["192.168.0.102"],
+                    },
+                    metrics: {
+                        serviceMonitor: {
+                            enabled: false,
+                            interval: "60s",
+                            labels: podlabels
+                        }
+                    },
+                    apisix: {
+                        ssl: {
+                            enabled: true
+                        },
+                        admin: {
+                            credentials: {
+                                admin: config.require("adminCredentials"),
+                                viewer: config.require("viewerCredentials")
+                            }
+                        },
+                        nginx: {
+                            logs: {
+                                enableAccessLog: false,
+                                accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\"',
+                                accessLogFormatEscape: "default"
+                            }
+                        },
+                        discovery: {
+                            enabled: true,
+                            registry: {
+                                kubernetes: {},
+                                dns: { servers: ["10.96.0.10:53"] }
+                            }
+                        },
+                        prometheus: { enabled: true },
+                        plugins: ["ai", "api-breaker", "authz-casbin", "authz-casdoor", "authz-keycloak", "aws-lambda", "azure-functions", "basic-auth", "batch-requests", "body-transformer", "cas-auth", "clickhouse-logger", "client-control", "consumer-restriction", "cors", "csrf", "datadog", "degraphql", "dubbo-proxy", "echo", "elasticsearch-logger", "example-plugin", "ext-plugin-post-req", "ext-plugin-post-resp", "ext-plugin-pre-req", "fault-injection", "file-logger", "forward-auth", "google-cloud-logging", "grpc-transcode", "grpc-web", "gzip", "hmac-auth", "http-logger", "inspect", "ip-restriction", "jwt-auth", "kafka-logger", "kafka-proxy", "key-auth", "ldap-auth", "limit-conn", "limit-count", "limit-req", "loggly", "log-rotate", "mocking", "node-status", "opa", "openfunction", "openid-connect", "opentelemetry", "openwhisk", "prometheus", "proxy-cache", "proxy-control", "proxy-mirror", "proxy-rewrite", "public-api", "real-ip", "redirect", "referer-restriction", "request-id", "request-validation", "response-rewrite", "rocketmq-logger", "server-info", "serverless-post-function", "serverless-pre-function", "skywalking", "skywalking-logger", "sls-logger", "splunk-hec-logging", "syslog", "tcp-logger", "tencent-cloud-cls", "traffic-split", "ua-restriction", "udp-logger", "uri-blocker", "wolf-rbac", "workflow", "zipkin"],
+                        pluginAttrs: {
+                            skywalking: {
+                                service_name: "demo::APISIX",
+                                service_instance_name: "$hostname",
+                                "endpoint_addr": "http://skywalking-oap.skywalking:12800",
+                                report_interval: 15
+                            }
+                        }
+                    },
+                    externalEtcd: {
+                        host: ["http://apisix-etcd-headless:2379"],
+                        user: "root",
+                        password: config.require("etcdPassword")
+                    },
+                    etcd: { enabled: false },
+                    dashboard: {
+                        enabled: true,
+                        replicaCount: 1,
+                        labelsOverride: podlabels,
+                        config: {
+                            conf: {
+                                etcd: {
+                                    endpoints: ["http://apisix-etcd-headless:2379"],
+                                    username: "root",
+                                    password: config.require("etcdPassword")
+                                },
+                                log: {
+                                    errorLog: {
+                                        level: "warn"
+                                    },
+                                    accessLog: {
+                                        level: "warn"
+                                    }
+                                }
+                            },
+                            authentication: {
+                                users: [
+                                    {
+                                        username: "admin",
+                                        password: config.require("dashboardPassword")
+                                    }
+                                ]
+                            }
+                        },
+                        ingress: {
+                            enabled: true,
+                            className: "nginx",
+                            annotations: {},
+                            hosts: [
+                                {
+                                    host: "apisix.example.com",
+                                    paths: ["/"]
+                                }
+                            ]
+                        },
+                        resources: {
+                            limits: { cpu: "300m", memory: "128Mi" },
+                            requests: { cpu: "300m", memory: "128Mi" }
+                        },
+                        nodeSelector: {}
+                    },
+                    "ingress-controller": { enabled: false }
+                }
+            },
+            {
+                namespace: "apisix",
+                name: "apisix-ingress-controller",
+                chart: "apisix-ingress-controller",
+                repositoryOpts: {
+                    repo: "https://charts.apiseven.com"
                 },
-                metrics: {
+                version: "0.12.2",
+                values: {
+                    replicaCount: 1,
+                    config: {
+                        logLevel: "error",
+                        apisix: {
+                            serviceName: "apisix-gateway-admin",
+                            serviceNamespace: "apisix",
+                            adminKey: config.require("adminCredentials"),
+                            adminAPIVersion: "v3"
+                        }
+                    },
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    nodeSelector: {},
                     serviceMonitor: {
                         enabled: false,
                         interval: "60s",
-                        labels: {
-                            customer: "demo",
-                            environment: "dev",
-                            project: "API-Gateway",
-                            group: "apisix-dashboard",
-                            datacenter: "dc01",
-                            domain: "local"
-                        }
+                        labels: podlabels
                     }
-                },
-                apisix: {
-                    ssl: {
-                        enabled: true
-                    },
-                    admin: {
-                        credentials: {
-                            admin: config.require("adminCredentials"),
-                            viewer: config.require("viewerCredentials")
-                        }
-                    },
-                    nginx: {
-                        logs: {
-                            enableAccessLog: false,
-                            accessLogFormat: '$remote_addr - $remote_user [$time_local] $http_host \"$request\" $status $body_bytes_sent $request_time \"$http_referer\" \"$http_user_agent\" $upstream_addr $upstream_status $upstream_response_time \"$upstream_scheme://$upstream_host$upstream_uri\"',
-                            accessLogFormatEscape: "default"
-                        }
-                    },
-                    discovery: {
-                        enabled: true,
-                        registry: {
-                            kubernetes: {},
-                            dns: { servers: ["10.96.0.10:53"] }
-                        }
-                    },
-                    prometheus: { enabled: true },
-                    plugins: ["ai", "api-breaker", "authz-casbin", "authz-casdoor", "authz-keycloak", "aws-lambda", "azure-functions", "basic-auth", "batch-requests", "body-transformer", "cas-auth", "clickhouse-logger", "client-control", "consumer-restriction", "cors", "csrf", "datadog", "degraphql", "dubbo-proxy", "echo", "elasticsearch-logger", "example-plugin", "ext-plugin-post-req", "ext-plugin-post-resp", "ext-plugin-pre-req", "fault-injection", "file-logger", "forward-auth", "google-cloud-logging", "grpc-transcode", "grpc-web", "gzip", "hmac-auth", "http-logger", "inspect", "ip-restriction", "jwt-auth", "kafka-logger", "kafka-proxy", "key-auth", "ldap-auth", "limit-conn", "limit-count", "limit-req", "loggly", "log-rotate", "mocking", "node-status", "opa", "openfunction", "openid-connect", "opentelemetry", "openwhisk", "prometheus", "proxy-cache", "proxy-control", "proxy-mirror", "proxy-rewrite", "public-api", "real-ip", "redirect", "referer-restriction", "request-id", "request-validation", "response-rewrite", "rocketmq-logger", "server-info", "serverless-post-function", "serverless-pre-function", "skywalking", "skywalking-logger", "sls-logger", "splunk-hec-logging", "syslog", "tcp-logger", "tencent-cloud-cls", "traffic-split", "ua-restriction", "udp-logger", "uri-blocker", "wolf-rbac", "workflow", "zipkin"],
-                    pluginAttrs: {
-                        skywalking: {
-                            service_name: "demo::APISIX",
-                            service_instance_name: "$hostname",
-                            "endpoint_addr": "http://skywalking-oap.skywalking:12800",
-                            report_interval: 15
-                        }
-                    }
-                },
-                externalEtcd: {
-                    host: ["http://apisix-etcd-headless:2379"],
-                    user: "root",
-                    password: config.require("etcdPassword")
-                },
-                etcd: { enabled: false },
-                dashboard: {
-                    enabled: true,
-                    replicaCount: 1,
-                    labelsOverride: {
-                        customer: "demo",
-                        environment: "dev",
-                        project: "API-Gateway",
-                        group: "apisix-dashboard",
-                        datacenter: "dc01",
-                        domain: "local"
-                    },
-                    config: {
-                        conf: {
-                            etcd: {
-                                endpoints: ["http://apisix-etcd-headless:2379"],
-                                username: "root",
-                                password: config.require("etcdPassword")
-                            },
-                            log: {
-                                errorLog: {
-                                    level: "warn"
-                                },
-                                accessLog: {
-                                    level: "warn"
-                                }
-                            }
-                        },
-                        authentication: {
-                            users: [
-                                {
-                                    username: "admin",
-                                    password: config.require("dashboardPassword")
-                                }
-                            ]
-                        }
-                    },
-                    ingress: {
-                        enabled: true,
-                        className: "nginx",
-                        annotations: {},
-                        hosts: [
-                            {
-                                host: "apisix.example.com",
-                                paths: ["/"]
-                            }
-                        ]
-                    },
-                    resources: {
-                        limits: { cpu: "300m", memory: "128Mi" },
-                        requests: { cpu: "300m", memory: "128Mi" }
-                    },
-                    nodeSelector: {}
-                },
-                "ingress-controller": { enabled: false }
-            }
-        },
-        "ingress_controller": {
-            namespace: "apisix",
-            name: "apisix-ingress-controller",
-            chart: "apisix-ingress-controller",
-            repository: "https://charts.apiseven.com",
-            version: "0.12.2",
-            values: {
-                replicaCount: 1,
-                config: {
-                    logLevel: "error",
-                    apisix: {
-                        serviceName: "apisix-gateway-admin",
-                        serviceNamespace: "apisix",
-                        adminKey: config.require("adminCredentials"),
-                        adminAPIVersion: "v3"
-                    }
-                },
-                resources: {
-                    limits: { cpu: "100m", memory: "128Mi" },
-                    requests: { cpu: "100m", memory: "128Mi" }
-                },
-                nodeSelector: {},
-                serviceMonitor: {
-                    enabled: false,
-                    interval: "60s",
-                    labels: {
-                        customer: "demo",
-                        environment: "dev",
-                        project: "API-Gateway",
-                        group: "apisix-dashboard",
-                        datacenter: "dc01",
-                        domain: "local"
-                    }
-                }
 
-            }
-        },
-        etcd: {
-            namespace: "apisix",
-            name: "etcd",
-            chart: "etcd",
-            repository: "https://charts.bitnami.com/bitnami",
-            version: "9.5.1",
-            values: {
-                fullnameOverride: "apisix-etcd",
-                auth: {
-                    rbac: {
-                        create: true,
-                        allowNoneAuthentication: true,
-                        rootPassword: config.require("etcdPassword")
-                    }
+                }
+            },
+            {
+                namespace: "apisix",
+                name: "etcd",
+                chart: "etcd",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
                 },
-                autoCompactionMode: "periodic",
-                autoCompactionRetention: "1h",
-                initialClusterState: "new",
-                logLevel: "error",
-                extraEnvVars: [
-                    { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
-                ],
-                replicaCount: 1,
-                resources: {
-                    limits: { cpu: "500m", memory: "512Mi" },
-                    requests: { cpu: "500m", memory: "512Mi" }
-                },
-                podLabels: { customer: "demo", environment: "dev", project: "API-Gateway", group: "etcd", datacenter: "dc01", domain: "local" },
-                persistence: {
-                    enabled: true,
-                    storageClass: "longhorn",
-                    size: "7Gi"
-                },
-                volumePermissions: {
-                    enabled: true,
-                    resources: {
-                        limits: { cpu: "50m", memory: "64Mi" },
-                        requests: { cpu: "50m", memory: "64Mi" }
-                    }
-                },
-                metrics: {
-                    enabled: true,
-                    podMonitor: {
-                        enabled: true,
-                        interval: "60s",
-                        relabelings: [
-                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                        ]
+                version: "9.5.1",
+                values: {
+                    fullnameOverride: "apisix-etcd",
+                    auth: {
+                        rbac: {
+                            create: true,
+                            allowNoneAuthentication: true,
+                            rootPassword: config.require("etcdPassword")
+                        }
                     },
-                    prometheusRule: {
-                        enabled: false,
-                        rules: []
+                    autoCompactionMode: "periodic",
+                    autoCompactionRetention: "1h",
+                    initialClusterState: "new",
+                    logLevel: "error",
+                    extraEnvVars: [
+                        { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
+                    ],
+                    replicaCount: 1,
+                    resources: {
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
+                    },
+                    podLabels: podlabels,
+                    persistence: {
+                        enabled: true,
+                        storageClass: "vsphere-san-sc",
+                        size: "7Gi"
+                    },
+                    volumePermissions: {
+                        enabled: true,
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        }
+                    },
+                    metrics: {
+                        enabled: true,
+                        podMonitor: {
+                            enabled: true,
+                            interval: "60s",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        prometheusRule: {
+                            enabled: false,
+                            rules: []
+                        }
                     }
                 }
             }
-        },
-        class: {
-            apiVersion: "networking.k8s.io/v1",
-            kind: "IngressClass",
-            metadata: {
-                name: "apisix",
-                annotations: {},
-                labels: {}
+        ],
+        customresource: [
+            {
+                apiVersion: "networking.k8s.io/v1",
+                kind: "IngressClass",
+                metadata: {
+                    name: "apisix",
+                    annotations: {},
+                    labels: {}
+                },
+                spec: {
+                    controller: "apisix.apache.org/ingress-controller"
+                }
             },
-            spec: {
-                controller: "apisix.apache.org/ingress-controller"
-            }
-        },
-        servicemonitors: [
             {
                 apiVersion: "monitoring.coreos.com/v1",
                 kind: "PodMonitor",
@@ -364,9 +360,7 @@ const deploy_spec = [
                         }
                     }
                 }
-            }
-        ],
-        crds: [
+            },
             {
                 apiVersion: "apisix.apache.org/v2",
                 kind: "ApisixClusterConfig",
@@ -466,80 +460,7 @@ const deploy_spec = [
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Kubernetes Secret.
-    for (var secret_index in deploy_spec[i].secrets) {
-        const secret = new k8s.core.v1.Secret(deploy_spec[i].secrets[secret_index].metadata.name, {
-            metadata: deploy_spec[i].secrets[secret_index].metadata,
-            type: deploy_spec[i].secrets[secret_index].type,
-            data: deploy_spec[i].secrets[secret_index].data,
-            stringData: deploy_spec[i].secrets[secret_index].stringData
-        }, { dependsOn: [namespace] });
-    }
-    // Create etcd Resource.
-    const etcd = new k8s.helm.v3.Release(deploy_spec[i].etcd.name, {
-        namespace: deploy_spec[i].etcd.namespace,
-        name: deploy_spec[i].etcd.name,
-        chart: deploy_spec[i].etcd.chart,
-        version: deploy_spec[i].etcd.version,
-        values: deploy_spec[i].etcd.values,
-        skipAwait: false,
-        repositoryOpts: {
-            repo: deploy_spec[i].etcd.repository,
-        },
-    }, { dependsOn: [namespace], customTimeouts: { create: "20m" } });
-    // Create apisix Resource.
-    const apisix = new k8s.helm.v3.Release(deploy_spec[i].apisix.name, {
-        namespace: deploy_spec[i].apisix.namespace,
-        name: deploy_spec[i].apisix.name,
-        chart: deploy_spec[i].apisix.chart,
-        version: deploy_spec[i].apisix.version,
-        values: deploy_spec[i].apisix.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].apisix.repository,
-        },
-    }, { dependsOn: [namespace], customTimeouts: { create: "20m" } });
-    // Create apisix ingress-controller Resource.
-    const ingresscontroller = new k8s.helm.v3.Release(deploy_spec[i].ingress_controller.name, {
-        namespace: deploy_spec[i].ingress_controller.namespace,
-        name: deploy_spec[i].ingress_controller.name,
-        chart: deploy_spec[i].ingress_controller.chart,
-        version: deploy_spec[i].ingress_controller.version,
-        values: deploy_spec[i].ingress_controller.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].ingress_controller.repository,
-        },
-    }, { dependsOn: [apisix], customTimeouts: { create: "20m" } });
-    // Create Kubernetes Ingress Class.
-    const ingressclass = new k8s.apiextensions.CustomResource(deploy_spec[i].class.metadata.name, {
-        apiVersion: deploy_spec[i].class.apiVersion,
-        kind: deploy_spec[i].class.kind,
-        metadata: deploy_spec[i].class.metadata,
-        spec: deploy_spec[i].class.spec
-    }, { dependsOn: [ingresscontroller] });
-    // Create service monitor.
-    for (var servicemonitor_index in deploy_spec[i].servicemonitors) {
-        const servicemonitor = new k8s.apiextensions.CustomResource(deploy_spec[i].servicemonitors[servicemonitor_index].metadata.name, {
-            apiVersion: deploy_spec[i].servicemonitors[servicemonitor_index].apiVersion,
-            kind: deploy_spec[i].servicemonitors[servicemonitor_index].kind,
-            metadata: deploy_spec[i].servicemonitors[servicemonitor_index].metadata,
-            spec: deploy_spec[i].servicemonitors[servicemonitor_index].spec
-        }, { dependsOn: [apisix] });
-    }
-    // Create apisix Custom resource definition .
-    for (var crd_index in deploy_spec[i].crds) {
-        const rules = new k8s.apiextensions.CustomResource(deploy_spec[i].crds[crd_index].metadata.name, {
-            apiVersion: deploy_spec[i].crds[crd_index].apiVersion,
-            kind: deploy_spec[i].crds[crd_index].kind,
-            metadata: deploy_spec[i].crds[crd_index].metadata,
-            spec: deploy_spec[i].crds[crd_index].spec
-        }, { dependsOn: [ingresscontroller] });
-    }
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

@@ -1,9 +1,18 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+    customer: "demo",
+    environment: "dev",
+    project: "SEIM",
+    group: "Vector",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -13,16 +22,18 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
+        release: [
             {
                 namespace: "datadog",
                 name: "kube-pod",
                 chart: "vector",
-                repository: "https://helm.vector.dev",
-                version: "0.26.0",
+                repositoryOpts: {
+                    repo: "https://helm.vector.dev"
+                },
+                version: "0.29.0",
                 values: {
                     role: "Agent",
-                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    podLabels: podlabels,
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
@@ -107,8 +118,10 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 namespace: "datadog",
                 name: "apisix-udp",
                 chart: "vector",
-                repository: "https://helm.vector.dev",
-                version: "0.26.0",
+                repositoryOpts: {
+                    repo: "https://helm.vector.dev"
+                },
+                version: "0.29.0",
                 values: {
                     role: "Aggregator",
                     image: {
@@ -116,7 +129,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         tag: "0.33.0-distroless-libc"
                     },
                     replicas: 1,
-                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    podLabels: podlabels,
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
@@ -188,7 +201,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "longhorn", size: "7Gi" },
+                    persistence: { enabled: true, storageClassName: "vsphere-san-sc", size: "7Gi" },
                     podMonitor: {
                         enabled: true,
                         relabelings: [
@@ -209,7 +222,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "syslog-gelf",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.26.0",
+                version: "0.29.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -260,7 +273,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "vsphere-san-sc", size: "5Gi" },
                     podMonitor: {
                         enabled: false,
                         relabelings: [
@@ -279,7 +292,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 name: "beats",
                 chart: "vector",
                 repository: "https://helm.vector.dev",
-                version: "0.26.0",
+                version: "0.29.0",
                 values: {
                     role: "Aggregator",
                     replicas: 2,
@@ -342,11 +355,13 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 namespace: "datadog",
                 name: "kube-audit",
                 chart: "vector",
-                repository: "https://helm.vector.dev",
-                version: "0.26.0",
+                repositoryOpts: {
+                    repo: "https://helm.vector.dev"
+                },
+                version: "0.29.0",
                 values: {
                     role: "Agent",
-                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    podLabels: podlabels,
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
@@ -412,24 +427,5 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Release Resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const release = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].name, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].name,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace] });
-    }
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
