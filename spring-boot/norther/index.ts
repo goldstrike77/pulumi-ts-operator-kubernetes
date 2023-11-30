@@ -1,9 +1,18 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const podlabels = {
+    customer: "demo",
+    environment: "dev",
+    project: "spring-boot",
+    group: "database",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -15,12 +24,14 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: [
+        release: [
             {
                 namespace: "spring-boot",
                 name: "mariadb",
                 chart: "mariadb",
-                repository: "https://charts.bitnami.com/bitnami",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
+                },
                 version: "13.1.3",
                 values: {
                     fullnameOverride: "mysql",
@@ -91,10 +102,10 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                         },
                         persistence: {
                             enabled: true,
-                            storageClass: "longhorn",
+                            storageClass: "vsphere-san-sc",
                             size: "7Gi"
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "spring-boot", group: "database", datacenter: "dc01", domain: "local" }
+                        podLabels: podlabels
                     },
                     volumePermissions: {
                         enabled: true,
@@ -176,7 +187,9 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                 namespace: "spring-boot",
                 name: "mongodb",
                 chart: "mongodb",
-                repository: "https://charts.bitnami.com/bitnami",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
+                },
                 version: "13.9.4",
                 values: {
                     image: { tag: "4.4.15-debian-10-r8" },
@@ -184,7 +197,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                     replicaCount: 1,
                     auth: { enabled: false },
                     disableSystemLog: true,
-                    podLabels: { customer: "demo", environment: "dev", project: "spring-boot", group: "database", datacenter: "dc01", domain: "local" },
+                    podLabels: podlabels,
                     podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "10000" }] },
                     resources: {
                         limits: { cpu: "1000m", memory: "512Mi" },
@@ -192,7 +205,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                     },
                     livenessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                     readinessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
-                    persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
+                    persistence: { enabled: true, storageClass: "vsphere-san-sc", size: "7Gi" },
                     volumePermissions: {
                         enabled: true,
                         resources: {
@@ -326,21 +339,19 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                 }
             },
             {
-                "apiVersion": "apps/v1",
-                "kind": "Deployment",
-                "metadata": {
-                    "name": "knote",
+                metadata: {
+                    name: "knote",
                     namespace: "spring-boot"
                 },
-                "spec": {
-                    "replicas": 1,
-                    "selector": {
-                        "matchLabels": {
-                            "app": "knote"
+                spec: {
+                    replicas: 1,
+                    selector: {
+                        matchLabels: {
+                            app: "knote"
                         }
                     },
-                    "template": {
-                        "metadata": {
+                    template: {
+                        metadata: {
                             labels: {
                                 "swck-java-agent-injected": "true",
                                 app: "knote",
@@ -359,24 +370,24 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }
                         },
-                        "spec": {
-                            "containers": [
+                        spec: {
+                            containers: [
                                 {
-                                    "name": "app",
-                                    "image": "registry.cn-shanghai.aliyuncs.com/goldenimage/knote-java:1.0.0",
+                                    name: "app",
+                                    image: "registry.cn-shanghai.aliyuncs.com/goldenimage/knote-java:1.0.0",
                                     resources: {
                                         limits: { cpu: "300m", memory: "512Mi" },
                                         requests: { cpu: "300m", memory: "512Mi" }
                                     },
-                                    "ports": [
+                                    ports: [
                                         {
                                             "containerPort": 8080
                                         }
                                     ],
-                                    "env": [
+                                    env: [
                                         { name: "MONGO_URL", value: "mongodb://mongodb:27017/dev" }
                                     ],
-                                    "imagePullPolicy": "Always"
+                                    imagePullPolicy: "Always"
                                 }
                             ]
                         }
@@ -430,7 +441,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                 }
             }
         ],
-        route: [
+        customresource: [
             {
                 apiVersion: "apisix.apache.org/v2",
                 kind: "ApisixRoute",
@@ -546,54 +557,8 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create helm resource.
-    for (var helm_index in deploy_spec[i].helm) {
-        const helm = new k8s.helm.v3.Release(deploy_spec[i].helm[helm_index].chart, {
-            namespace: deploy_spec[i].helm[helm_index].namespace,
-            name: deploy_spec[i].helm[helm_index].chart,
-            chart: deploy_spec[i].helm[helm_index].chart,
-            version: deploy_spec[i].helm[helm_index].version,
-            values: deploy_spec[i].helm[helm_index].values,
-            skipAwait: true,
-            repositoryOpts: {
-                repo: deploy_spec[i].helm[helm_index].repository,
-            },
-        }, { dependsOn: [namespace], customTimeouts: { create: "30m" } });
-    }
-    // Create deployment resource.
-    for (var deployment_index in deploy_spec[i].deployment) {
-        const deployment = new k8s.apps.v1.Deployment(deploy_spec[i].deployment[deployment_index].metadata.name, {
-            metadata: deploy_spec[i].deployment[deployment_index].metadata,
-            spec: deploy_spec[i].deployment[deployment_index].spec
-        }, { dependsOn: [namespace] });
-    }
-    // Create service resource.
-    for (var service_index in deploy_spec[i].service) {
-        const service = new k8s.core.v1.Service(deploy_spec[i].service[service_index].metadata.name, {
-            metadata: deploy_spec[i].service[service_index].metadata,
-            spec: deploy_spec[i].service[service_index].spec
-        }, { dependsOn: [namespace] });
-    }
-    // Create apisix route resource.
-    for (var route_index in deploy_spec[i].route) {
-        const route = new k8s.apiextensions.CustomResource(deploy_spec[i].route[route_index].metadata.name, {
-            apiVersion: deploy_spec[i].route[route_index].apiVersion,
-            kind: deploy_spec[i].route[route_index].kind,
-            metadata: deploy_spec[i].route[route_index].metadata,
-            spec: deploy_spec[i].route[route_index].spec
-        }, { dependsOn: [namespace] });
-    }
-    /**
-    // Create Ingress Resource.
-    const ingress = new k8s.networking.v1.Ingress(deploy_spec[i].ingress.metadata.name, {
-        metadata: deploy_spec[i].ingress.metadata,
-        spec: deploy_spec[i].ingress.spec
-    }, { dependsOn: [namespace] });
- */
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
+const deployment = new k8s_module.apps.v1.Deployment('Deployment', { resources: resources }, { dependsOn: [release] });
+const service = new k8s_module.core.v1.Service('Service', { resources: resources }, { dependsOn: [deployment] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [deployment] });

@@ -24,7 +24,7 @@ const resources = [
             },
             spec: {}
         },
-        secrets: [
+        secret: [
             {
                 metadata: {
                     name: "apisix-cert",
@@ -78,7 +78,7 @@ const resources = [
                         type: "LoadBalancer",
                         externalTrafficPolicy: "Local",
                         annotations: { "metallb.universe.tf/allow-shared-ip": "apisix-dashboard" },
-                        externalIPs: ["192.168.0.102"],
+                        externalIPs: ["192.168.0.101"],
                     },
                     metrics: {
                         serviceMonitor: {
@@ -199,6 +199,10 @@ const resources = [
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },
                         requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    initContainer: {
+                        image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+                        tag: "1.36"
                     },
                     nodeSelector: {},
                     serviceMonitor: {

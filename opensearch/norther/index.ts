@@ -60,7 +60,7 @@ const resources = [
           nodeGroup: "master",
           masterService: "opensearch-master",
           roles: ["master", "ingest", "remote_cluster_client"],
-          replicas: 1,
+          replicas: 3,
           config: {
             "opensearch.yml": `---
 cluster:
@@ -119,16 +119,23 @@ plugins:
             tag: "2.11.0"
           },
           labels: podlabels,
-          opensearchJavaOpts: "-server -Xmx3072M -Xms3072M",
+          opensearchJavaOpts: "-server -Xmx4096M -Xms4096M",
           resources: {
-            limits: { cpu: "1000m", memory: "4096Mi" },
-            requests: { cpu: "1000m", memory: "4096Mi" }
+            limits: { cpu: "1000m", memory: "6144Mi" },
+            requests: { cpu: "1000m", memory: "6144Mi" }
           },
           initResources: {
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "vsphere-san-sc", size: "3Gi", },
+          persistence: {
+            enabled: true,
+            enableInitChown: true,
+            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+            imageTag: "1.36",
+            storageClass: "vsphere-san-sc",
+            size: "3Gi"
+          },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -226,7 +233,7 @@ config:
           config:
             subject_key: name
             roles_key: roles
-            openid_connect_url: https://login.microsoftonline.com/1028c8b9-5db4-4ade-bd31-524340b7cc0d/v2.0/.well-known/openid-configuration
+            openid_connect_url: https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/v2.0/.well-known/openid-configuration
         authentication_backend:
           type: noop
 `
@@ -325,7 +332,14 @@ plugins:
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "vsphere-san-sc", size: "31Gi" },
+          persistence: {
+            enabled: true,
+            enableInitChown: true,
+            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+            imageTag: "1.36",
+            storageClass: "vsphere-san-sc",
+            size: "31Gi"
+          },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -377,9 +391,9 @@ opensearch_security.cookie.secure: false
 opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: [Private, Global]
 opensearch_security.openid.base_redirect_url: "https://opensearch.example.com"
-opensearch_security.openid.client_id: "4573f7a0-e878-4d29-935f-ac4b57983daf"
+opensearch_security.openid.client_id: "44865121-82d9-4c44-a9e3-417fbd1bacf8"
 opensearch_security.openid.client_secret: ${config.require("ssoClientSecret")}
-opensearch_security.openid.connect_url: "https://login.microsoftonline.com/1028c8b9-5db4-4ade-bd31-524340b7cc0d/v2.0/.well-known/openid-configuration"
+opensearch_security.openid.connect_url: "https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/v2.0/.well-known/openid-configuration"
 opensearch_security.openid.logout_url: "https://opensearch.example.com/app/login?"
 opensearch_security.readonly_mode.roles: [kibana_read_only]
 opensearch_security.ui.openid.login.buttonname: "Sign in with Microsoft"

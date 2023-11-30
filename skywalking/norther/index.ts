@@ -105,7 +105,14 @@ plugins:
             limits: { cpu: "200m", memory: "128Mi" },
             requests: { cpu: "200m", memory: "128Mi" }
           },
-          persistence: { enabled: true, enableInitChown: true, storageClass: "vsphere-san-sc", size: "31Gi", },
+          persistence: {
+            enabled: true,
+            enableInitChown: true,
+            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+            imageTag: "1.36",
+            storageClass: "vsphere-san-sc",
+            size: "31Gi"
+          },
           extraInitContainers: [
             {
               name: "sysctl",
@@ -226,6 +233,10 @@ snapshotrestore:
         chart: "../../_chart/skywalking-4.5.0.tgz",
         version: "4.5.0",
         values: {
+          initContainer: {
+            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+            tag: '1.36'
+          },
           oap: {
             storageType: "elasticsearch",
             replicas: 1,

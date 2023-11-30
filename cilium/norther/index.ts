@@ -39,15 +39,6 @@ const resources = [
                         masquerade: true
                     },
                     devices: "eth0",
-                    hostFirewall: {
-                        enabled: true
-                    },
-                    hostPort: {
-                        enabled: true
-                    },
-                    nodePort: {
-                        enabled: true
-                    },
                     localRedirectPolicy: true,
                     hubble: {
                         enabled: true,
@@ -90,7 +81,7 @@ const resources = [
                             ]
                         }
                     },
-                    kubeProxyReplacement: true,
+                    kubeProxyReplacement: false,
                     monitor: {
                         enabled: false
                     },

@@ -9,5 +9,5 @@ config:
   demo:kibanaserverPassword:
     secure: v1:2EzXboOBh5fG6V7s:3DZaZBBDAcp5aqtkRkqNvMIJboX2B6A8
   demo:ssoClientSecret:
-    secure: v1:vcukMXaeNwb6VSXT:ceI/9LraGruwcHTJQAs+KPZBz52Av7hlzK9Ukyn0Snbibu/c+ABln3fwawdV4ZMZNHW0FSKlyvk=
+    secure: v1:TQhY4ACwM9NxeHa+:eTMlSvzV+J8GvjiS3IkeqinPzh0zNz3NB4GroOUsBgQaKeSJiniVDsbMHOXRstUS+t6SlPLuHNo=
   kubernetes:context: kubernetes-admin@norther
