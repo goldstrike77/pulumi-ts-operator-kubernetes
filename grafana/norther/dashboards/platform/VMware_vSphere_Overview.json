@@ -455,7 +455,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum(vmware_datastore_capacity_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"${cluster}-.*\"})",
+          "expr": "sum(vmware_datastore_capacity_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"ds-.*\"})",
           "format": "time_series",
           "interval": "10m",
           "intervalFactor": 1,
@@ -783,7 +783,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum(vmware_datastore_capacity_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"${cluster}-.*\"}) - sum(vmware_datastore_freespace_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"${cluster}-.*\"})",
+          "expr": "sum(vmware_datastore_capacity_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"ds-.*\"}) - sum(vmware_datastore_freespace_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"ds-.*\"})",
           "interval": "$interval",
           "legendFormat": "Used",
           "refId": "A"
@@ -794,7 +794,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum(vmware_datastore_freespace_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"${cluster}-.*\"})",
+          "expr": "sum(vmware_datastore_freespace_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"ds-.*\"})",
           "hide": false,
           "interval": "$interval",
           "legendFormat": "Free",
@@ -806,7 +806,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": true,
-          "expr": "sum(vmware_datastore_provisoned_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"${cluster}-.*\"})",
+          "expr": "sum(vmware_datastore_provisoned_size{customer=\"$customer\",dc_name=\"$datacenter\",ds_name=~\"ds-.*\"})",
           "hide": false,
           "interval": "$interval",
           "legendFormat": "Provisoned",
