@@ -412,7 +412,7 @@ const resources = [
                             name: "udp-logger",
                             enable: true,
                             config: {
-                                host: "192.168.0.103",
+                                host: "apisix-udp-vector.datadog",
                                 port: 1514,
                                 batch_max_size: 1,
                                 name: "udp logger",
@@ -439,6 +439,15 @@ const resources = [
                                     "ssl_protocol": "$ssl_protocol",
                                     "upstream_addr": "$upstream_addr"
                                 }
+                            }
+                        },
+                        {
+                            name: "skywalking-logger",
+                            enable: true,
+                            config: {
+                                endpoint_addr: "http://skywalking-oap.skywalking:12800",
+                                service_name: "demo::APISIX",
+                                service_instance_name: "$hostname"
                             }
                         },
                         {

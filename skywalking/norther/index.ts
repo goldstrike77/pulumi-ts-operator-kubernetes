@@ -248,8 +248,8 @@ snapshotrestore:
               promql: "9090"
             },
             image: {
-              repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking",
-              tag: "9.6.0"
+              repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-oap-server",
+              tag: "9.7.0"
             },
             javaOpts: "-Xmx3g -Xms3g",
             resources: {
@@ -357,7 +357,10 @@ webhooks:
           },
           ui: {
             replicas: 1,
-            image: { tag: "9.6.0" },
+            image: {
+              repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-ui",
+              tag: "9.7.0"
+            },
             resources: {
               requests: { cpu: "500m", memory: "1024Mi" },
               limits: { cpu: "500m", memory: "1024Mi" },

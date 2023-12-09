@@ -275,7 +275,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                                 "strategy.skywalking.apache.org/agent.Overlay": "true",
                                 "agent.skywalking.apache.org/agent.service_name": "demo::spring-boot",
                                 "agent.skywalking.apache.org/collector.backend_service": "skywalking-oap.skywalking:11800",
-                                "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.0.0-java8",
+                                "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.1.0-java8",
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }
                         },
@@ -366,7 +366,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                                 "strategy.skywalking.apache.org/agent.Overlay": "true",
                                 "agent.skywalking.apache.org/agent.service_name": "demo::knote",
                                 "agent.skywalking.apache.org/collector.backend_service": "skywalking-oap.skywalking:11800",
-                                "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.0.0-java11",
+                                "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.1.0-java11",
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }
                         },
