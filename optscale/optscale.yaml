@@ -1,0 +1,1055 @@
+# Default values for optscale.
+
+tag: &tag 2023112401-public
+
+storageClassName: ""
+
+etcd:
+  name: &etcd_name etcd
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/etcd
+    tag: *tag
+    pullPolicy: IfNotPresent
+  persistence:
+    size: 10Gi
+  service:
+    name: etcd-client
+    type: ClusterIP
+    externalPort: 2379
+    internalPort: 2379
+    discovery_name: etcd-cluster
+    peerPort: 2380
+  hb_interval: 500 # Adjust if you have slow system
+  election_timeout: 5000 # hb_interval x10
+
+mariadb:
+  name: &mariadb_name mariadb
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/mariadb
+    tag: *tag
+    pullPolicy: IfNotPresent
+  credentials:
+    username: root
+    password: my-password-01
+  service:
+    name: *mariadb_name
+    type: ClusterIP
+    externalPort: 3306
+    internalPort: 3306
+
+mongo:
+  external: false
+  name: &mongo_name mongo
+  replicaCount: 1
+  cache_size: 1.0
+  image:
+    id:
+    repository: hystax/mongo
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    host: *mongo_name
+    name: *mongo_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 27017
+  credentials:
+    username: root
+    password: SecurePassword-01-02
+    key: secureShardingKeyFFFDDa129
+
+rabbitmq:
+  name: &rabbit_name rabbitmq
+  replicaCount: 1
+  persistence:
+    size: 10Gi
+  memory_limit: 512
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *rabbit_name
+    type: ClusterIP
+    externalPort: 5672
+    internalPort: 5672
+    managerPort: 15672
+    empdPort: 4369
+  credentials:
+    username: optscale
+    password: secure-password-here
+    cookie: dWkhXehOApH1OHshvByfpfTf3Cd8wwkADei7mWd5JF
+
+redis:
+  name: &redis_name redis
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/redis
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *redis_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 6379
+
+rest_api:
+  name: &rest_api_name restapi
+  replicaCount: 1
+  image:
+    id:
+    repository: rest_api
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *rest_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8999
+
+auth:
+  name: &auth_name auth
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/auth
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *auth_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8905
+  # filled from overlay
+  google_oauth_client_id:
+  google_oauth_client_secret:
+  microsoft_oauth_client_id:
+
+keeper:
+  name: &keeper_name keeper
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/keeper
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *keeper_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8973
+
+phpmyadmin:
+  name: &php_name myadmin
+  replicaCount: 1
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *php_name
+    type: NodePort
+    externalPort: 30080
+    internalPort: 80
+
+herald:
+  name: &herald_name herald
+  api:
+    role: api
+    replicaCount: 1
+  engine:
+    role: engine
+    replicaCount: 2
+  image:
+    id:
+    repository: hystax/herald
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *herald_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8906
+
+elk:
+  enabled: false
+  name: &elk_name elk
+  es_connect_retry: "90"
+  ls_heap_size: 2g
+  es_heap_size: 1g
+  image:
+    id:
+    repository: hystax/elk
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *elk_name
+    elastic_port: &ex_port 9200
+    externalPort: *ex_port
+    logstash_tcp_port: 32201
+    logstash_udp_port: 32201
+    internal_kibana_port: 80
+    external_kibana_port: 30081
+
+ngui:
+  name: &ngui_name ngui
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/ngui
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *ngui_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 4000
+  env:
+    build_mode:
+    google_oauth_client_id:
+    microsoft_oauth_client_id:
+    google_map_api_key:
+    ganalytics_id:
+    hotjar_id:
+
+minio:
+  name: &minio_name minio
+  replicaCount: 1
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *minio_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 9000
+  credentials:
+    access: optscale-minio
+    secret: secret_password
+
+diworker:
+  name: &diworker_name diworker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/diworker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+katara_service:
+  name: &katara_name katara
+  api:
+    role: api
+    replicaCount: 1
+  scheduler:
+    role: scheduler
+    replicaCount: 1
+  image:
+    id:
+    repository: katara_service
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *katara_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8935
+
+katara_worker:
+  name: &katara_name kataraworker
+  replicaCount: 1
+  image:
+    id:
+    repository: katara_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+bumischeduler:
+  name: &bumi_scheduler_name bumischeduler
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/bumischeduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+bumiworker:
+  name: &bumi_worker_name bumiworker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/bumiworker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+report_import_scheduler:
+  name: report-import-scheduler
+  image:
+    repository: cleanelkdb # using cleanelkdb, because it has curl inside
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+
+resource_discovery:
+  name: resource-discovery
+  replicaCount: 2 # amount of workers
+  image:
+    repository: resource_discovery
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+  memory_limit: 1024
+
+demo_org_cleanup:
+  name: demoorgcleanup
+  image:
+    repository: demo_org_cleanup
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+
+resource_observer:
+  name: resource-observer
+  replicaCount: 1 # amount of workers
+  image:
+    repository: resource_observer
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+resource_violations:
+  name: resource-violations
+  replicaCount: 1 # amount of workers
+  image:
+    repository: resource_violations
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+calendar_observer:
+  name: calendar-observer
+  replicaCount: 1 # amount of workers
+  image:
+    repository: calendar_observer
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "0 * * * *"
+
+influxdb:
+  name: &influx_name influxdb
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/influxdb
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *influx_name
+    type: ClusterIP
+    externalPort: &influx_external_port 80
+    internalPort: 8086
+
+# enable to deploy cleaninfluxdb pod
+deploy_cleaninfluxdb: "true"
+cleaninfluxdb:
+  name: &cleaninfluxdb cleaninfluxdb
+  schedule: "@weekly"
+  startingDeadlineSeconds: 100
+  days_to_store: 90
+  influxdb_host: *influx_name
+  influxdb_port: *influx_external_port
+  image:
+    repository: hystax/cleaninfluxdb
+    tag: local
+
+grafana:
+  name: &grafana_name grafana
+  replicaCount: 1
+  internalPort: 3000
+  image:
+    id:
+    repository: hystax/grafana
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *grafana_name
+    type: NodePort
+    externalPort: 30082
+    internalPort: 80
+  grafana_nginx:
+    name: grafana-nginx
+    image:
+      id:
+      repository: hystax/grafana-nginx
+      tag: *tag
+      pullPolicy: IfNotPresent
+
+insider_scheduler:
+  name: insider-scheduler
+  replicaCount: 1
+  image:
+    repository: hystax/insider_scheduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+
+insider_worker:
+  name: insider-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/insider_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+insider_api:
+  name: &insider_api_name insider-api
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/insider_api
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *insider_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8945
+
+slacker:
+  name: &slacker_name slacker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/slacker
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *slacker_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 80
+  # filled from overlay
+  slack_signing_secret:
+  slack_client_id:
+  slack_client_secret:
+
+error_pages:
+  name: &error_pages_name error-pages
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/error_pages
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *error_pages_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8080
+
+clickhouse:
+  external: false
+  name: &clickhouse_name clickhouse
+  replicaCount: 1
+  shardsCount: 1
+  db:
+    name: default
+    user: default
+    password: secure-password-1-clk
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *clickhouse_name
+    host: *clickhouse_name
+    type: ClusterIP
+    httpPort: 8123
+    externalPort: 9000
+  replicas: 1
+
+zohocrm:
+  regapp:
+
+metroculus_scheduler:
+  name: metroculusscheduler
+  replicaCount: 1
+  image:
+    repository: hystax/metroculusscheduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/30 * * * *"
+
+metroculus_worker:
+  name: metroculusworker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/metroculus_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+metroculus_api:
+  name: &metroculus_api_name metroculusapi
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/metroculus_api
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *metroculus_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8969
+
+webhook_executor:
+  name: webhook-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/webhook_executor
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+slacker_executor:
+  name: slacker-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/slacker_executor
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+herald_executor:
+  name: herald-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/herald_executor
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+keeper_executor:
+  name: keeper-executor
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/keeper_executor
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+booking_observer:
+  name: booking-observer
+  replicaCount: 2 # amount of workers
+  image:
+    repository: hystax/booking_observer
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/1 * * * *"
+
+arcee:
+  name: &arcee_name arcee
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/arcee
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *arcee_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8891
+
+bulldozer_api:
+  name: &bulldozer_api_name bulldozer-api
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/bulldozer_api
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *bulldozer_api_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8896
+
+bulldozer_worker:
+  name: bulldozerworker
+  replicaCount: 1
+  config:
+    max_retries: 5
+    wait_timeout: 7200
+    task_timeout: 3600
+    run_period: 10800
+  image:
+    id:
+    repository: hystax/bulldozer_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+jira_bus:
+  name: &jira_bus_name jira-bus
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/jira_bus
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *jira_bus_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8977
+
+jira_ui:
+  name: &jira_ui_name jira-ui
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/jira_ui
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *jira_ui_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 4000
+
+organization_violations:
+  name: organization-violations
+  replicaCount: 1 # amount of workers
+  image:
+    repository: hystax/organization_violations
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+cleanmongodb:
+  name: cleanmongodb
+  image:
+    id:
+    repository: hystax/cleanmongodb
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/3 * * * *"
+  chunk_size: 500
+  rows_limit: 10000
+
+trapper_scheduler:
+  name: trapper-scheduler
+  replicaCount: 1
+  image:
+    repository: hystax/trapper_scheduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "45 */1 * * *"
+
+trapper_worker:
+  name: trapper-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/trapper_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+risp_scheduler:
+  name: risp-scheduler
+  replicaCount: 1
+  image:
+    repository: hystax/risp_scheduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "45 */1 * * *"
+
+risp_worker:
+  name: risp-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/risp_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+gemini_scheduler:
+  name: gemini-scheduler
+  image:
+    id:
+    repository: hystax/gemini_scheduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+gemini_worker:
+  name: gemini-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/gemini_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+bi_scheduler:
+  name: bi-scheduler
+  image:
+    id:
+    repository: hystax/bi_scheduler
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "*/5 * * * *"
+
+bi_exporter:
+  name: bi-exporter
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/bi_exporter
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+failed_imports_dataset_generator:
+  name: failed-imports-dataset-generator
+  image:
+    repository: hystax/failed_imports_dataset_generator
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+  enable: false
+  bucket:
+  s3_path:
+  filename:
+  aws_access_key_id:
+  aws_secret_access_key:
+
+thanos_receive:
+  name: &thanos_receive_name thanos-receive
+  persistence:
+    size: 10Gi
+  replicaCount: 1
+  tsdbRetention: 4h
+  memory_limit: 8192
+  maxConcurrency: 30
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  remoteWritePath: "api/v1/receive"
+  service:
+    name: *thanos_receive_name
+    type: ClusterIP
+    httpExternalPort: 10902
+    grpcExternalPort: 10901
+    remoteWriteExternalPort: 19291
+
+thanos_storegateway:
+  name: &thanos_storegateway_name thanos-storegateway
+  persistence:
+    size: 10Gi
+  replicaCount: 1
+  # should be half of compactor deleteDelay
+  ignoreDeletionMarksDelay: "3h"
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *thanos_storegateway_name
+    type: ClusterIP
+    httpExternalPort: 10902
+    grpcExternalPort: 10901
+
+thanos_query:
+  name: &thanos_query_name thanos-query
+  replicaCount: 1
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *thanos_query_name
+    httpType: ClusterIP
+    httpExternalPort: 10902
+    httpNodePort: 0
+    grpcType: ClusterIP
+    grpcExternalPort: 10901
+
+thanos_compactor:
+  name: &thanos_compactor_name thanos-compactor
+  persistence:
+    size: 10Gi
+  consistencyDelay: "4h"
+  deleteDelay: "6h"
+  retentionResolutionRaw: "30d"
+  retentionResolution5m: "90d"
+  retentionResolution1h: "120d"
+  cronJob:
+    schedule: "0 */12 * * *"
+    startingDeadlineSeconds: 100
+    concurrencyPolicy: Forbid
+    suspend: false
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+    backoffLimit: 0
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *thanos_compactor_name
+    type: ClusterIP
+    httpExternalPort: 10902
+
+thanos_web:
+  name: &thanos_web_name thanos-web
+  refreshInterval: 10m
+  httpPort: &thanos_web_http_port 10902
+  image:
+    id:
+    pullPolicy: IfNotPresent
+  service:
+    name: *thanos_web_name
+    type: ClusterIP
+    httpExternalPort: *thanos_web_http_port
+
+diproxy:
+  name: &diproxy_name diproxy
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/diproxy
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: *diproxy_name
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8935
+
+pharos_receiver:
+  name: pharos-receiver
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/pharos_receiver
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: pharos-receiver
+    type: ClusterIP
+    externalPort: 80
+    internalPort: 8946
+
+pharos_worker:
+  name: pharos-worker
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/pharos_worker
+    tag: *tag
+    pullPolicy: IfNotPresent
+
+ohsu:
+  name: ohsu
+  replicaCount: 1
+  image:
+    id:
+    repository: hystax/ohsu
+    tag: *tag
+    pullPolicy: IfNotPresent
+  service:
+    name: ohsu
+    type: NodePort
+    # TODO: list of ports?
+    clientPort: 9377
+    historyPort: 30180
+    externalPort: 80
+
+users_dataset_generator:
+  name: users-dataset-generator
+  image:
+    repository: hystax/users_dataset_generator
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "0 0 * * *"
+  enable: false
+  bucket:
+  s3_path:
+  filename:
+  aws_access_key_id:
+  aws_secret_access_key:
+
+live_demo_generator:
+  name: live-demo-generator
+  replicaCount: 1 # amount of workers
+  image:
+    repository: hystax/live_demo_generator
+    tag: *tag
+    pullPolicy: IfNotPresent
+  startingDeadlineSeconds: 100
+  schedule: "0 * * * *"
+
+# list of databases to create (if not exist) during DC initialization
+databases:
+  - auth-db
+  - my-db
+  - tasks
+  - herald
+  - katara
+  - slacker
+  - jira-bus
+
+# filled from base overlay
+# we need it to fill agent config correctly
+public_ip:
+
+# helm release name
+release:
+
+public_port: 443
+
+# filled from base overlay
+# only for humans, no robots here
+docker_registry:
+docker_tag:
+
+# filled from base overlay
+optscale_key:
+
+# SSL certificates (filled from base overlay)
+# (make sure to use ">" here and "|" in overlays)
+certificates:
+  optscale:
+
+events_queue: events_queue
+
+# configure mysql db replication
+db_backup:
+  enabled: false
+  mountpoint: /optscale/backup # can be mounted from remote, mount propagation used
+  keep: 5 # keep last 5 backups by default
+  schedule: "0 12 * * *"
+
+# enable to deploy cleanelkdb pod
+deploy_cleanelkdb: "false"
+cleanelkdb:
+  name: &cleanelkdb_name cleanelkdb
+  schedule: "*/15 * * * *"
+  startingDeadlineSeconds: 100
+  log_max_size: 5120
+  image:
+    repository: hystax/cleanelkdb
+    tag: local
+
+# Set to true if you want to start/update cluster without touching existing config
+# Used when --update-only runkube flag is set
+skip_config_update: false
+
+# list of overlays used by runkube to start OptScale (necessary to use proper defaults when adding new keys on update)
+overlay_list: ""
+
+# k8s cluster domain
+clusterDomain: cluster.local
+
+report_import_schedules:
+  0: "*/15 * * * *"
+  1: "0 * * * *"
+  6: "0 */6 * * *"
+  24: "0 0 * * *"
+
+# amount of hours until token becomes expired
+token_expiration: 168 # one week
+
+invite_expiration_days: 30 # days before invite url expiration
+
+demo:
+  multiplier: 2 # demo multiplier default value
+
+katara_scheduler_timeout: 3600
+
+# filled from optscale overlay
+# Optscale recipient for service emails
+optscale_service_emails:
+  recipient:
+  enabled: false
+
+# filled from optscale overlay
+# Optscale recipient for error emails
+optscale_error_emails:
+  recipient:
+  enabled: false
+
+# filled from optscale overlay
+# Optscale email domains blacklists
+domains_blacklists:
+  registration:
+  new_employee_email:
+  failed_import_email:
+
+# filled from optscale overlay
+# Service account to work with Google calendars
+google_calendar_service:
+  access_key:
+    type:
+    project_id:
+    private_key_id:
+    private_key:
+    client_email:
+    client_id:
+    auth_uri:
+    token_uri:
+    auth_provider_x509_cert_url:
+    client_x509_cert_url:
+  enabled: false
+
+bumi_scheduler_timeout: 300
+bumi_worker:
+  max_retries: 5
+  wait_timeout: 7200
+  task_timeout: 3600
+  run_period: 10800
+
+optscale_meter_enabled: 0
+
+fake_cad_enabled: 0
+
+#filled from smtp overlay - smtp settings for testing
+smtp:
+  server:
+  email:
+  port:
+  password:
+
+#resource discovery settings - the page size for requesting resources from
+#the cloud adapter and the number of resources stored in memory before writing
+resource_discovery_settings:
+  discover_size: 10000
+  timeout:
+  writing_timeout: 60
+  observe_timeout: 7200
+
+encryption_salt:
+encryption_salt_auth:
+
+# settings for bi_scheduler
+bi_settings:
+  exporter_run_period: 86400 #in sec 24h
+  encryption_key: 5t3X3PkQqF5edqW9_c8znow7k7GraZOpBLHhF1kFFvE=
+  task_wait_timeout: 259200 #in sec 3d
