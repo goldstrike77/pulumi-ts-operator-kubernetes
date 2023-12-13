@@ -32,9 +32,9 @@ const resources = [
             {
                 namespace: "optscale",
                 name: "optscale",
-                chart: "../../_chart/optscale-2023112401-public.tgz",
+                chart: "../../_chart/optscale-2023121101-public.tgz",
                 repository: "",
-                version: "2023112401-public",
+                version: "2023121101-public",
                 values: {
                     secrets: {
                         cluster: "fc83d31-461d-44c5-b4d5-41a32d6c36a1"
@@ -49,10 +49,31 @@ const resources = [
                             size: "7Gi"
                         }
                     },
-                    rabbitmq: {
+                    influxdb: {
                         persistence: {
                             size: "7Gi"
                         }
+                    },
+                    mariadb: {
+                        persistence: {
+                            size: "7Gi"
+                        }
+                    },
+                    minio: {
+                        persistence: {
+                            size: "7Gi"
+                        }
+                    },
+                    mongo: {
+                        persistence: {
+                            size: "7Gi"
+                        }
+                    },
+                    rabbitmq: {
+                        persistence: {
+                            size: "7Gi"
+                        },
+                        memory_limit: 1024
                     },
                     thanos_compactor: {
                         persistence: {
@@ -70,7 +91,15 @@ const resources = [
                         }
                     },
                     elk: {
-                        enabled: true
+                        enabled: false,
+                        ls_heap_size: "2g",
+                        es_heap_size: "4g",
+                        image: {
+                            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/elk"
+                        },
+                        persistence: {
+                            size: "31Gi"
+                        }
                     }
                 }
             }

@@ -1,6 +1,6 @@
 # Default values for optscale.
 
-tag: &tag 2023112401-public
+tag: &tag 2023121101-public
 
 storageClassName: ""
 
@@ -32,6 +32,8 @@ mariadb:
     repository: hystax/mariadb
     tag: *tag
     pullPolicy: IfNotPresent
+  persistence:
+    size: 10Gi
   credentials:
     username: root
     password: my-password-01
@@ -51,6 +53,8 @@ mongo:
     repository: hystax/mongo
     tag: *tag
     pullPolicy: IfNotPresent
+  persistence:
+    size: 10Gi
   service:
     host: *mongo_name
     name: *mongo_name
@@ -185,6 +189,8 @@ elk:
     repository: hystax/elk
     tag: *tag
     pullPolicy: IfNotPresent
+  persistence:
+    size: 10Gi
   service:
     name: *elk_name
     elastic_port: &ex_port 9200
@@ -221,6 +227,8 @@ minio:
   image:
     id:
     pullPolicy: IfNotPresent
+  persistence:
+    size: 10Gi
   service:
     name: *minio_name
     type: ClusterIP
@@ -346,6 +354,8 @@ calendar_observer:
 influxdb:
   name: &influx_name influxdb
   replicaCount: 1
+  persistence:
+    size: 10Gi
   image:
     id:
     repository: hystax/influxdb
