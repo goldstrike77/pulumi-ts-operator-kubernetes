@@ -132,7 +132,7 @@ plugins:
             enabled: true,
             enableInitChown: true,
             image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
-            imageTag: "1.36",
+            imageTag: "1.36.1",
             storageClass: "vsphere-san-sc",
             size: "3Gi"
           },
@@ -396,7 +396,7 @@ opensearch_security.openid.client_secret: ${config.require("ssoClientSecret")}
 opensearch_security.openid.connect_url: "https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/v2.0/.well-known/openid-configuration"
 opensearch_security.openid.logout_url: "https://opensearch.example.com/app/login?"
 opensearch_security.readonly_mode.roles: [kibana_read_only]
-opensearch_security.ui.openid.login.buttonname: "Sign in with Microsoft"
+opensearch_security.ui.openid.login.buttonname: "Sign in with Azure AAD"
 server.host: '0.0.0.0'
 server.ssl.clientAuthentication: none
 server.ssl.enabled: false

@@ -177,17 +177,22 @@ const resources = [
                     },
                     initChownData: {
                         enabled: true,
+                        image: {
+                            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+                            tag: "1.36.1"
+                        },
                         resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
                         }
                     },
                     adminUser: "admin",
                     adminPassword: config.require("adminPassword"),
                     plugins: [
-                        "grafana-piechart-panel",
+                        "apache-skywalking-datasource",
                         "camptocamp-prometheus-alertmanager-datasource",
-                        "grafana-oncall-app"
+                        "grafana-oncall-app",
+                        "grafana-piechart-panel"
                     ],
                     datasources: {
                         "datasources.yaml": {
@@ -197,14 +202,14 @@ const resources = [
                                     name: "DS_TEMPO",
                                     type: "tempo",
                                     access: "proxy",
-                                    url: "http://tempo-query-frontend.tracing.svc.cluster.local:3100",
+                                    url: "http://tempo-query-frontend.tracing:3100",
                                     version: 1
                                 },
                                 {
                                     name: "DS_LOKI",
                                     type: "loki",
                                     access: "proxy",
-                                    url: "http://loki-query-frontend.logging.svc.cluster.local:3100",
+                                    url: "http://loki-query-frontend.logging:3100",
                                     version: 1,
                                     jsonData: {
                                         maxLines: 5000
@@ -220,14 +225,28 @@ const resources = [
                                     name: "DS_PROMETHEUS",
                                     type: "prometheus",
                                     access: "proxy",
-                                    url: "http://thanos-query-frontend.monitoring.svc.cluster.local:9090",
+                                    url: "http://thanos-query-frontend.monitoring:9090",
+                                    version: 1
+                                },
+                                {
+                                    name: "DS_SKYWALKING_PromQL",
+                                    type: "prometheus",
+                                    url: "http://skywalking-oap.skywalking:9090",
+                                    version: 1
+                                },
+                                {
+                                    name: "DS_SKYWALKING_GraphQL",
+                                    type: "apache-skywalking-datasource",
+                                    jsonData: {
+                                        URL: "http://skywalking-oap.skywalking:12800/graphql"
+                                    },
                                     version: 1
                                 },
                                 {
                                     name: "DS_ALERTMANAGER",
                                     type: "camptocamp-prometheus-alertmanager-datasource",
                                     access: "proxy",
-                                    url: "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093",
+                                    url: "http://kube-prometheus-stack-alertmanager.monitoring:9093",
                                     version: 1,
                                     jsonData: {
                                         severity_critical: "p1",
