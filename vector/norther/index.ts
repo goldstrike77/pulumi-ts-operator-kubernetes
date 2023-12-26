@@ -138,11 +138,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         type: "RollingUpdate",
                         rollingUpdate: { partition: 0 }
                     },
-                    service: {
-                        enabled: true,
-                        type: "LoadBalancer",
-                        loadBalancerIP: "192.168.0.103"
-                    },
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         enrichment_tables: {
@@ -216,17 +211,18 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-            /**
             {
                 namespace: "datadog",
-                name: "syslog-gelf",
+                name: "syslog",
                 chart: "vector",
-                repository: "https://helm.vector.dev",
+                repositoryOpts: {
+                    repo: "https://helm.vector.dev"
+                },
                 version: "0.29.0",
                 values: {
                     role: "Aggregator",
-                    replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    replicas: 1,
+                    podLabels: podlabels,
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
@@ -238,7 +234,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     service: {
                         enabled: true,
                         type: "LoadBalancer",
-                        annotations: {}
+                        annotations: {},
+                        loadBalancerIP: "192.168.0.103"
                     },
                     customConfig: {
                         data_dir: "/vector-data-dir",
@@ -256,26 +253,32 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             syslog_json_udp: {
                                 type: "remap",
                                 inputs: ["syslog_socket_udp"],
-                                source: `. = parse_json!(.message)`
+                                source: `. = parse_json!(.message)
+.timestamp = timestamp(.timestamp) ?? now()`
                             }
                         },
                         sinks: {
-                            syslog_json_loki: {
-                                type: "loki",
+                            syslog_json_elasticsearch: {
+                                type: "elasticsearch",
                                 inputs: ["syslog_json_udp"],
-                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "syslog-gelf" },
+                                bulk: { action: "index", index: "syslog-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
-                                healthcheck: { enabled: false },
-                                encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 3 }
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "vsphere-san-sc", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "vsphere-san-sc", size: "7Gi" },
                     podMonitor: {
-                        enabled: false,
+                        enabled: true,
                         relabelings: [
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -287,7 +290,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-            */
             {
                 namespace: "datadog",
                 name: "auditbeat",
