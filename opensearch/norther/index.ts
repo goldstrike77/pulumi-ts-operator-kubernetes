@@ -150,6 +150,10 @@ plugins:
               securityContext: { runAsUser: 0, privileged: true }
             }
           ],
+          service: {
+            type: "LoadBalancer",
+            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+          },
           securityConfig: {
             path: "/usr/share/opensearch/config/opensearch-security",
             config: {

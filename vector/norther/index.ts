@@ -287,19 +287,22 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+            */
             {
                 namespace: "datadog",
-                name: "beats",
+                name: "auditbeat",
                 chart: "vector",
-                repository: "https://helm.vector.dev",
+                repositoryOpts: {
+                    repo: "https://helm.vector.dev"
+                },
                 version: "0.29.0",
                 values: {
                     role: "Aggregator",
-                    replicas: 2,
-                    podLabels: { customer: "demo", environment: "dev", project: "SEIM", group: "Vector", datacenter: "dc01", domain: "local" },
+                    replicas: 1,
+                    podLabels: podlabels,
                     resources: {
-                        limits: { cpu: "300m", memory: "512Mi" },
-                        requests: { cpu: "300m", memory: "512Mi" }
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
                     },
                     updateStrategy: {
                         type: "RollingUpdate",
@@ -308,7 +311,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     service: {
                         enabled: true,
                         type: "LoadBalancer",
-                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
+                        loadBalancerIP: "192.168.0.105"
                     },
                     customConfig: {
                         data_dir: "/vector-data-dir",
@@ -323,22 +327,27 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         },
                         sinks: {
-                            beats_json_loki: {
-                                type: "loki",
+                            beats_json_elasticsearch: {
+                                type: "elasticsearch",
                                 inputs: ["beats_logstash_tcp"],
-                                endpoint: "http://loki-distributor.logging.svc.cluster.local:3100",
-                                labels: { scrape_job: "beats" },
+                                bulk: { action: "index", index: "auditbeat-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
-                                healthcheck: { enabled: false },
-                                encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 3 }
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
-                    persistence: { enabled: true, storageClassName: "longhorn", size: "5Gi" },
+                    persistence: { enabled: true, storageClassName: "vsphere-san-sc", size: "7Gi" },
                     podMonitor: {
-                        enabled: false,
+                        enabled: true,
                         relabelings: [
                             { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
                             { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
@@ -350,7 +359,77 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-                                     */
+            {
+                namespace: "datadog",
+                name: "packetbeat",
+                chart: "vector",
+                repositoryOpts: {
+                    repo: "https://helm.vector.dev"
+                },
+                version: "0.29.0",
+                values: {
+                    role: "Aggregator",
+                    replicas: 1,
+                    podLabels: podlabels,
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    updateStrategy: {
+                        type: "RollingUpdate",
+                        rollingUpdate: { partition: 0 }
+                    },
+                    service: {
+                        enabled: true,
+                        type: "LoadBalancer",
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
+                        loadBalancerIP: "192.168.0.105"
+                    },
+                    customConfig: {
+                        data_dir: "/vector-data-dir",
+                        api: { enabled: false, address: "127.0.0.1:8686", playground: false },
+                        sources: {
+                            beats_logstash_tcp: {
+                                type: "logstash",
+                                address: "0.0.0.0:5045",
+                                acknowledgements: { enabled: false },
+                                keepalive: { time_secs: 30 },
+                                receive_buffer_bytes: 65536
+                            }
+                        },
+                        sinks: {
+                            beats_json_elasticsearch: {
+                                type: "elasticsearch",
+                                inputs: ["beats_logstash_tcp"],
+                                bulk: { action: "index", index: "packetbeat-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
+                                compression: "none",
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 2048, timeout_secs: 20 }
+                            }
+                        }
+                    },
+                    persistence: { enabled: true, storageClassName: "vsphere-san-sc", size: "7Gi" },
+                    podMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    }
+                }
+            },
             {
                 namespace: "datadog",
                 name: "kube-audit",
