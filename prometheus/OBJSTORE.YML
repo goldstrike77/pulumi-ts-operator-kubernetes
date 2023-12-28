@@ -1,7 +1,7 @@
 type: s3
 config:
   bucket: thanos-norther
-  endpoint: storage.node.home.local:9000
+  endpoint: storage.home.local:9000
   access_key: thanos
   secret_key: password
   insecure: true

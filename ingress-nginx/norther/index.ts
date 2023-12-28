@@ -60,13 +60,13 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://kubernetes.github.io/ingress-nginx"
                 },
-                version: "4.8.3",
+                version: "4.9.0",
                 values: {
                     controller: {
                         image: {
                             registry: "registry.cn-shanghai.aliyuncs.com",
                             image: "goldenimage/controller",
-                            digest: "sha256:51a9e554fc24999f8eb3acfdc60bb1be68b3ad389433bd1fa75be754e4c2669b"
+                            digest: "sha256:bdc54c3e73dcec374857456559ae5757e8920174483882b9e8ff1a9052f96a35"
                         },
                         config: {
                             "compute-full-forwarded-for": "true",

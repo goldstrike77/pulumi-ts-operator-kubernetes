@@ -36,7 +36,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://prometheus-community.github.io/helm-charts"
                 },
-                version: "54.2.2",
+                version: "55.5.0",
                 values: {
                     fullnameOverride: "kubepromstack",
                     defaultRules: { create: false },
@@ -726,7 +726,7 @@ SOFTWARE.
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "12.16.1",
+                version: "12.20.1",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -921,7 +921,7 @@ config:
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "18.4.0",
+                version: "18.6.1",
                 values: {
                     architecture: "standalone",
                     auth: { enabled: false, sentinel: false },

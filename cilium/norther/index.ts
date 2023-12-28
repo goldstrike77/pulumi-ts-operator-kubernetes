@@ -20,13 +20,13 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://helm.cilium.io"
                 },
-                version: "1.14.1",
+                version: "1.14.5",
                 values: {
                     k8sServiceHost: "192.168.0.120",
                     k8sServicePort: "6443",
                     image: {
                         repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/cilium",
-                        tag: "v1.14.4",
+                        tag: "v1.14.5",
                         pullPolicy: "IfNotPresent",
                         useDigest: false
                     },
@@ -39,7 +39,7 @@ const resources = [
                         masquerade: true
                     },
                     devices: "eth0",
-                    localRedirectPolicy: true,
+                    localRedirectPolicy: false,
                     hubble: {
                         enabled: true,
                         metrics: {
@@ -54,7 +54,7 @@ const resources = [
                             enabled: true,
                             image: {
                                 repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/hubble-relay",
-                                tag: "v1.14.4",
+                                tag: "v1.14.5",
                                 useDigest: false,
                                 pullPolicy: "IfNotPresent"
                             },
@@ -81,7 +81,7 @@ const resources = [
                             ]
                         }
                     },
-                    kubeProxyReplacement: false,
+                    kubeProxyReplacement: true,
                     monitor: {
                         enabled: false
                     },
@@ -108,8 +108,8 @@ const resources = [
                         enabled: true,
                         image: {
                             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/operator",
-                            tag: "v1.14.4",
-                            genericDigest: "sha256:560adb01193625248d25b0dac0e424e66856f7067bcd889b2f11f4179a05caaa",
+                            tag: "v1.14.5",
+                            genericDigest: "sha256:2258b425bc1118a3a4c9add8093af9d37e47daff27f2182e15c140ddb442d961",
                             useDigest: true,
                             pullPolicy: "IfNotPresent"
                         },

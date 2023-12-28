@@ -1,6 +1,15 @@
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
-const deploy_spec = [
+const labels = {
+    customer: "demo",
+    environment: "dev",
+    project: "Storage",
+    group: "NFS",
+    datacenter: "dc01",
+    domain: "local"
+}
+
+const resources = [
     {
         namespace: {
             metadata: {
@@ -10,47 +19,38 @@ const deploy_spec = [
             },
             spec: {}
         },
-        helm: {
-            namespace: "nfs-subdir",
-            name: "nfs-subdir-external-provisioner",
-            chart: "nfs-subdir-external-provisioner",
-            repository: "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner",
-            version: "4.0.18",
-            values: {
-                replicaCount: 1,
-                image: {
-                    repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/nfs-subdir-external-provisioner"
+        release: [
+            {
+                namespace: "nfs-subdir",
+                name: "nfs-subdir-external-provisioner",
+                chart: "nfs-subdir-external-provisioner",
+                repositoryOpts: {
+                    repo: "https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner"
                 },
-                nfs: {
-                    server: "node30.node.home.local",
-                    path: "/data/nfs"
-                },
-                resources: {
-                    limits: { cpu: "100m", memory: "128Mi" },
-                    requests: { cpu: "100m", memory: "128Mi" }
-                },
-                labels: { customer: "demo", environment: "dev", project: "Storage", group: "NFS", datacenter: "dc01", domain: "local" }
+                version: "4.0.18",
+                values: {
+                    replicaCount: 1,
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/nfs-subdir-external-provisioner"
+                    },
+                    nfs: {
+                        server: "storage.home.local",
+                        path: "/data/nfs"
+                    },
+                    storageClass: {
+                        create: true,
+                        name: "nfs-sc"
+                    },
+                    resources: {
+                        limits: { cpu: "100m", memory: "128Mi" },
+                        requests: { cpu: "100m", memory: "128Mi" }
+                    },
+                    labels: labels
+                }
             }
-        }
+        ]
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Release Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
-        },
-    }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources });

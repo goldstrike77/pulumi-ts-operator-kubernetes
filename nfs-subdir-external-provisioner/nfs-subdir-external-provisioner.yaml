@@ -2,7 +2,7 @@ replicaCount: 1
 strategyType: Recreate
 
 image:
-  repository: k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner
+  repository: registry.k8s.io/sig-storage/nfs-subdir-external-provisioner
   tag: v4.0.2
   pullPolicy: IfNotPresent
 imagePullSecrets: []
@@ -28,7 +28,7 @@ storageClass:
 
   # Set a StorageClass name
   # Ignored if storageClass.create is false
-  name: longhorn
+  name: nfs-client
 
   # Allow volume to be expanded dynamically
   allowVolumeExpansion: true
@@ -108,3 +108,7 @@ affinity: {}
 
 # Additional labels for any resource created
 labels: {}
+
+podDisruptionBudget:
+  enabled: false
+  maxUnavailable: 1

@@ -27,7 +27,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://metallb.github.io/metallb"
                 },
-                version: "0.13.11",
+                version: "0.13.12",
                 values: {
                     prometheus: {
                         serviceAccount: "kubepromstack-prometheus",
@@ -67,7 +67,7 @@ const resources = [
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        labels: { customer: "demo", environment: "dev", project: "Load-Balancer", group: "MetalLB", datacenter: "dc01", domain: "local" }
+                        labels: podlabels
                     },
                     speaker: {
                         enabled: true,
