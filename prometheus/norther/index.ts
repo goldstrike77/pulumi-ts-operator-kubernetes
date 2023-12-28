@@ -432,7 +432,7 @@ SOFTWARE.
                         }
                     },
                     kubeProxy: {
-                        enabled: true,
+                        enabled: false,
                         serviceMonitor: {
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
