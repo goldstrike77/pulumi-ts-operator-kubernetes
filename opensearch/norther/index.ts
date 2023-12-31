@@ -115,8 +115,7 @@ plugins:
 `
           },
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.11.0"
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx4096M -Xms4096M",
@@ -150,10 +149,10 @@ plugins:
               securityContext: { runAsUser: 0, privileged: true }
             }
           ],
-          service: {
-            type: "LoadBalancer",
-            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
-          },
+          //          service: {
+          //            type: "LoadBalancer",
+          //            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+          //          },
           securityConfig: {
             path: "/usr/share/opensearch/config/opensearch-security",
             config: {
@@ -323,8 +322,7 @@ plugins:
 `
           },
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.11.0"
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
@@ -380,6 +378,9 @@ plugins:
         values: {
           opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
+          image: {
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch-dashboards"
+          },
           fullnameOverride: "opensearch-dashboards",
           config: {
             "opensearch_dashboards.yml": `

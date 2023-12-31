@@ -390,8 +390,8 @@ webhooks:
       {
         namespace: "skywalking",
         name: "swck-operator",
-        chart: "../../_chart/swck-operator-0.7.0.tgz",
-        version: "0.7.0",
+        chart: "../../_chart/swck-operator-0.8.0.tgz",
+        version: "0.8.0",
         values: {
           fullnameOverride: "skywalking",
           replicas: 1,

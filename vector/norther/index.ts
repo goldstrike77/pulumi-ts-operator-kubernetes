@@ -234,7 +234,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     service: {
                         enabled: true,
                         type: "LoadBalancer",
-                        annotations: {},
+                        annotations: { "metallb.universe.tf/allow-shared-ip": "shared" },
                         loadBalancerIP: "192.168.0.103"
                     },
                     customConfig: {
@@ -303,8 +303,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     replicas: 1,
                     podLabels: podlabels,
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "100m", memory: "256Mi" },
+                        requests: { cpu: "100m", memory: "256Mi" }
                     },
                     updateStrategy: {
                         type: "RollingUpdate",
@@ -323,7 +323,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             beats_logstash_tcp: {
                                 type: "logstash",
                                 address: "0.0.0.0:5044",
-                                acknowledgements: { enabled: false },
                                 keepalive: { time_secs: 30 },
                                 receive_buffer_bytes: 65536
                             }
@@ -374,8 +373,8 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     replicas: 1,
                     podLabels: podlabels,
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "100m", memory: "256Mi" },
+                        requests: { cpu: "100m", memory: "256Mi" }
                     },
                     updateStrategy: {
                         type: "RollingUpdate",
@@ -394,7 +393,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             beats_logstash_tcp: {
                                 type: "logstash",
                                 address: "0.0.0.0:5045",
-                                acknowledgements: { enabled: false },
                                 keepalive: { time_secs: 30 },
                                 receive_buffer_bytes: 65536
                             }

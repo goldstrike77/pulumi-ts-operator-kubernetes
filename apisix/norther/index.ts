@@ -62,7 +62,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://charts.apiseven.com"
                 },
-                version: "2.4.0",
+                version: "2.5.0",
                 values: {
                     replicaCount: 1,
                     resources: {
@@ -184,7 +184,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://charts.apiseven.com"
                 },
-                version: "0.12.2",
+                version: "0.13.0",
                 values: {
                     replicaCount: 1,
                     config: {
@@ -220,7 +220,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "9.5.1",
+                version: "9.8.0",
                 values: {
                     fullnameOverride: "apisix-etcd",
                     auth: {
@@ -279,6 +279,7 @@ const resources = [
             }
         ],
         customresource: [
+            /**
             {
                 apiVersion: "networking.k8s.io/v1",
                 kind: "IngressClass",
@@ -291,6 +292,7 @@ const resources = [
                     controller: "apisix.apache.org/ingress-controller"
                 }
             },
+             */
             {
                 apiVersion: "monitoring.coreos.com/v1",
                 kind: "PodMonitor",
