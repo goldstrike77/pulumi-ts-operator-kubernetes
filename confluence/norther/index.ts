@@ -1,9 +1,15 @@
-import * as k8s from "@pulumi/kubernetes";
-import * as pulumi from "@pulumi/pulumi";
+import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
 
-let config = new pulumi.Config();
+const podlabels = {
+  customer: "demo",
+  environment: "dev",
+  project: "Developer",
+  group: "Confluence",
+  datacenter: "dc01",
+  domain: "local"
+}
 
-const deploy_spec = [
+const resources = [
   {
     namespace: {
       metadata: {
@@ -13,139 +19,137 @@ const deploy_spec = [
       },
       spec: {}
     },
-    postgresql: {
-      kind: "postgresql",
-      apiVersion: "acid.zalan.do/v1",
-      metadata: {
-        name: "postgresql",
-        namespace: "confluence",
-        labels: {
-          team: "devops"
-        }
-      },
-      spec: {
-        teamId: "devops",
-        postgresql: {
-          version: "14"
-        },
-        numberOfInstances: 1,
-        volume: {
-          size: "10Gi",
-          storageClass: "longhorn"
-        },
-        users: {
-          confluence: []
-        },
-        databases: {
-          confluence: "confluence"
-        },
-        allowedSourceRanges: ["10.244.0.0/16"],
-        resources: {
-          limits: { cpu: "500m", memory: "512Mi" },
-          requests: { cpu: "500m", memory: "512Mi" }
-        }
-      }
-    },
-    helm: {
-      namespace: "confluence",
-      name: "confluence",
-      chart: "../../_chart/confluence-1.12.0.tgz",
-      repository: "",
-      version: "1.12.0",
-      values: {
-        replicaCount: 2,
-        image: {
-          repository: "registry.cn-hangzhou.aliyuncs.com/goldstrike/confluence",
-          tag: "7.19.7"
-        },
-        database: {
-          type: "postgresql",
-          url: "jdbc:postgresql://postgresql:5432/confluence",
-          credentials: {
-            secretName: "confluence.postgresql.credentials.postgresql.acid.zalan.do"
+    customresource: [
+      {
+        kind: "postgresql",
+        apiVersion: "acid.zalan.do/v1",
+        metadata: {
+          name: "postgresql",
+          namespace: "confluence",
+          labels: {
+            team: "devops"
           }
         },
-        volumes: {
-          localHome: {
-            persistentVolumeClaim: {
-              create: true,
-              storageClassName: "longhorn",
-              resources: {
-                requests: {
-                  storage: "1Gi"
-                }
-              }
-            }
+        spec: {
+          teamId: "devops",
+          postgresql: {
+            version: "14"
           },
-          sharedHome: {
-            persistentVolumeClaim: {
-              create: true,
-              storageClassName: "nfs-client",
-              resources: {
-                requests: {
-                  storage: "10Gi"
-                }
-              }
-            }
-          }
-        },
-        ingress: {
-          create: true,
-          className: "nginx",
-          nginx: true,
-          maxBodySize: "250m",
-          host: "norther.example.com",
-          path: "/confluence"
-        },
-        confluence: {
-          service: {
-            contextPath: "/confluence"
+          numberOfInstances: 1,
+          volume: {
+            size: "15Gi",
+            storageClass: "vsphere-san-sc"
           },
-          clustering: {
-            enabled: true
+          users: {
+            confluence: []
           },
+          databases: {
+            confluence: "confluence"
+          },
+          allowedSourceRanges: ["10.244.0.0/16"],
           resources: {
-            jvm: {
-              maxHeap: "4096m",
-              minHeap: "4096m",
-              reservedCodeCache: "256m"
-            },
-            container: {
-              requests: { cpu: "2000m", memory: "6144Mi" },
-              limits: { cpu: "4000m", memory: "6144Mi" }
+            limits: { cpu: "500m", memory: "512Mi" },
+            requests: { cpu: "500m", memory: "512Mi" }
+          }
+        }
+      }
+    ],
+    release: [
+      {
+        namespace: "confluence",
+        name: "confluence",
+        chart: "../../_chart/confluence-1.17.2.tgz",
+        repository: "",
+        version: "1.17.2",
+        values: {
+          replicaCount: 2,
+          image: {
+            repository: "swr.cn-east-3.myhuaweicloud.com/atlassian/confluence",
+            tag: "8.5.4"
+          },
+          database: {
+            type: "postgresql",
+            url: "jdbc:postgresql://postgresql:5432/confluence",
+            credentials: {
+              secretName: "confluence.postgresql.credentials.postgresql.acid.zalan.do"
             }
           },
-          additionalEnvironmentVariables: [
-            { name: "cluster.login.rememberme.enabled", value: "true" }
-          ]
-        },
-        podLabels: { customer: "demo", environment: "dev", project: "Developer", group: "Confluence", datacenter: "dc01", domain: "local" }
+          volumes: {
+            localHome: {
+              persistentVolumeClaim: {
+                create: true,
+                storageClassName: "vsphere-san-sc",
+                resources: {
+                  requests: {
+                    storage: "7Gi"
+                  }
+                }
+              }
+            },
+            sharedHome: {
+              persistentVolumeClaim: {
+                create: true,
+                storageClassName: "nfs-sc",
+                resources: {
+                  requests: {
+                    storage: "31Gi"
+                  }
+                }
+              }
+            }
+          },
+          ingress: {
+            create: true,
+            className: "nginx",
+            nginx: true,
+            maxBodySize: "250m",
+            host: "norther.example.com",
+            path: "/confluence"
+          },
+          confluence: {
+            service: {
+              contextPath: "/confluence"
+            },
+            clustering: {
+              enabled: true
+            },
+            resources: {
+              jvm: {
+                maxHeap: "4096m",
+                minHeap: "4096m",
+                reservedCodeCache: "256m"
+              },
+              container: {
+                requests: { cpu: "2000m", memory: "6144Mi" },
+                limits: { cpu: "4000m", memory: "6144Mi" }
+              }
+            },
+            additionalEnvironmentVariables: [
+              { name: "cluster.login.rememberme.enabled", value: "true" }
+            ]
+          },
+          monitoring: {
+            exposeJmxMetrics: true,
+            jmxExporterInitContainer: {
+              resources: {
+                requests: { cpu: "100m", memory: "256Mi" },
+                limits: { cpu: "100m", memory: "256Mi" }
+              }
+            },
+            jmxExporterImageRepo: "swr.cn-east-3.myhuaweicloud.com/exporter/jmx-exporter",
+            jmxExporterImageTag: "0.20.0",
+            serviceMonitor: {
+              create: true,
+              scrapeIntervalSeconds: 60
+            }
+          },
+          podLabels: podlabels
+        }
       }
-    }
+    ]
   }
 ]
 
-for (var i in deploy_spec) {
-  // Create Kubernetes Namespace.
-  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-    metadata: deploy_spec[i].namespace.metadata,
-    spec: deploy_spec[i].namespace.spec
-  });
-  // Create postgresql CRD.
-  const postgresql = new k8s.apiextensions.CustomResource(deploy_spec[i].postgresql.metadata.name, {
-    name: deploy_spec[i].postgresql.metadata.name,
-    metadata: deploy_spec[i].postgresql.metadata,
-    apiVersion: deploy_spec[i].postgresql.apiVersion,
-    kind: deploy_spec[i].postgresql.kind,
-    spec: deploy_spec[i].postgresql.spec,
-  }, { dependsOn: [namespace] });
-  // Create Release Resource.
-  const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-    namespace: deploy_spec[i].helm.namespace,
-    name: deploy_spec[i].helm.name,
-    chart: deploy_spec[i].helm.chart,
-    version: deploy_spec[i].helm.version,
-    values: deploy_spec[i].helm.values,
-    skipAwait: true,
-  }, { dependsOn: [postgresql] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

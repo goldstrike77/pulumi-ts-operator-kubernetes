@@ -340,7 +340,7 @@ plugins:
             image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
             imageTag: "1.36",
             storageClass: "vsphere-san-sc",
-            size: "31Gi"
+            size: "63Gi"
           },
           extraInitContainers: [
             {

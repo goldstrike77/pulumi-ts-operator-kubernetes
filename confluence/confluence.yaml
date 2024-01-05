@@ -221,6 +221,24 @@ volumes:
         requests:
           storage: 1Gi
 
+    # This field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
+    # Only configure the below two attributes when your Kubernetes version is 1.27+, and
+    # feature gate StatefulSetAutoDeletePVC is enabled.
+    #
+    # For each policy that you can configure, you can set the value to either Delete or Retain.
+    #
+    # https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+    #
+    persistentVolumeClaimRetentionPolicy:
+
+      # -- Configures the volume retention behavior that applies when the StatefulSet is deleted.
+      #
+      whenDeleted:
+
+      # -- Configures the volume retention behavior that applies when the replica count of the StatefulSet is reduced.
+      #
+      whenScaled:
+
     # -- Static provisioning of local-home using K8s PVs and PVCs
     #
     # NOTE: Due to the ephemeral nature of pods this approach to provisioning volumes for
@@ -316,6 +334,17 @@ volumes:
       #
       imageTag: latest
 
+      # -- Resources requests and limits for nfsPermissionFixer init container
+      # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      #
+      resources: {}
+      #  requests:
+      #    cpu: "1m"
+      #    memory: "20Mi"
+      #  limits:
+      #    cpu: "1"
+      #    memory: "1G"
+
       # -- By default, the fixer will change the group ownership of the volume's root directory
       # to match the Confluence container's GID (2002), and then ensures the directory is
       # group-writeable. If this is not the desired behaviour, command used can be specified
@@ -351,6 +380,24 @@ volumes:
       resources:
         requests:
           storage: 1Gi
+
+    # This field controls if and how PVCs are deleted during the lifecycle of a StatefulSet.
+    # Only configure the below two attributes when your Kubernetes version is 1.27+, and
+    # feature gate StatefulSetAutoDeletePVC is enabled.
+    #
+    # For each policy that you can configure, you can set the value to either Delete or Retain.
+    #
+    # https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#persistentvolumeclaim-retention
+    #
+    persistentVolumeClaimRetentionPolicy:
+
+      # -- Configures the volume retention behavior that applies when the StatefulSet is deleted.
+      #
+      whenDeleted:
+
+      # -- Configures the volume retention behavior that applies when the replica count of the StatefulSet is reduced.
+      #
+      whenScaled:
 
     # -- Static provisioning of synchrony-home using K8s PVs and PVCs
     #
@@ -458,8 +505,9 @@ ingress:
   # 'company.k8s.com/confluence'. Default value is 'confluence.service.contextPath'
   path:
 
-  # -- The custom annotations that should be applied to the Ingress Resource
-  # when NOT using the K8s ingress-nginx controller.
+  # -- The custom annotations that should be applied to the Ingress Resource.
+  # If using an ingress-nginx controller be sure that the annotations you add
+  # here are compatible with those already defined in the 'ingess.yaml' template
   #
   annotations: {}
 
@@ -483,6 +531,10 @@ ingress:
 #
 confluence:
 
+  # -- Whether the main container should acquire helm release name. By default the container name is `confluence` which corresponds to the name of the Helm Chart.
+  #
+  useHelmReleaseNameAsContainerName: false
+
   # K8s Confluence Service configuration
   #
   service:
@@ -495,6 +547,23 @@ confluence:
     #
     type: ClusterIP
 
+    # -- Session affinity type. If you want to make sure that connections from a particular client
+    # are passed to the same pod each time, set sessionAffinity to ClientIP.
+    # See: https://kubernetes.io/docs/reference/networking/virtual-ips/#session-affinity
+    #
+    sessionAffinity: None
+
+    # -- Session affinity configuration
+    #
+    sessionAffinityConfig:
+
+      clientIP:
+
+        # -- Specifies the seconds of ClientIP type session sticky time.
+        # The value must be > 0 && <= 86400(for 1 day) if ServiceAffinity == "ClientIP". Default value is 10800 (for 3 hours).
+        #
+        timeoutSeconds:
+
     # -- Use specific loadBalancerIP. Only applies to service type LoadBalancer.
     #
     loadBalancerIP:
@@ -505,6 +574,25 @@ confluence:
     contextPath:
 
     # -- Additional annotations to apply to the Service
+    #
+    annotations: {}
+
+  hazelcastService:
+
+    # -- Enable or disable an additional Hazelcast service that Confluence nodes can use to join a cluster.
+    # It is recommended to create a separate Hazelcast service if the Confluence service
+    # uses a LoadBalancer type (e.g., NLB), ensuring that the Hazelcast port is not exposed at all.
+    enabled: false
+
+    # -- The port on which the Confluence K8s Hazelcast Service will listen
+    #
+    port: 5701
+
+    # -- The type of the Hazelcast K8s service to use for Confluence
+    #
+    type: ClusterIP
+
+    # -- Additional annotations to apply to the Hazelcast Service
     #
     annotations: {}
 
@@ -576,6 +664,10 @@ confluence:
   #
   readinessProbe:
 
+    # -- Whether to apply the readinessProbe check to pod.
+    #
+    enabled: true
+
     # -- The initial delay (in seconds) for the Confluence container readiness probe,
     # after which the probe will start running.
     #
@@ -585,10 +677,74 @@ confluence:
     #
     periodSeconds: 5
 
+    # -- Number of seconds after which the probe times out
+    #
+    timeoutSeconds: 1
+
     # -- The number of consecutive failures of the Confluence container readiness probe
     # before the pod fails readiness checks.
     #
     failureThreshold: 6
+
+    # -- Custom readinessProbe to override the default /status httpGet
+    #
+    customProbe: {}
+#      tcpSocket:
+#        port: 8080
+#      periodSeconds: 5
+#      failureThreshold: 120
+
+  # Confirm that Confluence is up and running with a StartupProbe
+  # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-startup-probes
+  #
+  startupProbe:
+
+    # -- Whether to apply the startupProbe check to pod.
+    #
+    enabled: false
+
+    # -- Time to wait before starting the first probe
+    #
+    initialDelaySeconds: 60
+
+    # -- How often (in seconds) the Confluence container startup probe will run
+    #
+    periodSeconds: 5
+
+    # -- The number of consecutive failures of the Confluence container startup probe
+    # before the pod fails startup checks.
+    #
+    failureThreshold: 120
+
+  # Ensure that the server responds with a LivenessProbe
+  # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#define-a-tcp-liveness-probe
+  #
+  livenessProbe:
+
+    # -- Whether to apply the livenessProbe check to pod.
+    #
+    enabled: false
+
+    # -- Time to wait before starting the first probe
+    #
+    initialDelaySeconds: 60
+
+    # -- How often (in seconds) the Confluence container liveness probe will run
+    #
+    periodSeconds: 5
+
+    # -- Number of seconds after which the probe times out
+    #
+    timeoutSeconds: 1
+
+    # -- The number of consecutive failures of the Confluence container liveness probe
+    # before the pod fails liveness checks.
+    #
+    failureThreshold: 12
+
+    # -- Custom livenessProbe to override the default tcpSocket probe
+    #
+    customProbe: {}
 
   # Confluence log configuration
   #
@@ -679,9 +835,15 @@ confluence:
         # -- Initial Memory request by Confluence pod
         #
         memory: "2G"
-      #  limits:
-      #    cpu: "2"
-      #    memory: "2G"
+
+      # limits:
+      #   # -- Initial CPU limit by Confluence pod.
+      #   #
+      #   cpu: "2"
+      #
+      #   # -- Initial Memory limit by Confluence pod
+      #   #
+      #   memory: "2G"
 
   shutdown:
 
@@ -701,6 +863,13 @@ confluence:
     #
     command: "/shutdown-wait.sh"
 
+  # -- PostStart is executed immediately after a container is created.
+  # However, there is no guarantee that the hook will execute before the container ENTRYPOINT.
+  # See: https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/#container-hooks
+  #
+  postStart:
+    command:
+
   # -- The Docker entrypoint.py generates application configuration on
   # first start; not all of these files are regenerated on subsequent starts.
   # By default, confluence.cfg.xml is generated only once. Set `forceConfigUpdate` to true
@@ -712,6 +881,57 @@ confluence:
   # system properties.
   #
   additionalJvmArgs: []
+
+  # -- By default Tomcat's server.xml is generated in the container entrypoint from a template
+  # shipped with an official Confluence image. However, server.xml generation may fail if container
+  # is not run as root, which is a common case if Confluence is deployed to OpenShift.
+  #
+  tomcatConfig:
+
+    # -- Mount server.xml as a ConfigMap. Override configuration elements if necessary
+    #
+    generateByHelm: false
+
+    mgmtPort: "8000"
+    port: "8090"
+    maxThreads: "100"
+    minSpareThreads: "10"
+    connectionTimeout: "20000"
+    enableLookups: "false"
+    protocol: "org.apache.coyote.http11.Http11NioProtocol"
+    redirectPort: "8443"
+    acceptCount: "10"
+    debug: "0"
+    uriEncoding: "UTF-8"
+    # secure is retrieved from ingress.https value
+    secure:
+    # scheme is set depending on ingress.https value (http if false, https if true)
+    scheme:
+    # proxyName is retrieved from ingress.host value
+    proxyName:
+    # proxyPort is set depending on ingress.https value (80 if http, 443 if https)
+    proxyPort:
+    maxHttpHeaderSize: "8192"
+    proxyInternalIps:
+
+    # -- Custom server.xml to be mounted into /opt/atlassian/confluence/conf
+    #
+    customServerXml: |
+#      <?xml version='1.0' encoding='utf-8'?>
+#      <Server port="8005" shutdown="SHUTDOWN">
+#      </Server>
+
+  # -- By default seraph-config.xml is generated in the container entrypoint from a template
+  # shipped with an official Confluence image. However, seraph-config.xml generation may fail if container
+  # is not run as root, which is a common case if Confluence is deployed to OpenShift.
+  #
+  seraphConfig:
+
+    # -- Mount seraph-config.xml as a ConfigMap. Override configuration elements if necessary
+    #
+    generateByHelm: false
+
+    autoLoginCookieAge: "1209600"
 
   # -- Specifies a list of additional Java libraries that should be added to the
   # Confluence container. Each item in the list should specify the name of the volume
@@ -790,6 +1010,110 @@ confluence:
     # -- Set to 'true' for remote debugging. Confluence JVM will be started with debugging
     # port 5005 open.
     enabled: false
+
+  # -- Certificates to be added to Java truststore. Provide reference to a secret that contains the certificates
+  #
+  additionalCertificates:
+    secretName:
+    customCmd:
+
+# Monitoring
+#
+monitoring:
+
+  # -- Expose JMX metrics with jmx_exporter https://github.com/prometheus/jmx_exporter
+  #
+  exposeJmxMetrics: false
+
+  # --  JMX exporter init container configuration
+  #
+  jmxExporterInitContainer:
+
+    # -- Whether to run JMX exporter init container as root to copy JMX exporter binary to shared home volume.
+    # Set to false if running containers as root is not allowed in the cluster.
+    #
+    runAsRoot: true
+
+    # -- Custom SecurityContext for the jmx exporter init container
+    #
+    customSecurityContext: {}
+
+    # -- Resources requests and limits for the JMX exporter init container
+    # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    #
+    resources: {}
+    #  requests:
+    #    cpu: "1m"
+    #    memory: "20Mi"
+    #  limits:
+    #    cpu: "1"
+    #    memory: "1G"
+
+  # -- Annotations added to the jmx service
+  #
+  jmxServiceAnnotations: {}
+
+  # -- Fetch jmx_exporter jar from the image. If set to false make sure to manually copy the jar
+  # to shared home and provide an absolute path in jmxExporterCustomJarLocation
+  #
+  fetchJmxExporterJar: true
+
+  # -- Image repository with jmx_exporter jar
+  #
+  jmxExporterImageRepo: bitnami/jmx-exporter
+
+  # -- Image tag to be used to pull jmxExporterImageRepo
+  #
+  jmxExporterImageTag: 0.18.0
+
+  # -- Port number on which metrics will be available
+  #
+  jmxExporterPort: 9999
+
+  # -- JMX exporter port type
+  #
+  jmxExporterPortType: ClusterIP
+
+  # -- Location of jmx_exporter jar file if mounted from a secret or manually copied to shared home
+  #
+  jmxExporterCustomJarLocation:
+
+  # -- Custom JMX config with the rules
+  #
+  jmxExporterCustomConfig: {}
+  #  rules:
+  #   - pattern: ".*"
+
+  serviceMonitor:
+
+    # -- Create ServiceMonitor to start scraping metrics. ServiceMonitor CRD needs to be created in advance.
+    #
+    create: false
+
+    # -- ServiceMonitorSelector of the prometheus instance.
+    #
+    prometheusLabelSelector: {}
+      # release: prometheus
+
+    # -- Scrape interval for the JMX service.
+    #
+    scrapeIntervalSeconds: 30
+
+  grafana:
+
+    # -- Create ConfigMaps with Grafana dashboards
+    #
+    createDashboards: false
+
+    # -- Label selector for Grafana dashboard importer sidecar
+    #
+    dashboardLabels: {}
+      # grafana_dashboard: dc_monitoring
+
+    # -- Annotations added to Grafana dashboards ConfigMaps. See: https://github.com/kiwigrid/k8s-sidecar#usage
+    #
+    dashboardAnnotations: {}
+      # k8s-sidecar-target-directory: /tmp/dashboards/example-folder
 
 # Confluence Synchrony configuration
 # https://confluence.atlassian.com/doc/configuring-synchrony-858772125.html
@@ -915,13 +1239,25 @@ synchrony:
     #
     container:
       requests:
-        # -- Initial CPU request by Synchrony pod
+        # -- Initial CPU request by Synchrony pod. Because the container CPU request value is used in -XX:ActiveProcessorCount argument to Synchrony JVM
+        #  only integers are allowed, e.g. 1, 2, 3 etc. If you want to have a small CPU claim, set it to 30m, 50m, etc.
+        # Any container cpu request value containing `m` character will be converted to -XX:ActiveProcessorCount=1
+        #
+        # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu
         #
         cpu: "2"
 
         # -- Initial Memory request Synchrony pod
         #
         memory: "2.5G"
+      # limits:
+      #   # -- Initial CPU limit by Synchrony pod
+      #   #
+      #   cpu: "2"
+      #
+      #   # -- Initial Memory limit by Synchrony pod
+      #   #
+      #   memory: "2.5G"
 
   # -- Specifies a list of additional arguments that can be passed to the Synchrony JVM, e.g.
   # system properties.
@@ -971,6 +1307,12 @@ synchrony:
   #     matchLabels:
   #       app.kubernetes.io/name: confluence-synchrony
 
+  # -- Certificates to be added to Java truststore. Provide reference to a secret that contains the certificates
+  #
+  additionalCertificates:
+    secretName:
+    customCmd:
+
 # Fluentd configuration
 #
 # Confluence log collection and aggregation can be enabled using Fluentd. This config
@@ -990,6 +1332,17 @@ fluentd:
   # -- The Fluentd sidecar image tag
   #
   imageTag: v1.11.5-debian-elasticsearch7-1.2
+
+  # -- Resources requests and limits for fluentd sidecar container
+  # See: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  #
+  resources: {}
+  #  requests:
+  #    cpu: "1m"
+  #    memory: "20Mi"
+  #  limits:
+  #    cpu: "1"
+  #    memory: "1G"
 
   # -- The command used to start Fluentd. If not supplied the default command
   # will be used: "fluentd -c /fluentd/etc/fluent.conf -v"
@@ -1136,3 +1489,60 @@ additionalHosts: []
 #    hostnames:
 #    - "foo.local"
 #    - "bar.local"
+
+# -- PodDisruptionBudget: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+# You can specify only one of maxUnavailable and minAvailable in a single PodDisruptionBudget. When both minAvailable and maxUnavailable are set, maxUnavailable takes precedence.
+#
+podDisruptionBudget:
+  enabled: false
+  labels: {}
+  annotations: {}
+  minAvailable:
+  maxUnavailable:
+
+# -- Create additional ConfigMaps with given names, keys and content. Ther Helm release name will be used as a prefix
+# for a ConfigMap name, fileName is used as subPath
+#
+additionalConfigMaps: []
+#  - name: extra-configmap
+#    keys:
+#      - fileName: hello.properties
+#        mountPath: /opt/atlassian/jira/atlassian-jira/WEB-INF/classes
+#        defaultMode:
+#        content: |
+#          foo=bar
+#          hello=world
+#      - fileName: hello.xml
+#        mountPath: /opt/atlassian/jira/atlassian-jira/WEB-INF/classes
+#        content: |
+#          <xml>
+#          </xml>
+
+atlassianAnalyticsAndSupport:
+
+  analytics:
+
+    # -- Mount ConfigMap with selected Helm chart values as a JSON
+    # which DC products will read and send analytics events to Atlassian data pipelines
+    #
+    enabled: true
+
+  helmValues:
+
+    # -- Mount ConfigMap with selected Helm chart values as a YAML file
+    # which can be optionally including to support.zip
+    #
+    enabled: true
+
+# -- Metadata and pod spec for pods started in Helm tests
+#
+testPods:
+  labels: {}
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  schedulerName:
+  image:
+    permissionsTestContainer: debian:stable-slim
+    statusTestContainer: alpine:latest
