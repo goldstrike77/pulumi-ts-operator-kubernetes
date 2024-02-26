@@ -1,5 +1,5 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 import * as fs from 'fs';
 
 let config = new pulumi.Config();
