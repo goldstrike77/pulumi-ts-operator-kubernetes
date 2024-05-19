@@ -1,6 +1,8 @@
 #### Installing the Chart
 ```hcl
 helm repo add vsphere-cpi https://kubernetes.github.io/cloud-provider-vsphere
+or for RKE2
+helm repo add rke2-charts https://rke2-charts.rancher.io/
 ```
 
 #### Configuration credential values.

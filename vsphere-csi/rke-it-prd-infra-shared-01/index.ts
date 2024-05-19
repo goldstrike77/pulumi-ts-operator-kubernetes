@@ -45,21 +45,21 @@ const resources = [
         repositoryOpts: {
           repo: "https://kubernetes.github.io/cloud-provider-vsphere"
         },
-        version: "1.29.0",
+        version: "1.30.0",
         values: {
           config: {
             enabled: true,
             vcenter: "192.168.0.130",
             username: "administrator@vsphere.local",
             password: config.require("VSPHERE_PASSWORD"),
-            datacenter: "cn-north-1",
+            datacenter: "cn-north",
             region: "k8s-region",
             zone: "k8s-zone"
           },
           podSecurityPolicy: { enabled: false },
           daemonset: {
             image: "swr.cn-east-3.myhuaweicloud.com/cloud-provider-vsphere/manager",
-            tag: "v1.29.0",
+            tag: "v1.30.0",
             replicaCount: 1,
             resources: {
               limits: { cpu: "50m", memory: "64Mi" },
@@ -81,7 +81,7 @@ const resources = [
         provisioner: "csi.vsphere.vmware.com",
         allowVolumeExpansion: true,
         parameters: {
-          datastoreurl: "ds:///vmfs/volumes/658f79a1-1ae1db3f-caaf-002590f4baa4/",
+          datastoreurl: "ds:///vmfs/volumes/6640a1c2-b3af3782-fde7-002590f4baa4/",
           "csi.storage.k8s.io/fstype": "ext4"
         },
         reclaimPolicy: "Delete",
