@@ -1,0 +1,7 @@
+encryptionsalt: v1:k/jdV/niK6g=:v1:K4WcP8zdy1jD1gf7:NQ/PJsmisyhYY7pBCDW9w5KmWOmezQ==
+config:
+  demo:CSI-VSPHERE:
+    secure: v1:/wlUGSG5N6bKFleU:0Y0CHUKESURfDOwXRJmw0Jeg2PPPWptXQsJppuMgbYOPu+Bx/EAsVaS9LzgIZs+K4EhCg7i/i3MJ4+1Q/h1MqVzxZU/HLzZHp5YexO0RzoJVY2FIYh9R3075eDGBtC4yaZP7usyLgCWDqZm36gc/GfZKUsUIRvhwFt2M52i3i4u8jurVuzJ5C4ur0sWkxLl5Xg04fIFAlF/8Cx/XpJU2lrVfN0w6ziBx7jOHxFiZVtqlz82XTod2Sl9J8eig1124eHtf1MPEbjzqPp3bTV24cfllSIF7a9xfP3Opat61D7RtJcgNl4ssX0V6o7i27AhUmTj4u589RLJ4OXuyWf4gZHQsenaMUtWvUFOWHTkaIgUudLpCSbiqU+zaQ/LSZmnjlmaab/bbHAbLbdE7eHABwhlsp3s=
+  demo:VSPHERE_PASSWORD:
+    secure: v1:J/SrKgIvUZTq7IH3:JhyZ3dGGOv9U2r3JBN7sQf0JNgNZcDFFjlbZUg==
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01
