@@ -1,7 +1,16 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
+
+const podlabels = {
+    customer: "it",
+    environment: "prd",
+    project: "container",
+    group: "rke-it-prd-infra-shared-01",
+    datacenter: "cn-north",
+    domain: "local"
+}
 
 const resources = [
     {
@@ -9,7 +18,11 @@ const resources = [
             metadata: {
                 name: "monitoring",
                 annotations: {},
-                labels: {}
+                labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged"
+                }
             },
             spec: {}
         },
@@ -36,10 +49,10 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://prometheus-community.github.io/helm-charts"
                 },
-                version: "55.5.0",
+                version: "58.6.0",
                 values: {
                     fullnameOverride: "kubepromstack",
-                    defaultRules: { create: false },
+                    defaultRules: { create: true },
                     alertmanager: {
                         enabled: true,
                         config: {
@@ -270,23 +283,14 @@ SOFTWARE.
 {{ end }}
 `
                         },
-                        ingress: {
-                            enabled: true,
-                            ingressClassName: "nginx",
-                            annotations: {
-                                "nginx.ingress.kubernetes.io/rewrite-target": "/$2",
-                                "nginx.ingress.kubernetes.io/backend-protocol": "HTTP"
-                            },
-                            hosts: ["norther.example.com"],
-                            paths: ["/alertmanager(/|$)(.*)"]
-                        },
+                        ingress: { enabled: false },
                         serviceMonitor: {
                             relabelings: [
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         },
@@ -305,7 +309,7 @@ SOFTWARE.
                                     }
                                 }
                             },
-                            externalUrl: "https://norther.example.com/alertmanager/",
+                            externalUrl: "https://alertmanager.rke-it-prd-infra-shared-01.example.com",
                             resources: {
                                 limits: { cpu: "100m", memory: "64Mi" },
                                 requests: { cpu: "100m", memory: "64Mi" }
@@ -331,11 +335,11 @@ SOFTWARE.
                         enabled: true,
                         serviceMonitor: {
                             relabelings: [
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
@@ -346,20 +350,20 @@ SOFTWARE.
                             probes: false,
                             cAdvisorRelabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ],
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
@@ -369,11 +373,11 @@ SOFTWARE.
                         serviceMonitor: {
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
@@ -383,11 +387,11 @@ SOFTWARE.
                         serviceMonitor: {
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
@@ -402,11 +406,11 @@ SOFTWARE.
                             scheme: "http",
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
@@ -422,25 +426,25 @@ SOFTWARE.
                             insecureSkipVerify: true,
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
                     },
                     kubeProxy: {
-                        enabled: false,
+                        enabled: true,
                         serviceMonitor: {
                             relabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         }
@@ -451,9 +455,9 @@ SOFTWARE.
                         image: {
                             registry: "registry.cn-shanghai.aliyuncs.com",
                             repository: "goldenimage/kube-state-metrics",
-                            tag: "v2.10.1"
+                            tag: "v2.12.0"
                         },
-                        customLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        customLabels: podlabels,
                         metricLabelsAllowlist: ["nodes=[*]"],
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
@@ -486,7 +490,19 @@ SOFTWARE.
                             "--collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$",
                             "--collector.cpu.info"
                         ],
-                        podLabels: { jobLabel: "node-exporter", customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        containerSecurityContext: {
+                            readOnlyRootFilesystem: true,
+                            allowPrivilegeEscalation: false,
+                            seccompProfile: { type: "RuntimeDefault" },
+                            capabilities: { drop: ["ALL"] }
+                        },
+                        podLabels: podlabels,
+                        tolerations: [
+                            {
+                                key: "CriticalAddonsOnly",
+                                operator: "Exists"
+                            }
+                        ],
                         prometheus: {
                             monitor: {
                                 enabled: true,
@@ -515,7 +531,7 @@ SOFTWARE.
                                 }
                             }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: podlabels,
                         logLevel: "warn",
                         serviceMonitor: {
                             relabelings: [
@@ -548,29 +564,23 @@ SOFTWARE.
                             enabled: true,
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         },
-                        ingress: {
-                            enabled: true,
-                            ingressClassName: "nginx",
-                            annotations: { "nginx.ingress.kubernetes.io/backend-protocol": "HTTP" },
-                            hosts: ["norther.example.com"],
-                            paths: ["/prometheus"],
-                        },
+                        ingress: { enabled: false },
                         serviceMonitor: {
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "demo" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "dev" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "cluster" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "norther" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "dc01" },
+                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
+                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
+                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
+                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "rke-it-prd-infra-shared-01" },
+                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
                                 { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
                             ]
                         },
@@ -579,8 +589,8 @@ SOFTWARE.
                             scrapeInterval: "60s",
                             scrapeTimeout: "30s",
                             evaluationInterval: "60s",
-                            externalLabels: { cluster: "norther" },
-                            externalUrl: "https://norther.example.com/prometheus/",
+                            externalLabels: { cluster: "rke-it-prd-infra-shared-01" },
+                            externalUrl: "https://prometheus.rke-it-prd-infra-shared-01.example.com",
                             ruleSelectorNilUsesHelmValues: false,
                             serviceMonitorSelectorNilUsesHelmValues: false,
                             podMonitorSelectorNilUsesHelmValues: false,
@@ -589,7 +599,6 @@ SOFTWARE.
                             retentionSize: "4096MB",
                             replicas: 1,
                             logLevel: "warn",
-                            routePrefix: "/prometheus",
                             resources: {
                                 limits: { cpu: "1000m", memory: "3072Mi" },
                                 requests: { cpu: "1000m", memory: "3072Mi" }
@@ -726,7 +735,7 @@ SOFTWARE.
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "12.20.1",
+                version: "15.4.7",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -745,14 +754,8 @@ SOFTWARE.
                             limits: { cpu: "200m", memory: "128Mi" },
                             requests: { cpu: "200m", memory: "128Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        ingress: {
-                            enabled: true,
-                            hostname: "norther.example.com",
-                            ingressClassName: "nginx",
-                            annotations: { "nginx.ingress.kubernetes.io/backend-protocol": "HTTP" },
-                            path: "/thanos-query"
-                        }
+                        podLabels: podlabels,
+                        ingress: { enabled: false }
                     },
                     queryFrontend: {
                         enabled: true,
@@ -762,7 +765,7 @@ SOFTWARE.
                             "--log.level=warn",
                             "--log.format=logfmt",
                             "--http-address=0.0.0.0:10902",
-                            "--query-frontend.downstream-url=http://thanos-query:9090/thanos-query",
+                            "--query-frontend.downstream-url=http://thanos-query:9090",
                             "--labels.split-interval=1h",
                             "--labels.max-retries-per-request=10",
                             "--query-range.split-interval=1h",
@@ -771,7 +774,7 @@ SOFTWARE.
                             "--query-range.partial-response", `--query-range.response-cache-config=
 type: REDIS
 config:
-  addr: "redis-master:6379"
+  addr: "redis:6379"
   db: 3
   dial_timeout: 10s
   read_timeout: 10s
@@ -785,7 +788,7 @@ config:
 `, `--labels.response-cache-config=
 type: REDIS
 config:
-  addr: "redis-master:6379"
+  addr: "redis:6379"
   db: 2
   dial_timeout: 10s
   read_timeout: 10s
@@ -803,24 +806,18 @@ config:
                             limits: { cpu: "200m", memory: "128Mi" },
                             requests: { cpu: "200m", memory: "128Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" }
+                        podLabels: podlabels
                     },
                     bucketweb: {
                         enabled: true,
                         logLevel: "warn",
-                        extraFlags: ["--web.external-prefix=thanos-bucketweb", "--web.route-prefix=thanos-bucketweb"],
+                        extraFlags: [],
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
-                        ingress: {
-                            enabled: true,
-                            hostname: "norther.example.com",
-                            ingressClassName: "nginx",
-                            annotations: { "nginx.ingress.kubernetes.io/backend-protocol": "HTTP" },
-                            path: "/thanos-bucketweb"
-                        }
+                        podLabels: podlabels,
+                        ingress: { enabled: false }
                     },
                     compactor: {
                         enabled: true,
@@ -837,7 +834,7 @@ config:
                             limits: { cpu: "500m", memory: "2048Mi" },
                             requests: { cpu: "500m", memory: "2048Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
+                        podLabels: podlabels,
                         persistence: {
                             enabled: true,
                             storageClass: "vsphere-san-sc",
@@ -853,7 +850,7 @@ config:
                             "--store.grpc.series-sample-limit=50000", `--index-cache.config=
 type: REDIS
 config:
-  addr: "redis-master:6379"
+  addr: "redis:6379"
   db: 1
   dial_timeout: 10s
   read_timeout: 10s
@@ -867,7 +864,7 @@ config:
 `, `--store.caching-bucket.config=
 type: REDIS
 config:
-  addr: "redis-master:6379"
+  addr: "redis:6379"
   db: 0
   dial_timeout: 10s
   read_timeout: 10s
@@ -885,7 +882,7 @@ config:
                             limits: { cpu: "500m", memory: "1024Mi" },
                             requests: { cpu: "500m", memory: "1024Mi" }
                         },
-                        podLabels: { customer: "demo", environment: "dev", project: "cluster", group: "norther", datacenter: "dc01", domain: "local" },
+                        podLabels: podlabels,
                         persistence: {
                             enabled: true,
                             storageClass: "vsphere-san-sc",
@@ -916,70 +913,12 @@ config:
             },
             {
                 namespace: "monitoring",
-                name: "redis",
-                chart: "redis",
-                repositoryOpts: {
-                    repo: "https://charts.bitnami.com/bitnami"
-                },
-                version: "18.6.1",
-                values: {
-                    architecture: "standalone",
-                    auth: { enabled: false, sentinel: false },
-                    commonConfiguration: `appendonly no
-maxmemory 512mb
-tcp-keepalive 60
-tcp-backlog 8192
-maxclients 1000
-bind 0.0.0.0
-databases 4
-save ""`,
-                    master: {
-                        resources: {
-                            limits: { cpu: "300m", memory: "576Mi" },
-                            requests: { cpu: "300m", memory: "576Mi" }
-                        },
-                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
-                        podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
-                        persistence: { enabled: false }
-                    },
-                    metrics: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
-                        },
-                        podLabels: { customer: "demo", environment: "dev", project: "monitoring", group: "thanos", datacenter: "dc01", domain: "local" },
-                        serviceMonitor: {
-                            enabled: true,
-                            interval: "60s",
-                            relabellings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                            ]
-                        }
-                    },
-                    sysctl: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "100m", memory: "64Mi" },
-                            requests: { cpu: "100m", memory: "64Mi" }
-                        }
-                    }
-                }
-            },
-            {
-                namespace: "monitoring",
                 name: "prometheus-blackbox-exporter",
                 chart: "prometheus-blackbox-exporter",
                 repositoryOpts: {
                     repo: "https://prometheus-community.github.io/helm-charts"
                 },
-                version: "8.6.1",
+                version: "8.17.0",
                 values: {
                     fullnameOverride: "blackbox-exporter",
                     config: {
@@ -1024,12 +963,21 @@ save ""`,
                             }
                         }
                     },
+                    securityContext: {
+                        runAsUser: 1000,
+                        runAsGroup: 1000,
+                        readOnlyRootFilesystem: true,
+                        runAsNonRoot: true,
+                        allowPrivilegeEscalation: false,
+                        capabilities: { drop: ["ALL"] },
+                        seccompProfile: { type: "RuntimeDefault" }
+                    },
                     resources: {
                         limits: { cpu: "100m", memory: "64Mi" },
                         requests: { cpu: "100m", memory: "64Mi" }
                     },
                     pod: {
-                        labels: { customer: "demo", environment: "dev", project: "monitoring", group: "blackbox", datacenter: "dc01", domain: "local" },
+                        labels: podlabels,
                     },
                     replicas: 1,
                     serviceMonitor: {
@@ -1052,6 +1000,44 @@ save ""`,
                 }
             }
         ],
+        customresource: [
+            {
+                apiVersion: "redis.redis.opstreelabs.in/v1beta2",
+                kind: "Redis",
+                metadata: {
+                    name: "redis",
+                    namespace: "monitoring"
+                },
+                spec: {
+                    podSecurityContext: {
+                        allowPrivilegeEscalation: false,
+                        runAsNonRoot: true,
+                        seccompProfile: { type: "RuntimeDefault" },
+                        capabilities: { drop: ["ALL"] },
+                        runAsUser: 1000,
+                        fsGroup: 1000
+                    },
+                    kubernetesConfig: {
+                        image: "quay.io/opstree/redis:v7.0.12",
+                        imagePullPolicy: "IfNotPresent",
+                        resources: {
+                            limits: { cpu: "300m", memory: "576Mi" },
+                            requests: { cpu: "300m", memory: "576Mi" }
+                        },
+                    },
+                    redisExporter: {
+                        enabled: true,
+                        image: "quay.io/opstree/redis-exporter:v1.44.0",
+                        imagePullPolicy: "Always",
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        }
+                    }
+                }
+            }
+        ],
+        /**
         configfile: [
             { file: "../_rules/priority/kube-prometheus-stack-alertmanager" },
             { file: "../_rules/priority/kube-prometheus-stack-config-reloaders" },
@@ -1083,6 +1069,7 @@ save ""`,
             { file: "../_rules/priority/blackbox" },
             { file: "../_rules/priority/jenkins" }
         ]
+         */
     }
 ]
 
@@ -1090,3 +1077,4 @@ const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: res
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
 const configfile = new k8s_module.yaml.ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [release] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

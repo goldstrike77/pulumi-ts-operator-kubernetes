@@ -9,5 +9,5 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 pulumi config set OBJSTORE.YML [string] --secret
 pulumi config set ADDITIONALSCRAPE.JOB [string] --secret
 pulumi config set ALERTMANAGER.YAML [string] --secret
-pulumi config set tokensConsul [string] --secret
+pulumi config set consulToken [string] --secret
 ```

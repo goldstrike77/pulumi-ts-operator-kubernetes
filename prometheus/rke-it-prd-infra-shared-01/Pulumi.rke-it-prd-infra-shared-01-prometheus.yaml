@@ -1,0 +1,7 @@
+encryptionsalt: v1:+P9McaA6yTk=:v1:tNMw1rSkj6A/tVPJ:OylqJmesw0nMKKcrx6Iz/Vrd5+sN6A==
+config:
+  demo:OBJSTORE.YML:
+    secure: v1:kKq7ASz+4+pslMVQ:S/UO24yPkrTM9v91V+rkGpoA2Z6paVFqVTadPM1eFGVg4Oa+hJECE0SY/8vzVI8BDG50F5knodAWWmQS9xCql/fCdSsfS+ht+loNfmVRJlhtJa6VBp1iMKwk6fR9L0ai/16iv3o7EhIbLXPef1g9zltDAis7dCOK5wFanB4Nu146LeHOWeLSaYL833ThYQA6JaKuZM38Co+P41wGHTQnPiwP9fzWH/X//GFkofaX5K0lAHo0+khM9vZ2rm57RYOq2drOkjhlG3gO4CvVmaQLRULWJcMe7lzUutkF3Ptzzha1chMRWxsw1XLJNn+uKLS727bXkC/AOl6oX9r/KuTkffDRLmy7Ac7h8xYnMxePFrS75dNtlwGueLkBMIHmqsBTxSgTgG1PJCUMa0D2w0um5TjPoKU/C60zkFkLJysVd3A1u7+TCahOkOiXwXwUMpPvCSFaHEIRLWSil58dRH4a155NM+jSUklHAZQMfKGH/6k=
+  demo:consulToken:
+    secure: v1:qAmXTmWGnM2awOvu:jO2WraYvQEXFaiWrojCUMatYS32IS8A1QA==
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

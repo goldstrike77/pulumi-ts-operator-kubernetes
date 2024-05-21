@@ -1,7 +1,0 @@
-encryptionsalt: v1:NZmeTtEy+uk=:v1:q7h73EsDmBpjI3YN:CGrWw5YL7MhgSXDnZ8uDkG03d6TbbQ==
-config:
-  demo:OBJSTORE.YML:
-    secure: v1:NzFttWQFwr5ev0Ee:I+tWl87/UkmKXfriPMbAzRxKGRHH9JfMR4DBY03gTKtL64ExDTUC4btDChiF7IBBilkgvKDdMZqSmPkSR5jB2bg3LaPRVg5+/RPmvBWb9FePel06qVpJFNuXgTIZhDLaFgKDRd+OWQZMujLnM6ChjszyTyHQizmzQ//TLUH2R7ThlB3aWQvGbJ3EiaRaFiq2l9Wuk92MwWiZEy/A+8huv5L6NykItmQdwoRABgkOJDWXtWIxcQqeg+EiizW8P0Xs848mRXlOkcT20CPko7r+jxRYCZZaR0FaNG2g3XHRRuXDp858ubfRWuNjKH3/IC7Xyu6mY5CWfBJ2neduhwSFroIFo371YAXs+tF1s6rys9W/0r8vIHbAlL3FGKULBZ75F1HWevDsEEYsY4hjxIldwy3+llJKjg4aypuT3eKBGQaY+XhNECcWWf4j+6ZO7Z/2jx8rEg==
-  demo:consulToken:
-    secure: v1:CPgunWLu/McMh+Rg:qtNkgzZkRob1FxRf3zZBMwdzaQpNU9WaAruk4Yx1Jnus85dmSqAsdyrGmxTHNHhTLfqgeg==
-  kubernetes:context: kubernetes-admin@norther
