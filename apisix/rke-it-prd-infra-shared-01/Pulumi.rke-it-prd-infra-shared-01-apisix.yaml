@@ -1,0 +1,9 @@
+encryptionsalt: v1:5SkzmGh1HyA=:v1:mieRXmu+wIh9Bkyb:it2wg2TKpRVK7Ws13oqRqRgdExJbZA==
+config:
+  demo:adminCredentials:
+    secure: v1:jLJ0BtG1OutEpxbp:1C/HA0KLlzmocKL1zneIToCZWQcT+b8y
+  demo:etcdPassword:
+    secure: v1:KTvrhpzkNyc5BAj9:bGFxlEJIEm992IqZI1l41LtL0tnqvrlL
+  demo:viewerCredentials:
+    secure: v1:NzxRwOqaXPs2uMq8:MdpSqE+v7rcqYPYZ1cPXqZ7ofZsknzog
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

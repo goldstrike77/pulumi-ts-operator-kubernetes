@@ -2,7 +2,7 @@ import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const podlabels = {
     customer: "demo",
-    environment: "dev",
+    environment: "prd",
     project: "Load-Balancer",
     group: "MetalLB",
     datacenter: "cn-north",
@@ -15,7 +15,11 @@ const resources = [
             metadata: {
                 name: "metallb-system",
                 annotations: {},
-                labels: {}
+                labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged"
+                }
             },
             spec: {}
         },
@@ -76,11 +80,6 @@ const resources = [
                     speaker: {
                         enabled: true,
                         logLevel: "warn",
-                        securityContext: {
-                            runAsNonRoot: true,
-                            seccompProfile: { type: "RuntimeDefault" },
-                            capabilities: { drop: ["ALL"] }
-                        },
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
