@@ -1,7 +1,7 @@
 import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const podlabels = {
-    customer: "demo",
+    customer: "it",
     environment: "prd",
     project: "Load-Balancer",
     group: "MetalLB",
@@ -100,7 +100,7 @@ const resources = [
                     namespace: "metallb-system"
                 },
                 spec: {
-                    interfaces: "eth0",
+                    interfaces: "ens192",
                     addresses: ["192.168.0.100-192.168.0.109"],
                     autoAssign: true
                 }
