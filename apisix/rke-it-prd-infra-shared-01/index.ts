@@ -6,7 +6,7 @@ import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "demo",
+    customer: "it",
     environment: "prd",
     project: "API-Gateway",
     group: "APISIX",

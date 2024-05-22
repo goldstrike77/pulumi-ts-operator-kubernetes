@@ -735,7 +735,7 @@ SOFTWARE.
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "15.4.7",
+                version: "15.4.2",
                 values: {
                     existingObjstoreSecret: "configuration-secret",
                     query: {
@@ -747,8 +747,8 @@ SOFTWARE.
                             sidecarsService: "kubepromstack-thanos-discovery",
                             sidecarsNamespace: "monitoring"
                         },
-                        stores: ["192.168.0.110:10901", "192.168.0.110:10903"],
-                        extraFlags: ["--web.external-prefix=thanos-query", "--web.route-prefix=thanos-query", "--query.partial-response", "--query.auto-downsampling"],
+                        stores: [],
+                        extraFlags: ["--query.partial-response", "--query.auto-downsampling"],
                         replicaCount: 1,
                         resources: {
                             limits: { cpu: "200m", memory: "128Mi" },
@@ -764,7 +764,7 @@ SOFTWARE.
                             "query-frontend",
                             "--log.level=warn",
                             "--log.format=logfmt",
-                            "--http-address=0.0.0.0:10902",
+                            "--http-address=0.0.0.0:9090",
                             "--query-frontend.downstream-url=http://thanos-query:9090",
                             "--labels.split-interval=1h",
                             "--labels.max-retries-per-request=10",
@@ -774,7 +774,7 @@ SOFTWARE.
                             "--query-range.partial-response", `--query-range.response-cache-config=
 type: REDIS
 config:
-  addr: "redis:6379"
+  addr: "redis-master:6379"
   db: 3
   dial_timeout: 10s
   read_timeout: 10s
@@ -788,7 +788,7 @@ config:
 `, `--labels.response-cache-config=
 type: REDIS
 config:
-  addr: "redis:6379"
+  addr: "redis-master:6379"
   db: 2
   dial_timeout: 10s
   read_timeout: 10s
@@ -850,7 +850,7 @@ config:
                             "--store.grpc.series-sample-limit=50000", `--index-cache.config=
 type: REDIS
 config:
-  addr: "redis:6379"
+  addr: "redis-master:6379"
   db: 1
   dial_timeout: 10s
   read_timeout: 10s
@@ -864,7 +864,7 @@ config:
 `, `--store.caching-bucket.config=
 type: REDIS
 config:
-  addr: "redis:6379"
+  addr: "redis-master:6379"
   db: 0
   dial_timeout: 10s
   read_timeout: 10s
@@ -998,37 +998,58 @@ config:
                     },
                     prometheusRule: { enabled: false }
                 }
-            }
-        ],
-        customresource: [
+            },
             {
-                apiVersion: "redis.redis.opstreelabs.in/v1beta2",
-                kind: "Redis",
-                metadata: {
-                    name: "redis",
-                    namespace: "monitoring"
+                namespace: "monitoring",
+                name: "redis",
+                chart: "redis",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
                 },
-                spec: {
-                    podSecurityContext: {
-                        allowPrivilegeEscalation: false,
-                        runAsNonRoot: true,
-                        seccompProfile: { type: "RuntimeDefault" },
-                        capabilities: { drop: ["ALL"] },
-                        runAsUser: 1000,
-                        fsGroup: 1000
-                    },
-                    kubernetesConfig: {
-                        image: "quay.io/opstree/redis:v7.0.12",
-                        imagePullPolicy: "IfNotPresent",
+                version: "19.3.4",
+                values: {
+                    architecture: "standalone",
+                    auth: { enabled: false, sentinel: false },
+                    commonConfiguration: `appendonly no
+maxmemory 512mb
+tcp-keepalive 60
+tcp-backlog 8192
+maxclients 1000
+bind 0.0.0.0
+databases 4
+save ""`,
+                    master: {
                         resources: {
                             limits: { cpu: "300m", memory: "576Mi" },
                             requests: { cpu: "300m", memory: "576Mi" }
                         },
+                        podLabels: podlabels,
+                        podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
+                        persistence: { enabled: false }
                     },
-                    redisExporter: {
+                    metrics: {
                         enabled: true,
-                        image: "quay.io/opstree/redis-exporter:v1.44.0",
-                        imagePullPolicy: "Always",
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        },
+                        podLabels: podlabels,
+                        serviceMonitor: {
+                            enabled: true,
+                            interval: "60s",
+                            relabellings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        }
+                    },
+                    sysctl: {
+                        enabled: true,
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
@@ -1077,4 +1098,3 @@ const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: res
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
 const configfile = new k8s_module.yaml.ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [release] });
-const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

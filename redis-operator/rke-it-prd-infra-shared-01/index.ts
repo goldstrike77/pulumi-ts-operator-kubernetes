@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const podlabels = {
-    customer: "demo",
+    customer: "it",
     environment: "prd",
     project: "Operator",
     group: "Redis",
