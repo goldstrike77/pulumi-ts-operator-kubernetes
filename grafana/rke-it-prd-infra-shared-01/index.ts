@@ -5,11 +5,11 @@ import * as fs from 'fs';
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "demo",
-    environment: "dev",
+    customer: "it",
+    environment: "prd",
     project: "Visualization",
     group: "grafana",
-    datacenter: "dc01",
+    datacenter: "cn-north",
     domain: "local"
 }
 
@@ -19,7 +19,11 @@ const resources = [
             metadata: {
                 name: "visualization",
                 annotations: {},
-                labels: {}
+                labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged"
+                }
             },
             spec: {}
         },
@@ -157,7 +161,7 @@ const resources = [
                         ]
                     },
                     ingress: {
-                        enabled: true,
+                        enabled: false,
                         ingressClassName: "nginx",
                         annotations: {
                             "nginx.ingress.kubernetes.io/rewrite-target": "/$1",
@@ -269,9 +273,9 @@ const resources = [
                             token_url: "https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/oauth2/v2.0/token",
                             role_attribute_strict: false
                         },
-                        server: {
-                            root_url: "https://norther.example.com/grafana",
-                        },
+                        //server: {
+                        //    root_url: "https://norther.example.com/grafana",
+                        //},
                         paths: {
                             data: "/var/lib/grafana/",
                             logs: "/var/log/grafana",
@@ -287,7 +291,7 @@ const resources = [
                             reporting_enabled: false
                         },
                         log: { mode: "console", level: "warn" },
-                        grafana_net: { url: "https://grafana.net" },
+                        //                        grafana_net: { url: "https://grafana.net" },
                         user: {
                             default_theme: "dark",
                             home_page: ""
@@ -307,6 +311,35 @@ const resources = [
                     }
                 }
             }
+        ],
+        customresource: [
+            {
+                apiVersion: "apisix.apache.org/v2",
+                kind: "ApisixRoute",
+                metadata: {
+                    name: "grafana",
+                    namespace: "visualization"
+                },
+                spec: {
+                    http: [
+                        {
+                            name: "root",
+                            match: {
+                                methods: ["GET", "HEAD"],
+                                hosts: ["grafana.home.local"],
+                                paths: ["/*"]
+                            },
+                            backends: [
+                                {
+                                    serviceName: "grafana",
+                                    servicePort: 80,
+                                    resolveGranularity: "service"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
         ]
     }
 ]
@@ -315,3 +348,4 @@ const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: res
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const configmap = new k8s_module.core.v1.ConfigMap('ConfigMap', { resources: resources }, { dependsOn: [namespace] });
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [namespace] });
