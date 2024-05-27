@@ -16,27 +16,27 @@ spec:
   - port: http
     relabelings:
       - action: replace
-        replacement: demo
+        replacement: it
         sourceLabels:
           - __address__
         targetLabel: customer
       - action: replace
-        replacement: dev
+        replacement: prd
         sourceLabels:
           - __address__
         targetLabel: environment
       - action: replace
-        replacement: cluster
+        replacement: vSphere
         sourceLabels:
           - __address__
         targetLabel: project
       - action: replace
-        replacement: norther
+        replacement: cn-north-1
         sourceLabels:
           - __address__
         targetLabel: group
       - action: replace
-        replacement: dc01
+        replacement: cn-north
         sourceLabels:
           - __address__
         targetLabel: datacenter

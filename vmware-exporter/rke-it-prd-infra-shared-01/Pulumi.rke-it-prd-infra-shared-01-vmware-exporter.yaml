@@ -1,0 +1,5 @@
+encryptionsalt: v1:AbaBWtctM4Y=:v1:QMTYmTi/dSf5O+Mg:qm+CJRKWvaAv1YZ2qNaD1WEkV00vlA==
+config:
+  demo:password:
+    secure: v1:O1qbPm5yT67qBLCS:bttJz7Mv02XRCRWPgKdYNTAKjMygAuh8EKY3Kw==
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

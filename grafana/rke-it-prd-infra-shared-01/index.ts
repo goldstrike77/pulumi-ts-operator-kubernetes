@@ -290,7 +290,7 @@ const resources = [
                             check_for_updates: false,
                             reporting_enabled: false
                         },
-                        log: { mode: "console", level: "warn" },
+                        log: { mode: "console", level: "info" },
                         //                        grafana_net: { url: "https://grafana.net" },
                         user: {
                             default_theme: "dark",
@@ -325,7 +325,7 @@ const resources = [
                         {
                             name: "root",
                             match: {
-                                methods: ["GET", "HEAD"],
+                                methods: ["GET", "HEAD", "POST"],
                                 hosts: ["grafana.home.local"],
                                 paths: ["/*"]
                             },
