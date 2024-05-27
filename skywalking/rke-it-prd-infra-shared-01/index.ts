@@ -1,14 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
 const podlabels = {
-  customer: "demo",
-  environment: "dev",
+  customer: "it",
+  environment: "prd",
   project: "APM",
-  group: "Opensearch",
-  datacenter: "dc01",
+  group: "SkyWalking",
+  datacenter: "cn-north",
   domain: "local"
 }
 
@@ -18,7 +18,11 @@ const resources = [
       metadata: {
         name: "skywalking",
         annotations: {},
-        labels: {}
+        labels: {
+          "pod-security.kubernetes.io/enforce": "privileged",
+          "pod-security.kubernetes.io/audit": "privileged",
+          "pod-security.kubernetes.io/warn": "privileged"
+        }
       },
       spec: {}
     },
@@ -41,7 +45,7 @@ const resources = [
       {
         namespace: "skywalking",
         name: "opensearch",
-        version: "2.16.1",
+        version: "2.20.0",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -93,7 +97,7 @@ plugins:
           },
           image: {
             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.11.0"
+            tag: "2.14.0"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
@@ -186,7 +190,7 @@ snapshotrestore:
       {
         namespace: "skywalking",
         name: "elasticsearch-exporter",
-        version: "5.3.1",
+        version: "5.8.0",
         chart: "prometheus-elasticsearch-exporter",
         repositoryOpts: {
           repo: "https://prometheus-community.github.io/helm-charts"
@@ -249,7 +253,7 @@ snapshotrestore:
             },
             image: {
               repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-oap-server",
-              tag: "9.7.0"
+              tag: "10.0.0"
             },
             javaOpts: "-Xmx3g -Xms3g",
             resources: {
@@ -359,23 +363,13 @@ webhooks:
             replicas: 1,
             image: {
               repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-ui",
-              tag: "9.7.0"
+              tag: "10.0.0"
             },
             resources: {
               requests: { cpu: "500m", memory: "1024Mi" },
               limits: { cpu: "500m", memory: "1024Mi" },
             },
-            ingress: {
-              enabled: true,
-              annotations: {
-                "kubernetes.io/ingress.class": "nginx",
-                "nginx.ingress.kubernetes.io/auth-type": "basic",
-                "nginx.ingress.kubernetes.io/auth-secret": "opensearch-secret",
-                "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required ",
-              },
-              path: "/",
-              hosts: ["skywalking.example.com"]
-            }
+            ingress: { enabled: false }
           },
           elasticsearch: {
             enabled: false,
@@ -387,20 +381,22 @@ webhooks:
           fullnameOverride: "skywalking"
         }
       },
-      {
-        namespace: "skywalking",
-        name: "swck-operator",
-        chart: "../../_chart/swck-operator-0.8.0.tgz",
-        version: "0.8.0",
-        values: {
-          fullnameOverride: "skywalking",
-          replicas: 1,
-          resources: {
-            limits: { cpu: "200m", memory: "256Mi" },
-            requests: { cpu: "200m", memory: "256Mi" }
-          }
-        }
-      }
+      /**
+            {
+              namespace: "skywalking",
+              name: "swck-operator",
+              chart: "../../_chart/swck-operator-0.8.0.tgz",
+              version: "0.8.0",
+              values: {
+                fullnameOverride: "skywalking",
+                replicas: 1,
+                resources: {
+                  limits: { cpu: "200m", memory: "256Mi" },
+                  requests: { cpu: "200m", memory: "256Mi" }
+                }
+              }
+            }
+       */
     ],
     customresource: [
       {

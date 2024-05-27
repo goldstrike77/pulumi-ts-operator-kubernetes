@@ -1,14 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
 const podlabels = {
-  customer: "demo",
-  environment: "dev",
+  customer: "it",
+  environment: "prd",
   project: "SEIM",
   group: "Opensearch",
-  datacenter: "dc01",
+  datacenter: "cn-north",
   domain: "local"
 }
 
@@ -18,7 +18,11 @@ const resources = [
       metadata: {
         name: "opensearch",
         annotations: {},
-        labels: {}
+        labels: {
+          "pod-security.kubernetes.io/enforce": "privileged",
+          "pod-security.kubernetes.io/audit": "privileged",
+          "pod-security.kubernetes.io/warn": "privileged"
+        }
       },
       spec: {}
     },
@@ -50,7 +54,7 @@ const resources = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.16.1",
+        version: "2.20.0",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -66,6 +70,7 @@ const resources = [
 cluster:
   name: opensearch
   max_shards_per_node: 10000
+  initial_master_nodes: opensearch-master-0
 http:
   compression: false
   cors:
@@ -77,7 +82,7 @@ http:
 s3:
   client:
     default:
-      endpoint: storage.node.home.local:9000
+      endpoint: obs.home.local:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -114,8 +119,15 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
+          extraEnvs: [
+            {
+              name: "OPENSEARCH_INITIAL_ADMIN_PASSWORD",
+              value: config.require("adminPassword")
+            }
+          ],
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch"
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            tag: "2.14.0"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx4096M -Xms4096M",
@@ -149,10 +161,10 @@ plugins:
               securityContext: { runAsUser: 0, privileged: true }
             }
           ],
-          //          service: {
-          //            type: "LoadBalancer",
-          //            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
-          //          },
+          service: {
+            type: "LoadBalancer",
+            annotations: { "metallb.universe.tf/allow-shared-ip": "shared" }
+          },
           securityConfig: {
             path: "/usr/share/opensearch/config/opensearch-security",
             config: {
@@ -257,7 +269,7 @@ config:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.16.1",
+        version: "2.20.0",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -273,6 +285,7 @@ config:
 cluster:
   name: opensearch
   max_shards_per_node: 10000
+  initial_master_nodes: opensearch-master-0
 http:
   compression: false
   cors:
@@ -284,7 +297,7 @@ http:
 s3:
   client:
     default:
-      endpoint: storage.node.home.local:9000
+      endpoint: obs.home.local:9000
       protocol: http
       region: us-east-1
       path_style_access: true
@@ -322,7 +335,8 @@ plugins:
 `
           },
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch"
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            tag: "2.14.0"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
@@ -370,7 +384,7 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.14.0",
+        version: "2.18.0",
         chart: "opensearch-dashboards",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -379,7 +393,8 @@ plugins:
           opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch-dashboards"
+            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch-dashboards",
+            tag: "2.14.0"
           },
           fullnameOverride: "opensearch-dashboards",
           config: {
@@ -395,11 +410,11 @@ opensearch_security.auth.type: ["openid", "basicauth"]
 opensearch_security.cookie.secure: false
 opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: [Private, Global]
-opensearch_security.openid.base_redirect_url: "https://opensearch.example.com"
+opensearch_security.openid.base_redirect_url: "https://opensearch.home.local"
 opensearch_security.openid.client_id: "44865121-82d9-4c44-a9e3-417fbd1bacf8"
 opensearch_security.openid.client_secret: ${config.require("ssoClientSecret")}
 opensearch_security.openid.connect_url: "https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/v2.0/.well-known/openid-configuration"
-opensearch_security.openid.logout_url: "https://opensearch.example.com/app/login?"
+opensearch_security.openid.logout_url: "https://opensearch.home.local/app/login?"
 opensearch_security.readonly_mode.roles: [kibana_read_only]
 opensearch_security.ui.openid.login.buttonname: "Sign in with Azure AAD"
 server.host: '0.0.0.0'
@@ -408,25 +423,7 @@ server.ssl.enabled: false
 `,
           },
           labels: podlabels,
-          ingress: {
-            enabled: true,
-            annotations: { "nginx.ingress.kubernetes.io/backend-protocol": "HTTP" },
-            ingressClassName: "nginx",
-            hosts: [
-              {
-                host: "opensearch.example.com",
-                paths: [
-                  {
-                    path: "/",
-                    backend: {
-                      serviceName: "opensearch-dashboards",
-                      servicePort: 5601
-                    }
-                  }
-                ]
-              }
-            ]
-          },
+          ingress: { enabled: false },
           resources: {
             limits: { cpu: "500m", memory: "512Mi" },
             requests: { cpu: "500m", memory: "512Mi" }
@@ -436,7 +433,7 @@ server.ssl.enabled: false
       {
         namespace: "opensearch",
         name: "elasticsearch-exporter",
-        version: "5.3.1",
+        version: "5.8.0",
         chart: "prometheus-elasticsearch-exporter",
         repositoryOpts: {
           repo: "https://prometheus-community.github.io/helm-charts"
@@ -477,6 +474,35 @@ server.ssl.enabled: false
           }
         }
       }
+    ],
+    customresource: [
+      {
+        apiVersion: "apisix.apache.org/v2",
+        kind: "ApisixRoute",
+        metadata: {
+          name: "opensearch-dashboards",
+          namespace: "opensearch"
+        },
+        spec: {
+          http: [
+            {
+              name: "root",
+              match: {
+                methods: ["GET", "HEAD", "POST"],
+                hosts: ["opensearch.home.local"],
+                paths: ["/*"]
+              },
+              backends: [
+                {
+                  serviceName: "opensearch-dashboards",
+                  servicePort: 5601,
+                  resolveGranularity: "service"
+                }
+              ]
+            }
+          ]
+        }
+      }
     ]
   }
 ]
@@ -484,3 +510,4 @@ server.ssl.enabled: false
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [namespace] });

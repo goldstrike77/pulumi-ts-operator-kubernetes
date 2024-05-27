@@ -1,7 +1,0 @@
-encryptionsalt: v1:PDP8NF5+yLI=:v1:XbuR0TrQ9VBR071b:qji4+rksR4dMgSNH6MCciE+sYECp0A==
-config:
-  demo:adminPassword:
-    secure: v1:r24EBraaAYNb62sF:KkHE4VujFFnMmz5GIPQntIcH8zIog2+V
-  demo:kibanaserverPassword:
-    secure: v1:x2Uw5/SMAJOaLjFd:XGsoKO4L+DeYew+RILY0HoPSbXgvMevO
-  kubernetes:context: kubernetes-admin@norther
