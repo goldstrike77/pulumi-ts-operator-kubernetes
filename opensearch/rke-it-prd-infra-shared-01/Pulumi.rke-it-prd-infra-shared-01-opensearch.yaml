@@ -7,7 +7,7 @@ config:
   demo:adminPassword:
     secure: v1:AUA+ukN4obwbXBnT:J5elmrC0cM2jeih9svDkNrZFYY44fBlF
   demo:kibanaserverPassword:
-    secure: v1:q1zTJJ6exiCc0Yve:AqkwCPFozRg02Xh+fJR+fGg/7KTa9SRW
+    secure: v1:KIdvNaDNkvCzIqhI:rvpkAOA4JMCu1U0ResMPYjphHsGznj3B
   demo:ssoClientSecret:
     secure: v1:SJjiSG13cgNJYi0z:8rZ5meN6iOr5KX54WAHAlsD2lJqhmWEmAwBC5FmcJ25OkHr4RRtDMiYSUdalX2P4tYARLfPenRA=
   kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

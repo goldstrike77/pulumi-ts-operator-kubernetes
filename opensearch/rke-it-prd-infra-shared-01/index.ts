@@ -54,7 +54,7 @@ const resources = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.20.0",
+        version: "2.17.3",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -70,7 +70,6 @@ const resources = [
 cluster:
   name: opensearch
   max_shards_per_node: 10000
-  initial_master_nodes: opensearch-master-0
 http:
   compression: false
   cors:
@@ -119,15 +118,17 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
+          /**
           extraEnvs: [
             {
               name: "OPENSEARCH_INITIAL_ADMIN_PASSWORD",
               value: config.require("adminPassword")
             }
           ],
+           */
           image: {
             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.14.0"
+            tag: "2.11.1"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx4096M -Xms4096M",
@@ -175,17 +176,17 @@ _meta:
   type: "internalusers"
   config_version: 2
 admin:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: true
   backend_roles:
   - "admin"
   description: "Demo admin user"
 kibanaserver:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: true
   description: "Demo OpenSearch Dashboards user"
 kibanaro:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: false
   backend_roles:
   - "kibanauser"
@@ -196,19 +197,19 @@ kibanaro:
     attribute3: "value3"
   description: "Demo OpenSearch Dashboards read only user"
 logstash:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: false
   backend_roles:
   - "logstash"
   description: "Demo logstash user"
 readall:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: false
   backend_roles:
   - "readall"
   description: "Demo readall user"
 snapshotrestore:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: false
   backend_roles:
   - "snapshotrestore"
@@ -269,7 +270,7 @@ config:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.20.0",
+        version: "2.17.3",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -285,7 +286,6 @@ config:
 cluster:
   name: opensearch
   max_shards_per_node: 10000
-  initial_master_nodes: opensearch-master-0
 http:
   compression: false
   cors:
@@ -336,7 +336,7 @@ plugins:
           },
           image: {
             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.14.0"
+            tag: "2.11.1"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
@@ -384,7 +384,7 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.18.0",
+        version: "2.15.1",
         chart: "opensearch-dashboards",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -394,7 +394,7 @@ plugins:
           replicaCount: 1,
           image: {
             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch-dashboards",
-            tag: "2.14.0"
+            tag: "2.11.1"
           },
           fullnameOverride: "opensearch-dashboards",
           config: {
@@ -459,7 +459,7 @@ server.ssl.enabled: false
             sslSkipVerify: true
           },
           serviceMonitor: {
-            enabled: true,
+            enabled: false,
             interval: "60s",
             scrapeTimeout: "30s",
             relabelings: [
@@ -475,7 +475,7 @@ server.ssl.enabled: false
         }
       }
     ],
-    customresource: [
+    customresource: [/**
       {
         apiVersion: "apisix.apache.org/v2",
         kind: "ApisixRoute",
@@ -502,7 +502,7 @@ server.ssl.enabled: false
             }
           ]
         }
-      }
+      } */
     ]
   }
 ]
