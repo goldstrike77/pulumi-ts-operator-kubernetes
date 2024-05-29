@@ -37,7 +37,7 @@ const resources = [
                         serviceAccount: "kubepromstack-prometheus",
                         namespace: "monitoring",
                         podMonitor: {
-                            enabled: false,
+                            enabled: true,
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },

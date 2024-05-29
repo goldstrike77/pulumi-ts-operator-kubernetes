@@ -45,7 +45,7 @@ const resources = [
       {
         namespace: "skywalking",
         name: "opensearch",
-        version: "2.20.0",
+        version: "2.16.1",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
@@ -97,7 +97,7 @@ plugins:
           },
           image: {
             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.14.0"
+            tag: "2.11.0"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
@@ -141,17 +141,17 @@ _meta:
   type: "internalusers"
   config_version: 2
 admin:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: true
   backend_roles:
   - "admin"
   description: "Demo admin user"
 kibanaserver:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: true
   description: "Demo OpenSearch Dashboards user"
 kibanaro:
-  hash: "$2y$12$Y1rgnv5glUOVx.SzRTcGCe5/3XNrXfCbq.0bk6yjcl7/tHrXR29qO"
+  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
   reserved: false
   backend_roles:
   - "kibanauser"
@@ -255,10 +255,15 @@ snapshotrestore:
               repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-oap-server",
               tag: "10.0.0"
             },
-            javaOpts: "-Xmx3g -Xms3g",
+            javaOpts: "-Xmx4g -Xms4g",
             resources: {
-              requests: { cpu: "1000m", memory: "4096Mi" },
-              limits: { cpu: "4000m", memory: "4096Mi" },
+              requests: { cpu: "1000m", memory: "6144Mi" },
+              limits: { cpu: "4000m", memory: "6144Mi" },
+            },
+            startupProbe: {
+              tcpSocket: { port: 12800 },
+              failureThreshold: 30,
+              periodSeconds: 10
             },
             env: {
               SW_CORE_METRICS_DATA_TTL: "7",
@@ -433,6 +438,33 @@ webhooks:
               component: "oap"
             }
           }
+        }
+      },
+      {
+        apiVersion: "apisix.apache.org/v2",
+        kind: "ApisixRoute",
+        metadata: {
+          name: "skywalking-ui",
+          namespace: "skywalking"
+        },
+        spec: {
+          http: [
+            {
+              name: "root",
+              match: {
+                methods: ["GET", "HEAD"],
+                hosts: ["skywalking.home.local"],
+                paths: ["/*"]
+              },
+              backends: [
+                {
+                  serviceName: "skywalking-ui",
+                  servicePort: 80,
+                  resolveGranularity: "service"
+                }
+              ]
+            }
+          ]
         }
       }
     ]

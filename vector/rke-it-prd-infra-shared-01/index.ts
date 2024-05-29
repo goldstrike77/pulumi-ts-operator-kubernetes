@@ -1,14 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "demo",
-    environment: "dev",
+    customer: "it",
+    environment: "prd",
     project: "SEIM",
     group: "Vector",
-    datacenter: "dc01",
+    datacenter: "cn-north",
     domain: "local"
 }
 
@@ -18,7 +18,11 @@ const resources = [
             metadata: {
                 name: "datadog",
                 annotations: {},
-                labels: {}
+                labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged"
+                }
             },
             spec: {}
         },
@@ -30,14 +34,19 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://helm.vector.dev"
                 },
-                version: "0.29.0",
+                version: "0.33.0",
                 values: {
                     role: "Agent",
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        tag: "0.38.0-distroless-libc"
+                    },
                     podLabels: podlabels,
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
+                    tolerations: [{ key: "CriticalAddonsOnly", operator: "Exists" }],
                     service: { enabled: false },
                     customConfig: {
                         data_dir: "/vector-data-dir",
@@ -45,7 +54,7 @@ const resources = [
                         sources: {
                             kubernetes_logs: {
                                 type: "kubernetes_logs",
-                                max_line_bytes: 32768
+                                max_line_bytes: 65536
                             }
                         },
                         transforms: {
@@ -93,6 +102,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         }
                     },
+                    /**
                     extraVolumes: [
                         {
                             name: "varlibdockercontainers",
@@ -108,6 +118,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             readOnly: true
                         }
                     ],
+                     */
                     persistence: { hostPath: { path: "/var/lib/vector/kube-pod" } },
                     podMonitor: {
                         enabled: true,
@@ -121,12 +132,12 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 repositoryOpts: {
                     repo: "https://helm.vector.dev"
                 },
-                version: "0.29.0",
+                version: "0.33.0",
                 values: {
                     role: "Aggregator",
                     image: {
                         repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
-                        tag: "0.33.0-distroless-libc"
+                        tag: "0.38.0-distroless-libc"
                     },
                     replicas: 1,
                     podLabels: podlabels,
@@ -151,7 +162,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             syslog_socket_udp: {
                                 type: "socket",
                                 address: "0.0.0.0:1514",
-                                max_length: 32768,
+                                max_length: 65536,
                                 mode: "udp",
                                 receive_buffer_bytes: 65536
                             }
@@ -174,7 +185,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             syslog_json_udp_filter: {
                                 type: "filter",
                                 inputs: ["syslog_json_udp_geoip"],
-                                condition: '!(ip_cidr_contains!("10.221.0.64/28", .remote_addr))'
+                                condition: '!(ip_cidr_contains!("10.42.0.0/16", .remote_addr))'
                             }
                         },
                         sinks: {
@@ -218,9 +229,13 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 repositoryOpts: {
                     repo: "https://helm.vector.dev"
                 },
-                version: "0.29.0",
+                version: "0.33.0",
                 values: {
                     role: "Aggregator",
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        tag: "0.38.0-distroless-libc"
+                    },
                     replicas: 1,
                     podLabels: podlabels,
                     resources: {
@@ -244,7 +259,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             syslog_socket_udp: {
                                 type: "socket",
                                 address: "0.0.0.0:1514",
-                                max_length: 32768,
+                                max_length: 65536,
                                 mode: "udp",
                                 receive_buffer_bytes: 65536
                             }
@@ -290,6 +305,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+            /**
             {
                 namespace: "datadog",
                 name: "auditbeat",
@@ -297,7 +313,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 repositoryOpts: {
                     repo: "https://helm.vector.dev"
                 },
-                version: "0.29.0",
+                version: "0.33.0",
                 values: {
                     role: "Aggregator",
                     replicas: 1,
@@ -368,7 +384,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 repositoryOpts: {
                     repo: "https://helm.vector.dev"
                 },
-                version: "0.29.0",
+                version: "0.33.0",
                 values: {
                     role: "Aggregator",
                     replicas: 1,
@@ -432,6 +448,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
+             */
             {
                 namespace: "datadog",
                 name: "kube-audit",
@@ -439,21 +456,25 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 repositoryOpts: {
                     repo: "https://helm.vector.dev"
                 },
-                version: "0.29.0",
+                version: "0.33.0",
                 values: {
                     role: "Agent",
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        tag: "0.38.0-distroless-libc"
+                    },
                     podLabels: podlabels,
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
-                    nodeSelector: { "node-role.kubernetes.io/control-plane": "" },
-                    tolerations: [{ key: "node-role.kubernetes.io/control-plane", effect: "NoSchedule" }],
+                    nodeSelector: { "node-role.kubernetes.io/control-plane": "true" },
+                    tolerations: [{ key: "CriticalAddonsOnly", operator: "Exists" }],
                     service: { enabled: false },
                     customConfig: {
                         data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
-                        sources: { kubernetes_audit: { type: "file", max_line_bytes: 32768, include: ["/data/log/kube-audit/audit.log"] } },
+                        sources: { kubernetes_audit: { type: "file", max_line_bytes: 65536, include: ["/var/lib/rancher/rke2/server/logs/audit.log"] } },
                         transforms: {
                             kubernetes_audit_json: {
                                 type: "remap",
@@ -463,15 +484,20 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         },
                         sinks: {
                             kubernetes_logs_loki: {
-                                type: "loki",
+                                type: "elasticsearch",
                                 inputs: ["kubernetes_audit_json"],
-                                endpoint: "http://loki-distributor.logging:3100",
-                                labels: { scrape_job: "kube-audit", cluster: "norther" },
+                                bulk: { action: "index", index: "kube-audit-%Y-%m-%d" },
+                                endpoint: "https://opensearch-master.opensearch:9200",
+                                mode: "bulk",
+                                suppress_type_name: true,
+                                acknowledgements: { enabled: false },
                                 compression: "none",
-                                healthcheck: { enabled: false },
-                                encoding: { codec: "json", except_fields: ["source_type"] },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 1024, timeout_secs: 3 }
+                                encoding: null,
+                                healthcheck: null,
+                                tls: { verify_certificate: false, verify_hostname: false },
+                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
@@ -479,14 +505,14 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                         {
                             name: "varlibdockercontainers",
                             hostPath: {
-                                path: "/data/log/kube-audit"
+                                path: "/var/lib/rancher/rke2/server/logs"
                             }
                         }
                     ],
                     extraVolumeMounts: [
                         {
                             name: "varlibdockercontainers",
-                            mountPath: "/data/log/kube-audit",
+                            mountPath: "/var/lib/rancher/rke2/server/logs",
                             readOnly: true
                         }
                     ],
@@ -504,6 +530,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             }
+
         ]
     }
 ]

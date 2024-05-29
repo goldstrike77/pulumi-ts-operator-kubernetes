@@ -1035,7 +1035,7 @@ save ""`,
                         },
                         podLabels: podlabels,
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
                             interval: "60s",
                             relabellings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },

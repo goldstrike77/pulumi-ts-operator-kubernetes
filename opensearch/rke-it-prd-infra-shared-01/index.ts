@@ -416,7 +416,7 @@ opensearch_security.openid.client_secret: ${config.require("ssoClientSecret")}
 opensearch_security.openid.connect_url: "https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/v2.0/.well-known/openid-configuration"
 opensearch_security.openid.logout_url: "https://opensearch.home.local/app/login?"
 opensearch_security.readonly_mode.roles: [kibana_read_only]
-opensearch_security.ui.openid.login.buttonname: "Sign in with Azure AAD"
+opensearch_security.ui.openid.login.buttonname: "Sign in with Microsoft Entra ID"
 server.host: '0.0.0.0'
 server.ssl.clientAuthentication: none
 server.ssl.enabled: false
@@ -459,7 +459,7 @@ server.ssl.enabled: false
             sslSkipVerify: true
           },
           serviceMonitor: {
-            enabled: false,
+            enabled: true,
             interval: "60s",
             scrapeTimeout: "30s",
             relabelings: [
@@ -475,7 +475,7 @@ server.ssl.enabled: false
         }
       }
     ],
-    customresource: [/**
+    customresource: [
       {
         apiVersion: "apisix.apache.org/v2",
         kind: "ApisixRoute",
@@ -488,7 +488,7 @@ server.ssl.enabled: false
             {
               name: "root",
               match: {
-                methods: ["GET", "HEAD", "POST"],
+                methods: ["GET", "HEAD", "POST", "PUT"],
                 hosts: ["opensearch.home.local"],
                 paths: ["/*"]
               },
@@ -502,7 +502,7 @@ server.ssl.enabled: false
             }
           ]
         }
-      } */
+      }
     ]
   }
 ]

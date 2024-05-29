@@ -84,14 +84,15 @@ const resources = [
                     },
                     metrics: {
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
                             interval: "60s",
                             labels: podlabels
                         }
                     },
                     apisix: {
                         ssl: {
-                            enabled: true
+                            enabled: true,
+                            containerPort: 443
                         },
                         admin: {
                             credentials: {
@@ -201,7 +202,7 @@ const resources = [
                     },
                     nodeSelector: {},
                     serviceMonitor: {
-                        enabled: false,
+                        enabled: true,
                         interval: "60s",
                         labels: podlabels
                     }
@@ -253,7 +254,7 @@ const resources = [
                     metrics: {
                         enabled: true,
                         podMonitor: {
-                            enabled: true,
+                            enabled: false,
                             interval: "60s",
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },

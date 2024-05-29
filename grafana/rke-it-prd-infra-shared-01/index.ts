@@ -264,7 +264,7 @@ const resources = [
                     },
                     "grafana.ini": {
                         "auth.azuread": {
-                            name: "Azure AAD",
+                            name: "Microsoft Entra ID",
                             enabled: true,
                             allow_sign_up: true,
                             client_id: "7d91f7eb-2dcb-4989-9b11-94bbf2322be5",
