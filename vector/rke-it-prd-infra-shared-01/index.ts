@@ -305,7 +305,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-            /**
             {
                 namespace: "datadog",
                 name: "auditbeat",
@@ -316,6 +315,10 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 version: "0.33.0",
                 values: {
                     role: "Aggregator",
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        tag: "0.38.0-distroless-libc"
+                    },
                     replicas: 1,
                     podLabels: podlabels,
                     resources: {
@@ -387,6 +390,10 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 version: "0.33.0",
                 values: {
                     role: "Aggregator",
+                    image: {
+                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        tag: "0.38.0-distroless-libc"
+                    },
                     replicas: 1,
                     podLabels: podlabels,
                     resources: {
@@ -448,7 +455,6 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                     }
                 }
             },
-             */
             {
                 namespace: "datadog",
                 name: "kube-audit",
@@ -483,20 +489,21 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         },
                         sinks: {
-                            kubernetes_logs_loki: {
+                            kubernetes_logs_elasticsearch: {
                                 type: "elasticsearch",
                                 inputs: ["kubernetes_audit_json"],
                                 bulk: { action: "index", index: "kube-audit-%Y-%m-%d" },
                                 endpoint: "https://opensearch-master.opensearch:9200",
                                 mode: "bulk",
-                                suppress_type_name: true,
+                                suppress_type_name: false,
+                                api_version: "v8",
                                 acknowledgements: { enabled: false },
                                 compression: "none",
                                 encoding: null,
                                 healthcheck: null,
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "drop_newest" },
+                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
                                 batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
