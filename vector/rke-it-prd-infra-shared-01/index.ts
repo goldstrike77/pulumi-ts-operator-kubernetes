@@ -75,7 +75,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
 .pod = kubernetes.pod_name
 .namespace = kubernetes.pod_namespace
 .timestamp = timestamp(.timestamp) ?? now()
-.cluster = "norther"`
+.cluster = "rke-it-prd-infra-shared-01"`
                             },
                             kubernetes_filter: {
                                 type: "filter",
@@ -489,22 +489,16 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                             }
                         },
                         sinks: {
-                            kubernetes_logs_elasticsearch: {
-                                type: "elasticsearch",
+                            kubernetes_logs_loki: {
+                                type: "loki",
                                 inputs: ["kubernetes_audit_json"],
-                                bulk: { action: "index", index: "kube-audit-%Y-%m-%d" },
-                                endpoint: "https://opensearch-master.opensearch:9200",
-                                mode: "bulk",
-                                suppress_type_name: false,
-                                api_version: "v8",
-                                acknowledgements: { enabled: false },
+                                endpoint: "http://loki-distributor.logging:3100",
+                                labels: { scrape_job: "kube-audit", cluster: "rke-it-prd-infra-shared-01" },
                                 compression: "none",
-                                encoding: null,
-                                healthcheck: null,
-                                tls: { verify_certificate: false, verify_hostname: false },
-                                auth: { user: "admin", password: "password", strategy: "basic" },
+                                healthcheck: { enabled: false },
+                                encoding: { codec: "json", except_fields: ["source_type"] },
                                 buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
-                                batch: { max_events: 2048, timeout_secs: 20 }
+                                batch: { max_events: 1024, timeout_secs: 3 }
                             }
                         }
                     },

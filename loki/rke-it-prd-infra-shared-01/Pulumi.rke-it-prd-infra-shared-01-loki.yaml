@@ -1,0 +1,7 @@
+encryptionsalt: v1:7UtMg4USthA=:v1:dUQys+KgRDLIXMko:7oz754dTaapzZ8fBotP3XO2JknkpXg==
+config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:pPHC5NRSt7Eu3/jd:R+6CKdSihBSwd81KoHwVzuyOs9TT
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:U3NWzDhqE31AnjFw:ZnoqxRxDRdVDamRT5irHa1+Cmm9OxBZz
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

@@ -1,0 +1,3 @@
+encryptionsalt: v1:/8mK+LFLlm4=:v1:oEn4QhHdyOj/WgmS:/c3p+9BP+BC+9ha8VhGQBp8ORj1jUw==
+config:
+  kubernetes:context: kubernetes-admin@ocp-sales-prd-shared-2c-01

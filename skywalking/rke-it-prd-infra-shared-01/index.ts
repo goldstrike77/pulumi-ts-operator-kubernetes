@@ -452,7 +452,7 @@ webhooks:
             {
               name: "root",
               match: {
-                methods: ["GET", "HEAD"],
+                methods: ["GET", "HEAD", "POST"],
                 hosts: ["skywalking.home.local"],
                 paths: ["/*"]
               },
