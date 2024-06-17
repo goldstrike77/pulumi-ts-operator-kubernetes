@@ -246,6 +246,11 @@ const resources = [
                     },
                     volumePermissions: {
                         enabled: true,
+                        image: {
+                            registry: "registry.cn-shanghai.aliyuncs.com",
+                            repository: "goldenimage/os-shell",
+                            tag: "12-debian-12-r22"
+                        },
                         resources: {
                             limits: { cpu: "50m", memory: "64Mi" },
                             requests: { cpu: "50m", memory: "64Mi" }
