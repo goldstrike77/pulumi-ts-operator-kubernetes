@@ -38,7 +38,10 @@ const resources = [
                             snapshots: false
                         }
                     },
-                    image: { tag: "v0.18.4" },
+                    image: {
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vmware_exporter",
+                        tag: "v0.18.4"
+                    },
                     service: { enabled: true },
                     resources: {
                         limits: { cpu: "100m", memory: "128Mi" },

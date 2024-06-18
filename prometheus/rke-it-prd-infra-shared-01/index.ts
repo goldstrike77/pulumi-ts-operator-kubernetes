@@ -737,6 +737,12 @@ SOFTWARE.
                 },
                 version: "15.5.0",
                 values: {
+                    image:
+                    {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/thanos",
+                        tag: "0.35.0-debian-12-r4"
+                    },
                     existingObjstoreSecret: "configuration-secret",
                     query: {
                         enabled: true,

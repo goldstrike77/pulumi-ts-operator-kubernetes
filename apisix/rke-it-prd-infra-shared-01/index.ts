@@ -219,6 +219,12 @@ const resources = [
                 version: "9.8.0",
                 values: {
                     fullnameOverride: "apisix-etcd",
+                    image:
+                    {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/etcd",
+                        tag: "3.5.11-debian-11-r2"
+                    },
                     auth: {
                         rbac: {
                             create: true,
@@ -235,8 +241,8 @@ const resources = [
                     ],
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "500m", memory: "512Mi" },
-                        requests: { cpu: "500m", memory: "512Mi" }
+                        limits: { cpu: "1000m", memory: "512Mi" },
+                        requests: { cpu: "1000m", memory: "512Mi" }
                     },
                     podLabels: podlabels,
                     persistence: {

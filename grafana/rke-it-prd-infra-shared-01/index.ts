@@ -140,6 +140,11 @@ const resources = [
                 version: "6.57.4",
                 values: {
                     replicas: 1,
+                    image:
+                    {
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/grafana",
+                        tag: "9.5.5",
+                    },
                     deploymentStrategy: {
                         type: "RollingUpdate",
                         rollingUpdate: {
