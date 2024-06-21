@@ -66,8 +66,13 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://charts.apiseven.com"
                 },
-                version: "2.7.0",
+                version: "2.8.0",
                 values: {
+                    image:
+                    {
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/apisix",
+                        tag: "3.9.1-debian"
+                    },
                     replicaCount: 1,
                     resources: {
                         limits: { cpu: "300m", memory: "512Mi" },
@@ -133,6 +138,10 @@ const resources = [
                     etcd: { enabled: false },
                     dashboard: {
                         enabled: true,
+                        image: {
+                            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/apisix-dashboard",
+                            tag: "3.0.0-alpine"
+                        },
                         replicaCount: 1,
                         labelsOverride: podlabels,
                         config: {
@@ -183,6 +192,11 @@ const resources = [
                 version: "0.14.0",
                 values: {
                     replicaCount: 1,
+                    image:
+                    {
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/apisix-ingress-controller",
+                        tag: "1.8.0"
+                    },
                     config: {
                         logLevel: "error",
                         apisix: {
@@ -216,7 +230,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "9.8.0",
+                version: "9.8.2",
                 values: {
                     fullnameOverride: "apisix-etcd",
                     image:
@@ -236,13 +250,13 @@ const resources = [
                     autoCompactionRetention: "1h",
                     initialClusterState: "new",
                     logLevel: "error",
-                    extraEnvVars: [
-                        { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
-                    ],
+                    //                    extraEnvVars: [
+                    //                        { name: "ETCD_QUOTA_BACKEND_BYTES", value: "4294967296" }
+                    //                    ],
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "1000m", memory: "512Mi" },
-                        requests: { cpu: "1000m", memory: "512Mi" }
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
                     },
                     podLabels: podlabels,
                     persistence: {
