@@ -37,7 +37,7 @@ const resources = [
         repositoryOpts: {
           repo: "https://kubernetes.github.io/cloud-provider-vsphere"
         },
-        version: "1.30.0",
+        version: "1.30.1",
         values: {
           config: {
             enabled: true,
@@ -50,8 +50,8 @@ const resources = [
           },
           podSecurityPolicy: { enabled: false },
           daemonset: {
-            image: "swr.cn-east-3.myhuaweicloud.com/cloud-provider-vsphere/manager",
-            tag: "v1.30.0",
+            image: "swr.cn-east-3.myhuaweicloud.com/gcr-io/cloud-provider-vsphere",
+            tag: "v1.30.1",
             replicaCount: 1,
             resources: {
               limits: { cpu: "50m", memory: "64Mi" },
@@ -73,7 +73,7 @@ const resources = [
         provisioner: "csi.vsphere.vmware.com",
         allowVolumeExpansion: true,
         parameters: {
-          datastoreurl: "ds:///vmfs/volumes/6655c4a0-42bcd74f-49ab-002590f4baa4/",
+          datastoreurl: "ds:///vmfs/volumes/667a8f3c-b9c7d93d-e0b9-002590f4baa4/",
           "csi.storage.k8s.io/fstype": "ext4"
         },
         reclaimPolicy: "Delete",

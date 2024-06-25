@@ -230,7 +230,7 @@ spec:
       dnsPolicy: "Default"
       containers:
         - name: csi-attacher
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/csi-attacher:v4.5.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/csi-attacher:v4.5.0
           args:
             - "--v=4"
             - "--timeout=300s"
@@ -248,7 +248,7 @@ spec:
             - mountPath: /csi
               name: socket-dir
         - name: csi-resizer
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/csi-resizer:v1.10.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/csi-resizer:v1.10.0
           args:
             - "--v=4"
             - "--timeout=300s"
@@ -267,7 +267,7 @@ spec:
             - mountPath: /csi
               name: socket-dir
         - name: vsphere-csi-controller
-          image: swr.cn-east-3.myhuaweicloud.com/cloud-provider-vsphere/driver:v3.2.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/driver:v3.2.0
           args:
             - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
             - "--fss-namespace=$(CSI_NAMESPACE)"
@@ -321,7 +321,7 @@ spec:
             periodSeconds: 180
             failureThreshold: 3
         - name: liveness-probe
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/livenessprobe:v2.12.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/livenessprobe:v2.12.0
           args:
             - "--v=4"
             - "--csi-address=/csi/csi.sock"
@@ -329,7 +329,7 @@ spec:
             - name: socket-dir
               mountPath: /csi
         - name: vsphere-syncer
-          image: swr.cn-east-3.myhuaweicloud.com/cloud-provider-vsphere/syncer:v3.2.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/syncer:v3.2.0
           args:
             - "--leader-election"
             - "--leader-election-lease-duration=30s"
@@ -368,7 +368,7 @@ spec:
               name: vsphere-config-volume
               readOnly: true
         - name: csi-provisioner
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/csi-provisioner:v4.0.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/csi-provisioner:v4.0.0
           args:
             - "--v=4"
             - "--timeout=300s"
@@ -390,7 +390,7 @@ spec:
             - mountPath: /csi
               name: socket-dir
         - name: csi-snapshotter
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/csi-snapshotter:v7.0.1
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/csi-snapshotter:v7.0.1
           args:
             - "--v=4"
             - "--kube-api-qps=100"
@@ -441,7 +441,7 @@ spec:
       dnsPolicy: "ClusterFirstWithHostNet"
       containers:
         - name: node-driver-registrar
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/csi-node-driver-registrar:v2.10.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/csi-node-driver-registrar:v2.10.0
           args:
             - "--v=5"
             - "--csi-address=$(ADDRESS)"
@@ -464,7 +464,7 @@ spec:
               - --mode=kubelet-registration-probe
             initialDelaySeconds: 3
         - name: vsphere-csi-node
-          image: swr.cn-east-3.myhuaweicloud.com/cloud-provider-vsphere/driver:v3.2.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/driver:v3.2.0
           args:
             - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
             - "--fss-namespace=$(CSI_NAMESPACE)"
@@ -524,7 +524,7 @@ spec:
             periodSeconds: 5
             failureThreshold: 3
         - name: liveness-probe
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/livenessprobe:v2.12.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/livenessprobe:v2.12.0
           args:
             - "--v=4"
             - "--csi-address=/csi/csi.sock"
@@ -586,7 +586,7 @@ spec:
       serviceAccountName: vsphere-csi-node
       containers:
         - name: node-driver-registrar
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/csi-node-driver-registrar:v2.10.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/csi-node-driver-registrar:v2.10.0
           args:
             - "--v=5"
             - "--csi-address=$(ADDRESS)"
@@ -609,7 +609,7 @@ spec:
               - --mode=kubelet-registration-probe
             initialDelaySeconds: 3
         - name: vsphere-csi-node
-          image: swr.cn-east-3.myhuaweicloud.com/cloud-provider-vsphere/driver:v3.2.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/driver:v3.2.0
           args:
             - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
             - "--fss-namespace=$(CSI_NAMESPACE)"
@@ -666,7 +666,7 @@ spec:
             periodSeconds: 5
             failureThreshold: 3
         - name: liveness-probe
-          image: swr.cn-east-3.myhuaweicloud.com/sig-storage0/livenessprobe:v2.12.0
+          image: swr.cn-east-3.myhuaweicloud.com/gcr-io/livenessprobe:v2.12.0
           args:
             - "--v=4"
             - "--csi-address=/csi/csi.sock"

@@ -1,5 +1,4 @@
-import { ClusterTrustBundleList } from '@pulumi/kubernetes/certificates/v1alpha1/clusterTrustBundleList';
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const labels = {
     customer: "demo",
@@ -20,10 +19,18 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://helm.cilium.io"
                 },
-                version: "1.14.5",
+                version: "1.15.6",
                 values: {
-                    k8sServiceHost: "192.168.0.120",
+                    k8sServiceHost: "192.168.0.151",
                     k8sServicePort: "6443",
+                    k8sClientRateLimit: {
+                        qps: 10,
+                        burst: 20
+                    },
+                    cluster: {
+                        name: "rke-it-prd-infra-shared-01",
+                        id: 0
+                    },
                     image: {
                         repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/cilium",
                         tag: "v1.14.5",
