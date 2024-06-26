@@ -32,8 +32,8 @@ const resources = [
                         id: 0
                     },
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/cilium",
-                        tag: "v1.14.5",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/cilium",
+                        tag: "v1.15.6",
                         pullPolicy: "IfNotPresent",
                         useDigest: false
                     },
@@ -45,7 +45,7 @@ const resources = [
                     bpf: {
                         masquerade: true
                     },
-                    devices: "eth0",
+                    devices: "ens192",
                     localRedirectPolicy: false,
                     hubble: {
                         enabled: true,
@@ -60,8 +60,8 @@ const resources = [
                         relay: {
                             enabled: true,
                             image: {
-                                repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/hubble-relay",
-                                tag: "v1.14.5",
+                                repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/hubble-relay",
+                                tag: "v1.15.6",
                                 useDigest: false,
                                 pullPolicy: "IfNotPresent"
                             },
@@ -84,7 +84,7 @@ const resources = [
                         mode: "kubernetes",
                         operator: {
                             clusterPoolIPv4PodCIDRList: [
-                                "10.244.0.0/16"
+                                "10.42.0.0/16"
                             ]
                         }
                     },
@@ -114,9 +114,9 @@ const resources = [
                     operator: {
                         enabled: true,
                         image: {
-                            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/operator",
-                            tag: "v1.14.5",
-                            genericDigest: "sha256:2258b425bc1118a3a4c9add8093af9d37e47daff27f2182e15c140ddb442d961",
+                            repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/operator",
+                            tag: "v1.15.6",
+                            genericDigest: "sha256:3d1117e41e246ab4e5d8d69670d36abf376c1254e1852f6b2638340652739572",
                             useDigest: true,
                             pullPolicy: "IfNotPresent"
                         },
