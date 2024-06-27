@@ -4,31 +4,16 @@ import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 let config = new pulumi.Config();
 
 const labels = {
-  customer: "demo",
-  environment: "dev",
+  customer: "it",
+  environment: "prd",
   project: "CSI",
   group: "vSphere",
-  datacenter: "dc01",
+  datacenter: "cn-north",
   domain: "local"
 }
 
 const resources = [
   {
-    secret: [
-      {
-        metadata: {
-          name: "vsphere-config-secret",
-          namespace: "kube-system",
-          annotations: {},
-          labels: {}
-        },
-        type: "Opaque",
-        data: {
-          "csi-vsphere.conf": config.require("CSI-VSPHERE")
-        },
-        stringData: {}
-      }
-    ],
     release: [
       {
         namespace: "kube-system",
@@ -41,7 +26,7 @@ const resources = [
         values: {
           config: {
             enabled: true,
-            vcenter: "192.168.0.130",
+            vcenter: "vcenter.esxi.lab",
             username: "administrator@vsphere.local",
             password: config.require("VSPHERE_PASSWORD"),
             datacenter: "cn-north",
@@ -54,10 +39,168 @@ const resources = [
             tag: "v1.30.1",
             replicaCount: 1,
             resources: {
+              limits: { cpu: "100m", memory: "64Mi" },
+              requests: { cpu: "100m", memory: "64Mi" }
+            },
+            podLabels: labels
+          }
+        }
+      },
+      {
+        namespace: "kube-system",
+        name: "vsphere-csi",
+        chart: "vsphere-csi",
+        repositoryOpts: {
+          repo: "https://vsphere-tmm.github.io/helm-charts"
+        },
+        version: "3.6.0",
+        values:
+        {
+          global: {
+            imageRegistry: "swr.cn-east-3.myhuaweicloud.com",
+            config: {
+              csidriver: {
+                enabled: true
+              },
+              storageclass: {
+                enabled: false,
+                name: "vsphere-csi",
+                expansion: false,
+                default: false,
+                reclaimPolicy: "Delete"
+              },
+              global: {
+                port: 443,
+                "insecure-flag": true,
+                "cluster-id": "cn-north-1"
+              },
+              vcenter: {
+                "vcenter.esxi.lab": {
+                  server: "vcenter.esxi.lab",
+                  user: "administrator@vsphere.local",
+                  password: config.require("VSPHERE_PASSWORD"),
+                  datacenters: ["cn-north"]
+                }
+              }
+            }
+          },
+          controller: {
+            name: "vsphere-csi-controller",
+            config: {
+              "trigger-csi-fullsync": false,
+              "pv-to-backingdiskobjectid-mapping": false
+            },
+            image: { repository: "gcr-io/driver" },
+            resizer: {
+              image: { repository: "gcr-io/csi-resizer" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            attacher: {
+              image: { repository: "gcr-io/csi-attacher" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            livenessprobe: {
+              image: { repository: "gcr-io/livenessprobe" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            syncer: {
+              image: { repository: "gcr-io/syncer" },
+              resources: {
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
+              }
+            },
+            provisioner: {
+              image: { repository: "gcr-io/csi-provisioner" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            snapshotter: {
+              image: { repository: "gcr-io/csi-snapshotter" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            replicaCount: 1,
+            resources: {
               limits: { cpu: "50m", memory: "64Mi" },
               requests: { cpu: "50m", memory: "64Mi" }
             },
+            podLabels: labels,
+            tolerations: [{ key: "CriticalAddonsOnly", operator: "Exists" }],
+          },
+          snapshotwebhook: {
+            image: { repository: "gcr-io/snapshot-validation-webhook" },
+            replicaCount: 1,
+            resources: {
+              limits: { cpu: "50m", memory: "32Mi" },
+              requests: { cpu: "50m", memory: "32Mi" }
+            },
             podLabels: labels
+          },
+          node: {
+            image: { repository: "gcr-io/driver" },
+            registrar: {
+              image: { repository: "gcr-io/csi-node-driver-registrar" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            livenessprobe: {
+              image: { repository: "gcr-io/livenessprobe" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            resources: {
+              limits: { cpu: "50m", memory: "32Mi" },
+              requests: { cpu: "50m", memory: "32Mi" }
+            },
+            podLabels: labels
+          },
+          winnode: {
+            name: "vsphere-csi-node-windows",
+            image: { repository: "gcr-io/driver" },
+            registrar: {
+              image: { repository: "gcr-io/csi-node-driver-registrar" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            livenessprobe: {
+              image: { repository: "gcr-io/livenessprobe" },
+              resources: {
+                limits: { cpu: "50m", memory: "32Mi" },
+                requests: { cpu: "50m", memory: "32Mi" }
+              }
+            },
+            resources: {
+              limits: { cpu: "50m", memory: "32Mi" },
+              requests: { cpu: "50m", memory: "32Mi" }
+            }
+          },
+          metrics: {
+            enabled: false,
+            serviceMonitor: {
+              enabled: false,
+              interval: "60s",
+              relabelings: []
+            }
           }
         }
       }
@@ -80,14 +223,9 @@ const resources = [
         volumeBindingMode: "Immediate"
 
       }
-    ],
-    configfile: [
-      { file: "../vsphere-csi-driver.yaml" }
     ]
   }
 ]
 
-const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources });
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources });
-const configfile = new k8s_module.yaml.ConfigFile('ConfigFile', { resources: resources }, { dependsOn: [secret] });
-const storageclass = new k8s_module.storage.v1.StorageClass('StorageClass', { resources: resources }, { dependsOn: [configfile] });
+const storageclass = new k8s_module.storage.v1.StorageClass('StorageClass', { resources: resources }, { dependsOn: [release] });

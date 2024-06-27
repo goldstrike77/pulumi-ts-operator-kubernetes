@@ -89,7 +89,7 @@ const resources = [
                     },
                     metrics: {
                         serviceMonitor: {
-                            enabled: true,
+                            enabled: false,
                             interval: "60s",
                             labels: podlabels
                         }
@@ -211,12 +211,12 @@ const resources = [
                         requests: { cpu: "100m", memory: "128Mi" }
                     },
                     initContainer: {
-                        image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
-                        tag: "1.36"
+                        image: "swr.cn-east-3.myhuaweicloud.com/docker-io/busybox",
+                        tag: "1.36.1"
                     },
                     nodeSelector: {},
                     serviceMonitor: {
-                        enabled: true,
+                        enabled: false,
                         interval: "60s",
                         labels: podlabels
                     }
@@ -267,8 +267,8 @@ const resources = [
                     volumePermissions: {
                         enabled: true,
                         image: {
-                            registry: "registry.cn-shanghai.aliyuncs.com",
-                            repository: "goldenimage/os-shell",
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/os-shell",
                             tag: "12-debian-12-r22"
                         },
                         resources: {

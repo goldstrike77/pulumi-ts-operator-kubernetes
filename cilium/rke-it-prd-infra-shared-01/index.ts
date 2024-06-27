@@ -123,8 +123,8 @@ const resources = [
                         replicas: 1,
                         podLabels: labels,
                         resources: {
-                            limits: { cpu: "50m", memory: "64Mi" },
-                            requests: { cpu: "50m", memory: "64Mi" }
+                            limits: { cpu: "50m", memory: "128Mi" },
+                            requests: { cpu: "50m", memory: "128Mi" }
                         },
                         prometheus: {
                             enabled: false,

@@ -37,7 +37,7 @@ const resources = [
                         serviceAccount: "kubepromstack-prometheus",
                         namespace: "monitoring",
                         podMonitor: {
-                            enabled: true,
+                            enabled: false,
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
                                 { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
@@ -66,6 +66,7 @@ const resources = [
                     },
                     controller: {
                         enabled: true,
+                        image: { repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/controller" },
                         logLevel: "warn",
                         securityContext: {
                             runAsNonRoot: true,
@@ -79,6 +80,7 @@ const resources = [
                     },
                     speaker: {
                         enabled: true,
+                        image: { repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/speaker" },
                         logLevel: "warn",
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },

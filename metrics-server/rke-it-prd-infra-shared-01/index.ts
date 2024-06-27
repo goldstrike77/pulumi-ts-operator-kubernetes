@@ -1,11 +1,11 @@
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const podlabels = {
-    customer: "demo",
-    environment: "dev",
+    customer: "it",
+    environment: "prd",
     project: "Container-resource",
     group: "Metrics-server",
-    datacenter: "dc01",
+    datacenter: "cn-north",
     domain: "local"
 }
 
@@ -27,9 +27,9 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://kubernetes-sigs.github.io/metrics-server"
                 },
-                version: "3.11.0",
+                version: "3.12.1",
                 values: {
-                    image: { repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/metrics-server", tag: "v0.6.4" },
+                    image: { repository: "swr.cn-east-3.myhuaweicloud.com/gcr-io/metrics-server", tag: "v0.7.1" },
                     podLabels: podlabels,
                     defaultArgs: [
                         "--cert-dir=/tmp",
