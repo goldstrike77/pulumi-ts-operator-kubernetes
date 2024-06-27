@@ -49,7 +49,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://prometheus-community.github.io/helm-charts"
                 },
-                version: "58.6.0",
+                version: "60.4.0",
                 values: {
                     fullnameOverride: "kubepromstack",
                     defaultRules: { create: true },
@@ -453,8 +453,8 @@ SOFTWARE.
                     "kube-state-metrics": {
                         fullnameOverride: "kube-state-metrics",
                         image: {
-                            registry: "registry.cn-shanghai.aliyuncs.com",
-                            repository: "goldenimage/kube-state-metrics",
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "gcr-io/kube-state-metrics",
                             tag: "v2.12.0"
                         },
                         customLabels: podlabels,
@@ -525,8 +525,8 @@ SOFTWARE.
                             patch: {
                                 enabled: true,
                                 image: {
-                                    registry: "registry.cn-shanghai.aliyuncs.com",
-                                    repository: "goldenimage/kube-webhook-certgen",
+                                    registry: "swr.cn-east-3.myhuaweicloud.com",
+                                    repository: "gcr-io/kube-webhook-certgen",
                                     tag: "v20221220-controller-v1.5.1-58-g787ea74b6"
                                 }
                             }
@@ -735,13 +735,13 @@ SOFTWARE.
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "15.5.0",
+                version: "15.7.10",
                 values: {
                     image:
                     {
                         registry: "swr.cn-east-3.myhuaweicloud.com",
                         repository: "docker-io/thanos",
-                        tag: "0.35.0-debian-12-r4"
+                        tag: "0.35.1-debian-12-r1"
                     },
                     existingObjstoreSecret: "configuration-secret",
                     query: {

@@ -94,22 +94,22 @@ const resources = [
             resizer: {
               image: { repository: "gcr-io/csi-resizer" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             attacher: {
               image: { repository: "gcr-io/csi-attacher" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             livenessprobe: {
               image: { repository: "gcr-io/livenessprobe" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             syncer: {
@@ -122,15 +122,15 @@ const resources = [
             provisioner: {
               image: { repository: "gcr-io/csi-provisioner" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             snapshotter: {
               image: { repository: "gcr-io/csi-snapshotter" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             replicaCount: 1,
@@ -145,8 +145,8 @@ const resources = [
             image: { repository: "gcr-io/snapshot-validation-webhook" },
             replicaCount: 1,
             resources: {
-              limits: { cpu: "50m", memory: "32Mi" },
-              requests: { cpu: "50m", memory: "32Mi" }
+              limits: { cpu: "50m", memory: "64Mi" },
+              requests: { cpu: "50m", memory: "64Mi" }
             },
             podLabels: labels
           },
@@ -155,20 +155,20 @@ const resources = [
             registrar: {
               image: { repository: "gcr-io/csi-node-driver-registrar" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             livenessprobe: {
               image: { repository: "gcr-io/livenessprobe" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             resources: {
-              limits: { cpu: "50m", memory: "32Mi" },
-              requests: { cpu: "50m", memory: "32Mi" }
+              limits: { cpu: "50m", memory: "64Mi" },
+              requests: { cpu: "50m", memory: "64Mi" }
             },
             podLabels: labels
           },
@@ -178,20 +178,20 @@ const resources = [
             registrar: {
               image: { repository: "gcr-io/csi-node-driver-registrar" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             livenessprobe: {
               image: { repository: "gcr-io/livenessprobe" },
               resources: {
-                limits: { cpu: "50m", memory: "32Mi" },
-                requests: { cpu: "50m", memory: "32Mi" }
+                limits: { cpu: "50m", memory: "64Mi" },
+                requests: { cpu: "50m", memory: "64Mi" }
               }
             },
             resources: {
-              limits: { cpu: "50m", memory: "32Mi" },
-              requests: { cpu: "50m", memory: "32Mi" }
+              limits: { cpu: "50m", memory: "64Mi" },
+              requests: { cpu: "50m", memory: "64Mi" }
             }
           },
           metrics: {

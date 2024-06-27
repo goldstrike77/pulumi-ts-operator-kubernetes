@@ -39,8 +39,8 @@ const resources = [
                     },
                     podLabels: labels,
                     resources: {
-                        limits: { cpu: "200m", memory: "512Mi" },
-                        requests: { cpu: "200m", memory: "512Mi" }
+                        limits: { cpu: "200m", memory: "256Mi" },
+                        requests: { cpu: "200m", memory: "256Mi" }
                     },
                     bpf: {
                         masquerade: true
