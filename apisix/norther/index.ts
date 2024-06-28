@@ -66,8 +66,8 @@ const resources = [
                 values: {
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "300m", memory: "512Mi" },
-                        requests: { cpu: "300m", memory: "512Mi" }
+                        limits: { cpu: "300m", memory: "1024Mi" },
+                        requests: { cpu: "300m", memory: "1024Mi" }
                     },
                     nodeSelector: {},
                     timezone: "Asia/Shanghai",
@@ -82,7 +82,7 @@ const resources = [
                     },
                     metrics: {
                         serviceMonitor: {
-                            enabled: false,
+                            enabled: true,
                             interval: "60s",
                             labels: podlabels
                         }
@@ -206,7 +206,7 @@ const resources = [
                     },
                     nodeSelector: {},
                     serviceMonitor: {
-                        enabled: false,
+                        enabled: true,
                         interval: "60s",
                         labels: podlabels
                     }
@@ -239,8 +239,8 @@ const resources = [
                     ],
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "500m", memory: "512Mi" },
-                        requests: { cpu: "500m", memory: "512Mi" }
+                        limits: { cpu: "500m", memory: "1024Mi" },
+                        requests: { cpu: "500m", memory: "1024Mi" }
                     },
                     podLabels: podlabels,
                     persistence: {

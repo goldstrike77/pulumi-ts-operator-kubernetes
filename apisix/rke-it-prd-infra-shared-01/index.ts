@@ -75,8 +75,8 @@ const resources = [
                     },
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "300m", memory: "512Mi" },
-                        requests: { cpu: "300m", memory: "512Mi" }
+                        limits: { cpu: "300m", memory: "1024Mi" },
+                        requests: { cpu: "300m", memory: "1024Mi" }
                     },
                     nodeSelector: {},
                     timezone: "Asia/Shanghai",

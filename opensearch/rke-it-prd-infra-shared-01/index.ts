@@ -127,7 +127,7 @@ plugins:
           ],
            */
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
             tag: "2.11.1"
           },
           labels: podlabels,
@@ -143,7 +143,7 @@ plugins:
           persistence: {
             enabled: true,
             enableInitChown: true,
-            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+            image: "swr.cn-east-3.myhuaweicloud.com/docker-io/busybox",
             imageTag: "1.36.1",
             storageClass: "vsphere-san-sc",
             size: "3Gi"
@@ -151,7 +151,7 @@ plugins:
           extraInitContainers: [
             {
               name: "sysctl",
-              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              image: "swr.cn-east-3.myhuaweicloud.com/docker-io/os-shell:12-debian-12-r22",
               imagePullPolicy: "IfNotPresent",
               command: [
                 "/bin/bash",
@@ -335,7 +335,7 @@ plugins:
 `
           },
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
             tag: "2.11.1"
           },
           labels: podlabels,
@@ -351,15 +351,15 @@ plugins:
           persistence: {
             enabled: true,
             enableInitChown: true,
-            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
-            imageTag: "1.36",
+            image: "swr.cn-east-3.myhuaweicloud.com/docker-io/busybox",
+            imageTag: "1.36.1",
             storageClass: "vsphere-san-sc",
             size: "63Gi"
           },
           extraInitContainers: [
             {
               name: "sysctl",
-              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              image: "swr.cn-east-3.myhuaweicloud.com/docker-io/os-shell:12-debian-12-r22",
               imagePullPolicy: "IfNotPresent",
               command: [
                 "/bin/bash",
@@ -393,7 +393,7 @@ plugins:
           opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch-dashboards",
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch-dashboards",
             tag: "2.11.1"
           },
           fullnameOverride: "opensearch-dashboards",
@@ -433,7 +433,7 @@ server.ssl.enabled: false
       {
         namespace: "opensearch",
         name: "elasticsearch-exporter",
-        version: "5.8.0",
+        version: "5.8.1",
         chart: "prometheus-elasticsearch-exporter",
         repositoryOpts: {
           repo: "https://prometheus-community.github.io/helm-charts"
@@ -441,6 +441,11 @@ server.ssl.enabled: false
         values: {
           fullnameOverride: "opensearch-exporter",
           log: { level: "wran" },
+          image: {
+            registry: "swr.cn-east-3.myhuaweicloud.com",
+            repository: "quay-io/elasticsearch-exporter",
+            tag: "v1.7.0"
+          },
           resources: {
             limits: { cpu: "100m", memory: "64Mi" },
             requests: { cpu: "100m", memory: "64Mi" }

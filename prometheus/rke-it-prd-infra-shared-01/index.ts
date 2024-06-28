@@ -295,6 +295,11 @@ SOFTWARE.
                             ]
                         },
                         alertmanagerSpec: {
+                            image: {
+                                registry: "swr.cn-east-3.myhuaweicloud.com",
+                                repository: "quay-io/alertmanager",
+                                tag: "v0.27.0"
+                            },
                             logLevel: "warn",
                             replicas: 1,
                             storage: {
@@ -309,7 +314,7 @@ SOFTWARE.
                                     }
                                 }
                             },
-                            externalUrl: "https://alertmanager.rke-it-prd-infra-shared-01.example.com",
+                            externalUrl: "https://alertmanager.home.local",
                             resources: {
                                 limits: { cpu: "100m", memory: "64Mi" },
                                 requests: { cpu: "100m", memory: "64Mi" }
@@ -347,7 +352,7 @@ SOFTWARE.
                     kubelet: {
                         enabled: true,
                         serviceMonitor: {
-                            probes: false,
+                            probes: true,
                             cAdvisorRelabelings: [
                                 { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
                                 { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "it" },
@@ -481,6 +486,11 @@ SOFTWARE.
                     nodeExporter: { enabled: true },
                     "prometheus-node-exporter": {
                         fullnameOverride: "node-exporter",
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "quay-io/node-exporter",
+                            tag: "v1.8.1"
+                        },
                         resources: {
                             limits: { cpu: "50m", memory: "32Mi" },
                             requests: { cpu: "50m", memory: "32Mi" }
@@ -522,6 +532,11 @@ SOFTWARE.
                         enabled: true,
                         admissionWebhooks: {
                             enabled: true,
+                            image: {
+                                registry: "swr.cn-east-3.myhuaweicloud.com",
+                                repository: "quay-io/admission-webhook",
+                                tag: "v0.74.0"
+                            },
                             patch: {
                                 enabled: true,
                                 image: {
@@ -548,11 +563,26 @@ SOFTWARE.
                             limits: { cpu: "200m", memory: "256Mi" },
                             requests: { cpu: "200m", memory: "256Mi" }
                         },
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "quay-io/prometheus-operator",
+                            tag: "v0.74.0"
+                        },
                         prometheusConfigReloader: {
+                            image: {
+                                registry: "swr.cn-east-3.myhuaweicloud.com",
+                                repository: "quay-io/prometheus-config-reloader",
+                                tag: "v0.74.0"
+                            },
                             resources: {
                                 limits: { cpu: "200m", memory: "64Mi" },
                                 requests: { cpu: "200m", memory: "64Mi" }
                             }
+                        },
+                        thanosImage: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "quay-io/thanos",
+                            tag: "v0.35.1"
                         }
                     },
                     prometheus: {
@@ -589,8 +619,13 @@ SOFTWARE.
                             scrapeInterval: "60s",
                             scrapeTimeout: "30s",
                             evaluationInterval: "60s",
+                            image: {
+                                registry: "swr.cn-east-3.myhuaweicloud.com",
+                                repository: "quay-io/prometheus",
+                                tag: "v2.53.0"
+                            },
                             externalLabels: { cluster: "rke-it-prd-infra-shared-01" },
-                            externalUrl: "https://prometheus.rke-it-prd-infra-shared-01.example.com",
+                            externalUrl: "https://prometheus.home.local",
                             ruleSelectorNilUsesHelmValues: false,
                             serviceMonitorSelectorNilUsesHelmValues: false,
                             podMonitorSelectorNilUsesHelmValues: false,
@@ -724,7 +759,7 @@ SOFTWARE.
                                     }
                                 }
                             }
-                        }
+                        },
                     }
                 }
             },
@@ -927,6 +962,11 @@ config:
                 version: "8.17.0",
                 values: {
                     fullnameOverride: "blackbox-exporter",
+                    image: {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "quay-io/blackbox-exporter",
+                        tag: "v0.25.0"
+                    },
                     config: {
                         modules: {
                             http_2xx: {
@@ -1012,9 +1052,14 @@ config:
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "19.3.4",
+                version: "19.6.0",
                 values: {
                     architecture: "standalone",
+                    image: {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/redis",
+                        tag: "7.2.5-debian-12-r0"
+                    },
                     auth: { enabled: false, sentinel: false },
                     commonConfiguration: `appendonly no
 maxmemory 512mb
@@ -1035,6 +1080,11 @@ save ""`,
                     },
                     metrics: {
                         enabled: true,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/redis-exporter",
+                            tag: "1.61.0-debian-12-r0"
+                        },
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
@@ -1056,6 +1106,11 @@ save ""`,
                     },
                     sysctl: {
                         enabled: true,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/os-shell",
+                            tag: "12-debian-12-r22"
+                        },
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }

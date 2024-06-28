@@ -187,7 +187,7 @@ const resources = [
                     initChownData: {
                         enabled: true,
                         image: {
-                            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
+                            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/busybox",
                             tag: "1.36.1"
                         },
                         resources: {
@@ -308,6 +308,10 @@ const resources = [
                         // }
                     },
                     sidecar: {
+                        image: {
+                            repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/k8s-sidecar",
+                            tag: "1.24.3"
+                        },
                         resources: {
                             limits: { cpu: "50m", memory: "128Mi" },
                             requests: { cpu: "50m", memory: "128Mi" }

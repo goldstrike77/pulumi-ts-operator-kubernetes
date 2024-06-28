@@ -38,7 +38,7 @@ const resources = [
                 values: {
                     role: "Agent",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     podLabels: podlabels,
@@ -136,7 +136,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 values: {
                     role: "Aggregator",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     replicas: 1,
@@ -233,7 +233,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 values: {
                     role: "Aggregator",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     replicas: 1,
@@ -316,7 +316,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 values: {
                     role: "Aggregator",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     replicas: 1,
@@ -391,7 +391,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 values: {
                     role: "Aggregator",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     replicas: 1,
@@ -466,7 +466,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                 values: {
                     role: "Agent",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     podLabels: podlabels,
