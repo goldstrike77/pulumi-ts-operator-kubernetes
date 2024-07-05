@@ -55,7 +55,12 @@ const resources = [
                             serviceMonitor: {
                                 enabled: true,
                                 relabelings: []
-                            }
+                            },
+                            dashboards: { 
+                                enabled: true,
+                                namespace: "visualization"
+
+                             }
                         },
                         relay: {
                             enabled: true,

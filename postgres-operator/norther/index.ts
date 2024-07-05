@@ -1,6 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as random from "@pulumi/random";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 // Generate random minutes from 10 to 59.
 const minutes = new random.RandomInteger("minutes", {
@@ -19,11 +19,11 @@ const hours = new random.RandomInteger("hours", {
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "demo",
-    environment: "dev",
+    customer: "it",
+    environment: "prd",
     project: "Operator",
     group: "Postgres",
-    datacenter: "dc01",
+    datacenter: "cn-north",
     domain: "local"
 }
 
@@ -58,13 +58,13 @@ const resources = [
                 version: "1.10.1",
                 values: {
                     image: {
-                        registry: "swr.cn-east-3.myhuaweicloud.com",
-                        repository: "zalando/postgres-operator",
-                        tag: "v1.10.1",
+                        registry: "ccr.ccs.tencentyun.com",
+                        repository: "ghcr-io/postgres-operator",
+                        tag: "v1.12.2",
                     },
                     podLabels: podlabels,
                     configGeneral: {
-                        docker_image: "swr.cn-east-3.myhuaweicloud.com/zalando/spilo-15:3.0-p1",
+                        docker_image: "ccr.ccs.tencentyun.com/ghcr-io/spilo-16:3.2-p3",
                         workers: 2
                     },
                     configDebug: {
@@ -72,7 +72,7 @@ const resources = [
                         enable_database_access: true
                     },
                     configLogicalBackup: {
-                        logical_backup_docker_image: "swr.cn-east-3.myhuaweicloud.com/zalando/logical-backup:v1.10.1",
+                        logical_backup_docker_image: "ccr.ccs.tencentyun.com/ghcr-io/logical-backup:v1.12.2",
                         logical_backup_job_prefix: "logical-backup-",
                         logical_backup_provider: "s3",
                         logical_backup_s3_access_key_id: config.require("AWS_ACCESS_KEY_ID"),
@@ -85,7 +85,7 @@ const resources = [
                         logical_backup_schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
                     },
                     configConnectionPooler: {
-                        connection_pooler_image: "swr.cn-east-3.myhuaweicloud.com/zalando/pgbouncer:master-27"
+                        connection_pooler_image: "ccr.ccs.tencentyun.com/ghcr-io/pgbouncer:master-32"
                     },
                     resources: {
                         limits: { cpu: "100m", memory: "256Mi" },
@@ -101,9 +101,9 @@ const resources = [
                 values: {
                     replicaCount: 1,
                     image: {
-                        registry: "swr.cn-east-3.myhuaweicloud.com",
-                        repository: "zalando/postgres-operator-ui",
-                        tag: "v1.10.1"
+                        registry: "ccr.ccs.tencentyun.com",
+                        repository: "ghcr-io/postgres-operator-ui",
+                        tag: "v1.12.2"
                     },
                     resources: {
                         limits: { cpu: "200m", memory: "256Mi" },
