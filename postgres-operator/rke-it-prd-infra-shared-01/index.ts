@@ -33,7 +33,11 @@ const resources = [
             metadata: {
                 name: "postgres-operator",
                 annotations: {},
-                labels: {}
+                labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged"
+                }
             },
             spec: {}
         },
@@ -54,8 +58,11 @@ const resources = [
             {
                 namespace: "postgres-operator",
                 name: "postgres-operator",
-                chart: "../../_chart/postgres-operator-1.10.1.tgz",
-                version: "1.10.1",
+                chart: "postgres-operator",
+                repositoryOpts: {
+                    repo: "https://opensource.zalando.com/postgres-operator/charts/postgres-operator"
+                },
+                version: "1.12.2",
                 values: {
                     image: {
                         registry: "ccr.ccs.tencentyun.com",
@@ -96,8 +103,11 @@ const resources = [
             {
                 namespace: "postgres-operator",
                 name: "postgres-operator-ui",
-                chart: "../../_chart/postgres-operator-ui-1.10.1.tgz",
-                version: "1.10.1",
+                chart: "postgres-operator-ui",
+                repositoryOpts: {
+                    repo: "https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui"
+                },
+                version: "1.12.2",
                 values: {
                     replicaCount: 1,
                     image: {
@@ -110,7 +120,7 @@ const resources = [
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
                     envs: {
-                        appUrl: "https://postgres-operator.example.com",
+                        appUrl: "https://postgres-operator.home.local",
                         resourcesVisible: "True",
                         targetNamespace: "postgres-operator",
                         teams: ["toolchain", "devops", "infra"]
@@ -123,22 +133,7 @@ const resources = [
                         { name: "AWS_DEFAULT_REGION", value: "us-east-1" },
                         { name: "SPILO_S3_BACKUP_BUCKET", value: "backup" }
                     ],
-                    ingress: {
-                        enabled: true,
-                        annotations: {
-                            "nginx.ingress.kubernetes.io/backend-protocol": "HTTP",
-                            "nginx.ingress.kubernetes.io/auth-type": "basic",
-                            "nginx.ingress.kubernetes.io/auth-secret": "auth-secret",
-                            "nginx.ingress.kubernetes.io/auth-realm": "Authentication Required "
-                        },
-                        ingressClassName: "nginx",
-                        hosts: [
-                            {
-                                host: "postgres-operator.example.com",
-                                paths: ["/"]
-                            }
-                        ]
-                    }
+                    ingress: { enabled: false }
                 }
             }
         ]
