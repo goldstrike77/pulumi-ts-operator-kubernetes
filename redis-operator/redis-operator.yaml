@@ -1,7 +1,7 @@
 ---
 redisOperator:
   name: redis-operator
-  imageName: quay.io/opstree/redis-operator
+  imageName: ghcr.io/ot-container-kit/redis-operator/redis-operator
   # Overrides the image tag whose default is the chart appVersion.
   imageTag: ""
   imagePullPolicy: Always
@@ -13,11 +13,11 @@ redisOperator:
 
   # Additional arguments for redis-operator container
   extraArgs: []
-
-  #  - -zap-log-level=error
-  watch_namespace: ""
+  # When not specified, the operator will watch all namespaces. It can be set to a specific namespace or multiple namespaces separated by commas.
+  watchNamespace: ""
   env: []
   webhook: false
+  automountServiceAccountToken: true
 
 
 resources:
@@ -30,7 +30,12 @@ resources:
 
 replicas: 1
 
+rbac:
+  enabled: true
 serviceAccountName: redis-operator
+
+serviceAccount:
+  automountServiceAccountToken: true
 
 service:
   name: webhook-service
@@ -58,3 +63,14 @@ nodeSelector: {}
 tolerateAllTaints: false
 tolerations: []
 affinity: {}
+
+podSecurityContext: {}
+#  fsGroup: 2000
+
+securityContext: {}
+#  capabilities:
+#    drop:
+#    - ALL
+#  readOnlyRootFilesystem: true
+#  runAsNonRoot: true
+#  runAsUser: 1000

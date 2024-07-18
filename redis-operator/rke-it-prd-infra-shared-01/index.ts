@@ -34,9 +34,11 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://ot-container-kit.github.io/helm-charts"
                 },
-                version: "0.15.10",
+                version: "0.18.0",
                 values: {
                     redisOperator: {
+                        imageName: "ccr.ccs.tencentyun.com/ghcr-io/redis-operator",
+                        imageTag: "v0.18.0",
                         imagePullPolicy: "IfNotPresent",
                         podLabels: podlabels,
                     },

@@ -1,0 +1,11 @@
+encryptionsalt: v1:h1kBN8FoN78=:v1:y9ZPOSC19Rw5oCQ8:KYnHFuoFqKh+HbAEYWMNHQVrBoKtyg==
+config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:cDfNuGG6HbDssrH+:uklZlgmivbCFcSKjx7Yd5OSlEXKQ
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:fQRu8RCvPyO555Fh:ULrjM36on0Rx4A3Wwqik+Lupz2uDh2hN
+  demo:HARBOR_ADMIN_PASSWORD:
+    secure: v1:+D1Fa5JaUZ+iSWZR:Sf0kgiETP3GSi+ddbAgUEAO8A3Xgbhx/
+  demo:S3.CONF:
+    secure: v1:Xn+R2oObyKIh9Y71:Chi/Sq2MG0h//65tNlO2ZWu5XMQdFP2oKdt9vf5Be4iURhml5SdMWMU2KVkhiv+nEGo83DUal773lGvjbL5Gn/zLiQV4wrS5d3M1ZgTbngSyKoIZuU9o7Vek7+c=
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

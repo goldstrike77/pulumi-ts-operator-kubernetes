@@ -41,6 +41,12 @@ const resources = [
             "postgres_15_gis_3.3": {
               "image": "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-postgres-gis:ubi8-15.7-3.3-1"
             },
+            postgres_14: {
+              image: "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-postgres:ubi8-14.9-1"
+            },
+            "postgres_14_gis_3.3": {
+              image: "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-postgres-gis:ubi8-14.9-3.3-1"
+            },
             "pgadmin": {
               "image": "registry.cn-shanghai.aliyuncs.com/goldenimage/crunchy-pgadmin4:ubi8-4.30-26"
             },
