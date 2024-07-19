@@ -88,8 +88,41 @@ const resources = [
                     selector: {
                         matchLabels: {
                             "postgres-operator.crunchydata.com/cluster": "harbor",
-                            "postgres-operator.crunchydata.com/instance-set": "instance"
+                            "postgres-operator.crunchydata.com/instance-set": "postgres-instance"
                         }
+                    }
+                }
+            },
+            {
+                apiVersion: "monitoring.coreos.com/v1",
+                kind: "PodMonitor",
+                metadata: {
+                    name: "harbor-redis",
+                    namespace: "harbor"
+                },
+                spec: {
+                    podMetricsEndpoints: [
+                        {
+                            interval: "60s",
+                            scrapeTimeout: "30s",
+                            scheme: "http",
+                            targetPort: "redis-exporter",
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { action: "replace", replacement: "it", sourceLabels: ["__address__"], targetLabel: "customer" },
+                                { action: "replace", replacement: "prd", sourceLabels: ["__address__"], targetLabel: "environment" },
+                                { action: "replace", replacement: "Container-Registry", sourceLabels: ["__address__"], targetLabel: "project" },
+                                { action: "replace", replacement: "Harbor", sourceLabels: ["__address__"], targetLabel: "group" },
+                                { action: "replace", replacement: "cn-north", sourceLabels: ["__address__"], targetLabel: "datacenter" },
+                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
+                            ]
+                        }
+                    ],
+                    namespaceSelector: {
+                        matchNames: ["harbor"]
+                    },
+                    selector: {
+                        matchLabels: { app: "harbor-redis-standalone" }
                     }
                 }
             },
@@ -97,25 +130,76 @@ const resources = [
                 apiVersion: "redis.redis.opstreelabs.in/v1beta2",
                 kind: "Redis",
                 metadata: {
-                  name: "harbor-redis-standalone",
-                  namespace: "harbor"
+                    name: "harbor-redis-standalone",
+                    namespace: "harbor"
                 },
                 spec: {
-                  kubernetesConfig: {
-                    image: "quay.io/opstree/redis:v7.0.12",
-                    imagePullPolicy: "IfNotPresent"
-                  },
-                  redisExporter: {
-                    enabled: true,
-                    image: "quay.io/opstree/redis-exporter:v1.44.0",
-                    imagePullPolicy: "Always"
-                  },
-                  podSecurityContext: {
-                    runAsUser: 1000,
-                    fsGroup: 1000
-                  }
+                    kubernetesConfig: {
+                        image: "quay.io/opstree/redis:v7.0.12",
+                        imagePullPolicy: "IfNotPresent",
+                        resources: {
+                            limits: { cpu: "200m", memory: "256Mi" },
+                            requests: { cpu: "200m", memory: "256Mi" }
+                        }
+                    },
+                    redisExporter: {
+                        enabled: true,
+                        image: "quay.io/opstree/redis-exporter:v1.44.0",
+                        imagePullPolicy: "IfNotPresent",
+                        resources: {
+                            limits: { cpu: "50m", memory: "64Mi" },
+                            requests: { cpu: "50m", memory: "64Mi" }
+                        }
+                    },
+                    podSecurityContext: {
+                        runAsUser: 1000,
+                        fsGroup: 1000
+                    }
                 }
-              }
+            },
+            {
+                apiVersion: "apisix.apache.org/v2",
+                kind: "ApisixRoute",
+                metadata: {
+                    name: "harbor",
+                    namespace: "harbor"
+                },
+                spec: {
+                    http: [
+                        {
+                            name: "root",
+                            match: {
+                                //                                methods: ["GET", "HEAD", "POST", "PUT"],
+                                hosts: ["harbor.home.local"],
+                                paths: ["/*"]
+                            },
+                            backends: [
+                                {
+                                    serviceName: "harbor",
+                                    servicePort: 80,
+                                    resolveGranularity: "service"
+                                }
+                            ],
+                            plugins: [
+                                {
+                                    name: "client-control",
+                                    enable: true,
+                                    config: {
+                                        client_max_body_size: 2048
+                                    }
+                                },
+                                {
+                                    name: "redirect",
+                                    enable: true,
+                                    config: {
+                                        http_to_https: false
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
         ],
         release: [
             {
@@ -143,7 +227,8 @@ const resources = [
                                 }
                             },
                             resources: {
-                                limits: { cpu: "500m", memory: "512Mi" }
+                                limits: { cpu: "500m", memory: "512Mi" },
+                                requests: { cpu: "500m", memory: "512Mi" }
                             }
                         }
                     ],
@@ -230,9 +315,14 @@ const resources = [
                 values: {
                     expose: {
                         type: "clusterIP",
-                        tls: { enabled: false }
+                        tls: {
+                            enabled: false,
+                            auto: {
+                                commonName: "harbor.home.local"
+                            }
+                        }
                     },
-                    externalURL: "https://harbor.home.local",
+                    externalURL: "http://harbor.home.local",
                     persistence: {
                         enabled: true,
                         persistentVolumeClaim: {
@@ -255,6 +345,10 @@ const resources = [
                         }
                     },
                     harborAdminPassword: config.require("HARBOR_ADMIN_PASSWORD"),
+                    internalTLS: {
+                        enabled: false,
+                        strong_ssl_ciphers: true
+                    },
                     logLevel: "warning",
                     secretKey: "not-a-secure-key",
                     metrics: {
@@ -357,7 +451,7 @@ const resources = [
                     database: {
                         type: "external",
                         external: {
-                            host: "harbor-pgbouncer.harbor.svc",
+                            host: "harbor-pgbouncer",
                             port: "5432",
                             username: "harbor",
                             coreDatabase: "harbor",

@@ -96,8 +96,8 @@ plugins:
 `
           },
           image: {
-            repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/opensearch",
-            tag: "2.11.0"
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
+            tag: "2.11.1"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx6144M -Xms6144M",
@@ -112,15 +112,15 @@ plugins:
           persistence: {
             enabled: true,
             enableInitChown: true,
-            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
-            imageTag: "1.36",
+            image: "swr.cn-east-3.myhuaweicloud.com/docker-io/busybox",
+            imageTag: "1.36.1",
             storageClass: "vsphere-san-sc",
             size: "31Gi"
           },
           extraInitContainers: [
             {
               name: "sysctl",
-              image: "docker.io/bitnami/bitnami-shell:10-debian-10",
+              image: "swr.cn-east-3.myhuaweicloud.com/docker-io/os-shell:12-debian-12-r22",
               imagePullPolicy: "IfNotPresent",
               command: [
                 "/bin/bash",
@@ -238,8 +238,8 @@ snapshotrestore:
         version: "4.5.0",
         values: {
           initContainer: {
-            image: "registry.cn-shanghai.aliyuncs.com/goldenimage/busybox",
-            tag: '1.36'
+            image: "swr.cn-east-3.myhuaweicloud.com/docker-io/busybox",
+            tag: '1.36.1'
           },
           oap: {
             storageType: "elasticsearch",
