@@ -301,7 +301,7 @@ SOFTWARE.
                                 tag: "v0.27.0"
                             },
                             logLevel: "warn",
-                            replicas: 1,
+                            replicas: 2,
                             storage: {
                                 volumeClaimTemplate: {
                                     spec: {
@@ -630,9 +630,9 @@ SOFTWARE.
                             serviceMonitorSelectorNilUsesHelmValues: false,
                             podMonitorSelectorNilUsesHelmValues: false,
                             probeSelectorNilUsesHelmValues: false,
-                            retention: "4h",
+                            retention: "2h",
                             retentionSize: "4096MB",
-                            replicas: 1,
+                            replicas: 2,
                             logLevel: "warn",
                             resources: {
                                 limits: { cpu: "1000m", memory: "3072Mi" },
@@ -1140,6 +1140,33 @@ save ""`,
                                 {
                                     serviceName: "kubepromstack-prometheus",
                                     servicePort: 9090,
+                                    resolveGranularity: "service"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                apiVersion: "apisix.apache.org/v2",
+                kind: "ApisixRoute",
+                metadata: {
+                    name: "alertmanager",
+                    namespace: "monitoring"
+                },
+                spec: {
+                    http: [
+                        {
+                            name: "root",
+                            match: {
+                                methods: ["GET", "HEAD"],
+                                hosts: ["alertmanager.home.local"],
+                                paths: ["/*"]
+                            },
+                            backends: [
+                                {
+                                    serviceName: "kubepromstack-alertmanager",
+                                    servicePort: 9093,
                                     resolveGranularity: "service"
                                 }
                             ]

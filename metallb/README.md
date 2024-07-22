@@ -1,9 +1,12 @@
-#### The Bitnami Library for Kubernetes
-Popular applications, provided by [Bitnami](https://bitnami.com), ready to launch on Kubernetes using [Kubernetes Helm](https://github.com/helm/helm).
-
 #### Installing the Chart
 ```hcl
 helm repo add bitnami https://charts.bitnami.com/bitnami
 or
 helm repo add metallb https://metallb.github.io/metallb
+```
+
+#### OpenShift
+```
+grant the speaker DaemonSet elevated privileges.
+oc adm policy add-scc-to-user privileged -n metallb-system 
 ```
