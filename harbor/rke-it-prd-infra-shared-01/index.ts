@@ -238,7 +238,7 @@ const resources = [
                                 ],
                                 resources: {
                                     requests: {
-                                        storage: "7Gi"
+                                        storage: "15Gi"
                                     }
                                 }
                             },
