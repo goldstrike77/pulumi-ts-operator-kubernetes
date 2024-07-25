@@ -14,8 +14,16 @@ const resources = [
         namespace: {
             metadata: {
                 name: "metallb-system",
-                annotations: {},
-                labels: {}
+                annotations: {
+                    "openshift.io/sa.scc.mcs": 's0:c27,c4',
+                    "openshift.io/sa.scc.supplemental-groups": "1000710000/10000",
+                    "openshift.io/sa.scc.uid-range": "1000710000/10000"
+                },
+                labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged"
+                }
             },
             spec: {}
         },
@@ -25,69 +33,65 @@ const resources = [
                 name: "metallb",
                 chart: "metallb",
                 repositoryOpts: {
-                    repo: "https://charts.bitnami.com/bitnami"
+                    repo: "https://metallb.github.io/metallb"
                 },
-                version: "6.3.8",
+                version: "0.14.5",
                 values: {
-                    "global": {
-                        "imageRegistry": "swr.cn-east-3.myhuaweicloud.com"
+                    prometheus: {
+                        serviceAccount: "kubepromstack-prometheus",
+                        namespace: "monitoring",
+                        podMonitor: {
+                            enabled: false,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        serviceMonitor: {
+                            enabled: false,
+                            relabelings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        },
+                        prometheusRule: {
+                            enabled: false
+                        }
                     },
-                    "controller": {
-                        "image": {
-                            "repository": "docker-io/metallb-controller",
-                            "tag": "0.14.5-debian-12-r9"
+                    controller: {
+                        enabled: true,
+                        image: { repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/controller" },
+                        logLevel: "warn",
+                        securityContext: {
+                            runAsUser: 1000710000,
+                            fsGroup: 1000710000
                         },
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        "podLabels": podlabels,
-                        "logLevel": "warn",
-                        "metrics": {
-                            "enabled": true,
-                            "serviceMonitor": {
-                                "enabled": true,
-                                "interval": "60s",
-                                relabelings: [
-                                    { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                                ]
-                            }
-                        }
+                        labels: podlabels
                     },
-                    "speaker": {
-                        "enabled": true,
-                        "image": {
-                            "repository": "docker-io/metallb-speaker",
-                            "tag": "0.14.5-debian-12-r10"
-                        },
+                    speaker: {
+                        enabled: true,
+                        image: { repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/speaker" },
+                        logLevel: "warn",
                         resources: {
                             limits: { cpu: "100m", memory: "64Mi" },
                             requests: { cpu: "100m", memory: "64Mi" }
                         },
-                        "podLabels": podlabels,
-                        "logLevel": "warn",
-                        "metrics": {
-                            "enabled": true,
-                            "serviceMonitor": {
-                                "enabled": true,
-                                "interval": "60s",
-                                relabelings: [
-                                    { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                                ]
-                            }
-                        }
+                        labels: podlabels,
+                        frr: { "enabled": false }
                     }
                 },
                 skipAwait: false
@@ -111,7 +115,7 @@ const resources = [
                 apiVersion: "metallb.io/v1beta1",
                 kind: "L2Advertisement",
                 metadata: {
-                    name: "generic-cluster-pool",
+                    name: "advertisement",
                     namespace: "metallb-system"
                 },
                 spec: {
