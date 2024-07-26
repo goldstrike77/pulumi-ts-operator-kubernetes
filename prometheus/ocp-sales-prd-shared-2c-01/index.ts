@@ -17,7 +17,11 @@ const resources = [
         namespace: {
             metadata: {
                 name: "monitoring",
-                annotations: {},
+                annotations: {
+                    "openshift.io/sa.scc.mcs": "s0:c26,c25",
+                    "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
+                    "openshift.io/sa.scc.uid-range": "1000700000/10000"
+                },
                 labels: {
                     "pod-security.kubernetes.io/enforce": "privileged",
                     "pod-security.kubernetes.io/audit": "privileged",
@@ -55,125 +59,15 @@ const resources = [
                     defaultRules: { create: true },
                     alertmanager: { enabled: false },
                     grafana: { enabled: false },
-                    kubeApiServer: {
-                        enabled: true,
-                        serviceMonitor: {
-                            relabelings: [
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    kubelet: {
-                        enabled: false,
-                        serviceMonitor: {
-                            probes: true,
-                            cAdvisorRelabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ],
-                            relabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    kubeControllerManager: {
-                        enabled: true,
-                        serviceMonitor: {
-                            relabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    coreDns: {
-                        enabled: true,
-                        serviceMonitor: {
-                            relabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    kubeEtcd: {
-                        enabled: true,
-                        service: {
-                            port: "2381",
-                            targetPort: "2381"
-                        },
-                        serviceMonitor: {
-                            scheme: "http",
-                            relabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    kubeScheduler: {
-                        enabled: true,
-                        service: {
-                            port: "10259",
-                            targetPort: "10259"
-                        },
-                        serviceMonitor: {
-                            https: true,
-                            insecureSkipVerify: true,
-                            relabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    kubeProxy: {
-                        enabled: true,
-                        serviceMonitor: {
-                            relabelings: [
-                                { sourceLabels: ["__metrics_path__"], targetLabel: "metrics_path" },
-                                { sourceLabels: ["__address__"], targetLabel: "customer", replacement: "sales" },
-                                { sourceLabels: ["__address__"], targetLabel: "environment", replacement: "prd" },
-                                { sourceLabels: ["__address__"], targetLabel: "project", replacement: "container" },
-                                { sourceLabels: ["__address__"], targetLabel: "group", replacement: "ocp-sales-prd-shared-2c-01" },
-                                { sourceLabels: ["__address__"], targetLabel: "datacenter", replacement: "cn-north" },
-                                { sourceLabels: ["__address__"], targetLabel: "domain", replacement: "local" }
-                            ]
-                        }
-                    },
-                    kubeStateMetrics: { enabled: true },
+                    kubeApiServer: { enabled: false },
+                    kubelet: { enabled: false },
+                    kubeControllerManager: { enabled: false },
+                    coreDns: { enabled: false },
+                    kubeEtcd: { enabled: false },
+                    kubeScheduler: { enabled: false },
+                    kubeProxy: { enabled: false },
+                    kubeStateMetrics: { enabled: false },
+                    /**
                     "kube-state-metrics": {
                         fullnameOverride: "kube-state-metrics",
                         image: {
@@ -234,53 +128,8 @@ const resources = [
                             "statefulsets"
                         ]
                     },
+                     */
                     nodeExporter: { enabled: false },
-                    "prometheus-node-exporter": {
-                        fullnameOverride: "node-exporter",
-                        image: {
-                            registry: "swr.cn-east-3.myhuaweicloud.com",
-                            repository: "quay-io/node-exporter",
-                            tag: "v1.8.1"
-                        },
-                        resources: {
-                            limits: { cpu: "50m", memory: "32Mi" },
-                            requests: { cpu: "50m", memory: "32Mi" }
-                        },
-                        securityContext: {
-                            runAsGroup: 1000700000,
-                            runAsUser: 1000700000,
-                            fsGroup: 1000700000
-                        },
-                        extraArgs: [
-                            "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($|/)",
-                            "--collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$",
-                            "--collector.cpu.info"
-                        ],
-                        podLabels: podlabels,
-                        tolerations: [
-                            {
-                                key: "CriticalAddonsOnly",
-                                operator: "Exists"
-                            }
-                        ],
-                        service: {
-                            port: 19100
-                        },
-                        prometheus: {
-                            monitor: {
-                                enabled: true,
-                                relabelings: [
-                                    { sourceLabels: ["__meta_kubernetes_pod_node_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
-                                    { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
-                                ],
-                            }
-                        }
-                    },
                     prometheusOperator: {
                         enabled: true,
                         admissionWebhooks: {
@@ -388,6 +237,106 @@ const resources = [
                                 repository: "quay-io/prometheus",
                                 tag: "v2.53.0"
                             },
+                            volumeMounts: [
+                                {
+                                    mountPath: "/etc/prometheus/secrets/prometheus-k8s-tls",
+                                    name: "secret-prometheus-k8s-tls",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/secrets/prometheus-k8s-proxy",
+                                    name: "secret-prometheus-k8s-proxy",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/secrets/prometheus-k8s-thanos-sidecar-tls",
+                                    name: "secret-prometheus-k8s-thanos-sidecar-tls",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/secrets/kube-rbac-proxy",
+                                    name: "secret-kube-rbac-proxy",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/secrets/metrics-client-certs",
+                                    name: "secret-metrics-client-certs",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/configmaps/serving-certs-ca-bundle",
+                                    name: "configmap-serving-certs-ca-bundle",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/configmaps/kubelet-serving-ca-bundle",
+                                    name: "configmap-kubelet-serving-ca-bundle",
+                                    readOnly: true
+                                },
+                                {
+                                    mountPath: "/etc/prometheus/configmaps/metrics-client-ca",
+                                    name: "configmap-metrics-client-ca",
+                                    readOnly: true
+                                }
+                            ],
+                            volumes: [
+                                {
+                                    name: "secret-prometheus-k8s-tls",
+                                    secret: {
+                                        defaultMode: 420,
+                                        secretName: "prometheus-k8s-tls"
+                                    }
+                                },
+                                {
+                                    name: "secret-prometheus-k8s-proxy",
+                                    secret: {
+                                        defaultMode: 420,
+                                        secretName: "prometheus-k8s-proxy"
+                                    }
+                                },
+                                {
+                                    name: "secret-prometheus-k8s-thanos-sidecar-tls",
+                                    secret: {
+                                        defaultMode: 420,
+                                        secretName: "prometheus-k8s-thanos-sidecar-tls"
+                                    }
+                                },
+                                {
+                                    name: "secret-kube-rbac-proxy",
+                                    secret: {
+                                        defaultMode: 420,
+                                        secretName: "kube-rbac-proxy"
+                                    }
+                                },
+                                {
+                                    name: "secret-metrics-client-certs",
+                                    secret: {
+                                        defaultMode: 420,
+                                        secretName: "metrics-client-certs"
+                                    }
+                                },
+                                {
+                                    configMap: {
+                                        defaultMode: 420,
+                                        name: "serving-certs-ca-bundle"
+                                    },
+                                    name: "configmap-serving-certs-ca-bundle"
+                                },
+                                {
+                                    configMap: {
+                                        defaultMode: 420,
+                                        name: "kubelet-serving-ca-bundle"
+                                    },
+                                    name: "configmap-kubelet-serving-ca-bundle"
+                                },
+                                {
+                                    configMap: {
+                                        defaultMode: 420,
+                                        name: "metrics-client-ca"
+                                    },
+                                    name: "configmap-metrics-client-ca"
+                                }
+                            ],
                             externalLabels: { cluster: "ocp-sales-prd-shared-2c-01" },
                             ruleSelectorNilUsesHelmValues: false,
                             serviceMonitorSelectorNilUsesHelmValues: false,
@@ -613,7 +562,6 @@ save ""`,
                 }
             }
         ],
-        /**
         customresource: [
             {
                 apiVersion: "monitoring.coreos.com/v1",
@@ -628,7 +576,10 @@ save ""`,
                             interval: "60s",
                             scheme: "https",
                             tlsConfig: {
-                                insecureSkipVerify: true
+                                caFile: "/etc/prometheus/configmaps/serving-certs-ca-bundle/service-ca.crt",
+                                certFile: "/etc/prometheus/secrets/metrics-client-certs/tls.crt",
+                                keyFile: "/etc/prometheus/secrets/metrics-client-certs/tls.key",
+                                serverName: "node-exporter.openshift-monitoring.svc"
                             },
                             relabelings: [
                                 { sourceLabels: ["__meta_kubernetes_pod_node_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
@@ -654,7 +605,6 @@ save ""`,
                 }
             }
         ],
-         */
         /**
         configfile: [
             { file: "../_rules/priority/kube-prometheus-stack-alertmanager" },
