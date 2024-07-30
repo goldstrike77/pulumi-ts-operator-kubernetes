@@ -85,7 +85,7 @@ const resources = [
                         logical_backup_s3_access_key_id: config.require("AWS_ACCESS_KEY_ID"),
                         logical_backup_s3_bucket: "backup",
                         logical_backup_s3_region: "us-east-1",
-                        logical_backup_s3_endpoint: "http://storage.home.local:9000",
+                        logical_backup_s3_endpoint: "http://obs.home.local:9000",
                         logical_backup_s3_secret_access_key: config.require("AWS_SECRET_ACCESS_KEY"),
                         logical_backup_s3_sse: "AES256",
                         logical_backup_s3_retention_time: "3 days",

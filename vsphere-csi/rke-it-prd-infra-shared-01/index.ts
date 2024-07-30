@@ -39,8 +39,8 @@ const resources = [
             tag: "v1.30.1",
             replicaCount: 1,
             resources: {
-              limits: { cpu: "100m", memory: "64Mi" },
-              requests: { cpu: "100m", memory: "64Mi" }
+              limits: { cpu: "200m", memory: "128Mi" },
+              requests: { cpu: "200m", memory: "128Mi" }
             },
             podLabels: labels
           }
@@ -94,49 +94,49 @@ const resources = [
             resizer: {
               image: { repository: "gcr-io/csi-resizer" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             attacher: {
               image: { repository: "gcr-io/csi-attacher" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             livenessprobe: {
               image: { repository: "gcr-io/livenessprobe" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             syncer: {
               image: { repository: "gcr-io/syncer" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             provisioner: {
               image: { repository: "gcr-io/csi-provisioner" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             snapshotter: {
               image: { repository: "gcr-io/csi-snapshotter" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             replicaCount: 1,
             resources: {
-              limits: { cpu: "50m", memory: "64Mi" },
-              requests: { cpu: "50m", memory: "64Mi" }
+              limits: { cpu: "100m", memory: "128Mi" },
+              requests: { cpu: "100m", memory: "128Mi" }
             },
             podLabels: labels,
             tolerations: [{ key: "CriticalAddonsOnly", operator: "Exists" }],
@@ -145,8 +145,8 @@ const resources = [
             image: { repository: "gcr-io/snapshot-validation-webhook" },
             replicaCount: 1,
             resources: {
-              limits: { cpu: "50m", memory: "64Mi" },
-              requests: { cpu: "50m", memory: "64Mi" }
+              limits: { cpu: "100m", memory: "128Mi" },
+              requests: { cpu: "100m", memory: "128Mi" }
             },
             podLabels: labels
           },
@@ -155,20 +155,20 @@ const resources = [
             registrar: {
               image: { repository: "gcr-io/csi-node-driver-registrar" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             livenessprobe: {
               image: { repository: "gcr-io/livenessprobe" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             resources: {
-              limits: { cpu: "50m", memory: "64Mi" },
-              requests: { cpu: "50m", memory: "64Mi" }
+              limits: { cpu: "100m", memory: "128Mi" },
+              requests: { cpu: "100m", memory: "128Mi" }
             },
             podLabels: labels
           },
@@ -178,20 +178,20 @@ const resources = [
             registrar: {
               image: { repository: "gcr-io/csi-node-driver-registrar" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             livenessprobe: {
               image: { repository: "gcr-io/livenessprobe" },
               resources: {
-                limits: { cpu: "50m", memory: "64Mi" },
-                requests: { cpu: "50m", memory: "64Mi" }
+                limits: { cpu: "100m", memory: "128Mi" },
+                requests: { cpu: "100m", memory: "128Mi" }
               }
             },
             resources: {
-              limits: { cpu: "50m", memory: "64Mi" },
-              requests: { cpu: "50m", memory: "64Mi" }
+              limits: { cpu: "100m", memory: "128Mi" },
+              requests: { cpu: "100m", memory: "128Mi" }
             }
           },
           metrics: {

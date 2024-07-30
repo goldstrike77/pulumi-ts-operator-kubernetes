@@ -788,7 +788,11 @@ SOFTWARE.
                             sidecarsService: "kubepromstack-thanos-discovery",
                             sidecarsNamespace: "monitoring"
                         },
-                        stores: [],
+                        stores: [
+                            // ocp-sales-prd-shared-2c-01
+                            "192.168.0.110:10901",
+                            "192.168.0.110:10903"
+                        ],
                         extraFlags: ["--query.partial-response", "--query.auto-downsampling"],
                         replicaCount: 1,
                         resources: {

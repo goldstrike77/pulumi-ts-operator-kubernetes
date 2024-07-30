@@ -253,22 +253,23 @@ const resources = [
                             synchronous_mode: true,
                             postgresql: {
                                 parameters: {
-                                    synchronous_commit: "on",
-                                    max_parallel_workers: 1,
-                                    max_worker_processes: 1,
-                                    max_connections: "200",
-                                    shared_buffers: "256MB",
-                                    effective_cache_size: "768MB",
-                                    maintenance_work_mem: "64MB",
                                     checkpoint_completion_target: "0.9",
-                                    wal_buffers: "7864kB",
                                     default_statistics_target: "100",
-                                    random_page_cost: "1.1",
+                                    effective_cache_size: "768MB",
                                     effective_io_concurrency: "200",
-                                    work_mem: "327kB",
                                     huge_pages: "655kB",
-                                    min_wal_size: "2GB",
-                                    max_wal_size: "8GB"
+                                    maintenance_work_mem: "64MB",
+                                    max_connections: "200",
+                                    max_parallel_workers: 1,
+                                    max_wal_size: "4GB",
+                                    max_worker_processes: 1,
+                                    min_wal_size: "1GB",
+                                    random_page_cost: "1.1",
+                                    shared_buffers: "256MB",
+                                    synchronous_commit: "on",
+                                    wal_buffers: "7864kB",
+                                    wal_keep_size: "512",
+                                    work_mem: "327kB"
                                 }
                             }
                         }
@@ -300,7 +301,7 @@ const resources = [
                                 },
                                 s3: {
                                     bucket: "backup",
-                                    endpoint: "http://storage.home.local:9000",
+                                    endpoint: "http://obs.home.local:9000",
                                     region: "us-east-1"
                                 }
                             }

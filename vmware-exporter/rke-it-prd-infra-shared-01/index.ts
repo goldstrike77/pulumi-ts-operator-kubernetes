@@ -44,8 +44,8 @@ const resources = [
                     },
                     service: { enabled: true },
                     resources: {
-                        limits: { cpu: "100m", memory: "128Mi" },
-                        requests: { cpu: "100m", memory: "128Mi" }
+                        limits: { cpu: "100m", memory: "256Mi" },
+                        requests: { cpu: "100m", memory: "256Mi" }
                     }
                 }
             }

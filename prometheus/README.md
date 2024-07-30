@@ -19,14 +19,14 @@ change annotation value of source ConfigMap & Secret.
 kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
 
 ##### secret:
-prometheus-k8s-tls
-prometheus-k8s-proxy
-prometheus-k8s-thanos-sidecar-tls
-kube-rbac-proxy
-metrics-client-certs
+kubectl annotate -n openshift-monitoring --overwrite secret prometheus-k8s-tls kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
+kubectl annotate -n openshift-monitoring --overwrite secret prometheus-k8s-proxy kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
+kubectl annotate -n openshift-monitoring --overwrite secret prometheus-k8s-thanos-sidecar-tls kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
+kubectl annotate -n openshift-monitoring --overwrite secret kube-rbac-proxy kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
+kubectl annotate -n openshift-monitoring --overwrite secret metrics-client-certs kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
 
 ##### configMap:
-serving-certs-ca-bundle
-kubelet-serving-ca-bundle
-metrics-client-ca
+kubectl annotate -n openshift-monitoring --overwrite configmap serving-certs-ca-bundle kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
+kubectl annotate -n openshift-monitoring --overwrite configmap kubelet-serving-ca-bundle kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
+kubectl annotate -n openshift-monitoring --overwrite configmap metrics-client-ca kubed.appscode.com/sync="kubernetes.io/metadata.name=monitoring"
 ```
