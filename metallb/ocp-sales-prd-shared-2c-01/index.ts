@@ -35,7 +35,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://metallb.github.io/metallb"
                 },
-                version: "0.14.5",
+                version: "0.14.8",
                 values: {
                     prometheus: {
                         serviceAccount: "kubepromstack-prometheus",

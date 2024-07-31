@@ -372,6 +372,15 @@ const resources = [
                                     }
                                 }
                             },
+                            additionalAlertManagerConfigs: [
+                                {
+                                    static_configs: [{ targets: ["alertmanager.home.local"] }],
+                                    tls_config: { insecure_skip_verify: true },
+                                    timeout: "20s",
+                                    path_prefix: "/",
+                                    scheme: "https"
+                                }
+                            ],
                             additionalAlertRelabelConfigs: [
                                 {
                                     regex: "prometheus|cluster",

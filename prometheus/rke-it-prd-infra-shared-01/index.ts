@@ -1163,7 +1163,6 @@ save ""`,
                         {
                             name: "root",
                             match: {
-                                methods: ["GET", "HEAD"],
                                 hosts: ["alertmanager.home.local"],
                                 paths: ["/*"]
                             },

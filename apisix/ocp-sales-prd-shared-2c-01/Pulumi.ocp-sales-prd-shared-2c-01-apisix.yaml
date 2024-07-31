@@ -1,0 +1,11 @@
+encryptionsalt: v1:pxrYjR+G/c4=:v1:+JrRytdl8uxaP7DG:dcNPZJ3mvXCseEDv2HEiLkmSbSu1Fg==
+config:
+  demo:adminCredentials:
+    secure: v1:jh6O2fSH2anWYMSd:47U8i5hxodouLdqjhCn1X4NwJ2QF0aBH
+  demo:dashboardPassword:
+    secure: v1:9wgWWIcy6pH7Ku0P:FJoQzJ67CVPzFkii5TQLTHvSE6feYCow
+  demo:etcdPassword:
+    secure: v1:dyaJ7VseWxHPXWQj:JN4Dy84IPyVqZ/hTckQytb1S6Wh3U3MQ
+  demo:viewerCredentials:
+    secure: v1:Q21fBn7LZCj5Zi8P:3GDyI+4xkaQ2MfrTtNFNPLoCKsrJjkvu
+  kubernetes:context: kubernetes-admin@ocp-sales-prd-shared-2c-01

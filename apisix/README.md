@@ -15,3 +15,9 @@ pulumi config set viewerCredentials [password] --secret
 ##### @param initialClusterState Initial cluster state. Allowed values: 'new' or 'existing'
 #####   - 'new': when installing the chart ('helm install ...')
 #####   - 'existing': when upgrading the chart ('helm upgrade ...')
+
+#### OpenShift
+```
+grant the Apisix serviceaccount privileges.
+oc adm policy add-scc-to-user anyuid -z apisix-gateway -n apisix
+```
