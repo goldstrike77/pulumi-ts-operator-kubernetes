@@ -1,14 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "demo",
-    environment: "dev",
-    project: "spring-boot",
-    group: "database",
-    datacenter: "dc01",
+    customer: "sales",
+    environment: "prd",
+    project: "Demo",
+    group: "spring-boot",
+    datacenter: "cn-north",
     domain: "local"
 }
 
@@ -17,10 +17,18 @@ const resources = [
         namespace: {
             metadata: {
                 name: "spring-boot",
-                annotations: {},
+                annotations: {
+                    "openshift.io/sa.scc.mcs": "s0:c26,c25",
+                    "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
+                    "openshift.io/sa.scc.uid-range": "1000700000/10000"
+                },
                 labels: {
+                    "pod-security.kubernetes.io/enforce": "privileged",
+                    "pod-security.kubernetes.io/audit": "privileged",
+                    "pod-security.kubernetes.io/warn": "privileged",
                     "swck-injection": "enabled"
                 }
+
             },
             spec: {}
         },
@@ -36,7 +44,9 @@ const resources = [
                 values: {
                     fullnameOverride: "mysql",
                     image: {
-                        tag: "10.11.5-debian-11-r47"
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/mariadb",
+                        tag: "10.11.5-debian-11-r49"
                     },
                     architecture: "standalone",
                     auth: {
@@ -105,17 +115,22 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             storageClass: "vsphere-san-sc",
                             size: "7Gi"
                         },
-                        podLabels: podlabels
+                        podLabels: podlabels,
+                        podSecurityContext: {
+                            fsGroup: 1000700000
+                        },
+                        containerSecurityContext: {
+                            runAsUser: 1000700000
+                        },
                     },
-                    volumePermissions: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "50m", memory: "64Mi" },
-                            requests: { cpu: "50m", memory: "64Mi" }
-                        }
-                    },
+                    volumePermissions: { enabled: false },
                     metrics: {
                         enabled: true,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/mysqld-exporter",
+                            tag: "0.15.1-debian-12-r29"
+                        },
                         extraArgs: {
                             primary: [
                                 "--collect.auto_increment.columns",
@@ -192,13 +207,22 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                 },
                 version: "13.9.4",
                 values: {
-                    image: { tag: "4.4.15-debian-10-r8" },
+                    image: {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/mongodb",
+                        tag: "4.4.15-debian-10-r8"
+                    },
                     architecture: "standalone",
                     replicaCount: 1,
                     auth: { enabled: false },
                     disableSystemLog: true,
                     podLabels: podlabels,
-                    podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "10000" }] },
+                    podSecurityContext: {
+                        fsGroup: 1000700000
+                    },
+                    containerSecurityContext: {
+                        runAsUser: 1000700000
+                    },
                     resources: {
                         limits: { cpu: "1000m", memory: "512Mi" },
                         requests: { cpu: "1000m", memory: "512Mi" }
@@ -206,16 +230,15 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                     livenessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                     readinessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                     persistence: { enabled: true, storageClass: "vsphere-san-sc", size: "7Gi" },
-                    volumePermissions: {
-                        enabled: true,
-                        resources: {
-                            limits: { cpu: "50m", memory: "64Mi" },
-                            requests: { cpu: "50m", memory: "64Mi" }
-                        },
-                    },
+                    volumePermissions: { enabled: false },
                     arbiter: { enabled: false },
                     metrics: {
                         enabled: true,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/mongodb-exporter",
+                            tag: "0.40.0-debian-12-r35"
+                        },
                         resources: {
                             limits: { cpu: "50m", memory: "64Mi" },
                             requests: { cpu: "50m", memory: "64Mi" }
@@ -274,7 +297,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             annotations: {
                                 "strategy.skywalking.apache.org/agent.Overlay": "true",
                                 "agent.skywalking.apache.org/agent.service_name": "demo::spring-boot",
-                                "agent.skywalking.apache.org/collector.backend_service": "skywalking-oap.skywalking:11800",
+                                "agent.skywalking.apache.org/collector.backend_service": "192.168.0.104:11800",
                                 "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.1.0-java8",
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }
@@ -365,7 +388,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             annotations: {
                                 "strategy.skywalking.apache.org/agent.Overlay": "true",
                                 "agent.skywalking.apache.org/agent.service_name": "demo::knote",
-                                "agent.skywalking.apache.org/collector.backend_service": "skywalking-oap.skywalking:11800",
+                                "agent.skywalking.apache.org/collector.backend_service": "192.168.0.104:11800",
                                 "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.1.0-java11",
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }
@@ -455,7 +478,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             name: "root",
                             match: {
                                 methods: ["GET", "HEAD"],
-                                hosts: ["spring-boot.example.com"],
+                                hosts: ["spring-boot.home.local"],
                                 paths: ["/*"]
                             },
                             backends: [
@@ -501,7 +524,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             name: "root",
                             match: {
                                 methods: ["GET", "HEAD"],
-                                hosts: ["knote.example.com"],
+                                hosts: ["knote.home.local"],
                                 paths: ["/*"]
                             },
                             backends: [

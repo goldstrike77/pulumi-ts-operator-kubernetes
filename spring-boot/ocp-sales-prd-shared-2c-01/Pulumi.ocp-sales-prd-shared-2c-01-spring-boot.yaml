@@ -1,0 +1,7 @@
+encryptionsalt: v1:PGCFsLuLCO4=:v1:YE6NdYuTj1Mp4yn2:WKNrIY0jWyaoraF9Kek51abCn5siRQ==
+config:
+  demo:kubernetes: kubernetes-admin@ocp-sales-prd-shared-2c-01
+  demo:rootPassword:
+    secure: v1:IAB/izsk9VeAfTVb:NeoTv9R+FhiTUR5Iw9AoDjZX8qG1s6Ew
+  demo:userPassword:
+    secure: v1:nMDGxOmuDN61FG+1:/wtYhH5OJcomM6gQmY66wlFSrJw8SKEp
