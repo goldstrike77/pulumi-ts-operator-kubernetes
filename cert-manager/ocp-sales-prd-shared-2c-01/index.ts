@@ -1,14 +1,14 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s_module from '../../../module/pulumi-ts-module-kubernetes';
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "demo",
-    environment: "dev",
+    customer: "sales",
+    environment: "prd",
     project: "Certificate",
     group: "Cert-Manager",
-    datacenter: "dc01",
+    datacenter: "cn-north",
     domain: "local"
 }
 
@@ -30,12 +30,22 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "0.13.3",
+                version: "1.3.15",
                 values: {
                     logLevel: 2,
                     installCRDs: true,
                     controller: {
                         replicaCount: 1,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/cert-manager"
+                        },
+                        acmesolver: {
+                            image: {
+                                registry: "swr.cn-east-3.myhuaweicloud.com",
+                                repository: "docker-io/acmesolver"
+                            }
+                        },
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
                             requests: { cpu: "100m", memory: "128Mi" }
@@ -44,6 +54,10 @@ const resources = [
                     },
                     webhook: {
                         replicaCount: 1,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/cert-manager-webhook"
+                        },
                         resources: {
                             limits: { cpu: "100m", memory: "128Mi" },
                             requests: { cpu: "100m", memory: "128Mi" }
@@ -52,6 +66,10 @@ const resources = [
                     },
                     cainjector: {
                         replicaCount: 1,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/cainjector"
+                        },
                         resources: {
                             limits: { cpu: "200m", memory: "256Mi" },
                             requests: { cpu: "200m", memory: "256Mi" }

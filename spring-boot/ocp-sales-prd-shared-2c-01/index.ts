@@ -399,18 +399,38 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                                     name: "app",
                                     image: "registry.cn-shanghai.aliyuncs.com/goldenimage/knote-java:1.0.0",
                                     resources: {
-                                        limits: { cpu: "300m", memory: "512Mi" },
-                                        requests: { cpu: "300m", memory: "512Mi" }
+                                        limits: { cpu: "1000m", memory: "1024Mi" },
+                                        requests: { cpu: "1000m", memory: "1024Mi" }
                                     },
                                     ports: [
                                         {
                                             "containerPort": 8080
                                         }
                                     ],
+                                    livenessProbe: {
+                                        failureThreshold: 10,
+                                        tcpSocket: {
+                                            port: 8080
+                                        },
+                                        initialDelaySeconds: 60,
+                                        periodSeconds: 10,
+                                        successThreshold: 1,
+                                        timeoutSeconds: 30
+                                    },
+                                    readinessProbe: {
+                                        failureThreshold: 3,
+                                        tcpSocket: {
+                                            port: 8080
+                                        },
+                                        initialDelaySeconds: 60,
+                                        periodSeconds: 10,
+                                        successThreshold: 1,
+                                        timeoutSeconds: 10
+                                    },
                                     env: [
                                         { name: "MONGO_URL", value: "mongodb://mongodb:27017/dev" }
                                     ],
-                                    imagePullPolicy: "Always"
+                                    imagePullPolicy: "IfNotPresent"
                                 }
                             ]
                         }

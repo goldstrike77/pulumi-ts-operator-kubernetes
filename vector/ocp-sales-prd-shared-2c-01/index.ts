@@ -4,7 +4,7 @@ import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 let config = new pulumi.Config();
 
 const podlabels = {
-    customer: "it",
+    customer: "sales",
     environment: "prd",
     project: "SEIM",
     group: "Vector",
@@ -18,13 +18,13 @@ const resources = [
             metadata: {
                 name: "datadog",
                 annotations: {
-                    "openshift.io/scc": "privileged"
+                    //"openshift.io/scc": "privileged"
                 },
                 labels: {
-                    "security.openshift.io/scc.podSecurityLabelSync": "true",
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
+                    //"security.openshift.io/scc.podSecurityLabelSync": "true",
+                   // "pod-security.kubernetes.io/enforce": "privileged",
+                   // "pod-security.kubernetes.io/audit": "privileged",
+                   // "pod-security.kubernetes.io/warn": "privileged"
                 }
             },
             spec: {}
@@ -41,7 +41,7 @@ const resources = [
                 values: {
                     role: "Agent",
                     image: {
-                        repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/vector",
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/vector",
                         tag: "0.38.0-distroless-libc"
                     },
                     podLabels: podlabels,
@@ -49,10 +49,9 @@ const resources = [
                         limits: { cpu: "200m", memory: "256Mi" },
                         requests: { cpu: "200m", memory: "256Mi" }
                     },
-                    //                    tolerations: [{ key: "CriticalAddonsOnly", operator: "Exists" }],
                     service: { enabled: false },
                     customConfig: {
-                        data_dir: "/vector-data-dir",
+//                        data_dir: "/vector-data-dir",
                         api: { enabled: false, address: "127.0.0.1:8686", playground: false },
                         sources: {
                             kubernetes_logs: {
@@ -91,7 +90,7 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 type: "elasticsearch",
                                 inputs: ["kubernetes_filter"],
                                 bulk: { action: "index", index: "kube-pod-{{`{{ namespace }}`}}-%Y-%m-%d" },
-                                endpoint: "https://192.168.0.100:9200",
+                                endpoint: "https://192.168.0.102:9200",
                                 mode: "bulk",
                                 suppress_type_name: true,
                                 acknowledgements: { enabled: false },
@@ -100,21 +99,84 @@ kubernetes_labels = replace(kubernetes_labels, "helm.sh", "helm_sh")
                                 healthcheck: null,
                                 tls: { verify_certificate: false, verify_hostname: false },
                                 auth: { user: "admin", password: "password", strategy: "basic" },
-                                buffer: { type: "disk", max_size: 4294967296, when_full: "block" },
+                                buffer: { type: "memory", max_events: 81920, when_full: "block" },
                                 batch: { max_events: 2048, timeout_secs: 20 }
                             }
                         }
                     },
-                    persistence: { hostPath: { path: "/var/lib/vector/kube-pod" } },
+                    securityContext: {
+                        allowPrivilegeEscalation: false,
+                        allowPrivilegedContainer: false,
+                        "capabilities": {
+                            "add": [
+                                "CHOWN"
+                            ],
+                            "drop": [
+                                "KILL",
+                                "DAC_OVERRIDE",
+                                "FOWNER",
+                                "NET_BIND_SERVICE",
+                                "FSETID",
+                                "SETGID",
+                                "SETUID",
+                                "SETPCAP"
+                            ]
+                        },
+                        "privileged": false,
+                        "seLinuxOptions": {
+                            "type": "container_logwriter_t"
+                        },
+                        "seccompProfile": {
+                            "type": "RuntimeDefault"
+                        }
+                    },
                     podMonitor: {
                         enabled: true,
                     }
                 }
             }
 
+        ],
+        customresource: [
+            {
+                apiVersion: "machineconfiguration.openshift.io/v1",
+                kind: "MachineConfig",
+                "metadata": {
+                    "name": "50-selinux-file-contexts-local",
+                    "labels": {
+                        "machineconfiguration.openshift.io/role": "worker"
+                    }
+                },
+                spec: {
+                    config: {
+                        "storage": {
+                            "files": [
+                                {
+                                    "path": "/etc/selinux/targeted/contexts/files/file_contexts.local",
+                                    "mode": 420,
+                                    "overwrite": true,
+                                    "contents": {
+                                        "inline": "/var/lib/vector(/.*)?    system_u:object_r:container_file_t:s0\n"
+                                    }
+                                }
+                            ]
+                        },
+                        "systemd": {
+                            "units": [
+                                {
+                                    "contents": "[Unit]\nDescription=Set local SELinux file context for vector\n\n[Service]\nExecStart=/bin/bash -c '/usr/bin/mkdir -p /var/lib/vector;restorecon -Rv /var/lib/vector'\nRemainAfterExit=yes\nType=oneshot\n\n[Install]\nWantedBy=multi-user.target",
+                                    "enabled": true,
+                                    "name": "set-SELinux-context-local.service"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         ]
     }
 ]
 
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

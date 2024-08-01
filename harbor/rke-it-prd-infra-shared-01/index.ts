@@ -284,7 +284,7 @@ const resources = [
                             }
                         ],
                         global: {
-                            "repo1-path": "/pgbackrest/harbor/repo1",
+                            "repo1-path": "/harbor/repo1",
                             "repo1-retention-full": "2",
                             "repo1-retention-full-type": "time"
                         },
