@@ -138,7 +138,28 @@ save ""`
                 },
                 spec: {
                     teamId: "infra",
-                    postgresql: { version: "13" },
+                    postgresql: {
+                        parameters: {
+                            checkpoint_completion_target: "0.9",
+                            default_statistics_target: "100",
+                            effective_cache_size: "768MB",
+                            effective_io_concurrency: "200",
+                            huge_pages: "655kB",
+                            maintenance_work_mem: "64MB",
+                            max_connections: "200",
+                            max_parallel_workers: "1",
+                            max_wal_size: "4GB",
+                            max_worker_processes: "1",
+                            min_wal_size: "1GB",
+                            random_page_cost: "1.1",
+                            shared_buffers: "256MB",
+                            synchronous_commit: "on",
+                            wal_buffers: "7864kB",
+                            wal_keep_size: "256",
+                            work_mem: "327kB"
+                        },
+                        version: "13"
+                    },
                     numberOfInstances: 1,
                     volume: {
                         size: "15Gi",
@@ -148,8 +169,8 @@ save ""`
                     databases: { harbor: "harbor" },
                     allowedSourceRanges: null,
                     resources: {
-                        requests: { cpu: "500m", memory: "512Mi" },
-                        limits: { cpu: "500m", memory: "512Mi" }
+                        requests: { cpu: "1000m", memory: "1024Mi" },
+                        limits: { cpu: "1000m", memory: "1024Mi" }
                     },
                     enableLogicalBackup: true
                 }
@@ -217,7 +238,7 @@ save ""`
                         }
                     },
                     cache: {
-                        enabled: false,
+                        enabled: true,
                         expireHours: 24
                     },
                     nginx: {
@@ -275,7 +296,7 @@ save ""`
                                 tag: "v2.11.0"
                             },
                             resources: {
-                                limits: { cpu: "1000m", memory: "512Mi" },
+                                limits: { cpu: "2000m", memory: "512Mi" },
                                 requests: { cpu: "1000m", memory: "512Mi" }
                             },
                         },
@@ -390,5 +411,5 @@ save ""`
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const configmap = new k8s_module.core.v1.ConfigMap('ConfigMap', { resources: resources }, { dependsOn: [namespace] });
-const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret,configmap] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret, configmap] });
 const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });
