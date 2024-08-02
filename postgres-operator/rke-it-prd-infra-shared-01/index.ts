@@ -41,19 +41,6 @@ const resources = [
             },
             spec: {}
         },
-        secret: [
-            {
-                metadata: {
-                    name: "auth-secret",
-                    namespace: "postgres-operator",
-                    annotations: {},
-                    labels: {}
-                },
-                type: "Opaque",
-                data: { auth: "YWRtaW46JGFwcjEkc2RmdkxDSTckTDBpTVdla2c1N1d1THI3Q1ZGQjVmLg==" },
-                stringData: {}
-            }
-        ],
         release: [
             {
                 namespace: "postgres-operator",
@@ -136,10 +123,39 @@ const resources = [
                     ingress: { enabled: false }
                 }
             }
+        ],
+        customresource: [
+            {
+                apiVersion: "apisix.apache.org/v2",
+                kind: "ApisixRoute",
+                metadata: {
+                    name: "postgres-operator",
+                    namespace: "postgres-operator"
+                },
+                spec: {
+                    http: [
+                        {
+                            name: "root",
+                            match: {
+                                methods: ["GET", "HEAD"],
+                                hosts: ["postgres-operator.home.local"],
+                                paths: ["/*"]
+                            },
+                            backends: [
+                                {
+                                    serviceName: "postgres-operator-ui",
+                                    servicePort: 80,
+                                    resolveGranularity: "service"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
         ]
     }
 ]
 
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
-const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
-const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [namespace] });

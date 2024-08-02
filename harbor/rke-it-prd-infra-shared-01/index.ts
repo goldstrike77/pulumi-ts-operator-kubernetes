@@ -1,5 +1,4 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as random from "@pulumi/random";
 import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const podlabels = {
@@ -12,20 +11,6 @@ const podlabels = {
 }
 
 let config = new pulumi.Config();
-
-// Generate random minutes from 10 to 59.
-const minutes = new random.RandomInteger("minutes", {
-    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
-    max: 59,
-    min: 10,
-});
-
-// Generate random hours from UTC 17 to 21.
-const hours = new random.RandomInteger("hours", {
-    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
-    max: 21,
-    min: 17,
-});
 
 const resources = [
     {
@@ -44,19 +29,6 @@ const resources = [
         secret: [
             {
                 metadata: {
-                    name: "harbor-postgres-s3-creds",
-                    namespace: "harbor",
-                    annotations: {},
-                    labels: {}
-                },
-                type: "Opaque",
-                data: {
-                    "s3.conf": Buffer.from(config.require("S3.CONF")).toString('base64')
-                },
-                stringData: {}
-            },
-            {
-                metadata: {
                     name: "harbor-cert",
                     namespace: "harbor",
                     annotations: {},
@@ -70,43 +42,25 @@ const resources = [
                 stringData: {}
             }
         ],
-        customresource: [
+        configmap: [
             {
-                apiVersion: "monitoring.coreos.com/v1",
-                kind: "PodMonitor",
                 metadata: {
-                    name: "harbor-postgres",
-                    namespace: "harbor"
+                    name: "redis-external-config",
+                    namespace: "harbor",
+                    annotations: {},
+                    labels: {}
                 },
-                spec: {
-                    podMetricsEndpoints: [
-                        {
-                            interval: "60s",
-                            scrapeTimeout: "30s",
-                            scheme: "http",
-                            targetPort: "exporter",
-                            relabelings: [
-                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
-                                { action: "replace", replacement: "it", sourceLabels: ["__address__"], targetLabel: "customer" },
-                                { action: "replace", replacement: "prd", sourceLabels: ["__address__"], targetLabel: "environment" },
-                                { action: "replace", replacement: "Container-Registry", sourceLabels: ["__address__"], targetLabel: "project" },
-                                { action: "replace", replacement: "Harbor", sourceLabels: ["__address__"], targetLabel: "group" },
-                                { action: "replace", replacement: "cn-north", sourceLabels: ["__address__"], targetLabel: "datacenter" },
-                                { action: "replace", replacement: "local", sourceLabels: ["__address__"], targetLabel: "domain" }
-                            ]
-                        }
-                    ],
-                    namespaceSelector: {
-                        matchNames: ["harbor"]
-                    },
-                    selector: {
-                        matchLabels: {
-                            "postgres-operator.crunchydata.com/cluster": "harbor",
-                            "postgres-operator.crunchydata.com/instance-set": "postgres-instance"
-                        }
-                    }
+                data: {
+                    "redis-additional.conf": `maxmemory 128mb
+tcp-keepalive 60
+tcp-backlog 8192
+maxclients 1000
+databases 10
+save ""`
                 }
-            },
+            }
+        ],
+        customresource: [
             {
                 apiVersion: "monitoring.coreos.com/v1",
                 kind: "PodMonitor",
@@ -136,7 +90,7 @@ const resources = [
                         matchNames: ["harbor"]
                     },
                     selector: {
-                        matchLabels: { app: "harbor-redis-standalone" }
+                        matchLabels: { app: "harbor-redis" }
                     }
                 }
             },
@@ -144,7 +98,7 @@ const resources = [
                 apiVersion: "redis.redis.opstreelabs.in/v1beta2",
                 kind: "Redis",
                 metadata: {
-                    name: "harbor-redis-standalone",
+                    name: "harbor-redis",
                     namespace: "harbor"
                 },
                 spec: {
@@ -152,8 +106,8 @@ const resources = [
                         image: "quay.io/opstree/redis:v7.0.12",
                         imagePullPolicy: "IfNotPresent",
                         resources: {
-                            limits: { cpu: "200m", memory: "256Mi" },
-                            requests: { cpu: "200m", memory: "256Mi" }
+                            limits: { cpu: "200m", memory: "192Mi" },
+                            requests: { cpu: "200m", memory: "192Mi" }
                         }
                     },
                     redisExporter: {
@@ -165,162 +119,43 @@ const resources = [
                             requests: { cpu: "50m", memory: "64Mi" }
                         }
                     },
+                    redisConfig: {
+                        additionalRedisConfig: "redis-external-config"
+                    },
                     podSecurityContext: {
                         runAsUser: 1000,
                         fsGroup: 1000
                     }
                 }
             },
-            /**
             {
-                apiVersion: "apisix.apache.org/v2",
-                kind: "ApisixRoute",
+                kind: "postgresql",
+                apiVersion: "acid.zalan.do/v1",
                 metadata: {
-                    name: "harbor",
-                    namespace: "harbor"
+                    name: "harbor-postgres",
+                    namespace: "harbor",
+                    labels: podlabels
                 },
                 spec: {
-                    http: [
-                        {
-                            name: "root",
-                            match: {
-                                //                                methods: ["GET", "HEAD", "POST", "PUT"],
-                                hosts: ["harbor.home.local"],
-                                paths: ["/*"]
-                            },
-                            backends: [
-                                {
-                                    serviceName: "harbor",
-                                    servicePort: 80,
-                                    resolveGranularity: "service"
-                                }
-                            ],
-                            plugins: [
-                                {
-                                    name: "client-control",
-                                    enable: true,
-                                    config: {
-                                        client_max_body_size: 2048
-                                    }
-                                },
-                                {
-                                    name: "redirect",
-                                    enable: true,
-                                    config: {
-                                        http_to_https: false
-                                    }
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
-                 */
-        ],
-        release: [
-            {
-                namespace: "harbor",
-                name: "pgo-postgres",
-                chart: "../../_chart/pgo-postgres-5.6.0.tgz",
-                version: "5.6.0",
-                values: {
-                    name: "harbor",
-                    postgresVersion: 14,
-                    monitoring: true,
-                    instances: [
-                        {
-                            name: "postgres-instance",
-                            replicas: 1,
-                            dataVolumeClaimSpec: {
-                                storageClassName: "vsphere-san-sc",
-                                accessModes: [
-                                    "ReadWriteOnce"
-                                ],
-                                resources: {
-                                    requests: {
-                                        storage: "15Gi"
-                                    }
-                                }
-                            },
-                            resources: {
-                                limits: { cpu: "1000m", memory: "1024Mi" },
-                                requests: { cpu: "1000m", memory: "1024Mi" }
-                            }
-                        }
-                    ],
-                    patroni: {
-                        dynamicConfiguration: {
-                            synchronous_mode: true,
-                            postgresql: {
-                                parameters: {
-                                    checkpoint_completion_target: "0.9",
-                                    default_statistics_target: "100",
-                                    effective_cache_size: "768MB",
-                                    effective_io_concurrency: "200",
-                                    huge_pages: "655kB",
-                                    maintenance_work_mem: "64MB",
-                                    max_connections: "200",
-                                    max_parallel_workers: 1,
-                                    max_wal_size: "4GB",
-                                    max_worker_processes: 1,
-                                    min_wal_size: "1GB",
-                                    random_page_cost: "1.1",
-                                    shared_buffers: "256MB",
-                                    synchronous_commit: "on",
-                                    wal_buffers: "7864kB",
-                                    wal_keep_size: "512",
-                                    work_mem: "327kB"
-                                }
-                            }
-                        }
+                    teamId: "infra",
+                    postgresql: { version: "13" },
+                    numberOfInstances: 1,
+                    volume: {
+                        size: "15Gi",
+                        storageClass: "vsphere-san-sc"
                     },
-                    shutdown: false,
-                    pgBackRestConfig: {
-                        configuration: [
-                            {
-                                secret: {
-                                    name: "harbor-postgres-s3-creds"
-                                }
-                            }
-                        ],
-                        global: {
-                            "repo1-path": "/harbor/repo1",
-                            "repo1-retention-full": "2",
-                            "repo1-retention-full-type": "time"
-                        },
-                        manual: {
-                            repoName: "repo1",
-                            options: ["--type=full"]
-                        },
-                        repos: [
-                            {
-                                name: "repo1",
-                                schedules: {
-                                    full: pulumi.interpolate`${minutes.result} ${hours.result} * * 0`,
-                                    differential: pulumi.interpolate`${minutes.result} ${hours.result} * * 1-6`,
-                                },
-                                s3: {
-                                    bucket: "backup",
-                                    endpoint: "http://obs.home.local:9000",
-                                    region: "us-east-1"
-                                }
-                            }
-                        ]
+                    users: { harbor: [] },
+                    databases: { harbor: "harbor" },
+                    allowedSourceRanges: null,
+                    resources: {
+                        requests: { cpu: "500m", memory: "512Mi" },
+                        limits: { cpu: "500m", memory: "512Mi" }
                     },
-                    pgBouncerConfig: {
-                        resources: {
-                            limits: { cpu: "200m", memory: "256Mi" },
-                            requests: { cpu: "200m", memory: "256Mi" }
-                        }
-                    },
-                    monitoringConfig: {
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        }
-                    }
+                    enableLogicalBackup: true
                 }
             },
+        ],
+        release: [
             {
                 namespace: "harbor",
                 name: "harbor",
@@ -473,18 +308,18 @@ const resources = [
                     database: {
                         type: "external",
                         external: {
-                            host: "harbor-pgbouncer",
+                            host: "harbor-postgres",
                             port: "5432",
                             username: "harbor",
                             coreDatabase: "harbor",
-                            existingSecret: "harbor-pguser-harbor",
+                            existingSecret: "harbor.harbor-postgres.credentials.postgresql.acid.zalan.do",
                             sslmode: "require"
                         }
                     },
                     redis: {
                         type: "external",
                         external: {
-                            addr: "harbor-redis-standalone:6379"
+                            addr: "harbor-redis:6379"
                         }
                     },
                     exporter: {
@@ -500,6 +335,53 @@ const resources = [
                         podLabels: podlabels
                     }
                 }
+            },
+            {
+                namespace: "harbor",
+                name: "prometheus-postgres-exporter",
+                chart: "prometheus-postgres-exporter",
+                repositoryOpts: {
+                    repo: "https://prometheus-community.github.io/helm-charts"
+                },
+                version: "6.1.0",
+                values: {
+                    fullnameOverride: "harbor-postgres-exporter",
+                    replicaCount: 1,
+                    image: {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "quay-io/postgres-exporter"
+                    },
+                    serviceMonitor: {
+                        enabled: true,
+                        relabelings: [
+                            { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                            { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                        ]
+                    },
+                    resources: {
+                        limits: { cpu: "50m", memory: "64Mi" },
+                        requests: { cpu: "50m", memory: "64Mi" }
+                    },
+                    config: {
+                        datasource: {
+                            host: 'harbor-postgres',
+                            user: "postgres",
+                            passwordSecret: {
+                                name: "postgres.harbor-postgres.credentials.postgresql.acid.zalan.do",
+                                key: "password"
+                            },
+                            port: "5432",
+                            sslmode: "require"
+                        },
+                        logLevel: "warn"
+                    },
+                    podLabels: podlabels
+                }
             }
         ]
     }
@@ -507,5 +389,6 @@ const resources = [
 
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
-const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
-const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [namespace] });
+const configmap = new k8s_module.core.v1.ConfigMap('ConfigMap', { resources: resources }, { dependsOn: [namespace] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret,configmap] });
+const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });
