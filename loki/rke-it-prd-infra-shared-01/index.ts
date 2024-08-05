@@ -34,18 +34,22 @@ const resources = [
         repositoryOpts: {
           repo: "https://grafana.github.io/helm-charts"
         },
-        version: "6.6.2",
+        version: "6.7.3",
         values: {
           global: {
+            image: {
+              registry: "swr.cn-east-3.myhuaweicloud.com"
+            },
             clusterDomain: "cluster.local",
             dnsService: "rke2-coredns-rke2-coredns"
           },
-          "deploymentMode": "Distributed",
-          "loki": {
-            "podLabels": podlabels,
-            "auth_enabled": false,
-            "tenants": [],
-            "limits_config": {
+          deploymentMode: "Distributed",
+          loki: {
+            image: { repository: "docker-io/loki" },
+            podLabels: podlabels,
+            auth_enabled: false,
+            tenants: [],
+            limits_config: {
               ingestion_burst_size_mb: 64,
               ingestion_rate_mb: 32,
               ingestion_rate_strategy: "global",
@@ -105,6 +109,7 @@ const resources = [
             "enabled": true,
             "replicas": 1,
             "verboseLogging": false,
+            image: { repository: "docker-io/nginx-unprivileged" },
             "podLabels": podlabels,
             "resources": {},
             "service": {
@@ -192,7 +197,13 @@ const resources = [
             "resources": {},
             "directories": {}
           },
+          memcached: {
+            image: {
+              repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/memcached"
+            }
+          },
           "memcachedExporter": {
+            image: { repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/memcached-exporter" },
             resources: {
               limits: { cpu: "200m", memory: "64Mi" },
               requests: { cpu: "200m", memory: "64Mi" }
