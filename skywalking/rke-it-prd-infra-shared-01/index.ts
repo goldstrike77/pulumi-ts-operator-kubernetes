@@ -26,21 +26,6 @@ const resources = [
       },
       spec: {}
     },
-    secret: [
-      {
-        metadata: {
-          name: "opensearch-secret",
-          namespace: "skywalking",
-          annotations: {},
-          labels: {}
-        },
-        type: "Opaque",
-        data: {
-          auth: Buffer.from("admin:$apr1$sdfvLCI7$L0iMWekg57WuLr7CVFB5f.").toString('base64')
-        },
-        stringData: {}
-      }
-    ],
     release: [
       {
         namespace: "skywalking",
@@ -462,9 +447,33 @@ webhooks:
                   servicePort: 80,
                   resolveGranularity: "service"
                 }
+              ],
+              plugins: [
+                {
+                  name: "basic-auth",
+                  enable: true
+                }
               ]
             }
           ]
+        }
+      },
+      {
+        apiVersion: "apisix.apache.org/v2",
+        kind: "ApisixConsumer",
+        metadata: {
+          name: "skywalking-ui-auth",
+          namespace: "skywalking"
+        },
+        spec: {
+          authParameter: {
+            basicAuth: {
+              value: {
+                username: "admin",
+                password: config.require("skywalkingPassword")
+              }
+            }
+          }
         }
       }
     ]
@@ -472,6 +481,5 @@ webhooks:
 ]
 
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
-const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
-const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
 const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [release] });

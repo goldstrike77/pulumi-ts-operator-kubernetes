@@ -2,4 +2,6 @@ encryptionsalt: v1:JTdZSGIgx/U=:v1:kGxSX43nd4UEceKH:l4sUtHcsUFfNTZ+uW2dKULHdHWKL
 config:
   demo:adminPassword:
     secure: v1:T05Kpw+BYdHnBBy3:TvzkZN3SzsJlhanUKEsYDC4oMyyEF1PO
+  demo:skywalkingPassword:
+    secure: v1:i7BVj6xcGIoQQHuQ:HdimqOtaKt4wXt6rfnBkCYCMNKrqVHFR
   kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

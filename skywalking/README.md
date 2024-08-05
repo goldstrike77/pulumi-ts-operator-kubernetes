@@ -7,6 +7,7 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 #### Configuration credential values.
 ```hcl
 pulumi config set adminPassword [password] --secret
+pulumi config set skywalkingPassword [password] --secret
 ```
 
 templates/oap-svc.yaml 添加

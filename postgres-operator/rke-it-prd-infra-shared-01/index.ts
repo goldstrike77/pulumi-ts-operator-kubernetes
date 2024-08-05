@@ -74,7 +74,7 @@ const resources = [
                         logical_backup_s3_region: "us-east-1",
                         logical_backup_s3_endpoint: "http://obs.home.local:9000",
                         logical_backup_s3_secret_access_key: config.require("AWS_SECRET_ACCESS_KEY"),
-                        logical_backup_s3_sse: "AES256",
+                        logical_backup_s3_sse: "",
                         logical_backup_s3_retention_time: "3 days",
                         logical_backup_schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
                     },
