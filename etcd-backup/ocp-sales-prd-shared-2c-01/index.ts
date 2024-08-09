@@ -1,7 +1,15 @@
 import * as pulumi from "@pulumi/pulumi";
+import * as random from "@pulumi/random";
 import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 let config = new pulumi.Config();
+
+// Generate random minutes from 10 to 59.
+const minutes = new random.RandomInteger("minutes", {
+    seed: `${pulumi.getStack()}-${pulumi.getProject()}`,
+    max: 59,
+    min: 10,
+});
 
 const resources = [
     {
@@ -94,7 +102,7 @@ const resources = [
                     }
                 },
                 spec: {
-                    schedule: "*/10 * * * *",
+                    schedule: pulumi.interpolate`${minutes.result} * * * *`,
                     concurrencyPolicy: "Forbid",
                     suspend: false,
                     jobTemplate: {
@@ -132,7 +140,7 @@ const resources = [
                                             command: [
                                                 "/bin/bash",
                                                 "-c",
-                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mmin +2 -exec rm -rf {} \\;"
+                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +7 -exec rm -rf {} \\;"
                                             ],
                                             securityContext: {
                                                 privileged: true,
@@ -158,7 +166,7 @@ const resources = [
                                             command: [
                                                 "/bin/bash",
                                                 "-c",
-                                                "while true; do if [[  $(find /host/home/core/backup/ -type d -cmin -1 | wc -c) -ne 0 ]]; then aws --endpoint-url http://obs.home.local:9000 s3 sync /host/home/core/backup/ s3://backup --recursive; break; fi; done"
+                                                "while true; do if [[  $(find /host/home/core/backup/ -type d -cmin -1 | wc -c) -ne 0 ]]; then aws --endpoint-url http://obs.home.local:9000 s3 sync /host/home/core/backup/ s3://backup/ocp-sales-prd-shared-2c-01; break; fi; done"
                                             ],
                                             env: [
                                                 {
