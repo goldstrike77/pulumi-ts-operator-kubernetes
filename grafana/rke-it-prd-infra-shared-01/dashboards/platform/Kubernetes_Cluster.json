@@ -2784,7 +2784,7 @@
             "uid": "DS_PROMETHEUS"
           },
           "exemplar": false,
-          "expr": "count(container_cpu_usage_seconds_total{namespace=~\"$namespace\",image!=\"\",pod!=\"\",container=\"\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"})",
+          "expr": "count(count(container_memory_usage_bytes{namespace=~\"$namespace\",group=\"$cluster\",environment=\"$environment\",customer=\"$customer\"}) by (pod))",
           "format": "time_series",
           "interval": "1m",
           "intervalFactor": 1,

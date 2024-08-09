@@ -1,0 +1,7 @@
+encryptionsalt: v1:H5mXXibHWvE=:v1:6/5uFC/wUgak+8yq:9MPlXdZ+0sZ7oTqEqRqx7WT1ORPhoA==
+config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:n9WEhy217Zw71ezN:AiRh3qN81UtrFryt4KKhRwZqPPHl
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:t50W4ocHJtKZfVYe:8EEx8Quvz1SLYc4yFHyIS4KXyaqctlr8
+  demo:kubernetes: kubernetes-admin@ocp-sales-prd-shared-2c-01
