@@ -1,5 +1,5 @@
 encryptionsalt: v1:/8mK+LFLlm4=:v1:oEn4QhHdyOj/WgmS:/c3p+9BP+BC+9ha8VhGQBp8ORj1jUw==
 config:
   demo:hecToken:
-    secure: v1:W079laOucFOSu4Xa:BvAGv3G9CViZ1N/zi8vuCRJLLijxDF69HLhA9Sf7IiuF5cc2X/DDZ6qng3a2Af/IayhVLg==
+    secure: v1:oVbTSapEK/MpyJRC:G+6X5tTD8H/2vVMuuXM5V0R90tn33uHdJMRYBKiPPXvCYSYpgAf2asygtGtGkGXFVfaNuQ==
   kubernetes:context: kubernetes-admin@ocp-sales-prd-shared-2c-01
