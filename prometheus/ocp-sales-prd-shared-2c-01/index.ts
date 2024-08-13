@@ -354,11 +354,11 @@ const resources = [
                             probeSelectorNilUsesHelmValues: false,
                             retention: "2h",
                             retentionSize: "4096MB",
-                            replicas: 2,
+                            replicas: 1,
                             logLevel: "warn",
                             resources: {
-                                limits: { cpu: "1000m", memory: "3072Mi" },
-                                requests: { cpu: "1000m", memory: "3072Mi" }
+                                limits: { cpu: "500m", memory: "3072Mi" },
+                                requests: { cpu: "500m", memory: "3072Mi" }
                             },
                             storageSpec: {
                                 volumeClaimTemplate: {

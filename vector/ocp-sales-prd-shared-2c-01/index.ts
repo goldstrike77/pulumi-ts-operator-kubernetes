@@ -39,8 +39,8 @@ const resources = [
                 spec: {
                     collection: {
                         resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
+                            limits: { cpu: "300m", memory: "512Mi" },
+                            requests: { cpu: "300m", memory: "512Mi" }
                         },
                         type: "vector"
                     }

@@ -131,7 +131,7 @@ const resources = [
                                     hostNetwork: true,
                                     enableServiceLinks: true,
                                     schedulerName: "default-scheduler",
-                                    terminationGracePeriodSeconds: 600,
+                                    terminationGracePeriodSeconds: 60,
                                     securityContext: {},
                                     initContainers: [
                                         {
@@ -157,6 +157,10 @@ const resources = [
                                                 {
                                                     name: "host",
                                                     mountPath: "/host"
+                                                },
+                                                {
+                                                    name: "cst-timezone",
+                                                    mountPath: "/etc/localtime"
                                                 }
                                             ],
                                             terminationMessagePolicy: "File"
@@ -213,6 +217,10 @@ const resources = [
                                                 {
                                                     name: "host",
                                                     mountPath: "/host"
+                                                },
+                                                {
+                                                    name: "cst-timezone",
+                                                    mountPath: "/etc/localtime"
                                                 }
                                             ]
                                         }
@@ -224,10 +232,21 @@ const resources = [
                                                 path: "/",
                                                 type: "Directory"
                                             }
+                                        },
+                                        {
+                                            name: "cst-timezone",
+                                            hostPath: {
+                                                path: "/usr/share/zoneinfo/PRC",
+                                                type: "File"
+                                            }
                                         }
                                     ],
                                     dnsPolicy: "ClusterFirst",
-                                    tolerations: [{ "key": "node-role.kubernetes.io/master" }]
+                                    tolerations: [
+                                        {
+                                            "key": "node-role.kubernetes.io/master"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -243,6 +262,6 @@ const resources = [
 const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const serviceaccount = new k8s_module.core.v1.ServiceAccount('ServiceAccount', { resources: resources }, { dependsOn: [namespace] });
-const clusterrole = new k8s_module.rbac.v1.ClusterRole('ClusterRole', { resources: resources }, { dependsOn: [secret] });
+const clusterrole = new k8s_module.rbac.v1.ClusterRole('ClusterRole', { resources: resources }, { dependsOn: [namespace] });
 const clusterrolebinding = new k8s_module.rbac.v1.ClusterRoleBinding('ClusterRoleBinding', { resources: resources }, { dependsOn: [clusterrole, serviceaccount] });
-const cronjob = new k8s_module.batch.v1.CronJob('CronJob', { resources: resources }, { dependsOn: [clusterrolebinding] });
+const cronjob = new k8s_module.batch.v1.CronJob('CronJob', { resources: resources }, { dependsOn: [clusterrolebinding, secret] });
