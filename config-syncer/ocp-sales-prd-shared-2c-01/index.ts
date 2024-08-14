@@ -32,8 +32,8 @@ const resources = [
                         repository: "config-syncer",
                         tag: "v0.14.1",
                         resources: {
-                            limits: { cpu: "300m", memory: "512Mi" },
-                            requests: { cpu: "300m", memory: "512Mi" }
+                            limits: { cpu: "200m", memory: "256Mi" },
+                            requests: { cpu: "200m", memory: "256Mi" }
                         },
                         securityContext: {
                             runAsUser: 1000710000

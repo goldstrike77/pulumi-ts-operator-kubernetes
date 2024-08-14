@@ -224,8 +224,8 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                         runAsUser: 1000700000
                     },
                     resources: {
-                        limits: { cpu: "1000m", memory: "512Mi" },
-                        requests: { cpu: "1000m", memory: "512Mi" }
+                        limits: { cpu: "500m", memory: "512Mi" },
+                        requests: { cpu: "500m", memory: "512Mi" }
                     },
                     livenessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },
                     readinessProbe: { initialDelaySeconds: 60, timeoutSeconds: 30 },

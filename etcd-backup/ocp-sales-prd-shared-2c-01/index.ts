@@ -103,7 +103,7 @@ const resources = [
                     }
                 },
                 spec: {
-                    schedule: pulumi.interpolate`${minutes.result} * * * *`,
+                    schedule: pulumi.interpolate`${minutes.result} */2 * * *`,
                     concurrencyPolicy: "Forbid",
                     suspend: false,
                     jobTemplate: {
@@ -141,7 +141,7 @@ const resources = [
                                             command: [
                                                 "/bin/bash",
                                                 "-c",
-                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +3 -exec rm -rf {} \\;"
+                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S*CST\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +3 | xargs rm -rf {} \\;"
                                             ],
                                             securityContext: {
                                                 privileged: true,

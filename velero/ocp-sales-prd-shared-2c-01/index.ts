@@ -50,7 +50,7 @@ const resources = [
                             velero: {
                                 config: {
                                     profile: "default",
-                                    region: "us-east-1",
+                                    region: "minio",
                                     s3ForcePathStyle: "true",
                                     s3Url: "http://obs.home.local:9000",
                                     insecureSkipTLSVerify: "true"
@@ -74,8 +74,9 @@ const resources = [
                             uploaderType: "kopia",
                             podConfig: {
                                 resourceAllocations: {
-                                    limits: { cpu: "1000m", memory: "1024Mi" },
-                                    requests: { cpu: "1000m", memory: "1024Mi" }
+                                    requests: { cpu: "1000m", memory: "1024Mi" },
+                                    limits: { cpu: "2000m", memory: "2048Mi" }
+
                                 }
                             }
                         },
@@ -88,8 +89,8 @@ const resources = [
                             ],
                             podConfig: {
                                 resourceAllocations: {
-                                    limits: { cpu: "300m", memory: "256Mi" },
-                                    requests: { cpu: "300m", memory: "256Mi" }
+                                    requests: { cpu: "1000m", memory: "1024Mi" },
+                                    limits: { cpu: "2000m", memory: "2048Mi" }
                                 }
                             }
                         }
@@ -106,7 +107,7 @@ const resources = [
                 spec: {
                     config: {
                         profile: "default",
-                        region: "us-east-1"
+                        region: "minio"
                     },
                     credential: {
                         key: "cloud",
@@ -125,12 +126,13 @@ const resources = [
                 spec: {
                     schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * * `,
                     template: {
-                        defaultVolumesToFsBackup: true,
+                        defaultVolumesToFsBackup: false,
                         hooks: {},
                         includedNamespaces: [
                             "apisix",
                             "monitoring"
                         ],
+                        snapshotMoveData: true,
                         storageLocation: "bsl-s3-1",
                         volumeSnapshotLocations: ["vsl-s3-1"],
                         ttl: "72h0m0s"
