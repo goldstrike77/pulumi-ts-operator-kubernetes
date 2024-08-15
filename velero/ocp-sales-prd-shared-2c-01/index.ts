@@ -135,7 +135,7 @@ const resources = [
                         snapshotMoveData: true,
                         storageLocation: "bsl-s3-1",
                         volumeSnapshotLocations: ["vsl-s3-1"],
-                        ttl: "72h0m0s"
+                        ttl: "48h0m0s"
                     }
                 }
             }

@@ -56,7 +56,7 @@ const resources = [
                 spec: {
                     filters: [
                         {
-                            name: "severity",
+                            name: "filter-severity",
                             type: "drop",
                             drop: [
                                 {
@@ -68,6 +68,112 @@ const resources = [
                                     ]
                                 }
                             ]
+                        },
+                        {
+                            name: "filter-audit",
+                            type: "kubeAPIAudit",
+                            kubeAPIAudit: {
+                                omitStages: [
+                                    "RequestReceived"
+                                ],
+                                rules: [
+                                    {
+                                        // Resource "pods" doesn't match requests to any subresource of pods,
+                                        // which is consistent with the RBAC policy.
+                                        level: "RequestResponse",
+                                        resources: [
+                                            {
+                                                group: "",
+                                                resources: ["pods"],
+                                                verbs: ["create", "patch", "update", "delete"]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        // Log "pods/log", "pods/status" at Metadata level.
+                                        level: "Metadata",
+                                        resources: [
+                                            {
+                                                group: "",
+                                                resources: ["pods/log", "pods/status"]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        // Don't log requests to a configmap called "controller-leader".
+                                        level: "None",
+                                        resources: [
+                                            {
+                                                group: "",
+                                                resources: ["configmaps"],
+                                                resourceNames: ["controller-leader"]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        // Don't log watch requests by the "system:kube-proxy" on endpoints or services.
+                                        level: "None",
+                                        users: ["system:kube-proxy"],
+                                        verbs: ["watch"],
+                                        resources: [
+                                            {
+                                                group: "",
+                                                resources: ["endpoints", "services"]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        // Don't log requests to the following.
+                                        level: "None",
+                                        userGroups: ["system:authenticated"],
+                                        nonResourceURLs: ["/api*", "/healthz*", "/logs", "/metrics", "/swagger*", "/version"]
+                                    },
+                                    {
+                                        // Log the request body of configmap changes in kube-system.
+                                        level: "Request",
+                                        resources: [
+                                            {
+                                                group: "",
+                                                resources: ["configmaps"]
+                                            }
+                                        ],
+                                        namespaces: ["kube-system"]
+                                    },
+                                    {
+                                        // Log configmap and secret changes in all other namespaces at the Metadata level.
+                                        level: "Metadata",
+                                        resources: [
+                                            {
+                                                group: "",
+                                                resources: ["secrets", "configmaps"]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        // Log all other resources in core and extensions at the Request level.
+                                        level: "Request",
+                                        resources: [
+                                            {
+                                                group: ""
+                                            },
+                                            {
+                                                group: "extensions"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        // Limit level to Metadata so token is not included in the spec/status.
+                                        level: "Metadata",
+                                        omitStages: ["RequestReceived"],
+                                        resources: [
+                                            {
+                                                group: "authentication.k8s.io",
+                                                resources: ["tokenreviews"]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
                         }
                     ],
                     outputs: [
@@ -104,7 +210,7 @@ const resources = [
                             labels: labels,
                             inputRefs: ["application"],
                             outputRefs: ["splunk-application"],
-                            filterRefs: ["severity"]
+                            filterRefs: ["filter-severity"]
                         },
                         {
                             name: "splunk-audit",
@@ -112,7 +218,8 @@ const resources = [
                             parse: "json",
                             labels: labels,
                             inputRefs: ["audit"],
-                            outputRefs: ["splunk-audit"]
+                            outputRefs: ["splunk-audit"],
+                            filterRefs: ["filter-audit"]
                         },
                         {
                             name: "splunk-infrastructure",
