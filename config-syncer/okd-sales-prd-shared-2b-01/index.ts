@@ -43,7 +43,7 @@ const resources = [
                         fsGroup: 1000710000
                     },
                     config: {
-                        clusterName: "ocp-sales-prd-shared-2c-01"
+                        clusterName: "okd-sales-prd-shared-2b-01"
                     },
 
                 }

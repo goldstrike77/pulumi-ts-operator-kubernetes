@@ -1,0 +1,3 @@
+encryptionsalt: v1:3LcuHOhOiBI=:v1:GDgcPnSszk23EBIP:RvPJMpsF5i5Umd5J1k4NrqDONK50kA==
+config:
+  demo:kubernetes: kubernetes-admin@okd-sales-prd-shared-2b-01

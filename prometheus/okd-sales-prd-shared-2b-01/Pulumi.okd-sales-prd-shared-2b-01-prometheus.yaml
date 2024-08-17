@@ -1,0 +1,5 @@
+encryptionsalt: v1:miBDKwXsXNo=:v1:WAIYVb2YM1NhBGXN:pwB+yoxo/euBx2ioueW77vVhBJIrjA==
+config:
+  demo:OBJSTORE.YML:
+    secure: v1:wlLmgnqpcIVhVfDp:FRrjrMZh1TN8mKg1rN6bIiTZb/sTxM7QhuQ5RxHmKgDPppAMLKyvhgByFG01AHsHRXr018gw/iRkN9XaT0dWiLmpneblMYoedC57++guiP92d//iCtklaEwDD4hmxYmfYABvVKf2N+g0zps1iqyL86OOuo/s53RdwHY5XdJKmlR9H7PNgxHvQMa4TxIi+21kbXh3LJI4caxUPM/1i5v9M9vt/P5HV5aORviJjv1h7hekLyNN5nHWFZReiSuCcTLK6+zgM/y2ypIJYpV4diKOyilHzuTsHoKhXqrVv5TH0tOwSFU6hKZAaoT68wF5MGdOosad1Ue40R7IHbB6aM2QHTYOlWJyeZmYEg541NQzJ/1wfYtwUem/oI25Q5jF9rvyC/lOz44dbr40/LmGk2dBOkc6nsK7vByQi2gz1BFBPmTGzHUz+qp9Aqj1tckpFDrkEhfNTDL/GZKUr4JKhC+Vd4hGY/nWxusV6Cps054GgtQ=
+  demo:kubernetes: kubernetes-admin@okd-sales-prd-shared-2b-01
