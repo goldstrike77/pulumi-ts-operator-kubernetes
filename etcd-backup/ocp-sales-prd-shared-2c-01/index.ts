@@ -141,7 +141,7 @@ const resources = [
                                             command: [
                                                 "/bin/bash",
                                                 "-c",
-                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S*CST\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +3 | xargs rm -rf {} \\;"
+                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S_CST\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +3 | xargs rm -rf {} \\;"
                                             ],
                                             securityContext: {
                                                 privileged: true,
