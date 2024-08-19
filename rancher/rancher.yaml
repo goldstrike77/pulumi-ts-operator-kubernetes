@@ -19,17 +19,17 @@ auditLog:
   maxBackup: 1
   maxSize: 100
 
+  # Image for collecting rancher audit logs.
+  # Important: update pkg/image/export/resolve.go when this default image is changed, so that it's reflected accordingly in rancher-images.txt generated for air-gapped setups.
+  image:
+    repository: "rancher/mirrored-bci-micro"
+    tag: 15.4.14.3
+    # Override imagePullPolicy image
+    # options: Always, Never, IfNotPresent
+    pullPolicy: "IfNotPresent"
+
 # As of Rancher v2.5.0 this flag is deprecated and must be set to 'true' in order for Rancher to start
 addLocal: "true"
-
-# Image for collecting rancher audit logs.
-# Important: update pkg/image/export/main.go when this default image is changed, so that it's reflected accordingly in rancher-images.txt generated for air-gapped setups.
-busyboxImage: busybox
-
-# Override imagePullPolicy for busybox images
-# options: Always, Never, IfNotPresent
-# Defaults to IfNotPresent
-# busyboxImagePullPolicy: <pullPolicy>
 
 # Add debug flag to Rancher server
 debug: false
@@ -43,7 +43,7 @@ restrictedAdmin: false
 #   value: "1.0"
 
 # Fully qualified name to reach your Rancher server
-hostname: rancher.example.com
+# hostname: rancher.my.org
 
 ## Optional array of imagePullSecrets containing private registry credentials
 ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -58,8 +58,13 @@ ingress:
   # options: true, false
   enabled: true
   includeDefaultExtraAnnotations: true
-  extraAnnotations:
-    kubernetes.io/ingress.class: nginx
+  extraAnnotations: {}
+  ingressClassName: ""
+  # Certain ingress controllers will will require the pathType or path to be set to a different value.
+  pathType: ImplementationSpecific
+  path: "/"
+  # backend port number
+  servicePort: 80
 
   # configurationSnippet - Add additional Nginx configuration. This example statically sets a header on the ingress.
   # configurationSnippet: |
@@ -67,8 +72,14 @@ ingress:
 
   tls:
     # options: rancher, letsEncrypt, secret
-    source: secret
+    source: rancher
     secretName: tls-rancher-ingress
+
+### service ###
+# Override to use NodePort or LoadBalancer service type - default is ClusterIP
+service:
+  type: ""
+  annotations: {}
 
 ### LetsEncrypt config ###
 # ProTip: The production environment only allows you to register a name 5 times a week.
@@ -81,7 +92,7 @@ letsEncrypt:
     class: ""
 # If you are using certs signed by a private CA set to 'true' and set the 'tls-ca'
 # in the 'rancher-system' namespace. See the README.md for details
-privateCA: true
+privateCA: false
 
 # http[s] proxy server passed into rancher server.
 # proxy: http://<username>@<password>:<url>:<port>
@@ -90,7 +101,7 @@ privateCA: true
 noProxy: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local
 
 # Override rancher image location for Air Gap installs
-rancherImage: registry.cn-hangzhou.aliyuncs.com/rancher/rancher
+rancherImage: rancher/rancher
 # rancher/rancher image tag. https://hub.docker.com/r/rancher/rancher/tags/
 # Defaults to .Chart.appVersion
 # rancherImageTag: v2.0.7
@@ -102,7 +113,10 @@ rancherImage: registry.cn-hangzhou.aliyuncs.com/rancher/rancher
 
 # Number of Rancher server replicas. Setting to negative number will dynamically between 0 and the abs(replicas) based on available nodes.
 # of available nodes in the cluster
-replicas: 2
+replicas: 3
+
+# Set priorityClassName to avoid eviction
+priorityClassName: rancher-critical
 
 # Set pod resource requests/limits for Rancher.
 resources: {}
@@ -114,13 +128,13 @@ resources: {}
 # - external
 tls: ingress
 
-systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com"
+systemDefaultRegistry: ""
 
 # Set to use the packaged system charts
 useBundledSystemChart: false
 
 # Certmanager version compatibility
-certmanager: 
+certmanager:
   version: ""
 
 # Rancher custom logos persistence
@@ -133,7 +147,7 @@ customLogos:
   volumeKind: persistentVolumeClaim
   ## Use an existing volume. Custom logos should be copied to the volume by the user
   # volumeName: custom-logos
-  ## Just for volumeKind: persistentVolumeClaim 
+  ## Just for volumeKind: persistentVolumeClaim
   ## To disables dynamic provisioning, set storageClass: "" or storageClass: "-"
   # storageClass: "-"
   accessMode: ReadWriteOnce
@@ -143,8 +157,8 @@ customLogos:
 postDelete:
   enabled: true
   image:
-    repository: registry.cn-hangzhou.aliyuncs.com/rancher/rancher-webhook
-    tag: v0.2.2
+    repository: rancher/shell
+    tag: v0.1.24
   namespaceList:
     - cattle-fleet-system
     - cattle-system
@@ -155,4 +169,26 @@ postDelete:
   ignoreTimeoutError: false
 
 # Set a bootstrap password. If leave empty, a random password will be generated.
-bootstrapPassword: "admin"
+bootstrapPassword: ""
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 30
+
+global:
+  cattle:
+    psp:
+      # will default to true on 1.24 and below, and false for 1.25 and above
+      # can be changed manually to true or false to bypass version checks and force that option
+      enabled: ""
+
+# helm values to use when installing the rancher-webhook chart.
+# helm values set here will override all other global values used when installing the webhook such as priorityClassName and systemRegistry settings.
+webhook: ""
+
+# helm values to use when installing the fleet chart.
+# helm values set here will override all other global values used when installing the fleet chart.
+fleet: ""

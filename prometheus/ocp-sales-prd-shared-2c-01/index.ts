@@ -446,7 +446,7 @@ const resources = [
                         persistence: {
                             enabled: true,
                             storageClass: "vsphere-san-sc",
-                            size: "7Gi"
+                            size: "31Gi"
                         }
                     },
                     storegateway: {
