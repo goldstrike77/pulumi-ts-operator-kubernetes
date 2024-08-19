@@ -137,11 +137,15 @@ const resources = [
                                         {
                                             name: "cronjob-etcd-backup",
                                             image: "registry.redhat.io/openshift4/ose-cli",
+                                            resources: {
+                                                limits: { cpu: "200m", memory: "128Mi" },
+                                                requests: { cpu: "200m", memory: "128Mi" }
+                                            },
                                             terminationMessagePath: "/dev/termination-log",
                                             command: [
                                                 "/bin/bash",
                                                 "-c",
-                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S_CST\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +3 | xargs rm -rf {} \\;"
+                                                "echo -e '\\n\\n---\\nCreate etcd backup local to master\\n' && chroot /host /usr/local/bin/cluster-backup.sh /home/core/backup/$(date \"+%F_%H%M%S_CST\") && echo -e '\\n\\n---\\nCleanup old local etcd backups\\n' && chroot /host find /home/core/backup/ -mindepth 1 -type d -mtime +2 | xargs rm -rf {} \\;"
                                             ],
                                             securityContext: {
                                                 privileged: true,
@@ -170,10 +174,14 @@ const resources = [
                                         {
                                             name: "aws-cli",
                                             image: "swr.cn-east-3.myhuaweicloud.com/docker-io/aws-cli:2.17.26",
+                                            resources: {
+                                                limits: { cpu: "200m", memory: "128Mi" },
+                                                requests: { cpu: "200m", memory: "128Mi" }
+                                            },
                                             command: [
                                                 "/bin/bash",
                                                 "-c",
-                                                "while true; do if [[ $(find /host/home/core/backup/ -type d -cmin -1 | wc -c) -ne 0 ]]; then aws --no-progress --cli-connect-timeout 30 --cli-read-timeout 30 --no-verify-ssl s3 sync /host/home/core/backup/ s3://backup/ocp-sales-prd-shared-2c-01; break; fi; done"
+                                                "while true; do if [[ $(find /host/home/core/backup/ -type d -cmin -1 | wc -c) -ne 0 ]]; then aws --delete --no-progress --cli-connect-timeout 30 --cli-read-timeout 30 --no-verify-ssl s3 sync /host/home/core/backup/ s3://backup/ocp-sales-prd-shared-2c-01; break; fi; done"
                                             ],
                                             env: [
                                                 {
