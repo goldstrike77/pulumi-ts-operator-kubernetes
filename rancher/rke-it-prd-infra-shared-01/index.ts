@@ -35,7 +35,7 @@ const resources = [
                     hostname: "rancher.home.local",
                     ingress: { enabled: false },
                     rancherImage: "registry.cn-hangzhou.aliyuncs.com/rancher/rancher",
-                    replicas: 3,
+                    replicas: 1,
                     resources: {},
                     postDelete: {
                         image: {
