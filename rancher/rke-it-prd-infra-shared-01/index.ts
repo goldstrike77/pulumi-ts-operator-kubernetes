@@ -5,18 +5,80 @@ let config = new pulumi.Config();
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "cattle-system",
-                annotations: {},
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
+        namespace: [
+            {
+                metadata: {
+                    name: "cattle-system",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
             },
-            spec: {}
-        },
+            {
+                metadata: {
+                    name: "cattle-fleet-system",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            },
+            {
+                metadata: {
+                    name: "cattle-global-data",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            },
+            {
+                metadata: {
+                    name: "cattle-global-nt",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            },
+            {
+                metadata: {
+                    name: "cattle-impersonation-system",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            },
+            {
+                metadata: {
+                    name: "cattle-provisioning-capi-system",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            }
+        ],
         release: [
             {
                 namespace: "cattle-system",
@@ -27,22 +89,22 @@ const resources = [
                 },
                 version: "2.8.5",
                 values: {
-                    auditLog: {
-                        image: {
-                            repository: "registry.cn-hangzhou.aliyuncs.com/rancher/mirrored-bci-micro"
-                        }
-                    },
+                    //   auditLog: {
+                    //       image: {
+                    //           repository: "registry.cn-hangzhou.aliyuncs.com/rancher/mirrored-bci-micro"
+                    //       }
+                    //   },
                     hostname: "rancher.home.local",
                     ingress: { enabled: false },
                     rancherImage: "registry.cn-hangzhou.aliyuncs.com/rancher/rancher",
                     replicas: 1,
                     resources: {},
                     systemDefaultRegistry: "registry.cn-hangzhou.aliyuncs.com",
-                    postDelete: {
-                        image: {
-                            repository: "registry.cn-hangzhou.aliyuncs.com/rancher/shell"
-                        }
-                    },
+                    //    postDelete: {
+                    //        image: {
+                    //            repository: "registry.cn-hangzhou.aliyuncs.com/rancher/shell"
+                    //        }
+                    //    },
                     bootstrapPassword: config.require("bootstrapPassword")
                 }
             }
@@ -61,10 +123,14 @@ const resources = [
                         {
                             name: "root",
                             match: {
-                                //                                methods: ["GET", "HEAD", "POST", "PUT"],
                                 hosts: ["rancher.home.local"],
                                 paths: ["/*"],
                                 enable_websocket: true
+                            },
+                            timeout: {
+                                connect: "60s",
+                                send: "1800s",
+                                read: "1800s"
                             },
                             backends: [
                                 {

@@ -26,7 +26,7 @@ const resources = [
         values: {
           config: {
             enabled: true,
-            vcenter: "vcenter.esxi.lab",
+            vcenter: "192.168.0.130",
             username: "administrator@vsphere.local",
             password: config.require("VSPHERE_PASSWORD"),
             datacenter: "cn-north",
@@ -76,7 +76,7 @@ const resources = [
               },
               vcenter: {
                 "vcenter.esxi.lab": {
-                  server: "vcenter.esxi.lab",
+                  server: "192.168.0.130",
                   user: "administrator@vsphere.local",
                   password: config.require("VSPHERE_PASSWORD"),
                   datacenters: ["cn-north"]

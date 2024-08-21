@@ -53,11 +53,11 @@ const resources = [
                             enabled: ["dns:query;ignoreAAAA", "drop", "tcp", "flow", "icmp", "http"],
                             enableOpenMetrics: true,
                             serviceMonitor: {
-                                enabled: true,
+                                enabled: false,
                                 relabelings: []
                             },
                             dashboards: { 
-                                enabled: true,
+                                enabled: false,
                                 namespace: "visualization"
 
                              }
