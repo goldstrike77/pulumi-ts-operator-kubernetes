@@ -14,24 +14,26 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "spring-boot",
-                annotations: {
-                    "openshift.io/sa.scc.mcs": "s0:c26,c25",
-                    "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
-                    "openshift.io/sa.scc.uid-range": "1000700000/10000"
-                },
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged",
-                    "swck-injection": "enabled"
-                }
+        namespace: [
+            {
+                metadata: {
+                    name: "spring-boot",
+                    annotations: {
+                        "openshift.io/sa.scc.mcs": "s0:c26,c25",
+                        "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
+                        "openshift.io/sa.scc.uid-range": "1000700000/10000"
+                    },
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged",
+                        "swck-injection": "enabled"
+                    }
 
-            },
-            spec: {}
-        },
+                },
+                spec: {}
+            }
+        ],
         release: [
             {
                 namespace: "spring-boot",
@@ -297,7 +299,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             annotations: {
                                 "strategy.skywalking.apache.org/agent.Overlay": "true",
                                 "agent.skywalking.apache.org/agent.service_name": "demo::spring-boot",
-                                "agent.skywalking.apache.org/collector.backend_service": "192.168.0.104:11800",
+                                "agent.skywalking.apache.org/collector.backend_service": "192.168.0.103:11800",
                                 "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.1.0-java8",
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }
@@ -388,7 +390,7 @@ pid-file=/opt/bitnami/mariadb/tmp/mysqld.pid
                             annotations: {
                                 "strategy.skywalking.apache.org/agent.Overlay": "true",
                                 "agent.skywalking.apache.org/agent.service_name": "demo::knote",
-                                "agent.skywalking.apache.org/collector.backend_service": "192.168.0.104:11800",
+                                "agent.skywalking.apache.org/collector.backend_service": "192.168.0.103:11800",
                                 "sidecar.skywalking.apache.org/initcontainer.Image": "registry.cn-shanghai.aliyuncs.com/goldenimage/skywalking-java-agent:9.1.0-java11",
                                 "instrumentation.opentelemetry.io/inject-java": "open-telemetry/instrumentation"
                             }

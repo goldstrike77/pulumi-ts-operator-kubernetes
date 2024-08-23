@@ -11,18 +11,20 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "metallb-system",
-                annotations: {},
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
-            },
-            spec: {}
-        },
+        namespace: [
+            {
+                metadata: {
+                    name: "metallb-system",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            }
+        ],
         release: [
             {
                 namespace: "metallb-system",

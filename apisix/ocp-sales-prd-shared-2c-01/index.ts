@@ -14,22 +14,24 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "apisix",
-                annotations: {
-                    "openshift.io/sa.scc.mcs": "s0:c26,c25",
-                    "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
-                    "openshift.io/sa.scc.uid-range": "1000700000/10000"
+        namespace: [
+            {
+                metadata: {
+                    name: "apisix",
+                    annotations: {
+                        "openshift.io/sa.scc.mcs": "s0:c26,c25",
+                        "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
+                        "openshift.io/sa.scc.uid-range": "1000700000/10000"
+                    },
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
                 },
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
-            },
-            spec: {}
-        },
+                spec: {}
+            }
+        ],
         secret: [
             {
                 metadata: {
@@ -124,7 +126,7 @@ const resources = [
                             skywalking: {
                                 service_name: "demo::APISIX",
                                 service_instance_name: "$hostname",
-                                "endpoint_addr": "http://192.168.0.104:12800",
+                                "endpoint_addr": "http://192.168.0.103:12800",
                                 report_interval: 15
                             }
                         }
@@ -429,7 +431,7 @@ const resources = [
                             name: "udp-logger",
                             enable: true,
                             config: {
-                                host: "192.168.0.103",
+                                host: "192.168.0.104",
                                 port: 1514,
                                 batch_max_size: 1,
                                 name: "udp logger",
@@ -462,7 +464,7 @@ const resources = [
                             name: "skywalking-logger",
                             enable: true,
                             config: {
-                                endpoint_addr: "http://192.168.0.104:12800",
+                                endpoint_addr: "http://192.168.0.103:12800",
                                 service_name: "demo::APISIX",
                                 service_instance_name: "$hostname"
                             }

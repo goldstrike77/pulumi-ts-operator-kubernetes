@@ -14,18 +14,20 @@ const podlabels = {
 
 const resources = [
   {
-    namespace: {
-      metadata: {
-        name: "skywalking",
-        annotations: {},
-        labels: {
-          "pod-security.kubernetes.io/enforce": "privileged",
-          "pod-security.kubernetes.io/audit": "privileged",
-          "pod-security.kubernetes.io/warn": "privileged"
-        }
-      },
-      spec: {}
-    },
+    namespace: [
+      {
+        metadata: {
+          name: "skywalking",
+          annotations: {},
+          labels: {
+            "pod-security.kubernetes.io/enforce": "privileged",
+            "pod-security.kubernetes.io/audit": "privileged",
+            "pod-security.kubernetes.io/warn": "privileged"
+          }
+        },
+        spec: {}
+      }
+    ],
     release: [
       {
         namespace: "skywalking",

@@ -3,18 +3,20 @@ import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const resources = [
   {
-    namespace: {
-      metadata: {
-        name: "crunchydata",
-        annotations: {},
-        labels: {
-          "pod-security.kubernetes.io/enforce": "privileged",
-          "pod-security.kubernetes.io/audit": "privileged",
-          "pod-security.kubernetes.io/warn": "privileged"
-        }
-      },
-      spec: {}
-    },
+    namespace: [
+      {
+        metadata: {
+          name: "crunchydata",
+          annotations: {},
+          labels: {
+            "pod-security.kubernetes.io/enforce": "privileged",
+            "pod-security.kubernetes.io/audit": "privileged",
+            "pod-security.kubernetes.io/warn": "privileged"
+          }
+        },
+        spec: {}
+      }
+    ],
     release: [
       {
         namespace: "crunchydata",

@@ -14,18 +14,20 @@ let config = new pulumi.Config();
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "harbor",
-                annotations: {},
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
-            },
-            spec: {}
-        },
+        namespace: [
+            {
+                metadata: {
+                    name: "harbor",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            }
+        ],
         secret: [
             {
                 metadata: {

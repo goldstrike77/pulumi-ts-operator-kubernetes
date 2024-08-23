@@ -11,14 +11,17 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "metrics-server",
-                annotations: {},
-                labels: {}
-            },
-            spec: {}
-        },
+        namespace:
+            [
+                {
+                    metadata: {
+                        name: "metrics-server",
+                        annotations: {},
+                        labels: {}
+                    },
+                    spec: {}
+                }
+            ],
         release: [
             {
                 namespace: "metrics-server",

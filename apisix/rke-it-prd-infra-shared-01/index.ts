@@ -16,18 +16,20 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "apisix",
-                annotations: {},
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
-            },
-            spec: {}
-        },
+        namespace: [
+            {
+                metadata: {
+                    name: "apisix",
+                    annotations: {},
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
+                },
+                spec: {}
+            }
+        ],
         secret: [
             {
                 metadata: {
