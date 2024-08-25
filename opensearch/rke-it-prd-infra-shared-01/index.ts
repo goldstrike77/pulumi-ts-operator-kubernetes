@@ -258,6 +258,12 @@ config:
               }
             }
           },
+          startupProbe: {
+            initialDelaySeconds: 120,
+            periodSeconds: 30,
+            timeoutSeconds: 3,
+            failureThreshold: 30
+          },
           terminationGracePeriod: "60",
           plugins: {
             enabled: true,
