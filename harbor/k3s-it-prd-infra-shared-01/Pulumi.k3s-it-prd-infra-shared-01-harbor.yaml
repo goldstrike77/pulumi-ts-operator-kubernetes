@@ -1,0 +1,9 @@
+encryptionsalt: v1:1/z+ZPJMPxE=:v1:K6SM3LIqFgj55Xgq:eHwfpEixt6jXtzRX6/b4AgCSLlwI7g==
+config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:O4wsendM4gWULH/T:dsGzZCKx1Do/Lx0V4CV1HzGfAcCP
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:WTOUZxCecMGGCtQP:+F11OmED/eOHWAexbOe22QgjJuRbA9SN
+  demo:HARBOR_ADMIN_PASSWORD:
+    secure: v1:C0HW3A8Bv95qOEE8:wPgn2etJyb22x9FsZjBkppSHVqJ50pZU
+  kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-01

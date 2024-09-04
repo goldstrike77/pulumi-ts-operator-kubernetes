@@ -1,0 +1,5 @@
+encryptionsalt: v1:azsGf+jZ228=:v1:iHZqx46eOU7o1YY1:C+MpLGZdor7/Ii2XbwITM83ZdKR9Gw==
+config:
+  demo:rootPassword:
+    secure: v1:e9J7erOLAt4e0iYT:6cf+KcVHSWvp5V3keHrVCnE1bGYzY9on
+  kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-01

@@ -115,9 +115,17 @@ plugins:
                 "sysctl -w vm.max_map_count=262144;",
                 "sysctl -w fs.file-max=65536;"
               ],
-              securityContext: { runAsUser: 0, privileged: true }
+              securityContext: {
+                runAsUser: 0,
+                privileged: true
+              }
             }
           ],
+          securityContext: {
+            fsGroup: 1000,
+            runAsUser: 1000,
+            runAsGroup: 1000
+          },
           securityConfig: {
             path: "/usr/share/opensearch/config/opensearch-security",
             config: {
