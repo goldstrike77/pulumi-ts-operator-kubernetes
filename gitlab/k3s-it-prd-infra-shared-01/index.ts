@@ -16,34 +16,67 @@ const resources = [
             }
         ],
         release: [
+            /**
+                        {
+                            namespace: "gitlab",
+                            name: "gitlab",
+                            chart: "gitlab",
+                            repositoryOpts: {
+                                repo: "https://charts.gitlab.io"
+                            },
+                            version: "8.3.1",
+                            values: {
+                                global: {
+                                    edition: "ce",
+                                    hosts: {
+                                        domain: "home.local",
+                                        hostSuffix: "gitlab"
+                                    },
+                                    ingress: {
+                                        configureCertmanager: false,
+                                        class: "traefik"
+                                    },
+                                    //  "initialRootPassword": {
+                                    //      "secret": "gitlab-initial-root-password",
+                                    //      "key": "password"
+                                    //  },
+                                    "time_zone": "PRC"
+                                },
+                                upgradeCheck: { enabled: false },
+                                "nginx-ingress": { enabled: false },
+                                prometheus: { install: false }
+                            }
+                        },
+                         */
             {
                 namespace: "gitlab",
-                name: "gitlab",
-                chart: "gitlab",
+                name: "redis",
+                chart: "redis",
                 repositoryOpts: {
-                    repo: "https://charts.gitlab.io"
+                    repo: "https://charts.bitnami.com/bitnami"
                 },
-                version: "8.3.1",
+                version: "20.0.5",
                 values: {
                     global: {
-                        edition: "ce",
-                        hosts: {
-                            domain: "home.local",
-                            hostSuffix: "gitlab"
-                        },
-                        ingress: {
-                            configureCertmanager: false,
-                            class: "traefik"
-                        },
-                        //  "initialRootPassword": {
-                        //      "secret": "gitlab-initial-root-password",
-                        //      "key": "password"
-                        //  },
-                        "time_zone": "PRC"
+                        imageRegistry: "swr.cn-east-3.myhuaweicloud.com"
                     },
-                    upgradeCheck: { enabled: false },
-                    "nginx-ingress": { enabled: false },
-                    prometheus: { install: false }
+                    image: {
+                        repository: "docker-io/redis",
+                        tag: "6.2.14-debian-12-r26"
+                    },
+                    architecture: "standalone",
+                    auth: {
+                        enabled: false
+                    },
+                    commonConfiguration: `appendonly no
+save ""`,
+                    master: {
+                        resourcesPreset: "none",
+                        kind: "Deployment",
+                        persistence: {
+                            enabled: false
+                        }
+                    }
                 }
             }
         ]
