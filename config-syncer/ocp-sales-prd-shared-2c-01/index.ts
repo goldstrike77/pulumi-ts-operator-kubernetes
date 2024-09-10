@@ -2,18 +2,20 @@ import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "kubeops",
-                annotations: {
-                    "openshift.io/sa.scc.mcs": 's0:c27,c4',
-                    "openshift.io/sa.scc.supplemental-groups": "1000710000/10000",
-                    "openshift.io/sa.scc.uid-range": "1000710000/10000"
+        namespace: [
+            {
+                metadata: {
+                    name: "kubeops",
+                    annotations: {
+                        "openshift.io/sa.scc.mcs": 's0:c27,c4',
+                        "openshift.io/sa.scc.supplemental-groups": "1000710000/10000",
+                        "openshift.io/sa.scc.uid-range": "1000710000/10000"
+                    },
+                    labels: {}
                 },
-                labels: {}
-            },
-            spec: {}
-        },
+                spec: {}
+            }
+        ],
         release: [
             {
                 namespace: "kubeops",

@@ -56,22 +56,22 @@ const resources = [
       {
         namespace: "opensearch",
         name: "master",
-        version: "2.17.3",
+        version: "2.24.0",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
         },
         values: {
-          clusterName: "opensearch",
           nodeGroup: "master",
-          masterService: "opensearch-master",
           roles: ["master", "ingest", "remote_cluster_client"],
           replicas: 3,
           config: {
             "opensearch.yml": `---
 cluster:
-  name: opensearch
+  name: opensearch-cluster
   max_shards_per_node: 10000
+network:
+  host: 0.0.0.0
 http:
   compression: false
   cors:
@@ -83,13 +83,12 @@ http:
 s3:
   client:
     default:
-      endpoint: obs.home.local:9000
+      endpoint: obs.home.local
       protocol: http
       region: us-east-1
       path_style_access: true
       read_timeout: 10s
       max_retries: 5
-network.host: 0.0.0.0
 plugins:
   security:
     ssl:
@@ -98,10 +97,8 @@ plugins:
         pemkey_filepath: esnode-key.pem
         pemtrustedcas_filepath: root-ca.pem
         enforce_hostname_verification: false
-        resolve_hostname: false
       http:
         enabled: true
-        clientauth_mode: NONE
         pemcert_filepath: esnode.pem
         pemkey_filepath: esnode-key.pem
         pemtrustedcas_filepath: root-ca.pem
@@ -120,17 +117,14 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
-          /**
           extraEnvs: [
             {
               name: "OPENSEARCH_INITIAL_ADMIN_PASSWORD",
               value: config.require("adminPassword")
             }
           ],
-           */
           image: {
-            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
-            tag: "2.11.1"
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx4096M -Xms4096M",
@@ -178,17 +172,17 @@ _meta:
   type: "internalusers"
   config_version: 2
 admin:
-  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
   reserved: true
   backend_roles:
   - "admin"
   description: "Demo admin user"
 kibanaserver:
-  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
   reserved: true
   description: "Demo OpenSearch Dashboards user"
 kibanaro:
-  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
   reserved: false
   backend_roles:
   - "kibanauser"
@@ -199,19 +193,19 @@ kibanaro:
     attribute3: "value3"
   description: "Demo OpenSearch Dashboards read only user"
 logstash:
-  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
   reserved: false
   backend_roles:
   - "logstash"
   description: "Demo logstash user"
 readall:
-  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
   reserved: false
   backend_roles:
   - "readall"
   description: "Demo readall user"
 snapshotrestore:
-  hash: "$2y$12$efArm1EkVRnZYTk4upm/aerIq5g/3vvtQnGWF1D9JOd48byXVQFMm"
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
   reserved: false
   backend_roles:
   - "snapshotrestore"
@@ -269,6 +263,10 @@ config:
             enabled: true,
             installList: ["repository-s3"]
           },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s"
+          },
           keystore: [
             { secretName: "client-access-key" },
             { secretName: "client-secret-key" }
@@ -278,22 +276,22 @@ config:
       {
         namespace: "opensearch",
         name: "node",
-        version: "2.17.3",
+        version: "2.24.0",
         chart: "opensearch",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
         },
         values: {
-          clusterName: "opensearch",
           nodeGroup: "data",
-          masterService: "opensearch-master",
           roles: ["data"],
           replicas: 2,
           config: {
             "opensearch.yml": `---
 cluster:
-  name: opensearch
+  name: opensearch-cluster
   max_shards_per_node: 10000
+network:
+  host: 0.0.0.0
 http:
   compression: false
   cors:
@@ -305,13 +303,12 @@ http:
 s3:
   client:
     default:
-      endpoint: obs.home.local:9000
+      endpoint: obs.home.local
       protocol: http
       region: us-east-1
       path_style_access: true
       read_timeout: 10s
       max_retries: 5
-network.host: 0.0.0.0
 plugins:
   security:
     ssl:
@@ -320,10 +317,8 @@ plugins:
         pemkey_filepath: esnode-key.pem
         pemtrustedcas_filepath: root-ca.pem
         enforce_hostname_verification: false
-        resolve_hostname: false
       http:
         enabled: true
-        clientauth_mode: NONE
         pemcert_filepath: esnode.pem
         pemkey_filepath: esnode-key.pem
         pemtrustedcas_filepath: root-ca.pem
@@ -342,9 +337,14 @@ plugins:
       indices: [".opendistro-alerting-config",".opendistro-alerting-alert*",".opendistro-anomaly-results*",".opendistro-anomaly-detector*",".opendistro-anomaly-checkpoints",".opendistro-anomaly-detection-state",".opendistro-reports-*",".opendistro-notifications-*",".opendistro-notebooks",".opendistro-asynchronous-search-response*"]
 `
           },
+          extraEnvs: [
+            {
+              name: "OPENSEARCH_INITIAL_ADMIN_PASSWORD",
+              value: config.require("adminPassword")
+            }
+          ],
           image: {
-            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
-            tag: "2.11.1"
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
@@ -383,6 +383,10 @@ plugins:
             enabled: true,
             installList: ["repository-s3"]
           },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s"
+          },
           keystore: [
             { secretName: "client-access-key" },
             { secretName: "client-secret-key" }
@@ -392,27 +396,25 @@ plugins:
       {
         namespace: "opensearch",
         name: "dashboards",
-        version: "2.15.1",
+        version: "2.22.0",
         chart: "opensearch-dashboards",
         repositoryOpts: {
           repo: "https://opensearch-project.github.io/helm-charts"
         },
         values: {
-          opensearchHosts: "https://opensearch-master:9200",
           replicaCount: 1,
           image: {
-            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch-dashboards",
-            tag: "2.11.1"
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch-dashboards"
           },
           fullnameOverride: "opensearch-dashboards",
           config: {
             "opensearch_dashboards.yml": `
 ---
 logging.quiet: true
-opensearch.password: ${config.require("kibanaserverPassword")}
+opensearch.password: ${config.require("adminPassword")}
 opensearch.requestHeadersAllowlist: [authorization, securitytenant] 
 opensearch.ssl.verificationMode: none
-opensearch.username: kibanaserver
+opensearch.username: admin
 opensearch_security.auth.multiple_auth_enabled: true
 opensearch_security.auth.type: ["openid", "basicauth"]
 opensearch_security.cookie.secure: false
@@ -436,8 +438,13 @@ server.ssl.enabled: false
             limits: { cpu: "500m", memory: "512Mi" },
             requests: { cpu: "500m", memory: "512Mi" }
           },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s"
+          },
         }
       },
+      /**
       {
         namespace: "opensearch",
         name: "elasticsearch-exporter",
@@ -487,6 +494,7 @@ server.ssl.enabled: false
           }
         }
       }
+         */
     ],
     customresource: [
       {

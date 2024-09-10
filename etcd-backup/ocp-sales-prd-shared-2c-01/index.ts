@@ -13,14 +13,16 @@ const minutes = new random.RandomInteger("minutes", {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "etcd-backup",
-                annotations: {},
-                labels: {}
-            },
-            spec: {}
-        },
+        namespace: [
+            {
+                metadata: {
+                    name: "etcd-backup",
+                    annotations: {},
+                    labels: {}
+                },
+                spec: {}
+            }
+        ],
         secret: [
             {
                 metadata: {
@@ -33,7 +35,7 @@ const resources = [
                 data: {
                     aws_access_key_id: Buffer.from(config.require("AWS_ACCESS_KEY_ID")).toString('base64'),
                     aws_secret_access_key: Buffer.from(config.require("AWS_SECRET_ACCESS_KEY")).toString('base64'),
-                    aws_endpoint_url: Buffer.from("http://obs.home.local:9000").toString('base64'),
+                    aws_endpoint_url: Buffer.from("https://obs.home.local").toString('base64'),
                     region: Buffer.from("us-east-1").toString('base64')
 
                 },

@@ -216,7 +216,7 @@ const resources = [
         provisioner: "csi.vsphere.vmware.com",
         allowVolumeExpansion: true,
         parameters: {
-          datastoreurl: "ds:///vmfs/volumes/667a8f3c-b9c7d93d-e0b9-002590f4baa4/",
+          datastoreurl: "ds:///vmfs/volumes/66dd9fa9-d015e3ab-bdad-002590f4baa4/",
           "csi.storage.k8s.io/fstype": "ext4"
         },
         reclaimPolicy: "Delete",

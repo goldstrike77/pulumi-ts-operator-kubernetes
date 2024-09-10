@@ -11,22 +11,24 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "metallb-system",
-                annotations: {
-                    "openshift.io/sa.scc.mcs": 's0:c27,c4',
-                    "openshift.io/sa.scc.supplemental-groups": "1000710000/10000",
-                    "openshift.io/sa.scc.uid-range": "1000710000/10000"
+        namespace: [
+            {
+                metadata: {
+                    name: "metallb-system",
+                    annotations: {
+                        "openshift.io/sa.scc.mcs": 's0:c27,c4',
+                        "openshift.io/sa.scc.supplemental-groups": "1000710000/10000",
+                        "openshift.io/sa.scc.uid-range": "1000710000/10000"
+                    },
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
                 },
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
-            },
-            spec: {}
-        },
+                spec: {}
+            }
+        ],
         release: [
             {
                 namespace: "metallb-system",

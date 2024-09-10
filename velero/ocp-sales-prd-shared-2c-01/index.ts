@@ -52,7 +52,7 @@ const resources = [
                                     profile: "default",
                                     region: "minio",
                                     s3ForcePathStyle: "true",
-                                    s3Url: "http://obs.home.local:9000",
+                                    s3Url: "https://obs.home.local",
                                     insecureSkipTLSVerify: "true"
                                 },
                                 credential: {

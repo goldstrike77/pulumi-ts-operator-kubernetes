@@ -5,9 +5,9 @@ config:
   demo:AWS_SECRET_ACCESS_KEY:
     secure: v1:Bg/noV4KcAHoO7a2:ozhGj8sKKB+bWLOxVBWmGJajE2fvXjIS
   demo:adminPassword:
-    secure: v1:AUA+ukN4obwbXBnT:J5elmrC0cM2jeih9svDkNrZFYY44fBlF
+    secure: v1:kG9NjJC2hT8jHQ5I:b2dBFSf037Ws7bTw8hwTM8dkhCDM6FX4rCWsjg==
   demo:kibanaserverPassword:
-    secure: v1:KIdvNaDNkvCzIqhI:rvpkAOA4JMCu1U0ResMPYjphHsGznj3B
+    secure: v1:8JP66aAMs7u08l8s:5e+wDt/fWGOUb4bpioCv4+axMbgCPK3KBYdVYw==
   demo:ssoClientSecret:
     secure: v1:SJjiSG13cgNJYi0z:8rZ5meN6iOr5KX54WAHAlsD2lJqhmWEmAwBC5FmcJ25OkHr4RRtDMiYSUdalX2P4tYARLfPenRA=
   kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

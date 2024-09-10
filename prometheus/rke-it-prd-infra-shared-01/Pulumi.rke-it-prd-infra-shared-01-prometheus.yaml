@@ -1,7 +1,7 @@
 encryptionsalt: v1:+P9McaA6yTk=:v1:tNMw1rSkj6A/tVPJ:OylqJmesw0nMKKcrx6Iz/Vrd5+sN6A==
 config:
   demo:OBJSTORE.YML:
-    secure: v1:kKq7ASz+4+pslMVQ:S/UO24yPkrTM9v91V+rkGpoA2Z6paVFqVTadPM1eFGVg4Oa+hJECE0SY/8vzVI8BDG50F5knodAWWmQS9xCql/fCdSsfS+ht+loNfmVRJlhtJa6VBp1iMKwk6fR9L0ai/16iv3o7EhIbLXPef1g9zltDAis7dCOK5wFanB4Nu146LeHOWeLSaYL833ThYQA6JaKuZM38Co+P41wGHTQnPiwP9fzWH/X//GFkofaX5K0lAHo0+khM9vZ2rm57RYOq2drOkjhlG3gO4CvVmaQLRULWJcMe7lzUutkF3Ptzzha1chMRWxsw1XLJNn+uKLS727bXkC/AOl6oX9r/KuTkffDRLmy7Ac7h8xYnMxePFrS75dNtlwGueLkBMIHmqsBTxSgTgG1PJCUMa0D2w0um5TjPoKU/C60zkFkLJysVd3A1u7+TCahOkOiXwXwUMpPvCSFaHEIRLWSil58dRH4a155NM+jSUklHAZQMfKGH/6k=
+    secure: v1:BNX6xSaYZzG3fGoY:KVcV3AX0NSC/gyZztUK8rinrWYoaW7K3gv2cEpEXNT7fmpn03uHF3FFWCX0HxwhpaA45a8trwQCDoLCEeC5L0hmrDUTMkphF74KBu1tlTAq6Zaohwp4TOZY04wK7uQuM4x6JlHwYwF5uBLFCUItFCjZQVMCOTMy3xRbofUUZ+hJvyWw5c/Z5ZyG5dCO//9T6eycW0sgt7B1c4sgd54pntJPsu+dPpRQ0heuLNeO6tNW+USIl/TclK5UQWis67Y7Zr7g1YT0qwPClSJvpqCbwOjzs91I0oD6KGv/n+l+yQWyKE0diQsj6nSc1F0/xTT5qrcFTxA+p5czPIPs6rNmTrf1DQD1xVArvjJBts0QL+BSs6vSxc/C/BoURrEFiFvTubTKSHZEhIbyGQ+xMrmadv67phqb3ngk5Q4Bpkt7aspZCyHKvf6sYu2x3BHT9KkVu/mCkuDKp+l+GD1+q2XrmG4EfvHtoaMfhs4+4Dg==
   demo:consulToken:
     secure: v1:qAmXTmWGnM2awOvu:jO2WraYvQEXFaiWrojCUMatYS32IS8A1QA==
   kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

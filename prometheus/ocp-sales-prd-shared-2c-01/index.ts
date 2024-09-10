@@ -14,22 +14,24 @@ const podlabels = {
 
 const resources = [
     {
-        namespace: {
-            metadata: {
-                name: "monitoring",
-                annotations: {
-                    "openshift.io/sa.scc.mcs": "s0:c26,c25",
-                    "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
-                    "openshift.io/sa.scc.uid-range": "1000700000/10000"
+        namespace: [
+            {
+                metadata: {
+                    name: "monitoring",
+                    annotations: {
+                        "openshift.io/sa.scc.mcs": "s0:c26,c25",
+                        "openshift.io/sa.scc.supplemental-groups": "1000700000/10000",
+                        "openshift.io/sa.scc.uid-range": "1000700000/10000"
+                    },
+                    labels: {
+                        "pod-security.kubernetes.io/enforce": "privileged",
+                        "pod-security.kubernetes.io/audit": "privileged",
+                        "pod-security.kubernetes.io/warn": "privileged"
+                    }
                 },
-                labels: {
-                    "pod-security.kubernetes.io/enforce": "privileged",
-                    "pod-security.kubernetes.io/audit": "privileged",
-                    "pod-security.kubernetes.io/warn": "privileged"
-                }
-            },
-            spec: {}
-        },
+                spec: {}
+            }
+        ],
         secret: [
             {
                 metadata: {
@@ -218,11 +220,11 @@ const resources = [
                         thanosServiceExternal: {
                             enabled: true,
                             annotations: { "metallb.universe.tf/allow-shared-ip": "monitoring" },
-                            loadBalancerIP: "192.168.0.110",
+                            loadBalancerIP: "192.168.0.112",
                         },
                         service: {
                             annotations: { "metallb.universe.tf/allow-shared-ip": "monitoring" },
-                            loadBalancerIP: "192.168.0.110",
+                            loadBalancerIP: "192.168.0.112",
                             type: "LoadBalancer"
                         },
                         ingress: { enabled: false },
@@ -498,7 +500,7 @@ config:
                                 grpc: 10903
                             },
                             annotations: { "metallb.universe.tf/allow-shared-ip": "monitoring" },
-                            loadBalancerIP: "192.168.0.110",
+                            loadBalancerIP: "192.168.0.112",
                         },
                         persistence: {
                             enabled: true,
