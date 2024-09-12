@@ -124,8 +124,7 @@ plugins:
             }
           ],
           image: {
-            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
-            tag: "2.16.0-s3"
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx4096M -Xms4096M",
@@ -168,6 +167,50 @@ plugins:
             config: {
               dataComplete: false,
               data: {
+                "internal_users.yml": `---
+_meta:
+  type: "internalusers"
+  config_version: 2
+admin:
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Demo admin user"
+kibanaserver:
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
+  reserved: true
+  description: "Demo OpenSearch Dashboards user"
+kibanaro:
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
+  reserved: false
+  backend_roles:
+  - "kibanauser"
+  - "readall"
+  attributes:
+    attribute1: "value1"
+    attribute2: "value2"
+    attribute3: "value3"
+  description: "Demo OpenSearch Dashboards read only user"
+logstash:
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
+  reserved: false
+  backend_roles:
+  - "logstash"
+  description: "Demo logstash user"
+readall:
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
+  reserved: false
+  backend_roles:
+  - "readall"
+  description: "Demo readall user"
+snapshotrestore:
+  hash: "$2y$12$EVdmGe8MfkLJfefrCoPK0eEfvyBJ33kWOgO2Vsqkkkjb1lq8SQ8Z2"
+  reserved: false
+  backend_roles:
+  - "snapshotrestore"
+  description: "Demo snapshotrestore user"
+`,
                 "config.yml": `---
 _meta:
   type: "config"
@@ -215,12 +258,11 @@ config:
             timeoutSeconds: 3,
             failureThreshold: 30
           },
-          /**
+          terminationGracePeriod: "60",
           plugins: {
             enabled: true,
             installList: ["repository-s3"]
           },
-           */
           serviceMonitor: {
             enabled: true,
             interval: "60s"
@@ -302,8 +344,7 @@ plugins:
             }
           ],
           image: {
-            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch",
-            tag: "2.16.0-s3"
+            repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/opensearch"
           },
           labels: podlabels,
           opensearchJavaOpts: "-server -Xmx8192M -Xms8192M",
@@ -337,12 +378,11 @@ plugins:
               securityContext: { runAsUser: 0, privileged: true }
             }
           ],
-          /**
+          terminationGracePeriod: "60",
           plugins: {
             enabled: true,
             installList: ["repository-s3"]
           },
-           */
           serviceMonitor: {
             enabled: true,
             interval: "60s"
@@ -403,7 +443,58 @@ server.ssl.enabled: false
             interval: "60s"
           },
         }
+      },
+      /**
+      {
+        namespace: "opensearch",
+        name: "elasticsearch-exporter",
+        version: "5.8.1",
+        chart: "prometheus-elasticsearch-exporter",
+        repositoryOpts: {
+          repo: "https://prometheus-community.github.io/helm-charts"
+        },
+        values: {
+          fullnameOverride: "opensearch-exporter",
+          log: { level: "wran" },
+          image: {
+            registry: "swr.cn-east-3.myhuaweicloud.com",
+            repository: "quay-io/elasticsearch-exporter",
+            tag: "v1.7.0"
+          },
+          resources: {
+            limits: { cpu: "100m", memory: "64Mi" },
+            requests: { cpu: "100m", memory: "64Mi" }
+          },
+          podLabels: podlabels,
+          es: {
+            uri: "https://admin:" + config.require("adminPassword") + "@opensearch-master:9200",
+            all: false,
+            indices: true,
+            indices_settings: true,
+            indices_mappings: true,
+            shards: true,
+            snapshots: true,
+            cluster_settings: true,
+            timeout: "30s",
+            sslSkipVerify: true
+          },
+          serviceMonitor: {
+            enabled: true,
+            interval: "60s",
+            scrapeTimeout: "30s",
+            relabelings: [
+              { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+              { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+            ]
+          }
+        }
       }
+         */
     ],
     customresource: [
       {
