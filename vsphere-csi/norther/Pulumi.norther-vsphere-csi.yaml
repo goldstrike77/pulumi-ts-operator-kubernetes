@@ -1,7 +1,0 @@
-encryptionsalt: v1:xt9rtqxshzk=:v1:0MXQerpI9qW6Xsho:qIxFEpUL06QZlndsZMloM83iuBwlJA==
-config:
-  demo:CSI-VSPHERE:
-    secure: v1:VjoiHG3gyxtAwioo:jX9iOAbulnkvoVnJv3tAvsjw0Wi2C62XvIMkxGtFOj6DQE7ahpNrCDDj5FD2F4YJawrlUpfJYLjQ4KPskkRGuZ9pNTLsICef+U279NaRFB9XJSVNYTXMLefwIJ1Lw7vYZoDaHO41MRuHUX+FOUDhWAbFCNUwxpCtNbtnY66uutfgDZpW69R3zZoXqObQzCEcMCLp74Fr/0j5xpZXyKtlNN8Q8WeIvnoo88t40oqAM7h15iTue9qkSXh77m5GVh5fW5nO6r354Df8egbxhb4x8Qa+Q4jo4Py9m9bOlBQIWnDj7L/vcQYncYYEEBJYcuieKXxaIlMvfS0AKdZ4OhaYmB7lrxaixtMJSO0NQ5tR5iqoARe8yRiecFBlq/IV/izaCwQ62hNHr2XQdrghIvmdmQ==
-  demo:VSPHERE_PASSWORD:
-    secure: v1:tXEONtpmbgbjpqBk:YhEKwGvF/cp95LZpOX74GVxczWZ1bXcyT4p+qg==
-  kubernetes:context: kubernetes-admin@norther

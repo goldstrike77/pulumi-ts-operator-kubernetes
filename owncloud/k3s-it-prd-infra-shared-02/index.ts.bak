@@ -1,0 +1,58 @@
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
+
+const resources = [
+    {
+        namespace: [
+            {
+                metadata: {
+                    name: "owncloud",
+                    annotations: {},
+                    labels: {}
+                },
+                spec: {}
+            }
+        ],
+        release: [
+            {
+                namespace: "owncloud",
+                name: "owncloud",
+                chart: "owncloud",
+                repositoryOpts: {
+                    repo: "https://owncloud-docker.github.io/helm-charts"
+                },
+                version: "0.8.0",
+                values: {
+                    image: {
+                        repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/owncloud-server",
+                        tag: "10.14.0"
+                    },
+                    owncloud: {
+                        adminPassword: "owncloud",
+                        adminUsername: "admin",
+                        domain: "owncloud.home.local",
+                        maxUpload: "20G",
+                        skipChmod: "false",
+                        skipChown: "false"
+                    },
+                    persistence: {
+                        enabled: true,
+                        owncloud: {
+                            size: "255Gi",
+                            storageClassName: "local-path"
+                        }
+                    },
+                    podSecurityContext: {
+                        runAsUser: 0
+                    },
+                    ingress: {
+                        enabled: true,
+                        className: "traefik"
+                    }
+                }
+            }
+        ]
+    }
+]
+
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });

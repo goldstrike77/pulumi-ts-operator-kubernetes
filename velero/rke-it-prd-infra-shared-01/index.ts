@@ -27,21 +27,25 @@ const podlabels = {
   domain: "local"
 }
 
-const deploy_spec = [
+const resources = [
   {
     namespace: [
       {
         metadata: {
           name: "velero",
           annotations: {},
-          labels: {}
+          labels: {
+            "pod-security.kubernetes.io/enforce": "privileged",
+            "pod-security.kubernetes.io/audit": "privileged",
+            "pod-security.kubernetes.io/warn": "privileged"
+          }
         },
         spec: {}
       }
     ],
     release: [
       {
-        namespace: "velero",
+        namespace: "default",
         name: "velero",
         chart: "velero",
         repositoryOpts: {
@@ -164,7 +168,7 @@ aws_secret_access_key = ${config.require("AWS_SECRET_ACCESS_KEY")}
           },
           backupsEnabled: true,
           snapshotsEnabled: true,
-          deployNodeAgent: true,
+          deployNodeAgent: false,
           schedules: {
             backup: {
               disabled: false,
@@ -175,7 +179,8 @@ aws_secret_access_key = ${config.require("AWS_SECRET_ACCESS_KEY")}
               useOwnerReferencesInBackup: false,
               template: {
                 ttl: "48h",
-                storageLocation: "default"
+                storageLocation: "default",
+                includedNamespaces: ["apisix", "monitoring"]
               }
             }
           }
@@ -185,22 +190,5 @@ aws_secret_access_key = ${config.require("AWS_SECRET_ACCESS_KEY")}
   }
 ]
 
-for (var i in deploy_spec) {
-  // Create Kubernetes Namespace.
-  const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-    metadata: deploy_spec[i].namespace.metadata,
-    spec: deploy_spec[i].namespace.spec
-  });
-  // Create Release Resource.
-  const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-    namespace: deploy_spec[i].helm.namespace,
-    name: deploy_spec[i].helm.name,
-    chart: deploy_spec[i].helm.chart,
-    version: deploy_spec[i].helm.version,
-    values: deploy_spec[i].helm.values,
-    skipAwait: true,
-    repositoryOpts: {
-      repo: deploy_spec[i].helm.repository,
-    },
-  }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });

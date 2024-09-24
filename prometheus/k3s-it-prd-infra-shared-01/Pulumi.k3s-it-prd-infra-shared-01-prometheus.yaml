@@ -1,0 +1,7 @@
+encryptionsalt: v1:+oixJyEpyww=:v1:CDXGp3y5Ltr+b64P:e1Rj5BlsQlnJT9kY8UW7bcMDUFSq5w==
+config:
+  demo:OBJSTORE.YML:
+    secure: v1:hKcrwo1D4iFGgVEH:O1I0Z1yz19f87bVFOHgfnTqstQboOqx/34gHaRClaqPXx2wAkdC4AWmFLtPQN0aG5SC7D2RJqYNJZLkhom47W6rPF1mJVfsE8czqOrEs0vqXYz5tCpo1D/AxbornPNli+puFFRPe976Bu3JTwS+2ITO1VbFwx78ofp6DxcNe4IRXpfoWUJN6Jkklzb3B4z4Vm3Dzz6Co7guQHZBp5KU2Sa276hi1/Tq2vghsdSxmva58AFQZ5Vxm6eLqX6pwiD7MXpqkUnKgjBPj3lEOzz8dCL1ZuNTpnsZwm0I7UcgNuWfN7Eh/bZD3GfOVNX/RY9fl87SIWEhTLZMx2zjFSrWIkWieMcKuy9y87lebVuiRtTSA6JU4GP6MjWGfOott2tFp5oWseQ1UeQedzRFP+OgWAEnEPnKmtP5YhE85zxAnYglp6rcA6eaSDhI9r6Hnhh+Nr+kylnHKQNfBphFR2d4tvzPkqRYqc7z8WC01Eg==
+  demo:consulToken:
+    secure: v1:S4o7tM4WI5fd6mXS:/XG5FNrJujMnZ+3ds9XdJy5ZqI4hzylC
+  kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-01
