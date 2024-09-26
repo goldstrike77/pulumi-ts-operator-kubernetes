@@ -1,0 +1,7 @@
+encryptionsalt: v1:uaj5n6ZCDuQ=:v1:DQLGZKawWOQBlcpi:jsSJJT9riczsOyDw4vHSqGTvJYAlyA==
+config:
+  demo:gossipKey:
+    secure: v1:C3PyLauv7EnMdSal:1RqeQvZL/ToCDbql0U2TjDLc8XTragpLHxKQKRYhA2lmQuJX/Q7cnKj+vpGF3GNTSDa+YyZ1+okxm8jn
+  demo:tokensMaster:
+    secure: v1:Zq9UAR/gjiNVEtfV:y43tk18iqU4iUyzlROetRIrCOvodcl1/+9oKf9OOQ88Aum/bZgogvy/nAiRv5mHyNe7doQ==
+  kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-02

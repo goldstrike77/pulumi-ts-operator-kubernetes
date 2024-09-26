@@ -1,7 +1,0 @@
-encryptionsalt: v1:0tUtbQKNeO4=:v1:c5Rn3z8sKnlZwUgr:ITBWC/wY/brLA3IJPIJPVth9zSv+8w==
-config:
-  demo:gossipKey:
-    secure: v1:4mXZAgf1V6A3pQqJ:VOECUTUvKmQ24sKoyVoBYopwB/U64mD1bf4LAtyTM9GT60kHSIVnbQotKd1mEsPSKNVyHZwVaW67OXTG
-  demo:tokensMaster:
-    secure: v1:E5PoX36cWD7nbedy:Hdz5JaNoytO4EAhnxlD3+4UdxCzpRurD59YDP1/yGZ9Jfq01pyE7YqCpeY1SPxUtsYXoBQ==
-  kubernetes:context: kubernetes-admin@norther

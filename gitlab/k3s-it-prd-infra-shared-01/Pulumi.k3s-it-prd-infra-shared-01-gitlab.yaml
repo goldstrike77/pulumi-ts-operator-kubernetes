@@ -1,3 +1,11 @@
-encryptionsalt: v1:jRH3he+GwM8=:v1:QIkMYBmGrtyIu1kb:JqKlSmODS+c+tBbrM+k4aAk9iWCtmg==
+encryptionsalt: v1:dxOirYyW/Q0=:v1:LkS3k2iRDldKmO0P:b2WI/vgQaFBkh3BSPIAEaIb4UbJSPQ==
 config:
+  demo:AWS_ACCESS_KEY:
+    secure: v1:mZIVHsx/F+NC3Vax:x2AbZYDAwZ89fdv/NYevCi6FEf7b
+  demo:AWS_SECRET_KEY:
+    secure: v1:DMe90zm10Q41LqSx:veE3G/nAgYtT78ABM2StxBTBKru5tgfs
+  demo:PSQL-PASSWORD:
+    secure: v1:0MS/uz0lh+SOwmcA:fjaYjgWaloefU3xPOdOrR76xvUqGmbNe
+  demo:ROOT-PASSWORD:
+    secure: v1:6W3gUC/HffXOrauc:cp6aUC/OLydA7ujx2w6RejjVIqGRi0t2
   kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-01

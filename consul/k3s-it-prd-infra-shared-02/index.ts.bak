@@ -1,0 +1,74 @@
+import * as pulumi from "@pulumi/pulumi";
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
+
+let config = new pulumi.Config();
+
+const resources = [
+    {
+        namespace: [
+            {
+                metadata: {
+                    name: "consul",
+                    annotations: {},
+                    labels: {}
+                },
+                spec: {}
+            }
+        ],
+        release: [
+            {
+                namespace: "consul",
+                name: "consul",
+                chart: "consul",
+                repositoryOpts: {
+                    repo: "https://helm.releases.hashicorp.com"
+                },
+                version: "1.5.3",
+                values: {
+                    global: {
+                        imageRegistry: "swr.cn-east-3.myhuaweicloud.com"
+                    },
+                    image: {
+                        repository: "docker-io/consul"
+                    },
+                    datacenterName: "local",
+                    domain: "home",
+                    gossipKey: config.require("gossipKey"),
+                    localConfig: `
+{
+    "acl": {
+        "enabled": true,
+        "default_policy": "deny",
+        "enable_token_persistence": true,
+        "tokens": {
+          "initial_management": "${config.require("tokensMaster")}",
+          "agent": "${config.require("tokensMaster")}"
+        }
+    }
+}`,
+                    extraEnvVars: [
+                        { name: "CONSUL_HTTP_TOKEN", value: config.require("tokensMaster") }
+                    ],
+                    replicaCount: 1,
+                    resources: {
+                        limits: { cpu: "200m", memory: "128Mi" },
+                        requests: { cpu: "200m", memory: "128Mi" }
+                    },
+                    ingress: {
+                        enabled: true,
+                        hostname: "consul.home.local",
+                        ingressClassName: "traefik"
+                    },
+                    persistence: {
+                        enabled: true,
+                        storageClass: "local-path",
+                        size: "7Gi"
+                    }
+                }
+            }
+        ]
+    }
+]
+
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });

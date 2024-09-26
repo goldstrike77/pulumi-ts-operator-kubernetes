@@ -59,7 +59,7 @@ const resources = [
     performance_schema_max_table_instances=256
     table_definition_cache=400
     table_open_cache=128
-    innodb_buffer_pool_size=512M
+    innodb_buffer_pool_size=256M
     innodb_flush_log_at_trx_commit=2
     query_response_time_stats=1
     plugin_load_add=query_response_time
@@ -80,8 +80,8 @@ const resources = [
                             { name: "MARIADB_CHARACTER_SET", value: "utf8mb4" }
                         ],
                         resources: {
-                            limits: { cpu: "500m", memory: "1024Mi" },
-                            requests: { cpu: "500m", memory: "1024Mi" }
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
                         },
                         persistence: { size: "7Gi" }
                     }
@@ -106,6 +106,10 @@ const resources = [
                     },
                     owncloudUsername: "admin",
                     owncloudPassword: "password",
+                    resources: {
+                        limits: { cpu: "3000m", memory: "6144Mi" },
+                        requests: { cpu: "3000m", memory: "6144Mi" }
+                    },
                     mariadb: { "enabled": false },
                     externalDatabase: {
                         host: "mariadb",
