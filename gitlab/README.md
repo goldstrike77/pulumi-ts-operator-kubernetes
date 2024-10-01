@@ -11,3 +11,5 @@ pulumi config set PSQL-PASSWORD [password] --secret
 pulumi config set AWS_ACCESS_KEY [accesskey] --secret
 pulumi config set AWS_SECRET_KEY [secreykey] --secret
 ```
+
+tj@VH9ECytRF

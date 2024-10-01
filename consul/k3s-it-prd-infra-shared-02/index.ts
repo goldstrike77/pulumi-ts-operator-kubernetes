@@ -94,10 +94,6 @@ const resources = [
                         replicas: 1,
                         storage: "7Gi",
                         storageClass: "local-path",
-                        resources: {
-                            limits: { cpu: "200m", memory: "128Mi" },
-                            requests: { cpu: "200m", memory: "128Mi" }
-                        },
                         exposeService: {
                             enabled: true
                         }

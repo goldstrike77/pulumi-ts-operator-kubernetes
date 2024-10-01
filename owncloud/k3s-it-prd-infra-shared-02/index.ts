@@ -79,10 +79,6 @@ const resources = [
                             { name: "MARIADB_COLLATE", value: "utf8mb4_general_ci" },
                             { name: "MARIADB_CHARACTER_SET", value: "utf8mb4" }
                         ],
-                        resources: {
-                            limits: { cpu: "500m", memory: "512Mi" },
-                            requests: { cpu: "500m", memory: "512Mi" }
-                        },
                         persistence: { size: "7Gi" }
                     }
                 }
@@ -106,10 +102,6 @@ const resources = [
                     },
                     owncloudUsername: "admin",
                     owncloudPassword: "password",
-                    resources: {
-                        limits: { cpu: "3000m", memory: "6144Mi" },
-                        requests: { cpu: "3000m", memory: "6144Mi" }
-                    },
                     mariadb: { "enabled": false },
                     externalDatabase: {
                         host: "mariadb",

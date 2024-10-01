@@ -7,5 +7,5 @@ config:
   demo:PSQL-PASSWORD:
     secure: v1:0MS/uz0lh+SOwmcA:fjaYjgWaloefU3xPOdOrR76xvUqGmbNe
   demo:ROOT-PASSWORD:
-    secure: v1:6W3gUC/HffXOrauc:cp6aUC/OLydA7ujx2w6RejjVIqGRi0t2
+    secure: v1:k2Uv0rraVHK0iHpx:p68Sws+D+yquxDbOPHarvfltp+5/ON2Myqj1Bg==
   kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-01
