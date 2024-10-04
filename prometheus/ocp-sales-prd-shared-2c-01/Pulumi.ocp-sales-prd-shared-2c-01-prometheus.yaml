@@ -1,5 +1,9 @@
 encryptionsalt: v1:x4jL2qYVkxY=:v1:jeIBBoKKL65VZO2m:LCIyjMt+rQ/kkzMF8IKf9BTCj8UZOw==
 config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:CFZmtHnre9/V7TJR:iGGpXv/Ap6kzDlgBOJ3O0uJrX17w
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:S13Fq+3kWVlSrO+e:Icet7ghJGvoMFkMipr9qfH81/E04/spB
   demo:OBJSTORE.YML:
     secure: v1:iPqKSz4Ov7CSF7YH:3tYPrJ+z5xc8WFLEJfknUNwgnd8z8DG4P407TT2FU0n0/gkJLekqagjwdnFaj49d+CxPxy93jEgDBSZssMsP9daEPncnTiqmMW/jpAC4AnGXVJyNQ9B3ZT9AnUn9yR12yFo/zIbG3youAS8qjnVcAGbwG3pzcU8e63AKJLCJ33dsmq7LW4ZmbiUBU6do6K9HnnsenSzdCZVOnO+12iiVDDS2KHH5+TVUmbtXOobPWpwChFdjtdH0ZTyP8uVkQc4htrRkSnPE7I1vBLVOV1zKZGWlcwkSOGlC8/3EM3idgYemIKh3BgHUKmd1UF8AnkDo8NZR/QsGZS1oOlwQcaeHKRogsfEqbs9Sxqk6HfEBVDDfK1+L4lQloNBgWhFk1XZGSwdU0iiKY76WEcRFpb7tkDaJrZOa6dbtkmlsRp8Sn+LoxtfozuplkR7ChQkGpLnUj72rzHHpd9G7Cbl7WnfIvI2AsxphfTfcV33YEA==
   kubernetes:context: kubernetes-admin@ocp-sales-prd-shared-2c-01

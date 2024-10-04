@@ -9,11 +9,6 @@ pulumi config set AWS_ACCESS_KEY_ID [string] --secret
 pulumi config set AWS_SECRET_ACCESS_KEY [string] --secret
 ```
 
-#### Openshift
-```hcl
-pulumi config set credentials-velero [string] --secret
-```
-
 #### 供应商必须支持 CSI 快照
 ```
 apiVersion: snapshot.storage.k8s.io/v1

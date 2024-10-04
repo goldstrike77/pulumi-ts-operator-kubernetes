@@ -108,7 +108,7 @@ const resources = [
                     namespace: "metallb-system"
                 },
                 spec: {
-                    interfaces: "ens192",
+                    interfaces: "br-ex",
                     addresses: ["192.168.0.110-192.168.0.119"],
                     autoAssign: true
                 }

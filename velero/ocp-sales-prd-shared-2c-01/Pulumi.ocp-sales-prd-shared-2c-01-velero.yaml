@@ -1,4 +1,8 @@
 encryptionsalt: v1:/+lbFicF+bs=:v1:2kmyOpIrVRo80cS5:rMN+NXqNoQ4X0zZu/Ytm6ZezR5/a7g==
 config:
+  demo:AWS_ACCESS_KEY_ID:
+    secure: v1:OZV57xpgDr53iuhN:33xzvp2bPZd3D28y2Lh5d8NsmLA3
+  demo:AWS_SECRET_ACCESS_KEY:
+    secure: v1:k9CcUuECEER96qTV:AOQJHNVOKWNDdTkD3iU+fRAltBLU5PTS
   demo:credentials-velero:
     secure: v1:fhrrrItAjHOriMx2:oArxKdE9h9h3q4rjIfHUgRBYEXjIToKRIptf4+T+TUdMbuUm9MvLIc/qBgBKNRFHFyR3X2xW7/cGVWPvHlwRjTKvHj9NsLyZA7Svs5vOgqA2AZdJp+EgYmV7YhaAfxfk4bav33PKb7U=

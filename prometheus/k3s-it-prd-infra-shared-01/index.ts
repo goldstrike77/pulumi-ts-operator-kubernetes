@@ -34,7 +34,18 @@ const resources = [
                 },
                 type: "Opaque",
                 data: {
-                    "objstore.yml": config.require("OBJSTORE.YML")
+                    "objstore.yml": btoa(`type: s3
+config:
+  bucket: thanos
+  endpoint: obs.home.local
+  access_key: admin
+  secret_key: password
+  insecure: false
+  http_config:
+    idle_conn_timeout: 2m
+    response_header_timeout: 5m
+    insecure_skip_verify: true
+prefix: k3s-it-prd-infra-shared-01`)
                 },
                 stringData: {}
             }

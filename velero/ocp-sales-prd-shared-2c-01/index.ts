@@ -30,7 +30,9 @@ const resources = [
                 },
                 type: "Opaque",
                 data: {
-                    "cloud": config.require("credentials-velero")
+                    "cloud": btoa(`[default]
+aws_access_key_id=${config.require("AWS_ACCESS_KEY_ID")}
+aws_secret_access_key=${config.require("AWS_SECRET_ACCESS_KEY")}`)
                 },
                 stringData: {}
             }

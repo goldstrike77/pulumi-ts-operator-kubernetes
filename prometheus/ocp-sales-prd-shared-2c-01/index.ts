@@ -42,7 +42,18 @@ const resources = [
                 },
                 type: "Opaque",
                 data: {
-                    "objstore.yml": config.require("OBJSTORE.YML")
+                    "objstore.yml": btoa(`type: s3
+config:
+  bucket: thanos
+  endpoint: obs.home.local
+  access_key: ${config.require("AWS_ACCESS_KEY_ID")}
+  secret_key: ${config.require("AWS_SECRET_ACCESS_KEY")}
+  insecure: false
+  http_config:
+    idle_conn_timeout: 2m
+    response_header_timeout: 5m
+    insecure_skip_verify: true
+prefix: ocp-sales-prd-shared-2c-01`)
                 },
                 stringData: {}
             }
@@ -256,8 +267,8 @@ const resources = [
                                     readOnly: true
                                 },
                                 {
-                                    mountPath: "/etc/prometheus/secrets/prometheus-k8s-proxy",
-                                    name: "secret-prometheus-k8s-proxy",
+                                    mountPath: "/etc/prometheus/secrets/prometheus-k8s-kube-rbac-proxy-web",
+                                    name: "secret-prometheus-k8s-kube-rbac-proxy-web",
                                     readOnly: true
                                 },
                                 {
@@ -300,10 +311,10 @@ const resources = [
                                     }
                                 },
                                 {
-                                    name: "secret-prometheus-k8s-proxy",
+                                    name: "secret-prometheus-k8s-kube-rbac-proxy-web",
                                     secret: {
                                         defaultMode: 420,
-                                        secretName: "prometheus-k8s-proxy"
+                                        secretName: "prometheus-k8s-kube-rbac-proxy-web"
                                     }
                                 },
                                 {
