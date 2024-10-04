@@ -1,7 +1,0 @@
-encryptionsalt: v1:nYJmeGni+WI=:v1:KABXe5kq3fHdEpot:dieo62KC8vtJ1b+bWmCUZl7NYOt2rA==
-config:
-  demo:adminPassword:
-    secure: v1:wdkPydP8UwwAFgAQ:AfQvo7oN3C47tB0+Th/9+NarMolWZ1vB
-  demo:client_secret:
-    secure: v1:nQkbL0RwYgrgF77I:Yars7FsfCbEiIuE4tmm1y6R5zzr0+rRJBvlt6DH6xdMOIaMmAZ3L63UUKmvl863VxK1ckkpBjo0=
-  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

@@ -168,14 +168,9 @@ const resources = [
                         ]
                     },
                     ingress: {
-                        enabled: false,
-                        ingressClassName: "nginx",
-                        annotations: {
-                            "nginx.ingress.kubernetes.io/rewrite-target": "/$1",
-                            "nginx.ingress.kubernetes.io/use-regex": "true"
-                        },
-                        path: "/grafana/?(.*)",
-                        hosts: ["norther.example.com"],
+                        enabled: true,
+                        ingressClassName: "traefik",
+                        hosts: ["grafana.home.local"],
                     },
                     resources: {
                         limits: { cpu: "200m", memory: "384Mi" },
@@ -183,7 +178,7 @@ const resources = [
                     },
                     persistence: {
                         enabled: true,
-                        storageClassName: "vsphere-san-sc",
+                        storageClassName: "local-path",
                         size: "7Gi"
                     },
                     initChownData: {
@@ -322,35 +317,6 @@ const resources = [
                     }
                 }
             }
-        ],
-        customresource: [
-            {
-                apiVersion: "apisix.apache.org/v2",
-                kind: "ApisixRoute",
-                metadata: {
-                    name: "grafana",
-                    namespace: "visualization"
-                },
-                spec: {
-                    http: [
-                        {
-                            name: "root",
-                            match: {
-                                methods: ["GET", "HEAD", "POST"],
-                                hosts: ["grafana.home.local"],
-                                paths: ["/*"]
-                            },
-                            backends: [
-                                {
-                                    serviceName: "grafana",
-                                    servicePort: 80,
-                                    resolveGranularity: "service"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            }
         ]
     }
 ]
@@ -359,4 +325,3 @@ const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: res
 const secret = new k8s_module.core.v1.Secret('Secret', { resources: resources }, { dependsOn: [namespace] });
 const configmap = new k8s_module.core.v1.ConfigMap('ConfigMap', { resources: resources }, { dependsOn: [namespace] });
 const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
-const customresource = new k8s_module.apiextensions.CustomResource('CustomResource', { resources: resources }, { dependsOn: [namespace] });

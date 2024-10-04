@@ -597,8 +597,8 @@ SOFTWARE.
                             replicas: 1,
                             logLevel: "warn",
                             resources: {
-                                limits: { cpu: "1000m", memory: "3072Mi" },
-                                requests: { cpu: "1000m", memory: "3072Mi" }
+                                limits: { cpu: "1000m", memory: "2048Mi" },
+                                requests: { cpu: "1000m", memory: "2048Mi" }
                             },
                             storageSpec: {
                                 volumeClaimTemplate: {
