@@ -71,8 +71,8 @@ const resources = [
                             repository: "docker-io/cainjector"
                         },
                         resources: {
-                            limits: { cpu: "200m", memory: "256Mi" },
-                            requests: { cpu: "200m", memory: "256Mi" }
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
                         },
                         podLabels: podlabels,
                     },

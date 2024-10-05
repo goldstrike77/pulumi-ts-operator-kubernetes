@@ -32,7 +32,10 @@ const resources = [
                         repository: "docker-io/minio",
                         tag: "2024.8.17-debian-12-r0"
                     },
-                    resourcesPreset: "large",
+                    resources: {
+                        limits: { cpu: "2000m", memory: "2048Mi" },
+                        requests: { cpu: "2000m", memory: "2048Mi" }
+                    },
                     clientImage: {
                         repository: "docker-io/minio-client",
                         tag: "2024.8.13-debian-12-r0"

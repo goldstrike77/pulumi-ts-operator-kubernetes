@@ -1,0 +1,7 @@
+encryptionsalt: v1:SHYB4/XQXE0=:v1:Olg8bmktAGvbJAZ1:2JGK41wzu8YPiPS9F3WCII976lxi5Q==
+config:
+  demo:adminPassword:
+    secure: v1:Yo7JforT06+HC3A2:xIbUIVu5aIFln+Yp9D76HHFMqe5uSSv8JjsPNA==
+  demo:skywalkingPassword:
+    secure: v1:IqURMK8xFsUe+m5q:WGlS00x0WUUcgARUjb53YwKSpkn53htk
+  kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-01

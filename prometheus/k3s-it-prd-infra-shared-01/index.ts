@@ -518,8 +518,8 @@ SOFTWARE.
                             ]
                         },
                         resources: {
-                            limits: { cpu: "200m", memory: "256Mi" },
-                            requests: { cpu: "200m", memory: "256Mi" }
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
                         },
                         image: {
                             registry: "swr.cn-east-3.myhuaweicloud.com",

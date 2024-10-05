@@ -272,6 +272,7 @@ endpoint: "http://minio.mino:9000"
                             minReplicas: 1
                         },
                         "gitlab-exporter": {
+                            enabled: false,
                             image: {
                                 repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-exporter",
                                 tag: "15.0.0"
@@ -408,6 +409,7 @@ save ""
 
                 }
             },
+            /**
             {
                 namespace: "gitlab",
                 name: "cert-manager",
@@ -451,13 +453,14 @@ save ""
                             repository: "docker-io/cainjector"
                         },
                         resources: {
-                            limits: { cpu: "200m", memory: "256Mi" },
-                            requests: { cpu: "200m", memory: "256Mi" }
+                            limits: { cpu: "100m", memory: "128Mi" },
+                            requests: { cpu: "100m", memory: "128Mi" }
                         }
                     },
                     metrics: { enabled: false }
                 }
             }
+                 */
         ]
     }
 ]
