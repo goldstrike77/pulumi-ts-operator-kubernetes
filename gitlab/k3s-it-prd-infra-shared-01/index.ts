@@ -15,7 +15,7 @@ const resources = [
                 spec: {}
             }
         ],
-        secret: [
+        secret: [,
             {
                 metadata: {
                     name: "gitlab-tls-chain",
@@ -79,6 +79,24 @@ endpoint: "http://minio.mino:9000"
   regionendpoint: "http://minio.mino:9000"
   v4auth: true
 `),
+                    "aad-openid": btoa(`name: azure_activedirectory_v2
+label: "Sign in with Microsoft Entra ID"
+args:
+  name: "azure_activedirectory_v2"
+  strategy_class: "OmniAuth::Strategies::OpenIDConnect"
+  scope: ["openid", "profile", "email"]
+  response_type: "code"
+  issuer:  "https://login.microsoftonline.com/e824e20c-c5d7-4a69-adb1-3494404763a5/v2.0"
+  client_auth_method: "query"
+  discovery: true
+  uid_field: "oid"
+  send_scope_to_token_endpoint: "false"
+  pkce: true
+  client_options:
+    identifier: "027092a0-7d25-4d32-be0f-c4969492cee9"
+    secret: "${config.require("AAD_CLIENT_SECRET")}"
+    redirect_uri: "https://gitlab.home.local/users/auth/azure_activedirectory_v2/callback"
+`)
                 },
                 stringData: {}
             }
@@ -143,6 +161,20 @@ endpoint: "http://minio.mino:9000"
                         },
                         minio: { "enabled": false },
                         appConfig: {
+                            omniauth: {
+                                enabled: false,
+                                allowSingleSignOn: ["azure_activedirectory_v2"],
+                                autoSignInWithProvider: "azure_activedirectory_v2",
+                                syncProfileFromProvider: ["azure_activedirectory_v2"],
+                                sync_profile_attributes: ["email"],
+                                blockAutoCreatedUsers: false,
+                                providers: [
+                                    {
+                                        secret: "gitlab-secret",
+                                        key: "aad-openid"
+                                    }
+                                ]
+                            },
                             lfs: {
                                 enabled: true,
                                 bucket: "gitlab-lfs-storage",

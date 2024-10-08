@@ -1,5 +1,7 @@
 encryptionsalt: v1:dxOirYyW/Q0=:v1:LkS3k2iRDldKmO0P:b2WI/vgQaFBkh3BSPIAEaIb4UbJSPQ==
 config:
+  demo:AAD_CLIENT_SECRET:
+    secure: v1:z4XwNOLWnvtGdI8+:obXr+I9gaHVVHQZsNbSSMDaZAu1xCE0nBzrF0AcKvMSHgRFiLIDlLO+PTsrE2mDC7GdF1z9Op8A=
   demo:AWS_ACCESS_KEY:
     secure: v1:mZIVHsx/F+NC3Vax:x2AbZYDAwZ89fdv/NYevCi6FEf7b
   demo:AWS_SECRET_KEY:

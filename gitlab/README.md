@@ -10,6 +10,7 @@ pulumi config set ROOT-PASSWORD [password] --secret
 pulumi config set PSQL-PASSWORD [password] --secret
 pulumi config set AWS_ACCESS_KEY [accesskey] --secret
 pulumi config set AWS_SECRET_KEY [secreykey] --secret
+pulumi config set AAD_CLIENT_SECRET [secreykey] --secret
 ```
 
 tj@VH9ECytRF
