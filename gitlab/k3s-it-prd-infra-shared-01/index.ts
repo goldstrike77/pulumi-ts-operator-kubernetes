@@ -105,12 +105,10 @@ args:
             {
                 namespace: "gitlab",
                 name: "gitlab",
-                //chart: "gitlab",
-                //repositoryOpts: {
-                //    repo: "https://charts.gitlab.io"
-                //},
-                chart: "../../_chart/gitlab-8.4.0.tgz",
-                repository: "",
+                chart: "gitlab",
+                repositoryOpts: {
+                    repo: "https://charts.gitlab.io"
+                },
                 version: "8.4.0",
                 values: {
                     global: {
@@ -138,6 +136,9 @@ args:
                         ingress: {
                             configureCertmanager: false,
                             class: "traefik",
+                            annotations: {
+                                "traefik.ingress.kubernetes.io/router.middlewares": "kube-system-redirect-to-https@kubernetescrd"
+                            },
                             tls: { enabled: false }
                         },
                         initialRootPassword: {
@@ -162,11 +163,10 @@ args:
                         minio: { "enabled": false },
                         appConfig: {
                             omniauth: {
-                                enabled: false,
+                                enabled: true,
                                 allowSingleSignOn: ["azure_activedirectory_v2"],
-                                autoSignInWithProvider: "azure_activedirectory_v2",
                                 syncProfileFromProvider: ["azure_activedirectory_v2"],
-                                sync_profile_attributes: ["email"],
+                                syncProfileAttributes: ["email"],
                                 blockAutoCreatedUsers: false,
                                 providers: [
                                     {
@@ -301,7 +301,11 @@ args:
                             }
                         },
                         webservice: {
-                            minReplicas: 1
+                            minReplicas: 1,
+                            resources: {
+                                limits: { cpu: "500m", memory: "2048Mi" },
+                                requests: { cpu: "500m", memory: "2048Mi" }
+                            }
                         },
                         "gitlab-exporter": {
                             enabled: false,
@@ -331,13 +335,14 @@ args:
                             }
                         }
                     },
+                    upgradeCheck: { enabled: false },
                     certmanager: { install: false },
                     "nginx-ingress": { "enabled": false },
                     prometheus: { "install": false },
                     redis: { "install": false },
                     postgresql: { "install": false },
                     registry: {
-                        enabled: true,
+                        enabled: false,
                         hpa: {
                             minReplicas: 1,
                             maxReplicas: 1
@@ -440,59 +445,7 @@ save ""
                     },
 
                 }
-            },
-            /**
-            {
-                namespace: "gitlab",
-                name: "cert-manager",
-                chart: "cert-manager",
-                repositoryOpts: {
-                    repo: "https://charts.bitnami.com/bitnami"
-                },
-                version: "1.3.18",
-                values: {
-                    global: {
-                        imageRegistry: "swr.cn-east-3.myhuaweicloud.com"
-                    },
-                    logLevel: 2,
-                    replicaCount: 1,
-                    installCRDs: true,
-                    controller: {
-                        image: {
-                            repository: "docker-io/cert-manager"
-                        },
-                        acmesolver: {
-                            image: {
-                                repository: "docker-io/acmesolver"
-                            }
-                        },
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        }
-                    },
-                    webhook: {
-                        image: {
-                            repository: "docker-io/cert-manager-webhook"
-                        },
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        }
-                    },
-                    cainjector: {
-                        image: {
-                            repository: "docker-io/cainjector"
-                        },
-                        resources: {
-                            limits: { cpu: "100m", memory: "128Mi" },
-                            requests: { cpu: "100m", memory: "128Mi" }
-                        }
-                    },
-                    metrics: { enabled: false }
-                }
             }
-                 */
         ]
     }
 ]
