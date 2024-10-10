@@ -57,6 +57,8 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                 },
                 type: "Opaque",
                 data: {
+                    accesskey: Buffer.from(config.require("AWS_ACCESS_KEY")).toString('base64'),
+                    secretkey: Buffer.from(config.require("AWS_SECRET_KEY")).toString('base64'),
                     "root-password": Buffer.from(config.require("ROOT-PASSWORD")).toString('base64'),
                     "psql-password": Buffer.from(config.require("PSQL-PASSWORD")).toString('base64'),
                     "storage-config": btoa(`[default]
@@ -109,9 +111,12 @@ args:
                 repositoryOpts: {
                     repo: "https://charts.gitlab.io"
                 },
-                version: "8.4.0",
+                version: "8.4.1",
                 values: {
                     global: {
+                        image: {
+                            registry: "ccr.ccs.tencentyun.com"
+                        },
                         edition: "ce",
                         hosts: {
                             domain: "home.local"
@@ -247,20 +252,17 @@ args:
                         time_zone: "PRC",
                         certificates: {
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/certificates",
-                                tag: "v17.4.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/certificates"
                             }
                         },
                         kubectl: {
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/kubectl",
-                                tag: "v17.4.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/kubectl"
                             }
                         },
                         gitlabBase: {
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-base",
-                                tag: "v17.4.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-base"
                             }
                         }
                     },
@@ -270,22 +272,25 @@ args:
                         runners: {
                             config: `[[runners]]
   [runners.kubernetes]
-  image = "swr.cn-east-3.myhuaweicloud.com/docker-io/ubuntu:22.04"
+    helper_image = "ccr.ccs.tencentyun.com/gitlab-org/gitlab-runner-helper:x86_64-v17.4.0"
+    image = "swr.cn-east-3.myhuaweicloud.com/docker-io/ubuntu:22.04"
+    namespace = "gitlab"
   [runners.cache]
     Type = "s3"
     Shared = true
     [runners.cache.s3]
-      AccessKey = "${config.require('AWS_ACCESS_KEY')}"
-      SecretKey = "${config.require('AWS_SECRET_KEY')}"
       BucketLocation = "us-east-1"
       BucketName = "gitlab-runner-cache"
       Insecure = true
-      ServerAddress = "http://minio.mino:9000"`
+      ServerAddress = "http://minio.mino:9000"
+      AuthenticationType = "access-key"`,
+                            cache: {
+                                secretName: "gitlab-secret"
+                            }
                         },
                         image: {
                             registry: "ccr.ccs.tencentyun.com",
-                            repository: "gitlab-org/gitlab-runner",
-                            tag: "alpine-v17.3.1"
+                            repository: "gitlab-org/gitlab-runner"
                         }
                     },
                     gitlab: {
@@ -310,28 +315,24 @@ args:
                         "gitlab-exporter": {
                             enabled: false,
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-exporter",
-                                tag: "15.0.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-exporter"
                             }
                         },
                         gitaly: {
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitaly",
-                                tag: "v17.4.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitaly"
                             }
                         },
                         "gitlab-shell": {
                             minReplicas: 1,
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-shell",
-                                tag: "v14.39.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-shell"
                             }
                         },
                         kas: {
                             minReplicas: 1,
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/kas",
-                                tag: "v17.4.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-kas"
                             }
                         }
                     },
@@ -353,16 +354,14 @@ args:
                             key: "registry-s3"
                         },
                         image: {
-                            repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-container-registry",
-                            tag: "v4.9.0-gitlab"
+                            repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-container-registry"
                         }
                     },
                     "shared-secrets": {
                         enabled: true,
                         selfsign: {
                             image: {
-                                repository: "ccr.ccs.tencentyun.com/gitlab-org/cfssl-self-sign",
-                                tag: "v17.4.0"
+                                repository: "ccr.ccs.tencentyun.com/gitlab-org/cfssl-self-sign"
                             }
                         }
                     },
