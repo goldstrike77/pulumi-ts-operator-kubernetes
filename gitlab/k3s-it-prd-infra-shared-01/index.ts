@@ -71,16 +71,18 @@ multipart_chunk_size_mb = 128
 region: us-east-1
 aws_access_key_id: ${config.require("AWS_ACCESS_KEY")}
 aws_secret_access_key: ${config.require("AWS_SECRET_KEY")}
-endpoint: "http://minio.mino:9000"
-`),
+aws_signature_version: 4
+host: minio.minio
+endpoint: "http://minio.minio:9000"
+path_style: true`),
                     "registry-s3": btoa(`s3:
+  v4auth: true
+  regionendpoint: "http://minio.minio:9000"
+  pathstyle: true
+  region: us-east-1
   bucket: gitlab-registry-storage
   accesskey: ${config.require("AWS_ACCESS_KEY")}
-  secretkey: ${config.require("AWS_SECRET_KEY")}
-  region: us-east-1
-  regionendpoint: "http://minio.mino:9000"
-  v4auth: true
-`),
+  secretkey: ${config.require("AWS_SECRET_KEY")}`),
                     "aad-openid": btoa(`name: azure_activedirectory_v2
 label: "Sign in with Microsoft Entra ID"
 args:
@@ -166,6 +168,9 @@ args:
                             host: "redis-master"
                         },
                         minio: { "enabled": false },
+                        shell: {
+                            port: 2022
+                        },
                         appConfig: {
                             omniauth: {
                                 enabled: true,
@@ -275,14 +280,18 @@ args:
     helper_image = "ccr.ccs.tencentyun.com/gitlab-org/gitlab-runner-helper:x86_64-v17.4.0"
     image = "swr.cn-east-3.myhuaweicloud.com/docker-io/ubuntu:22.04"
     namespace = "gitlab"
+    [[runners.kubernetes.volumes.secret]]
+       name = "gitlab-tls-chain"
+       mount_path = "/etc/gitlab-runner/certs/"
   [runners.cache]
     Type = "s3"
-    Shared = true
+    Path = ""
+    Shared = false
     [runners.cache.s3]
       BucketLocation = "us-east-1"
       BucketName = "gitlab-runner-cache"
       Insecure = true
-      ServerAddress = "http://minio.mino:9000"
+      ServerAddress = "http://minio.minio:9000"
       AuthenticationType = "access-key"`,
                             cache: {
                                 secretName: "gitlab-secret"
@@ -327,6 +336,9 @@ args:
                             minReplicas: 1,
                             image: {
                                 repository: "ccr.ccs.tencentyun.com/gitlab-org/gitlab-shell"
+                            },
+                            service: {
+                                type: "LoadBalancer"
                             }
                         },
                         kas: {
@@ -343,7 +355,7 @@ args:
                     redis: { "install": false },
                     postgresql: { "install": false },
                     registry: {
-                        enabled: false,
+                        enabled: true,
                         hpa: {
                             minReplicas: 1,
                             maxReplicas: 1
