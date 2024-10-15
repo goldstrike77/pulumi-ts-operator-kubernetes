@@ -1,0 +1,106 @@
+import * as pulumi from "@pulumi/pulumi";
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
+
+let config = new pulumi.Config();
+
+const resources = [
+    {
+        namespace: [
+            {
+                metadata: {
+                    name: "gitea",
+                    annotations: {},
+                    labels: {}
+                },
+                spec: {}
+            }
+        ],
+        release: [
+            {
+                namespace: "gitea",
+                name: "gitea",
+                chart: "gitea",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
+                },
+                version: "3.0.1",
+                values: {
+                    global: {
+                        imageRegistry: "swr.cn-east-3.myhuaweicloud.com",
+                        defaultStorageClass: "local-path"
+                    },
+                    image: {
+                        repository: "docker-io/gitea",
+                        tag: "1.22.2-debian-12-r3"
+                    },
+                    adminUsername: "admin",
+                    adminPassword: config.require("ADMIN-PASSWORD"),
+                    extraEnvVars: [
+                        {
+                            name: "BITNAMI_DEBUG",
+                            value: "true"
+                        }
+                    ],
+                    exposeSSH: false,
+                    persistence: { size: "7Gi" },
+                    service: { type: "ClusterIP" },
+                    ingress: {
+                        enabled: true,
+                        ingressClassName: "traefik",
+                        hostname: "gitea.home.local"
+                    },
+                    postgresql: { enabled: false },
+                    externalDatabase: {
+                        host: "postgresql",
+                        user: "gitea",
+                        database: "gitea",
+                        password: config.require("PSQL-PASSWORD"),
+                    }
+                }
+            },
+            {
+                namespace: "gitea",
+                name: "postgresql",
+                chart: "postgresql",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
+                },
+                version: "15.5.34",
+                values: {
+                    global: {
+                        imageRegistry: "swr.cn-east-3.myhuaweicloud.com",
+                        defaultStorageClass: "local-path"
+                    },
+                    image: {
+                        repository: "docker-io/postgresql",
+                        tag: "16.4.0-debian-12-r11"
+                    },
+                    auth: {
+                        enablePostgresUser: true,
+                        postgresPassword: config.require("PSQL-PASSWORD"),
+                        username: "gitea",
+                        password: config.require("PSQL-PASSWORD"),
+                        database: "gitea"
+                    },
+                    architecture: "standalone",
+                    shmVolume: {
+                        enabled: true,
+                        sizeLimit: "1Gi"
+                    },
+                    primary: {
+                        name: "primary",
+                        resources: {
+                            limits: { cpu: "500m", memory: "512Mi" },
+                            requests: { cpu: "500m", memory: "512Mi" }
+                        },
+                        persistence: { size: "7Gi" }
+                    },
+
+                }
+            }
+        ]
+    }
+]
+
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [namespace] });
