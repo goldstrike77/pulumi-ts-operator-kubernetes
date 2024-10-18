@@ -1,0 +1,3 @@
+encryptionsalt: v1:iaGvbVoqxJI=:v1:1v+O5zUIoOGM8wZ7:XBwocWycdi44GM9ejdQsp7REfkeMGw==
+config:
+  kubernetes:context: kubernetes-admin@k3s-it-prd-infra-shared-02
