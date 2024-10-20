@@ -40,6 +40,8 @@ web:
 uplinks:
   npmjs:
     url: https://registry.npmmirror.com/
+    cache: true
+    maxage: 60m
     agent_options:
       keepAlive: true
       maxSockets: 40
