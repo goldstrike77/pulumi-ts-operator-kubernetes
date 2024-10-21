@@ -37,6 +37,10 @@ const resources = [
 web:
   enable: true
   title: Verdaccio
+auth:
+  htpasswd:
+    file: /verdaccio/storage/htpasswd
+    max_users: -1
 uplinks:
   npmjs:
     url: https://registry.npmmirror.com/
@@ -63,6 +67,14 @@ log: {type: stdout, format: pretty, level: error}`,
                         enabled: true,
                         storageClass: "local-path",
                         size: "13Gi"
+                    },
+                    secrets: {
+                        htpasswd: [
+                            {
+                                username: "empty",
+                                password: "password"
+                            }
+                        ]
                     },
                     cachingNginx: {
                         enabled: true,
