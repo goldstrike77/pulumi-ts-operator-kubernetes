@@ -43,7 +43,7 @@ auth:
     max_users: -1
 uplinks:
   npmjs:
-    url: https://registry.npmmirror.com/
+    url: https://mirrors.huaweicloud.com/repository/npm/
     cache: true
     maxage: 60m
     agent_options:
