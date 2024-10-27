@@ -285,13 +285,13 @@ args:
        mount_path = "/etc/gitlab-runner/certs/"
   [runners.cache]
     Type = "s3"
-    Path = ""
-    Shared = false
+    Path = "/"
+    Shared = true
     [runners.cache.s3]
       BucketLocation = "us-east-1"
       BucketName = "gitlab-runner-cache"
       Insecure = true
-      ServerAddress = "http://minio.minio:9000"
+      ServerAddress = "obs.home.local"
       AuthenticationType = "access-key"`,
                             cache: {
                                 secretName: "gitlab-secret"
