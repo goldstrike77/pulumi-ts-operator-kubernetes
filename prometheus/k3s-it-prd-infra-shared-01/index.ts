@@ -54,10 +54,7 @@ prefix: k3s-it-prd-infra-shared-01`)
             {
                 namespace: "monitoring",
                 name: "kube-prometheus-stack",
-                chart: "kube-prometheus-stack",
-                repositoryOpts: {
-                    repo: "https://prometheus-community.github.io/helm-charts"
-                },
+                chart: "oci://harbor.home.local/helm-charts/kube-prometheus-stack",
                 version: "60.4.0",
                 values: {
                     fullnameOverride: "kubepromstack",
@@ -728,10 +725,7 @@ SOFTWARE.
             {
                 namespace: "monitoring",
                 name: "thanos",
-                chart: "thanos",
-                repositoryOpts: {
-                    repo: "https://charts.bitnami.com/bitnami"
-                },
+                chart: "oci://harbor.home.local/helm-charts/thanos",
                 version: "15.7.10",
                 values: {
                     image:
@@ -919,10 +913,7 @@ config:
             {
                 namespace: "monitoring",
                 name: "prometheus-blackbox-exporter",
-                chart: "prometheus-blackbox-exporter",
-                repositoryOpts: {
-                    repo: "https://prometheus-community.github.io/helm-charts"
-                },
+                chart: "oci://harbor.home.local/helm-charts/prometheus-blackbox-exporter",
                 version: "8.17.0",
                 values: {
                     fullnameOverride: "blackbox-exporter",
@@ -1012,10 +1003,7 @@ config:
             {
                 namespace: "monitoring",
                 name: "redis",
-                chart: "redis",
-                repositoryOpts: {
-                    repo: "https://charts.bitnami.com/bitnami"
-                },
+                chart: "oci://harbor.home.local/helm-charts/redis",
                 version: "19.6.0",
                 values: {
                     architecture: "standalone",
