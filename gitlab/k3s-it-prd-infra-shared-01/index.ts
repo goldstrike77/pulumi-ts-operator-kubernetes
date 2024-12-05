@@ -280,6 +280,7 @@ args:
     helper_image = "ccr.ccs.tencentyun.com/gitlab-org/gitlab-runner-helper:x86_64-v17.4.0"
     image = "swr.cn-east-3.myhuaweicloud.com/docker-io/ubuntu:22.04"
     namespace = "gitlab"
+    privileged = true
     [[runners.kubernetes.volumes.secret]]
        name = "gitlab-tls-chain"
        mount_path = "/etc/gitlab-runner/certs/"
