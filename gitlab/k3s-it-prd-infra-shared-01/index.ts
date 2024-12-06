@@ -282,8 +282,12 @@ args:
     namespace = "gitlab"
     privileged = true
     [[runners.kubernetes.volumes.secret]]
-       name = "gitlab-tls-chain"
-       mount_path = "/etc/gitlab-runner/certs/"
+      name = "gitlab-tls-chain"
+      mount_path = "/etc/gitlab-runner/certs/"
+    [[runners.kubernetes.volumes.empty_dir]]
+      name = "docker-certs"
+      mount_path = "/certs/client"
+      medium = "Memory"
   [runners.cache]
     Type = "s3"
     Path = "/"
