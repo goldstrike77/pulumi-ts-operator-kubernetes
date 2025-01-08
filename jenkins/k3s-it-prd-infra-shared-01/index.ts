@@ -1,6 +1,15 @@
 import * as pulumi from "@pulumi/pulumi";
-import * as k8s from "@pulumi/kubernetes";
+import * as k8s_module from '../../../../module/pulumi-ts-module-kubernetes';
 import * as random from "@pulumi/random";
+
+const labels = {
+    customer: "it",
+    environment: "prd",
+    project: "CICD",
+    group: "Jenkins",
+    datacenter: "cn-north",
+    domain: "local"
+}
 
 // Generate random minutes from 10 to 59.
 const minutes = new random.RandomInteger("minutes", {
@@ -18,7 +27,7 @@ const hours = new random.RandomInteger("hours", {
 
 let config = new pulumi.Config();
 
-const deploy_spec = [
+const resources = [
     {
         namespace: {
             metadata: {
@@ -33,13 +42,18 @@ const deploy_spec = [
             namespace: "jenkins",
             name: "jenkins",
             chart: "jenkins",
-            repository: "https://charts.jenkins.io",
-            version: "4.5.0",
+            repositoryOpts: {
+                repo: "https://charts.jenkins.io"
+            },
+            version: "5.8.1",
             values: {
                 controller: {
-                    image: "registry.cn-shanghai.aliyuncs.com/goldenimage/jenkins",
-                    tag: "2.401.3-jdk11",
-                    imagePullPolicy: "IfNotPresent",
+                    image: {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/jenkins",
+                        tag: "2.479.2-jdk17",
+                        pullPolicy: "IfNotPresent"
+                    },
                     numExecutors: 1,
                     adminUser: "admin",
                     adminPassword: config.require("adminPassword"),
@@ -52,11 +66,10 @@ const deploy_spec = [
                         { name: "JENKINS_UC", value: "https://mirrors.aliyun.com/jenkins/updates/stable/update-center.json" },
                         { name: "JENKINS_UC_EXPERIMENTAL", value: "https://mirrors.aliyun.com/jenkins/updates/experimental/update-center.json" }
                     ],
-                    podLabels: { customer: "demo", environment: "dev", project: "CICD", group: "Jenkins", datacenter: "dc01", domain: "local" },
+                    podLabels: labels,
                     javaOpts: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=80 -server -Djenkins.install.runSetupWizard=false -Dhudson.model.ParametersAction.keepUndefinedParameters=true",
                     jenkinsUrlProtocol: "https",
-                    jenkinsUrl: "https://norther.example.com/jenkins/",
-                    jenkinsUriPrefix: "/jenkins",
+                    jenkinsUrl: "https://jenkins.home.local",
                     installPlugins: [
                         "active-directory:2.30",
                         "cloudbees-disk-usage-simple:178.v1a_4d2f6359a_8",
@@ -100,9 +113,8 @@ const deploy_spec = [
                     },
                     ingress: {
                         enabled: true,
-                        ingressClassName: "nginx",
-                        path: "/jenkins",
-                        hostName: "norther.example.com",
+                        ingressClassName: "traefik",
+                        hostName: "jenkins.home.local",
                         annotations: {
                             "nginx.ingress.kubernetes.io/proxy-body-size": "10m"
                         }
@@ -127,7 +139,7 @@ const deploy_spec = [
                         requests: { cpu: "500m", memory: "512Mi" }
                     }
                 },
-                persistence: { enabled: true, storageClass: "longhorn", size: "8Gi" },
+                persistence: { enabled: true, storageClass: "local-path", size: "8Gi" },
                 backup: {
                     enabled: true,
                     schedule: pulumi.interpolate`${minutes.result} ${hours.result} * * *`,
@@ -138,7 +150,7 @@ const deploy_spec = [
                         { name: "AWS_REGION", value: "us-east-1" },
                         { name: "AWS_S3_NO_SSL", value: "true" },
                         { name: "AWS_S3_FORCE_PATH_STYLE", value: "true" },
-                        { name: "AWS_S3_ENDPOINT", value: "http://minio.minio.svc.cluster.local:9000" }
+                        { name: "AWS_S3_ENDPOINT", value: "http://obs.home.local" }
                     ],
                     resources: {
                         limits: { cpu: "500m", memory: "1024Mi" },
@@ -152,22 +164,5 @@ const deploy_spec = [
     }
 ]
 
-for (var i in deploy_spec) {
-    // Create Kubernetes Namespace.
-    const namespace = new k8s.core.v1.Namespace(deploy_spec[i].namespace.metadata.name, {
-        metadata: deploy_spec[i].namespace.metadata,
-        spec: deploy_spec[i].namespace.spec
-    });
-    // Create Release Resource.
-    const release = new k8s.helm.v3.Release(deploy_spec[i].helm.name, {
-        namespace: deploy_spec[i].helm.namespace,
-        name: deploy_spec[i].helm.name,
-        chart: deploy_spec[i].helm.chart,
-        version: deploy_spec[i].helm.version,
-        values: deploy_spec[i].helm.values,
-        skipAwait: true,
-        repositoryOpts: {
-            repo: deploy_spec[i].helm.repository,
-        },
-    }, { dependsOn: [namespace] });
-}
+const namespace = new k8s_module.core.v1.Namespace('Namespace', { resources: resources })
+const release = new k8s_module.helm.v3.Release('Release', { resources: resources }, { dependsOn: [secret] });
