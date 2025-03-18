@@ -19,7 +19,7 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://helm.cilium.io"
                 },
-                version: "1.15.6",
+                version: "1.17.2",
                 values: {
                     k8sServiceHost: "192.168.0.151",
                     k8sServicePort: "6443",
@@ -33,14 +33,14 @@ const resources = [
                     },
                     image: {
                         repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/cilium",
-                        tag: "v1.15.6",
+                        tag: "v1.17.2",
                         pullPolicy: "IfNotPresent",
                         useDigest: false
                     },
                     podLabels: labels,
                     resources: {
-                        limits: { cpu: "200m", memory: "256Mi" },
-                        requests: { cpu: "200m", memory: "256Mi" }
+                        limits: { cpu: "200m", memory: "512Mi" },
+                        requests: { cpu: "200m", memory: "512Mi" }
                     },
                     bpf: {
                         masquerade: true
@@ -53,20 +53,19 @@ const resources = [
                             enabled: ["dns:query;ignoreAAAA", "drop", "tcp", "flow", "icmp", "http"],
                             enableOpenMetrics: true,
                             serviceMonitor: {
-                                enabled: false,
-                                relabelings: []
+                                enabled: false
                             },
-                            dashboards: { 
+                            dashboards: {
                                 enabled: false,
                                 namespace: "visualization"
 
-                             }
+                            }
                         },
                         relay: {
                             enabled: true,
                             image: {
                                 repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/hubble-relay",
-                                tag: "v1.15.6",
+                                tag: "v1.17.2",
                                 useDigest: false,
                                 pullPolicy: "IfNotPresent"
                             },
@@ -79,8 +78,7 @@ const resources = [
                             prometheus: {
                                 enabled: false,
                                 serviceMonitor: {
-                                    enabled: false,
-                                    relabelings: []
+                                    enabled: false
                                 }
                             }
                         }
@@ -104,13 +102,7 @@ const resources = [
                         enabled: false,
                         serviceMonitor: {
                             enabled: false,
-                            interval: "10s",
-                            relabelings: []
-                        }
-                    },
-                    proxy: {
-                        prometheus: {
-                            enabled: false
+                            interval: "10s"
                         }
                     },
                     envoy: {
@@ -120,8 +112,8 @@ const resources = [
                         enabled: true,
                         image: {
                             repository: "swr.cn-east-3.myhuaweicloud.com/quay-io/operator",
-                            tag: "v1.15.6",
-                            genericDigest: "sha256:3d1117e41e246ab4e5d8d69670d36abf376c1254e1852f6b2638340652739572",
+                            tag: "v1.17.2",
+                            genericDigest: "sha256:dfe60fae39b1a5462abc568cbb8458e1af4375af5a6f60868402236f914460f8",
                             useDigest: true,
                             pullPolicy: "IfNotPresent"
                         },
@@ -135,8 +127,7 @@ const resources = [
                             enabled: false,
                             serviceMonitor: {
                                 enabled: false,
-                                interval: "60s",
-                                relabelings: []
+                                interval: "60s"
                             }
                         }
                     }

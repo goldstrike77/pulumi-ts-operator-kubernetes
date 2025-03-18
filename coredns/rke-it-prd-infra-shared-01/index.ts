@@ -19,7 +19,7 @@ const resources = [
         repositoryOpts: {
           repo: "https://coredns.github.io/helm"
         },
-        version: "1.32.0",
+        version: "1.39.1",
         values: {
           image: {
             repository: "swr.cn-east-3.myhuaweicloud.com/docker-io/coredns"

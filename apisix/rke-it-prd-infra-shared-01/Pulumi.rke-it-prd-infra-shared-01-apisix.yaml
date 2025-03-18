@@ -1,0 +1,11 @@
+encryptionsalt: v1:wQy9TB1aJ7I=:v1:IpxfekethlRbVqSL:VByRCHZnPvTzHWXRDwefrSC4hyHNxw==
+config:
+  demo:adminCredentials:
+    secure: v1:ugaTQtVap+gBAfgQ:TE1z7CZVEyw2fHYnogomYIJeXqzaGgyN
+  demo:dashboardPassword:
+    secure: v1:NpeCeUDyQY8sw12V:ZyvEiPyMruPbOfZL4g5iZ1poynIManyh
+  demo:etcdPassword:
+    secure: v1:XlUmjwrhRp6JbvQ3:XREu4VUsyXlbPNNHmjZ0Y/GFBty9jUdy
+  demo:viewerCredentials:
+    secure: v1:q3IQ2QBpJiakT0lc:umzsN3oouuYxAieEcOS0AKQvz1+iFrJA
+  kubernetes:context: kubernetes-admin@rke-it-prd-infra-shared-01

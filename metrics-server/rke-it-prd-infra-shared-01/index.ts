@@ -30,9 +30,12 @@ const resources = [
                 repositoryOpts: {
                     repo: "https://kubernetes-sigs.github.io/metrics-server"
                 },
-                version: "3.12.1",
+                version: "3.12.2",
                 values: {
-                    image: { repository: "swr.cn-east-3.myhuaweicloud.com/gcr-io/metrics-server", tag: "v0.7.1" },
+                    image: {
+                        repository: "swr.cn-east-3.myhuaweicloud.com/gcr-io/metrics-server",
+                        tag: "v0.7.2"
+                    },
                     podLabels: podlabels,
                     defaultArgs: [
                         "--cert-dir=/tmp",
