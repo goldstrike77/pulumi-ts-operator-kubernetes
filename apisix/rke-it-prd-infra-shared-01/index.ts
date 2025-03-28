@@ -211,7 +211,6 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                         limits: { cpu: "300m", memory: "1024Mi" },
                         requests: { cpu: "300m", memory: "1024Mi" }
                     },
-                    nodeSelector: {},
                     timezone: "Asia/Shanghai",
                     fullnameOverride: "apisix-gateway",
                     serviceAccount: { create: true },
@@ -233,6 +232,9 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                             credentials: {
                                 admin: config.require("adminCredentials"),
                                 viewer: config.require("viewerCredentials")
+                            },
+                            allow: {
+                                ipList: ["127.0.0.1/24", "10.42.0.0/16"]
                             }
                         },
                         nginx: {
@@ -246,19 +248,12 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                             enabled: true,
                             registry: {
                                 kubernetes: {},
-                                dns: { servers: ["172.30.0.10:53"] }
+                                dns: { servers: ["10.43.0.10:53"] }
                             }
                         },
                         prometheus: { enabled: true },
                         plugins: ["ai", "api-breaker", "authz-casbin", "authz-casdoor", "authz-keycloak", "aws-lambda", "azure-functions", "basic-auth", "batch-requests", "body-transformer", "cas-auth", "clickhouse-logger", "client-control", "consumer-restriction", "cors", "csrf", "datadog", "degraphql", "dubbo-proxy", "echo", "elasticsearch-logger", "example-plugin", "ext-plugin-post-req", "ext-plugin-post-resp", "ext-plugin-pre-req", "fault-injection", "file-logger", "forward-auth", "google-cloud-logging", "grpc-transcode", "grpc-web", "gzip", "hmac-auth", "http-logger", "inspect", "ip-restriction", "jwt-auth", "kafka-logger", "kafka-proxy", "key-auth", "ldap-auth", "limit-conn", "limit-count", "limit-req", "loggly", "log-rotate", "mocking", "node-status", "opa", "openfunction", "openid-connect", "opentelemetry", "openwhisk", "prometheus", "proxy-cache", "proxy-control", "proxy-mirror", "proxy-rewrite", "public-api", "real-ip", "redirect", "referer-restriction", "request-id", "request-validation", "response-rewrite", "rocketmq-logger", "server-info", "serverless-post-function", "serverless-pre-function", "skywalking", "skywalking-logger", "sls-logger", "splunk-hec-logging", "syslog", "tcp-logger", "tencent-cloud-cls", "traffic-split", "ua-restriction", "udp-logger", "uri-blocker", "wolf-rbac", "workflow", "zipkin"],
-                        pluginAttrs: {
-                            skywalking: {
-                                service_name: "demo::APISIX",
-                                service_instance_name: "$hostname",
-                                "endpoint_addr": "http://192.168.0.103:12800",
-                                report_interval: 15
-                            }
-                        }
+                        pluginAttrs: {}
                     },
                     externalEtcd: {
                         host: ["http://apisix-etcd-headless:2379"],
@@ -283,10 +278,10 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                                 },
                                 log: {
                                     errorLog: {
-                                        level: "warn"
+                                        level: "info"
                                     },
                                     accessLog: {
-                                        level: "warn"
+                                        level: "info"
                                     }
                                 }
                             },
@@ -306,8 +301,7 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                         resources: {
                             limits: { cpu: "300m", memory: "128Mi" },
                             requests: { cpu: "300m", memory: "128Mi" }
-                        },
-                        nodeSelector: {}
+                        }
                     },
                     "ingress-controller": { enabled: false }
                 }
@@ -328,7 +322,7 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                         tag: "1.8.0"
                     },
                     config: {
-                        logLevel: "error",
+                        logLevel: "info",
                         apisix: {
                             serviceName: "apisix-gateway-admin",
                             serviceNamespace: "apisix",
@@ -521,10 +515,6 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                 },
                 spec: {
                     monitoring: {
-                        skywalking: {
-                            enable: true,
-                            sampleRatio: 1
-                        },
                         prometheus: {
                             enable: true,
                             prefer_name: true
@@ -556,48 +546,6 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                 },
                 spec: {
                     plugins: [
-                        {
-                            name: "udp-logger",
-                            enable: true,
-                            config: {
-                                host: "192.168.0.104",
-                                port: 1514,
-                                batch_max_size: 1,
-                                name: "udp logger",
-                                log_format: {
-                                    "@timestamp": "$time_iso8601",
-                                    "upstream_response_time": "$upstream_response_time",
-                                    "upstream_header_time": "$upstream_header_time",
-                                    "upstream_connect_time": "$upstream_connect_time",
-                                    "route_name": "$route_name",
-                                    "remote_addr": "$remote_addr",
-                                    "body_bytes_sent": "$body_bytes_sent",
-                                    "host": "$host",
-                                    "http_referer": "$http_referer",
-                                    "http_user_agent": "$http_user_agent",
-                                    "request_uri": "$request_uri",
-                                    "request_length": "$request_length",
-                                    "request_method": "$request_method",
-                                    "request_time": "$request_time",
-                                    "status": "$status",
-                                    "scheme": "$scheme",
-                                    "server_port": "$server_port",
-                                    "server_protocol": "$server_protocol",
-                                    "ssl_cipher": "$ssl_cipher",
-                                    "ssl_protocol": "$ssl_protocol",
-                                    "upstream_addr": "$upstream_addr"
-                                }
-                            }
-                        },
-                        {
-                            name: "skywalking-logger",
-                            enable: true,
-                            config: {
-                                endpoint_addr: "http://192.168.0.103:12800",
-                                service_name: "demo::APISIX",
-                                service_instance_name: "$hostname"
-                            }
-                        },
                         {
                             name: "real-ip",
                             enable: true,
