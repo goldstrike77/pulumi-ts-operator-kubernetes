@@ -208,8 +208,8 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                     },
                     replicaCount: 1,
                     resources: {
-                        limits: { cpu: "300m", memory: "1024Mi" },
-                        requests: { cpu: "300m", memory: "1024Mi" }
+                        limits: { cpu: "1000m", memory: "1024Mi" },
+                        requests: { cpu: "1000m", memory: "1024Mi" }
                     },
                     timezone: "Asia/Shanghai",
                     fullnameOverride: "apisix-gateway",
