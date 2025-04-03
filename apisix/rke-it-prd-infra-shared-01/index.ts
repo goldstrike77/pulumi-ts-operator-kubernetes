@@ -253,7 +253,22 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                         },
                         prometheus: { enabled: true },
                         plugins: ["ai", "api-breaker", "authz-casbin", "authz-casdoor", "authz-keycloak", "aws-lambda", "azure-functions", "basic-auth", "batch-requests", "body-transformer", "cas-auth", "clickhouse-logger", "client-control", "consumer-restriction", "cors", "csrf", "datadog", "degraphql", "dubbo-proxy", "echo", "elasticsearch-logger", "example-plugin", "ext-plugin-post-req", "ext-plugin-post-resp", "ext-plugin-pre-req", "fault-injection", "file-logger", "forward-auth", "google-cloud-logging", "grpc-transcode", "grpc-web", "gzip", "hmac-auth", "http-logger", "inspect", "ip-restriction", "jwt-auth", "kafka-logger", "kafka-proxy", "key-auth", "ldap-auth", "limit-conn", "limit-count", "limit-req", "loggly", "log-rotate", "mocking", "node-status", "opa", "openfunction", "openid-connect", "opentelemetry", "openwhisk", "prometheus", "proxy-cache", "proxy-control", "proxy-mirror", "proxy-rewrite", "public-api", "real-ip", "redirect", "referer-restriction", "request-id", "request-validation", "response-rewrite", "rocketmq-logger", "server-info", "serverless-post-function", "serverless-pre-function", "skywalking", "skywalking-logger", "sls-logger", "splunk-hec-logging", "syslog", "tcp-logger", "tencent-cloud-cls", "traffic-split", "ua-restriction", "udp-logger", "uri-blocker", "wolf-rbac", "workflow", "zipkin"],
-                        pluginAttrs: {}
+                        pluginAttrs: {
+                            opentelemetry: {
+                                collector: {
+                                    address: "http://opentelemetry-collector.monitoring:4318",
+                                    request_timeout: 3
+                                },
+                                 batch_span_processor: {
+                                    drop_on_queue_full: false,
+                                    max_queue_size: 1024,
+                                    batch_timeout: 2,
+                                    inactive_timeout: 1,
+                                    max_export_batch_size: 16
+                                },
+                                set_ngx_var: false
+                            }
+                        }
                     },
                     externalEtcd: {
                         host: ["http://apisix-etcd-headless:2379"],
