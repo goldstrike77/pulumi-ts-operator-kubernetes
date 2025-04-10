@@ -215,9 +215,16 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                     fullnameOverride: "apisix-gateway",
                     serviceAccount: { create: true },
                     rbac: { create: true },
+                    autoscaling: {
+                        enabled: true,
+                        minReplicas: 4,
+                        maxReplicas: 6,
+                        targetCPUUtilizationPercentage: 90,
+                        targetMemoryUtilizationPercentage: 90
+                    },
                     service: {
                         type: "LoadBalancer",
-                        externalTrafficPolicy: "Local"
+                        externalTrafficPolicy: "Cluster"
                     },
                     metrics: {
                         serviceMonitor: {
@@ -429,6 +436,78 @@ YB2cjNpMuRLjcS6Ge5rABpyAFYoTThXv
                         prometheusRule: {
                             enabled: false,
                             rules: []
+                        }
+                    }
+                }
+            },
+            {
+                namespace: "apisix",
+                name: "redis",
+                chart: "redis",
+                repositoryOpts: {
+                    repo: "https://charts.bitnami.com/bitnami"
+                },
+                version: "19.6.0",
+                values: {
+                    architecture: "standalone",
+                    image: {
+                        registry: "swr.cn-east-3.myhuaweicloud.com",
+                        repository: "docker-io/redis",
+                        tag: "7.2.5-debian-12-r0"
+                    },
+                    auth: { enabled: false, sentinel: false },
+                    commonConfiguration: `appendonly no
+maxmemory 64mb
+tcp-keepalive 60
+tcp-backlog 8192
+maxclients 1000
+bind 0.0.0.0
+save ""`,
+                    master: {
+                        resources: {
+                            limits: { cpu: "300m", memory: "128Mi" },
+                            requests: { cpu: "300m", memory: "128Mi" }
+                        },
+                        podLabels: podlabels,
+                        podSecurityContext: { sysctls: [{ name: "net.core.somaxconn", value: "8192" }] },
+                        persistence: { enabled: false }
+                    },
+                    metrics: {
+                        enabled: false,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/redis-exporter",
+                            tag: "1.61.0-debian-12-r0"
+                        },
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
+                        },
+                        podLabels: podlabels,
+                        serviceMonitor: {
+                            enabled: false,
+                            interval: "60s",
+                            relabellings: [
+                                { sourceLabels: ["__meta_kubernetes_pod_name"], separator: ";", regex: "^(.*)$", targetLabel: "instance", replacement: "$1", action: "replace" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_customer"], targetLabel: "customer" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_environment"], targetLabel: "environment" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_project"], targetLabel: "project" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_group"], targetLabel: "group" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_datacenter"], targetLabel: "datacenter" },
+                                { sourceLabels: ["__meta_kubernetes_pod_label_domain"], targetLabel: "domain" }
+                            ]
+                        }
+                    },
+                    sysctl: {
+                        enabled: true,
+                        image: {
+                            registry: "swr.cn-east-3.myhuaweicloud.com",
+                            repository: "docker-io/os-shell",
+                            tag: "12-debian-12-r22"
+                        },
+                        resources: {
+                            limits: { cpu: "100m", memory: "64Mi" },
+                            requests: { cpu: "100m", memory: "64Mi" }
                         }
                     }
                 }
