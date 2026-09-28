@@ -45,6 +45,14 @@ const resources = [
                             repository: "registry.cn-shanghai.aliyuncs.com/goldenimage/node-feature-discovery",
                             tag: "v0.19.0"
                         }
+                    },
+                    toolkit: {
+                        env: [
+                            {
+                                name: "CONTAINERD_SOCKET",
+                                value: "/run/k3s/containerd/containerd.sock"
+                            }
+                        ]
                     }
                 }
             }
